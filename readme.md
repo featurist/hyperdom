@@ -184,6 +184,53 @@ plastiq.attach(document.body, render, {
 });
 ```
 
+## Components and Controllers
+
+Plastiq doesn't really have components as in React or directives as in AngularJS, nor does it have first class controllers. Instead the `render` functions can contain "controller" logic by responding to events, and the page can be broken down into reusable sections by extracting `render` functions that operate on different parts of the model. It's refreshingly simple, and uses normal JavaScript abstractions like functions and objects.
+
+Here we have a `render` function that contains an `addPerson` function that adds a person when the `add` button is clicked.
+
+We also render several people using the `renderPerson` function, containing a `deletePerson` function to delete the person when the `delete` button is clicked.
+
+    function render(page) {
+      function addPerson() {
+        page.people.push({name: "somebody"});
+      }
+
+      return h('div.content',
+        h('h1', 'People'),
+        h('ol',
+          page.people.map(function (person) {
+            return renderPerson(page, person);
+          })
+        ),
+        h('button', {onclick: addPerson}, 'add')
+      );
+    }
+
+    function renderPerson(page, person) {
+      function deletePerson() {
+        var i = page.people.indexOf(person);
+
+        if (i >= 0) {
+          page.people.splice(i, 1);
+        }
+      }
+
+      return h('li',
+        h('input', {model: bind(person, 'name')}),
+        h('button', {onclick: deletePerson}, 'delete')
+      )
+    }
+
+    plastiq.attach(document.body, render, {
+      people: [
+        {name: 'Åke'},
+        {name: 'آمر'},
+        {name: '正'}
+      ]
+    });
+
 ## Animations
 
 An event handler can return a function that is passed a `render` function that can be called to re-render the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
