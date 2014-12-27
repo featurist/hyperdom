@@ -215,7 +215,7 @@ Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 ## `plastiq.html`
 
 ```JavaScript
-var vdomFragment = plastic.html(selector, [attributes], children, ...)
+var vdomFragment = plastiq.html(selector, [attributes], children, ...)
 ```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
