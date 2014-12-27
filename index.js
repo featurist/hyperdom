@@ -46,7 +46,9 @@ function refreshFunction(fn) {
 
   return function () {
     var result = fn.apply(undefined, arguments);
-    if (result && typeof(result.then) == 'function') {
+    if (result && typeof(result) == 'function') {
+      result(r);
+    } else if (result && typeof(result.then) == 'function') {
       result.then(r, r);
     } else {
       r();

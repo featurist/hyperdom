@@ -144,7 +144,7 @@ describe('plastiq', function () {
     it('can render several frames of an animation', function () {
       function render(model) {
         function startOperation() {
-          return h.animation(function (render) {
+          return function (render) {
             setTimeout(function () {
               model.progress = 'one';
               render();
@@ -161,7 +161,7 @@ describe('plastiq', function () {
                 }, 20);
               }, 20);
             }, 20);
-          });
+          };
         }
 
         return h('div',
