@@ -17,9 +17,9 @@ Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/rea
 
     function render(model) {
       return h('div',
-        h('label', "what's your name?"),
+        h('label', "what's your name?"), ' ',
         h('input', {type: 'text', model: bind(model, 'name')}),
-        h('span', 'hi ', model.name)
+        h('div', 'hi ', model.name)
       );
     }
 
@@ -47,16 +47,20 @@ The **render** function should take a **model** and return a virtual DOM fragmen
 
 ## Responding to Events
 
+Pass a function to any `on*` event handler.
+
+When the event handler has completed the view is automatically re-rendered.
+
     function render(model) {
       return h('div', 
-        h('ol',
+        h('ul',
           model.people.map(function (person) {
             return h('li', person.name);
           })
         ),
         h('button', {
           onclick: function () {
-            model.people.push({name: 'somebody'});
+            model.people.push({name: 'Person ' + (model.people.length + 1)});
           }
         }, 'Add Person')
       );
@@ -64,21 +68,23 @@ The **render** function should take a **model** and return a virtual DOM fragmen
 
     plastiq.attach(document.body, render, { people: [] });
 
-When the event handler has completed the view is automatically re-rendered.
+Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
 ## Binding the Inputs
+
+Use the `plastiq.bind` function, and the `model` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
 
     function render(model) {
       return h('div',
         h('label', "what's your name?"),
         h('input', {type: 'text', model: bind(model, 'name')}),
-        h('span', 'hi ', model.name)
+        h('div', 'hi ' + model.name)
       );
     }
 
     plastiq.attach(document.body, render, { name: '' });
 
-When the binding changes the view is automatically re-rendered.
+Play on [requirebin](http://requirebin.com/?gist=2585872c1559007eef1f)
 
 ## Animations
 
@@ -95,12 +101,13 @@ An event handler can return a function that is passed a `render` function that c
               }, 100);
             };
           }
-        }, 'Start')
-        h('span', 'n = ', model.n)
+        }, 'Start'),
+        h('div', 'n = ' + model.n)
       );
     }
 
     plastiq.attach(document.body, render, { n: 0 });
+    Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 
 # API
 
@@ -115,7 +122,9 @@ An event handler can return a function that is passed a `render` function that c
 
 ## Event Handlers
 
-When event handlers have completed the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
+Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
+
+When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
 
 ### Promises
 
