@@ -57,25 +57,7 @@ function refreshFunction(fn) {
   };
 }
 
-function propertyForInputType(type) {
-  return {
-    checkbox: 'checked',
-    radio: 'checked'
-  }[type] || 'value';
-}
-
-function eventNamesForInputType(type) {
-  var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
-
-  return {
-    text: textEventNames,
-    textarea: textEventNames,
-    checkbox: ['onclick'],
-    radio: ['onclick']
-  }[type] || ['onchange'];
-}
-
-function bindTextInput(attributes, get, set) {
+function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
   attributes.value = get();
@@ -95,35 +77,61 @@ function listenToEvents(attributes, eventNames, handler) {
   }
 }
 
-function bindValue(attributes, type) {
+function bindValue(attributes, children, type) {
   var inputTypeBindings = {
     text: bindTextInput,
     textarea: bindTextInput,
-    checkbox: function (attributes, get, set) {
+    checkbox: function (attributes, children, get, set) {
       attributes.checked = get();
 
       listenToEvents(attributes, 'onclick', function (ev) {
         set(ev.target.checked);
       });
     },
-    radio: function (attributes, get, set) {
+    radio: function (attributes, children, get, set) {
       var value = attributes.value;
       attributes.checked = get() == attributes.value;
 
       attributes.onclick = function (ev) {
         set(value);
       };
+    },
+    select: function (attributes, children, get, set) {
+      var currentValue = get();
+
+      var options = children.filter(function (child) {
+        return child.tagName.toLowerCase() == 'option';
+      });
+
+      var selectedOption = options.filter(function (child) {
+        return child.properties.value == currentValue;
+      })[0];
+
+      var values = options.map(function (option) {
+        return option.properties.value;
+      });
+
+      options.forEach(function (option, index) {
+        option.properties.selected = option == selectedOption;
+        option.properties.value = index;
+      });
+
+      attributes.onchange = function (ev) {
+        set(values[ev.target.value]);
+      };
     }
   };
 
   var binding = inputTypeBindings[type] || bindTextInput;
 
-  binding(attributes, attributes.model, refreshFunction(attributes.model));
+  binding(attributes, children, attributes.model, refreshFunction(attributes.model));
 }
 
 function inputType(selector, properties) {
   if (/^textarea\b/i.test(selector)) {
     return 'textarea';
+  } else if (/^select\b/i.test(selector)) {
+    return 'select';
   } else {
     return properties.type || 'text';
   }
@@ -167,18 +175,18 @@ exports.html = function (selector) {
 
   if (arguments[1] && arguments[1].constructor == Object) {
     properties = arguments[1];
+    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
 
     Object.keys(properties).forEach(function (key) {
       if (typeof(properties[key]) == 'function') {
         if (key == 'model') {
-          bindValue(properties, inputType(selector, properties));
+          bindValue(properties, childElements, inputType(selector, properties));
         } else {
           properties[key] = refreshFunction(properties[key]);
         }
       }
     });
 
-    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
     return h.call(undefined, selector, properties, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));

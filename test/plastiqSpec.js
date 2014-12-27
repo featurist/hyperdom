@@ -159,6 +159,8 @@ describe('plastiq', function () {
     });
 
     it('can bind to radio buttons', function () {
+      var blue = { name: 'blue' };
+
       function render(model) {
         return h('div',
           h('input.red', {
@@ -171,18 +173,18 @@ describe('plastiq', function () {
             type: 'radio',
             name: 'colour',
             model: bind(model, 'colour'),
-            value: { name: 'blue' }
+            value: blue
           }),
           h('span', JSON.stringify(model.colour))
         );
       }
 
-      plastiq.attach(div, render, {colour: undefined});
+      plastiq.attach(div, render, { colour: blue });
 
       return retry(function() {
-        expect(find('span').text()).to.equal('');
+        expect(find('span').text()).to.equal('{"name":"blue"}');
+        expect(find('input.blue').prop('checked')).to.equal(true);
         expect(find('input.red').prop('checked')).to.equal(false);
-        expect(find('input.blue').prop('checked')).to.equal(false);
       }).then(function () {
         find('input.red').click();
 
@@ -195,6 +197,45 @@ describe('plastiq', function () {
           return retry(function() {
             expect(find('span').text()).to.equal('{"name":"blue"}');
             expect(find('input.blue').prop('checked')).to.equal(true);
+          });
+        });
+      });
+    });
+
+    it('can bind to select', function () {
+      var blue = { name: 'blue' };
+
+      function render(model) {
+        return h('div',
+          h('select',
+            {model: bind(model, 'colour')},
+            h('option.red', {value: 'red'}, 'red'),
+            h('option.blue', {value: blue}, 'blue')
+          ),
+          h('span', JSON.stringify(model.colour))
+        );
+      }
+
+      plastiq.attach(div, render, { colour: blue });
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('{"name":"blue"}');
+        expect(find('option.red').prop('selected')).to.equal(false);
+        expect(find('option.blue').prop('selected')).to.equal(true);
+      }).then(function () {
+        find('option.red').prop('selected', true);
+        find('select').change();
+
+        return retry(function() {
+          expect(find('span').text()).to.equal('"red"');
+          expect(find('option.red').prop('selected')).to.equal(true);
+        }).then(function () {
+          find('option.blue').prop('selected', true);
+          find('select').change();
+
+          return retry(function() {
+            expect(find('span').text()).to.equal('{"name":"blue"}');
+            expect(find('option.blue').prop('selected')).to.equal(true);
           });
         });
       });
