@@ -11,19 +11,21 @@ Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/rea
 
 # An Example
 
-    var plastiq = require('plastiq');
-    var h = plastiq.html;
-    var bind = plastiq.bind;
+```JavaScript
+var plastiq = require('plastiq');
+var h = plastiq.html;
+var bind = plastiq.bind;
 
-    function render(model) {
-      return h('div',
-        h('label', "what's your name?"), ' ',
-        h('input', {type: 'text', model: bind(model, 'name')}),
-        h('div', 'hi ', model.name)
-      );
-    }
+function render(model) {
+  return h('div',
+    h('label', "what's your name?"), ' ',
+    h('input', {type: 'text', model: bind(model, 'name')}),
+    h('div', 'hi ', model.name)
+  );
+}
 
-    plastiq.attach(document.body, render, {name: ''});
+plastiq.attach(document.body, render, {name: ''});
+```
 
 Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
 
@@ -33,17 +35,23 @@ Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
 
 The **render** function should take a **model** and return a virtual DOM fragment:
 
-    function render(model) {
-      return h('span', 'hi ', model.name);
-    }
+```JavaScript
+function render(model) {
+  return h('span', 'hi ', model.name);
+}
+```
 
 ### Use Selectors
 
-    h('span.name', 'hi ', model.name);
+```JavaScript
+h('span.name', 'hi ', model.name);
+```
 
 ### Add HTML Attributes
 
-    h('span', { style: { color: 'red' } }, 'name: ', model.name);
+```JavaScript
+h('span', { style: { color: 'red' } }, 'name: ', model.name);
+```
 
 ## Responding to Events
 
@@ -51,22 +59,24 @@ Pass a function to any `on*` event handler.
 
 When the event handler has completed the view is automatically re-rendered.
 
-    function render(model) {
-      return h('div', 
-        h('ul',
-          model.people.map(function (person) {
-            return h('li', person.name);
-          })
-        ),
-        h('button', {
-          onclick: function () {
-            model.people.push({name: 'Person ' + (model.people.length + 1)});
-          }
-        }, 'Add Person')
-      );
-    }
+```JavaScript
+function render(model) {
+  return h('div', 
+    h('ul',
+      model.people.map(function (person) {
+        return h('li', person.name);
+      })
+    ),
+    h('button', {
+      onclick: function () {
+        model.people.push({name: 'Person ' + (model.people.length + 1)});
+      }
+    }, 'Add Person')
+  );
+}
 
-    plastiq.attach(document.body, render, { people: [] });
+plastiq.attach(document.body, render, { people: [] });
+```
 
 Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
@@ -76,15 +86,17 @@ This applies to `textarea` and input types `text`, `url`, `date`, `email`, `colo
 
 Use the `plastiq.bind` function, and the `model` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
 
-    function render(model) {
-      return h('div',
-        h('label', "what's your name?"),
-        h('input', {type: 'text', model: bind(model, 'name')}),
-        h('div', 'hi ' + model.name)
-      );
-    }
+```JavaScript
+function render(model) {
+  return h('div',
+    h('label', "what's your name?"),
+    h('input', {type: 'text', model: bind(model, 'name')}),
+    h('div', 'hi ' + model.name)
+  );
+}
 
-    plastiq.attach(document.body, render, { name: '' });
+plastiq.attach(document.body, render, { name: '' });
+```
 
 Play on [requirebin](http://requirebin.com/?gist=2585872c1559007eef1f)
 
@@ -92,108 +104,118 @@ Play on [requirebin](http://requirebin.com/?gist=2585872c1559007eef1f)
 
 Bind the model to each radio button. The buttons can be bound to complex (non-string) values.
 
-    var blue = { name: 'blue' };
+```JavaScript
+var blue = { name: 'blue' };
 
-    function render(model) {
-      return h('div',
-        h('input.red', {
-          type: 'radio',
-          name: 'colour',
-          model: bind(model, 'colour'),
-          value: 'red'
-        }),
-        h('input.blue', {
-          type: 'radio',
-          name: 'colour',
-          model: bind(model, 'colour'),
-          value: blue
-        }),
-        h('span', JSON.stringify(model.colour))
-      );
-    }
+function render(model) {
+  return h('div',
+    h('input.red', {
+      type: 'radio',
+      name: 'colour',
+      model: bind(model, 'colour'),
+      value: 'red'
+    }),
+    h('input.blue', {
+      type: 'radio',
+      name: 'colour',
+      model: bind(model, 'colour'),
+      value: blue
+    }),
+    h('span', JSON.stringify(model.colour))
+  );
+}
 
-    plastiq.attach(document.body, render, { colour: blue });
+plastiq.attach(document.body, render, { colour: blue });
+```
 
 ## Select Dropdowns
 
 Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
 
-    var blue = { name: 'blue' };
+```JavaScript
+var blue = { name: 'blue' };
 
-    function render(model) {
-      return h('div',
-        h('select',
-          {model: bind(model, 'colour')},
-          h('option.red', {value: 'red'}, 'red'),
-          h('option.blue', {value: blue}, 'blue')
-        ),
-        h('span', JSON.stringify(model.colour))
-      );
-    }
+function render(model) {
+  return h('div',
+    h('select',
+      {model: bind(model, 'colour')},
+      h('option.red', {value: 'red'}, 'red'),
+      h('option.blue', {value: blue}, 'blue')
+    ),
+    h('span', JSON.stringify(model.colour))
+  );
+}
 
-    plastiq.attach(document.body, render, { colour: blue });
+plastiq.attach(document.body, render, { colour: blue });
+```
 
 ## File Inputs
 
 The file input is much like any other binding, except that the model is only ever written to, never read from. The file input can only be set by a user selecting a file.
 
-    function render(model) {
-      return h('div',
-        h('input',
-          {
-            type: 'file',
-            model: function (file) {
-              return new Promise(function (result) {
-                var reader = new FileReader();
-                reader.readAsText(file);
+```JavaScript
+function render(model) {
+  return h('div',
+    h('input',
+      {
+        type: 'file',
+        model: function (file) {
+          return new Promise(function (result) {
+            var reader = new FileReader();
+            reader.readAsText(file);
 
-                reader.onloadend = function () {
-                  model.filename = file.name;
-                  model.contents = reader.result;
-                  result();
-                };
-              });
-            }
-          }
-        ),
-        h('h1', model.filename),
-        h('pre', h('code', model.contents))
-      );
-    }
+            reader.onloadend = function () {
+              model.filename = file.name;
+              model.contents = reader.result;
+              result();
+            };
+          });
+        }
+      }
+    ),
+    h('h1', model.filename),
+    h('pre', h('code', model.contents))
+  );
+}
 
-    plastiq.attach(document.body, render, {
-      filename: '(no file selected)',
-      contents: ''
-    });
+plastiq.attach(document.body, render, {
+  filename: '(no file selected)',
+  contents: ''
+});
+```
 
 ## Animations
 
 An event handler can return a function that is passed a `render` function that can be called to re-render the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
 
-    function render(model) {
-      return h('div',
-        h('button', {
-          onclick: function () {
-            return function (render) {
-              setInterval(function () {
-                model.n++;
-                render();
-              }, 100);
-            };
-          }
-        }, 'Start'),
-        h('div', 'n = ' + model.n)
-      );
-    }
+```JavaScript
+function render(model) {
+  return h('div',
+    h('button', {
+      onclick: function () {
+        return function (render) {
+          setInterval(function () {
+            model.n++;
+            render();
+          }, 100);
+        };
+      }
+    }, 'Start'),
+    h('div', 'n = ' + model.n)
+  );
+}
 
-    plastiq.attach(document.body, render, { n: 0 });
-    Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
+plastiq.attach(document.body, render, { n: 0 });
+Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
+```
 
 # API
 
 ## `plastiq.html`
 
-    `var vdomFragment = plastic.html(selector, [attributes], children, ...)`
+```JavaScript
+var vdomFragment = plastic.html(selector, [attributes], children, ...)
+```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
 * `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
@@ -220,19 +242,25 @@ Form input elements can be passed a `model` attribute, which is expected to be a
 
 To get the current value of the model property:
 
-    var modelValue = attributes.model();
+```JavaScript
+var modelValue = attributes.model();
+```
 
 * `modelValue` - the function should return the current value of the model property.
 
 To set the new value of the model property:
 
-    attributes.model(newModelValue);
+```JavaScript
+attributes.model(newModelValue);
+```
 
 * `newModelValue` - the new value from the form input element.
 
 The `plastiq.bind` function can be used to create such a binding function:
 
-    `attributes.model = plastiq.bind(model, propertyName)`
+```JavaScript
+attributes.model = plastiq.bind(model, propertyName);
+```
 
 * `model` - the object
 * `propertyName` - the name of the property
