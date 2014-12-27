@@ -189,6 +189,13 @@ describe('plastiq', function () {
         return retry(function() {
           expect(find('span').text()).to.equal('"red"');
           expect(find('input.red').prop('checked')).to.equal(true);
+        }).then(function () {
+          find('input.blue').click();
+
+          return retry(function() {
+            expect(find('span').text()).to.equal('{"name":"blue"}');
+            expect(find('input.blue').prop('checked')).to.equal(true);
+          });
         });
       });
     });
