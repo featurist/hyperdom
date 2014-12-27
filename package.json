@@ -1,0 +1,25 @@
+{
+  "name": "plastiq",
+  "version": "1.0.0",
+  "description": "belle, simple et efficace",
+  "main": "index.js",
+  "dependencies": {
+    "virtual-dom": "^0.0.24"
+  },
+  "devDependencies": {
+    "watchify": "^2.2.1",
+    "express": "^4.10.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "virtual-dom",
+    "front-end",
+    "framework",
+    "html"
+  ],
+  "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
+  "license": "MIT"
+}
