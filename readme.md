@@ -206,8 +206,9 @@ function render(model) {
 }
 
 plastiq.attach(document.body, render, { n: 0 });
-Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 ```
+
+Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 
 # API
 
