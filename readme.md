@@ -9,13 +9,13 @@ This architecture is largely influenced by Facebook's [React](http://facebook.gi
 
 ## Why?
 
-React.js carried inside it an amazing idea: re-render the page anew every time the model changes, but only apply the differences since the last render. This is not only very efficient, but also affords a very simple programming model for user interfaces. The user interface is created from a function that takes only the model as input - it's essentially purely functional.
+React.js carried inside it an amazing idea: re-render the page anew every time the model changes, but only apply the differences since the last render. This is not only very efficient, but also affords a very simple programming model for user interfaces. The user interface is created from a function that takes only the model as input.
 
-However, React's implementation of this idea is somewhat more complicated than that simple idea. The component model, with its many lifecycle events such as `componentDidMount` and `componentWillReceiveProps` adds to a confusing landscape of options and implementation choices. Furthermore, each React component carries two kinds of state: `props` and `state`. Many people are confused as to where to keep the model, in the `props` or in the `state`? If you have several components in the page, we have several different places to store state, how do we reconcile them?
+However, React's implementation is somewhat more complicated than this simple idea. React's component model, with its many lifecycle events such as `componentDidMount` and `componentWillReceiveProps` adds to a confusing landscape of options and implementation choices. Furthermore, each React component carries two kinds of state: `props` and `state`. Many people are confused as to where to keep the model, in the `props` or in the `state`? If you have several components in the page, we have several different places to store state, how do we reconcile them?
 
-Other frameworks such as [mithril](http://lhorie.github.io/mithril/) and [mercury](https://github.com/Raynos/mercury) try to get back to a simpler component model, but force the framework into the model for event handling and form input binding.
+Other frameworks such as [mithril](http://lhorie.github.io/mithril/) and [mercury](https://github.com/Raynos/mercury) try to get back to a simpler framework, but require the model to use framework elements such as `m.prop()` and `hg.value()` to implement model binding on form elements.
 
-Plastiq tries to be much simpler: there is no "component model", but components are easily created by extracting or creating a new render function. There is only one model to store state. The model can easily be bound onto form inputs, but without forcing the framework into the model.
+Plastiq is much simpler again: there is no "component model", but components are easily created by extracting or creating new render functions. Application state is stored in a single, although deep, model. The model can easily be bound onto form inputs, but without forcing the framework into the model.
 
 # Example
 
