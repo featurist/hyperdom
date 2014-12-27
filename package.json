@@ -7,8 +7,17 @@
     "virtual-dom": "^0.0.24"
   },
   "devDependencies": {
+    "chai": "^1.10.0",
     "express": "^4.10.4",
+    "jquery": "^2.1.3",
+    "jquery-sendkeys": "^1.0.0",
+    "karma-browserify": "^2.0.0",
     "karma-chrome-launcher": "^0.1.7",
+    "karma-cli": "0.0.4",
+    "karma-mocha": "^0.1.10",
+    "karma-mocha-reporter": "^0.3.1",
+    "mocha": "^2.1.0",
+    "trytryagain": "^0.1.0",
     "watchify": "^2.2.1"
   },
   "scripts": {
@@ -22,5 +31,16 @@
     "html"
   ],
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/plastiq.git"
+  },
+  "bugs": {
+    "url": "https://github.com/featurist/plastiq/issues"
+  },
+  "homepage": "https://github.com/featurist/plastiq"
 }
