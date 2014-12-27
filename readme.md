@@ -135,6 +135,8 @@ Bind the model onto the `select` element. The `option`s can have complex (non-st
 
 ## File Inputs
 
+The file input is much like any other binding, except that the model is only ever written to, never read from. The file input can only be set by a user selecting a file.
+
     function render(model) {
       return h('div',
         h('input',
@@ -159,7 +161,10 @@ Bind the model onto the `select` element. The `option`s can have complex (non-st
       );
     }
 
-    plastiq.attach(document.body, render, { filename: '(no file selected)', contents: '' });
+    plastiq.attach(document.body, render, {
+      filename: '(no file selected)',
+      contents: ''
+    });
 
 ## Animations
 
@@ -236,7 +241,7 @@ The `plastiq.bind` function can be used to create such a binding function:
 
 React introduced an amazing idea: re-render the page anew every time the model changes, but only apply the differences since the last render. This is not only very efficient, but also affords a very simple programming model for user interfaces. The user interface is created from a function that takes only the model as input.
 
-However, React's implementation is somewhat more complicated than this simple idea. React's component model, with its many lifecycle events such as `componentDidMount` and `componentWillReceiveProps` adds to a confusing landscape of interactions between your application and the framework. Furthermore, each React component carries two kinds of state: `this.props` and `this.state`. Many people are confused as to where to store and update the model, in the `props` or in the `state`? If you have several components in the page, we have several different places to store state, how do we reconcile and synchronise them?
+However, React's implementation is somewhat more complicated than this simple idea. React's component model, with its many lifecycle events such as `componentDidMount` and `componentWillReceiveProps` adds to a confusing landscape of interactions between your application and the framework. Furthermore, each React component carries two kinds of state: `this.props` and `this.state`. Many people are confused as to where to store and update the model, in the `props` or in the `state`? If we have several components in the page, we have several different places to store state, how do we reconcile and synchronise them?
 
 Other frameworks such as [mithril](http://lhorie.github.io/mithril/) and [mercury](https://github.com/Raynos/mercury) try to get back to a simpler framework, but require the model to use framework elements such as `m.prop()` and `hg.value()` to implement model binding on form elements.
 
