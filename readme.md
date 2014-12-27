@@ -22,3 +22,5 @@ Plastiq is based on two primary programming ideas:
     }
 
     plastiq.attach(document.body, render, {name: ''});
+
+Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
