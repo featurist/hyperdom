@@ -72,6 +72,8 @@ Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
 ## Binding the Inputs
 
+This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
+
 Use the `plastiq.bind` function, and the `model` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
 
     function render(model) {
@@ -85,6 +87,79 @@ Use the `plastiq.bind` function, and the `model` attribute to bind the model to 
     plastiq.attach(document.body, render, { name: '' });
 
 Play on [requirebin](http://requirebin.com/?gist=2585872c1559007eef1f)
+
+## Radio Buttons
+
+Bind the model to each radio button. The buttons can be bound to complex (non-string) values.
+
+    var blue = { name: 'blue' };
+
+    function render(model) {
+      return h('div',
+        h('input.red', {
+          type: 'radio',
+          name: 'colour',
+          model: bind(model, 'colour'),
+          value: 'red'
+        }),
+        h('input.blue', {
+          type: 'radio',
+          name: 'colour',
+          model: bind(model, 'colour'),
+          value: blue
+        }),
+        h('span', JSON.stringify(model.colour))
+      );
+    }
+
+    plastiq.attach(document.body, render, { colour: blue });
+
+## Select Dropdowns
+
+Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
+
+    var blue = { name: 'blue' };
+
+    function render(model) {
+      return h('div',
+        h('select',
+          {model: bind(model, 'colour')},
+          h('option.red', {value: 'red'}, 'red'),
+          h('option.blue', {value: blue}, 'blue')
+        ),
+        h('span', JSON.stringify(model.colour))
+      );
+    }
+
+    plastiq.attach(document.body, render, { colour: blue });
+
+## File Inputs
+
+    function render(model) {
+      return h('div',
+        h('input',
+          {
+            type: 'file',
+            model: function (file) {
+              return new Promise(function (result) {
+                var reader = new FileReader();
+                reader.readAsText(file);
+
+                reader.onloadend = function () {
+                  model.filename = file.name;
+                  model.contents = reader.result;
+                  result();
+                };
+              });
+            }
+          }
+        ),
+        h('h1', model.filename),
+        h('pre', h('code', model.contents))
+      );
+    }
+
+    plastiq.attach(document.body, render, { filename: '(no file selected)', contents: '' });
 
 ## Animations
 

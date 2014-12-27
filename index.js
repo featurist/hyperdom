@@ -119,6 +119,17 @@ function bindValue(attributes, children, type) {
       attributes.onchange = function (ev) {
         set(values[ev.target.value]);
       };
+    },
+    file: function (attributes, children, get, set) {
+      var multiple = attributes.multiple;
+
+      attributes.onchange = function (ev) {
+        if (multiple) {
+          set(ev.target.files);
+        } else {
+          set(ev.target.files[0]);
+        }
+      };
     }
   };
 
