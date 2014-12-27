@@ -138,10 +138,6 @@ exports.html = function (selector) {
   }
 };
 
-exports.html.rawHtml = function (html) {
-  return html;
-};
-
 exports.html.animation = function (fn) {
   var handlers = [];
 

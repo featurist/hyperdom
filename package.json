@@ -7,8 +7,9 @@
     "virtual-dom": "^0.0.24"
   },
   "devDependencies": {
-    "watchify": "^2.2.1",
-    "express": "^4.10.4"
+    "express": "^4.10.4",
+    "karma-chrome-launcher": "^0.1.7",
+    "watchify": "^2.2.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
