@@ -139,21 +139,3 @@ exports.html = function (selector) {
     return h.call(undefined, selector, childElements);
   }
 };
-
-exports.html.animation = function (fn) {
-  var handlers = [];
-
-  function render() {
-    handlers.forEach(function (handler) {
-      handler();
-    });
-  }
-
-  fn(render);
-
-  return {
-    then: function (s) {
-      handlers.push(s);
-    }
-  };
-};
