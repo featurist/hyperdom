@@ -1,6 +1,8 @@
 # plastiq
 
-Plastiq is based on a simple architecture for single page applications:
+Plastiq is a framework for building dynamic user interfaces in HTML.
+
+It leverages a simple architecture for single page applications:
 
 1. There is one model for the whole page, this model is stateful, object-oriented and free of framework elements.
 2. The view is re-rendered fresh each time the model changes, but only the differences are applied to the DOM.
@@ -24,6 +26,14 @@ Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/rea
     plastiq.attach(document.body, render, {name: ''});
 
 Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
+
+# Features
+
+## Rendering the View
+
+    function render(model) {
+    
+    }
 
 # Philosophy and Motivation
 
