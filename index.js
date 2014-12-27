@@ -59,7 +59,8 @@ function refreshFunction(fn) {
 
 function propertyForInputType(type) {
   return {
-    checkbox: 'checked'
+    checkbox: 'checked',
+    radio: 'checked'
   }[type] || 'value';
 }
 
@@ -69,24 +70,55 @@ function eventNamesForInputType(type) {
   return {
     text: textEventNames,
     textarea: textEventNames,
-    checkbox: ['onclick']
+    checkbox: ['onclick'],
+    radio: ['onclick']
   }[type] || ['onchange'];
 }
 
-function bindValue(properties, type) {
-  var property = propertyForInputType(type);
+function bindTextInput(attributes, get, set) {
+  var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
-  var binding = properties.model;
-  var refreshBinding = refreshFunction(binding);
-  properties[property] = binding();
+  attributes.value = get();
 
-  var eventNames = eventNamesForInputType(type);
-
-  eventNames.forEach(function (eventName) {
-    properties[eventName] = function (ev) {
-      refreshBinding(ev.target[property]);
-    };
+  listenToEvents(attributes, textEventNames, function (ev) {
+    set(ev.target.value);
   });
+}
+
+function listenToEvents(attributes, eventNames, handler) {
+  if (eventNames instanceof Array) {
+    eventNames.forEach(function (eventName) {
+      attributes[eventName] = handler;
+    });
+  } else {
+    attributes[eventNames] = handler;
+  }
+}
+
+function bindValue(attributes, type) {
+  var inputTypeBindings = {
+    text: bindTextInput,
+    textarea: bindTextInput,
+    checkbox: function (attributes, get, set) {
+      attributes.checked = get();
+
+      listenToEvents(attributes, 'onclick', function (ev) {
+        set(ev.target.checked);
+      });
+    },
+    radio: function (attributes, get, set) {
+      var value = attributes.value;
+      attributes.checked = get() == attributes.value;
+
+      attributes.onclick = function (ev) {
+        set(value);
+      };
+    }
+  };
+
+  var binding = inputTypeBindings[type] || bindTextInput;
+
+  binding(attributes, attributes.model, refreshFunction(attributes.model));
 }
 
 function inputType(selector, properties) {
@@ -115,6 +147,20 @@ function flatten(array) {
   return flatArray;
 }
 
+function normaliseChildren(children) {
+  return children.map(function (child) {
+    if (child === undefined || child == null) {
+      return undefined;
+    } else if (typeof(child) != 'object') {
+      return String(child);
+    } else if (child instanceof Date) {
+      return String(child);
+    } else {
+      return child;
+    }
+  });
+}
+
 exports.html = function (selector) {
   var properties;
   var childElements;
@@ -132,10 +178,10 @@ exports.html = function (selector) {
       }
     });
 
-    childElements = flatten(Array.prototype.slice.call(arguments, 2));
+    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
     return h.call(undefined, selector, properties, childElements);
   } else {
-    childElements = flatten(Array.prototype.slice.call(arguments, 1));
+    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
   }
 };

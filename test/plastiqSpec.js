@@ -26,14 +26,33 @@ describe('plastiq', function () {
     });
   }
 
-  it('can render a div', function () {
-    function render(model) {
-      return h('div.haha');
+  describe('rendering', function () {
+    it('can render a div', function () {
+      function render(model) {
+        return h('div.haha');
+      }
+
+      plastiq.attach(div, render, {});
+
+      expect(find('.haha').length).to.eql(1);
+    });
+
+    function itCanRenderA(type, value, expectedValue) {
+      it('can render a ' + type, function () {
+        function render(model) {
+          return h('div.haha', value);
+        }
+
+        plastiq.attach(div, render, {});
+
+        expect(find('.haha').text()).to.eql(expectedValue != undefined? expectedValue: String(value));
+      });
     }
 
-    plastiq.attach(div, render, {});
-
-    expect(find('.haha').length).to.eql(1);
+    itCanRenderA('number', 4);
+    itCanRenderA('boolean', true);
+    itCanRenderA('date', new Date());
+    itCanRenderA('undefined', undefined, '');
   });
 
   it('can respond to button clicks', function () {
@@ -135,6 +154,41 @@ describe('plastiq', function () {
         return retry(function() {
           expect(find('span').text()).to.equal('on');
           expect(find('input').prop('checked')).to.equal(true);
+        });
+      });
+    });
+
+    it('can bind to radio buttons', function () {
+      function render(model) {
+        return h('div',
+          h('input.red', {
+            type: 'radio',
+            name: 'colour',
+            model: bind(model, 'colour'),
+            value: 'red'
+          }),
+          h('input.blue', {
+            type: 'radio',
+            name: 'colour',
+            model: bind(model, 'colour'),
+            value: { name: 'blue' }
+          }),
+          h('span', JSON.stringify(model.colour))
+        );
+      }
+
+      plastiq.attach(div, render, {colour: undefined});
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('');
+        expect(find('input.red').prop('checked')).to.equal(false);
+        expect(find('input.blue').prop('checked')).to.equal(false);
+      }).then(function () {
+        find('input.red').click();
+
+        return retry(function() {
+          expect(find('span').text()).to.equal('"red"');
+          expect(find('input.red').prop('checked')).to.equal(true);
         });
       });
     });
