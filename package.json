@@ -1,6 +1,6 @@
 {
   "name": "plastiq",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "belle, simple et efficace",
   "main": "index.js",
   "dependencies": {
