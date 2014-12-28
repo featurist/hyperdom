@@ -89,7 +89,7 @@ If you return a promise, then the view is re-rendered when the promise resolves.
 
 ```JavaScript
 function render(model) {
-  return h('div', 
+  return h('div',
     h('ul',
       model.people.map(function (person) {
         return h('li', person.name);
@@ -216,50 +216,58 @@ plastiq.attach(document.body, render, {
 
 ## Components and Controllers
 
-Plastiq doesn't really have components as in React or directives as in AngularJS, nor does it have first class controllers. Instead the `render` functions can contain "controller" logic by responding to events, and the page can be broken down into reusable sections by extracting `render` functions that operate on different parts of the model. It's refreshingly simple, and uses normal JavaScript abstractions like functions and objects.
+Plastiq doesn't really have components as in React or directives as in AngularJS, nor does it have first class controllers. Instead the `render` functions can contain "controller" logic by responding to events, and the page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects.
 
-Here we have a `render` function that contains an `addPerson` function that adds a person when the `add` button is clicked.
+In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person. It's just JavaScript so all the usual refactoring techniques apply.
 
-We also render several people using the `renderPerson` function, containing a `deletePerson` function to delete the person when the `delete` button is clicked.
+```JavaScript
+function render(model) {
+  return h('div.content',
+    h('h1', 'People'),
+    h('ol',
+      model.people.map(function (person) {
+        return renderPerson(model, person);
+      })
+    ),
+    h('button',
+      {
+        onclick: function () { model.addPerson(); }
+      },
+      'add')
+  );
+}
 
-    function render(page) {
-      function addPerson() {
-        page.people.push({name: "somebody"});
-      }
+function renderPerson(model, person) {
+  return h('li',
+    h('input', {binding: bind(person, 'name')}),
+    h('button',
+      {
+        onclick: function () { model.deletePerson(person); }
+      },
+      'delete')
+  )
+}
 
-      return h('div.content',
-        h('h1', 'People'),
-        h('ol',
-          page.people.map(function (person) {
-            return renderPerson(page, person);
-          })
-        ),
-        h('button', {onclick: addPerson}, 'add')
-      );
+plastiq.attach(document.body, render, {
+  people: [
+    {name: 'Åke'},
+    {name: 'آمر'},
+    {name: '正'}
+  ],
+
+  addPerson: function () {
+    this.people.push({name: "somebody"});
+  },
+
+  deletePerson: function (person) {
+    var i = this.people.indexOf(person);
+
+    if (i >= 0) {
+      this.people.splice(i, 1);
     }
-
-    function renderPerson(page, person) {
-      function deletePerson() {
-        var i = page.people.indexOf(person);
-
-        if (i >= 0) {
-          page.people.splice(i, 1);
-        }
-      }
-
-      return h('li',
-        h('input', {binding: bind(person, 'name')}),
-        h('button', {onclick: deletePerson}, 'delete')
-      )
-    }
-
-    plastiq.attach(document.body, render, {
-      people: [
-        {name: 'Åke'},
-        {name: 'آمر'},
-        {name: '正'}
-      ]
-    });
+  }
+});
+```
 
 ## Animations
 
