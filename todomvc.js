@@ -22,10 +22,11 @@ function render(model) {
         h('section#main',
           h('input#toggle-all', {
             type: 'checkbox',
-            model: function (done) {
-              if (done !== undefined) {
+            binding: {
+              set: function (done) {
                 model.completeAllItems(done);
-              } else {
+              },
+              get: function () {
                 return model.itemsAllDone();
               }
             }
@@ -94,7 +95,7 @@ function renderTodo(model, todo) {
           model.editingTodo = todo;
         }
       },
-      h('input.toggle', {type: 'checkbox', model: bind(todo, 'done')}),
+      h('input.toggle', {type: 'checkbox', binding: bind(todo, 'done')}),
       h('label', todo.text),
       h('button.destroy', {
         onclick: function () {
@@ -105,7 +106,7 @@ function renderTodo(model, todo) {
     editing
       ? h('input.edit',
           {
-            model: bind(todo, 'text'),
+            binding: bind(todo, 'text'),
             onkeyup: function (ev) {
               if (ev.keyCode == 13 || ev.keyCode == 27) {
                 model.editingTodo = undefined;
