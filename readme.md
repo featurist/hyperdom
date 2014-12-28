@@ -17,9 +17,13 @@ Use either with browserify:
 
     var plastiq = require('plastiq');
 
-Or from HTML:
+Or from HTML, first create a symlink:
 
-    <script src="node_modules/plastiq.js"></script>
+    ln -s node_modules/plastiq/plastiq.js public/plastiq.js
+
+Then
+
+    <script src="plastiq.js"></script>
 
 # An Example
 
