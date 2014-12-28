@@ -9,6 +9,10 @@ It leverages a simple architecture for single page applications:
 
 Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Read the [philosophy and motivation](#philosophy-and-motivation).
 
+# install
+
+    npm install plastiq
+
 # An Example
 
 ```JavaScript
