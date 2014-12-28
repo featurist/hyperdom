@@ -11,49 +11,51 @@ function render(model) {
           placeholder: 'What needs to be done?',
           autofocus: true,
           onkeydown: function (ev) {
-            if (ev.keyCode == 13) {
+            if (isEnterKey(ev.keyCode) && ev.target.value != '') {
               model.todos.push({text: ev.target.value});
               ev.target.value = '';
             }
           }
         })
       ),
-      model.todos.length > 0? [
-        h('section#main',
-          h('input#toggle-all', {
-            type: 'checkbox',
-            binding: {
-              set: function (done) {
-                model.completeAllItems(done);
-              },
-              get: function () {
-                return model.itemsAllDone();
-              }
-            }
-          }),
-          h('label', {'htmlFor': 'toggle-all'}, 'Mark all as complete'),
-          h('ul#todo-list', model.filteredTodos().map(function (todo, index) {
-            return renderTodo(model, todo);
-          }))
-        ),
-        h('footer#footer',
-          h('span#todo-count', h('strong', model.itemsLeft()), ' item' + (model.itemsLeft() == 1? '': 's') + ' left'),
-          h('ul#filters',
-            renderFilter(model, allFilter, 'All'),
-            renderFilter(model, activeFilter, 'Active'),
-            renderFilter(model, completedFilter, 'Completed')
-          ),
-          model.itemsCompleted() > 0
-            ? h('button#clear-completed',
-                {
-                  onclick: function () {
-                    model.clearCompleted();
-                  }
+      model.todos.length > 0
+        ? [
+          h('section#main',
+            h('input#toggle-all', {
+              type: 'checkbox',
+              binding: {
+                set: function (done) {
+                  model.completeAllItems(done);
                 },
-                'Clear completed (' + model.itemsCompleted() + ')')
-            : undefined
-        )
-      ]: undefined
+                get: function () {
+                  return model.itemsAllDone();
+                }
+              }
+            }),
+            h('label', {'htmlFor': 'toggle-all'}, 'Mark all as complete'),
+            h('ul#todo-list', model.filteredTodos().map(function (todo, index) {
+              return renderTodo(model, todo);
+            }))
+          ),
+          h('footer#footer',
+            h('span#todo-count', h('strong', model.itemsLeft()), ' item' + (model.itemsLeft() == 1? '': 's') + ' left'),
+            h('ul#filters',
+              renderFilter(model, allFilter, 'All'),
+              renderFilter(model, activeFilter, 'Active'),
+              renderFilter(model, completedFilter, 'Completed')
+            ),
+            model.itemsCompleted() > 0
+              ? h('button#clear-completed',
+                  {
+                    onclick: function () {
+                      model.clearCompleted();
+                    }
+                  },
+                  'Clear completed (' + model.itemsCompleted() + ')')
+              : undefined
+          )
+        ]
+      : undefined
     ),
     h('footer#info',
       h('p', 'Double-click to edit a todo'),
@@ -108,7 +110,7 @@ function renderTodo(model, todo) {
           {
             binding: bind(todo, 'text'),
             onkeyup: function (ev) {
-              if (ev.keyCode == 13 || ev.keyCode == 27) {
+              if (isEnterKey(ev.keyCode) || isEscapeKey(ev.keyCode)) {
                 model.editingTodo = undefined;
               }
             },
@@ -118,6 +120,14 @@ function renderTodo(model, todo) {
           })
       : undefined
   );
+}
+
+function isEnterKey(keyCode) {
+  return keyCode == 13;
+}
+
+function isEscapeKey(keyCode) {
+  return keyCode == 27;
 }
 
 function allFilter(todos) {
