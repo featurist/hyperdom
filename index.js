@@ -25,12 +25,12 @@ exports.attach = function (element, render, model, options) {
   function refresh() {
     if (!requested) {
       requestRender(function () {
+        requested = false;
+
         var newTree = renderWithRefresh(render, model, refresh);
         var patches = diff(tree, newTree);
         rootNode = patch(rootNode, patches);
         tree = newTree;
-
-        requested = false;
       });
       requested = true;
     }

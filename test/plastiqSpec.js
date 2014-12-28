@@ -299,10 +299,10 @@ describe('plastiq', function () {
                   setTimeout(function () {
                     model.progress = 'four';
                     render();
-                  }, 100);
-                }, 100);
-              }, 100);
-            }, 100);
+                  }, 20);
+                }, 20);
+              }, 20);
+            }, 20);
           };
         }
 
