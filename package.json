@@ -24,7 +24,7 @@
   },
   "scripts": {
     "test": "karma start --single-run",
-    "prepublish": "browserify index.js | uglifyjs > plastiq.js"
+    "prepublish": "browserify browser.js | uglifyjs > plastiq.js"
   },
   "keywords": [
     "virtual-dom",

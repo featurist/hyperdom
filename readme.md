@@ -13,6 +13,14 @@ Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/rea
 
     npm install plastiq
 
+Use either with browserify:
+
+    var plastiq = require('plastiq');
+
+Or from HTML:
+
+    <script src="node_modules/plastiq.js"></script>
+
 # An Example
 
 ```JavaScript
