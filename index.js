@@ -19,11 +19,20 @@ function renderWithRefresh(render, model, refresh) {
 }
 
 exports.attach = function (element, render, model) {
+  var requested = false;
+
   function refresh() {
-    var newTree = renderWithRefresh(render, model, refresh);
-    var patches = diff(tree, newTree);
-    rootNode = patch(rootNode, patches);
-    tree = newTree;
+    if (!requested) {
+      requestAnimationFrame(function () {
+        var newTree = renderWithRefresh(render, model, refresh);
+        var patches = diff(tree, newTree);
+        rootNode = patch(rootNode, patches);
+        tree = newTree;
+
+        requested = false;
+      });
+      requested = true;
+    }
   }
 
   var tree = renderWithRefresh(render, model, refresh);

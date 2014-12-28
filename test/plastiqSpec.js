@@ -102,7 +102,9 @@ describe('plastiq', function () {
     plastiq.attach(div, render, {});
 
     return click('button').then(function () {
-      expect(find('span').text()).to.eql('on');
+      return retry(function () {
+        expect(find('span').text()).to.eql('on');
+      });
     });
   });
 
@@ -276,6 +278,8 @@ describe('plastiq', function () {
 
   describe('animations', function () {
     it('can render several frames of an animation', function () {
+      this.timeout(10000);
+
       function render(model) {
         function startOperation() {
           return function (render) {
@@ -291,10 +295,10 @@ describe('plastiq', function () {
                   setTimeout(function () {
                     model.progress = 'four';
                     render();
-                  }, 20);
-                }, 20);
-              }, 20);
-            }, 20);
+                  }, 100);
+                }, 100);
+              }, 100);
+            }, 100);
           };
         }
 
