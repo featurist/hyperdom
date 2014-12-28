@@ -245,7 +245,9 @@ We also render several people using the `renderPerson` function, containing a `d
 
 ## Animations
 
-An event handler can return a function that is passed a `render` function that can be called to re-render the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
+An event handler can return a function that is passed a `render` function that can be called to request a re-render of the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
+
+Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.attach`](#plastiq-attach) below.
 
 ```JavaScript
 function render(model) {
