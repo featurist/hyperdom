@@ -1908,7 +1908,16 @@ function render(model) {
             renderFilter(model, allFilter, 'All'),
             renderFilter(model, activeFilter, 'Active'),
             renderFilter(model, completedFilter, 'Completed')
-          )
+          ),
+          model.itemsCompleted() > 0
+            ? h('button#clear-completed',
+                {
+                  onclick: function () {
+                    model.clearCompleted();
+                  }
+                },
+                'Clear completed (' + model.itemsCompleted() + ')')
+            : undefined
         )
       ]: undefined
     ),
@@ -1930,8 +1939,21 @@ function renderFilter(model, filter, name) {
 }
 
 function renderTodo(model, todo) {
-  return h('li', {className: {completed: todo.done}},
+  var editing = model.editingTodo == todo;
+
+  return h('li',
+    {
+      className: {
+        completed: todo.done,
+        editing: editing
+      }
+    },
     h('div.view',
+      {
+        ondblclick: function () {
+          model.editingTodo = todo;
+        }
+      },
       h('input.toggle', {type: 'checkbox', model: bind(todo, 'done')}),
       h('label', todo.text),
       h('button.destroy', {
@@ -1939,7 +1961,21 @@ function renderTodo(model, todo) {
           model.deleteTodo(todo);
         }
       })
-    )
+    ),
+    editing
+      ? h('input.edit',
+          {
+            model: bind(todo, 'text'),
+            onkeyup: function (ev) {
+              if (ev.keyCode == 13 || ev.keyCode == 27) {
+                model.editingTodo = undefined;
+              }
+            },
+            onblur: function (ev) {
+              model.editingTodo = undefined;
+            }
+          })
+      : undefined
   );
 }
 
@@ -1984,6 +2020,14 @@ plastiq.attach(document.body, render, {
 
   itemsAllDone: function () {
     return completedFilter(this.todos).length == this.todos.length;
+  },
+
+  clearCompleted: function () {
+    this.todos = activeFilter(this.todos);
+  },
+
+  itemsCompleted: function () {
+    return completedFilter(this.todos).length;
   },
 
   completeAllItems: function (done) {
