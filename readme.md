@@ -296,7 +296,7 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
 
-## Model Binding
+## `plastiq.bind`
 
 Form input elements can be passed a `binding` attribute, which is expected to be an object with two methods: `get` to get the current binding value, and `set` to set it. For example:
 
@@ -317,6 +317,42 @@ var binding = plastiq.bind(model, propertyName);
 
 * `model` - the object
 * `propertyName` - the name of the property
+
+## `plastiq.attach`
+
+```JavaScript
+plastiq.attach(element, render, model, [options]);
+```
+
+* `element` - any HTML element. The view is attached via `element.appendChild(view)`
+* `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
+* `model` - the model.
+* `options`
+  * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
+
+  ```JavaScript
+  function requestRender(fn) {
+    fn();
+  }
+  ```
+
+  Or on the next tick:
+
+  ```JavaScript
+  function requestRender(fn) {
+    setTimeout(fn, 0);
+  }
+  ```
+
+  Or on the next animation frame:
+
+  ```JavaScript
+  function requestRender(fn) {
+    requestAnimationFrame(fn);
+  }
+  ```
+
+  The default is `requestAnimationFrame`, falling back to `setTimeout`.
 
 # Philosophy and Motivation
 
