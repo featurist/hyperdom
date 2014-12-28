@@ -85,6 +85,8 @@ Pass a function to any `on*` event handler.
 
 When the event handler has completed the view is automatically re-rendered.
 
+If you return a promise, then the view is re-rendered when the promise resolves. You can also return a function to have more control over when rendering happens, see [animations](#animations).
+
 ```JavaScript
 function render(model) {
   return h('div', 
