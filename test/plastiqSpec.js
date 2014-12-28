@@ -89,6 +89,18 @@ describe('plastiq', function () {
         expect(find('div').attr('class')).to.eql('one two three');
       });
     });
+
+    describe('rawHtml', function () {
+      it.only('can render raw HTML', function () {
+        function render(model) {
+          return h('div', h.rawHtml('some <strong>dangerous HTML'));
+        }
+
+        attach(render, {});
+
+        expect(find('div').html()).to.eql('some <strong>dangerous HTML');
+      });
+    });
   });
 
   it('can respond to button clicks', function () {
