@@ -18,12 +18,13 @@ function renderWithRefresh(render, model, refresh) {
   return tree;
 }
 
-exports.attach = function (element, render, model) {
+exports.attach = function (element, render, model, options) {
+  var requestRender = (options && options.requestRender) || window.requestAnimationFrame || setTimeout;
   var requested = false;
 
   function refresh() {
     if (!requested) {
-      requestAnimationFrame(function () {
+      requestRender(function () {
         var newTree = renderWithRefresh(render, model, refresh);
         var patches = diff(tree, newTree);
         rootNode = patch(rootNode, patches);

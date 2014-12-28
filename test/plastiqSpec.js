@@ -14,6 +14,10 @@ describe('plastiq', function () {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   });
 
+  function attach(render, model) {
+    plastiq.attach(div, render, model, { requestRender: setTimeout });
+  }
+
   function find(selector) {
     return $(div).find(selector);
   }
@@ -32,7 +36,7 @@ describe('plastiq', function () {
         return h('div.haha');
       }
 
-      plastiq.attach(div, render, {});
+      attach(render, {});
 
       expect(find('.haha').length).to.eql(1);
     });
@@ -43,7 +47,7 @@ describe('plastiq', function () {
           return h('div.haha', value);
         }
 
-        plastiq.attach(div, render, {});
+        attach(render, {});
 
         expect(find('.haha').text()).to.eql(expectedValue != undefined? expectedValue: String(value));
       });
@@ -60,7 +64,7 @@ describe('plastiq', function () {
           return h('div.one', {className: 'two three'});
         }
 
-        plastiq.attach(div, render, {});
+        attach(render, {});
 
         expect(find('div').attr('class')).to.eql('one two three');
       });
@@ -70,7 +74,7 @@ describe('plastiq', function () {
           return h('div.one', {className: ['two', 'three']});
         }
 
-        plastiq.attach(div, render, {});
+        attach(render, {});
 
         expect(find('div').attr('class')).to.eql('one two three');
       });
@@ -80,7 +84,7 @@ describe('plastiq', function () {
           return h('div.one', {className: {two: true, three: true, four: false}});
         }
 
-        plastiq.attach(div, render, {});
+        attach(render, {});
 
         expect(find('div').attr('class')).to.eql('one two three');
       });
@@ -99,7 +103,7 @@ describe('plastiq', function () {
       );
     }
 
-    plastiq.attach(div, render, {});
+    attach(render, {});
 
     return click('button').then(function () {
       return retry(function () {
@@ -123,7 +127,7 @@ describe('plastiq', function () {
       );
     }
 
-    plastiq.attach(div, render, {});
+    attach(render, {});
 
     return click('button').then(function () {
       return retry(function () {
@@ -141,7 +145,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, {text: ''});
+      attach(render, {text: ''});
 
       find('input').sendkeys('haha');
 
@@ -159,7 +163,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, {text: ''});
+      attach(render, {text: ''});
 
       find('textarea').sendkeys('haha');
 
@@ -177,7 +181,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, {check: false});
+      attach(render, {check: false});
 
       return retry(function() {
         expect(find('span').text()).to.equal('off');
@@ -213,7 +217,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, { colour: blue });
+      attach(render, { colour: blue });
 
       return retry(function() {
         expect(find('span').text()).to.equal('{"name":"blue"}');
@@ -250,7 +254,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, { colour: blue });
+      attach(render, { colour: blue });
 
       return retry(function() {
         expect(find('span').text()).to.equal('{"name":"blue"}');
@@ -308,7 +312,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, {});
+      attach(render, {});
 
       expect(find('span').text()).to.equal('');
 
