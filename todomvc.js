@@ -55,7 +55,14 @@ function render(model) {
       ]: undefined
     ),
     h('footer#info',
-      h('p', 'blah blah')
+      h('p', 'Double-click to edit a todo'),
+      h('p',
+        'Created by ',
+        h('a', {href: 'https://github.com/refractalize'}, 'Tim Macfarlane'),
+        ' using ',
+        h('a', {href: 'https://github.com/featurist/plastiq'}, 'plastiq')
+      ),
+      h('p', 'Part of ', h('a', {href: 'http://todomvc.com/'}, 'TodoMVC'))
     )
   );
 }
@@ -130,12 +137,10 @@ function completedFilter(todos) {
 
 plastiq.attach(document.body, render, {
   todos: [
-    {text: 'one'}
   ],
   filter: allFilter,
 
   deleteTodo: function (todo) {
-    console.log('deleting todo');
     var index = this.todos.indexOf(todo);
 
     if (index >= 0) {

@@ -19,12 +19,22 @@ function renderWithRefresh(render, model, refresh) {
   return tree;
 }
 
-exports.attach = function (element, render, model) {
+exports.attach = function (element, render, model, options) {
+  var requestRender = (options && options.requestRender) || window.requestAnimationFrame || setTimeout;
+  var requested = false;
+
   function refresh() {
-    var newTree = renderWithRefresh(render, model, refresh);
-    var patches = diff(tree, newTree);
-    rootNode = patch(rootNode, patches);
-    tree = newTree;
+    if (!requested) {
+      requestRender(function () {
+        requested = false;
+
+        var newTree = renderWithRefresh(render, model, refresh);
+        var patches = diff(tree, newTree);
+        rootNode = patch(rootNode, patches);
+        tree = newTree;
+      });
+      requested = true;
+    }
   }
 
   var tree = renderWithRefresh(render, model, refresh);
@@ -1922,7 +1932,14 @@ function render(model) {
       ]: undefined
     ),
     h('footer#info',
-      h('p', 'blah blah')
+      h('p', 'Double-click to edit a todo'),
+      h('p',
+        'Created by ',
+        h('a', {href: 'https://github.com/refractalize'}, 'Tim Macfarlane'),
+        ' using ',
+        h('a', {href: 'https://github.com/featurist/plastiq'}, 'plastiq')
+      ),
+      h('p', 'Part of ', h('a', {href: 'http://todomvc.com/'}, 'TodoMVC'))
     )
   );
 }
@@ -1997,12 +2014,10 @@ function completedFilter(todos) {
 
 plastiq.attach(document.body, render, {
   todos: [
-    {text: 'one'}
   ],
   filter: allFilter,
 
   deleteTodo: function (todo) {
-    console.log('deleting todo');
     var index = this.todos.indexOf(todo);
 
     if (index >= 0) {
