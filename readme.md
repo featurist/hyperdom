@@ -245,7 +245,9 @@ We also render several people using the `renderPerson` function, containing a `d
 
 ## Animations
 
-An event handler can return a function that is passed a `render` function that can be called to re-render the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
+An event handler can return a function that is passed a `render` function that can be called to request a re-render of the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
+
+Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.attach`](#plastiqattach) below.
 
 ```JavaScript
 function render(model) {
@@ -296,7 +298,7 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
 
-## Model Binding
+## `plastiq.bind`
 
 Form input elements can be passed a `binding` attribute, which is expected to be an object with two methods: `get` to get the current binding value, and `set` to set it. For example:
 
@@ -317,6 +319,44 @@ var binding = plastiq.bind(model, propertyName);
 
 * `model` - the object
 * `propertyName` - the name of the property
+
+## `plastiq.attach`
+
+```JavaScript
+plastiq.attach(element, render, model, [options]);
+```
+
+* `element` - any HTML element. The view is attached via `element.appendChild(view)`
+* `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
+* `model` - the model.
+* `options`
+  * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
+
+  ```JavaScript
+  function requestRender(fn) {
+    fn();
+  }
+  ```
+
+  Or on the next tick:
+
+  ```JavaScript
+  function requestRender(fn) {
+    setTimeout(fn, 0);
+  }
+  ```
+
+  Or on the next animation frame:
+
+  ```JavaScript
+  function requestRender(fn) {
+    requestAnimationFrame(fn);
+  }
+  ```
+
+  The default is `requestAnimationFrame`, falling back to `setTimeout`.
+
+  For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
 # Philosophy and Motivation
 
