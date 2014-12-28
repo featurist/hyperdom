@@ -155,6 +155,30 @@ describe('plastiq', function () {
       });
     });
 
+    it('can bind to a text input and oninput', function () {
+      function render(model) {
+        return h('div',
+          h('input', {
+            type: 'text',
+            binding: bind(model, 'tempText'),
+            oninput: function (ev) {
+              model.text = model.tempText;
+            }
+          }),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {text: ''});
+
+      find('input').sendkeys('haha{newline}');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('haha');
+        expect(find('input').val()).to.equal('haha');
+      });
+    });
+
     it('can bind to a textarea', function () {
       function render(model) {
         return h('div',

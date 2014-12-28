@@ -73,18 +73,34 @@ function bindTextInput(attributes, children, get, set) {
 
   attributes.value = get();
 
-  listenToEvents(attributes, textEventNames, function (ev) {
+  attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
   });
 }
 
-function listenToEvents(attributes, eventNames, handler) {
+function sequenceFunctions(handler1, handler2) {
+  return function (ev) {
+    handler1(ev);
+    return handler2(ev);
+  };
+}
+
+function insertEventHandler(attributes, eventName, handler) {
+  var previousHandler = attributes[eventName];
+  if (previousHandler) {
+    attributes[eventName] = sequenceFunctions(handler, previousHandler);
+  } else {
+    attributes[eventName] = handler;
+  }
+}
+
+function attachEventHandler(attributes, eventNames, handler) {
   if (eventNames instanceof Array) {
     eventNames.forEach(function (eventName) {
-      attributes[eventName] = handler;
+      insertEventHandler(attributes, eventName, handler);
     });
   } else {
-    attributes[eventNames] = handler;
+    insertEventHandler(attributes, eventNames, handler);
   }
 }
 
@@ -95,7 +111,7 @@ function bindModel(attributes, children, type) {
     checkbox: function (attributes, children, get, set) {
       attributes.checked = get();
 
-      listenToEvents(attributes, 'onclick', function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(ev.target.checked);
       });
     },
@@ -103,9 +119,9 @@ function bindModel(attributes, children, type) {
       var value = attributes.value;
       attributes.checked = get() == attributes.value;
 
-      attributes.onclick = function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(value);
-      };
+      });
     },
     select: function (attributes, children, get, set) {
       var currentValue = get();
@@ -127,20 +143,20 @@ function bindModel(attributes, children, type) {
         option.properties.value = index;
       });
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         set(values[ev.target.value]);
-      };
+      });
     },
     file: function (attributes, children, get, set) {
       var multiple = attributes.multiple;
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         if (multiple) {
           set(ev.target.files);
         } else {
           set(ev.target.files[0]);
         }
-      };
+      });
     }
   };
 
