@@ -192,44 +192,46 @@ Here we have a `render` function that contains an `addPerson` function that adds
 
 We also render several people using the `renderPerson` function, containing a `deletePerson` function to delete the person when the `delete` button is clicked.
 
-    function render(page) {
-      function addPerson() {
-        page.people.push({name: "somebody"});
-      }
+```JavaScript
+function render(page) {
+  function addPerson() {
+    page.people.push({name: "somebody"});
+  }
 
-      return h('div.content',
-        h('h1', 'People'),
-        h('ol',
-          page.people.map(function (person) {
-            return renderPerson(page, person);
-          })
-        ),
-        h('button', {onclick: addPerson}, 'add')
-      );
+  return h('div.content',
+    h('h1', 'People'),
+    h('ol',
+      page.people.map(function (person) {
+        return renderPerson(page, person);
+      })
+    ),
+    h('button', {onclick: addPerson}, 'add')
+  );
+}
+
+function renderPerson(page, person) {
+  function deletePerson() {
+    var i = page.people.indexOf(person);
+
+    if (i >= 0) {
+      page.people.splice(i, 1);
     }
+  }
 
-    function renderPerson(page, person) {
-      function deletePerson() {
-        var i = page.people.indexOf(person);
+  return h('li',
+    h('input', {model: bind(person, 'name')}),
+    h('button', {onclick: deletePerson}, 'delete')
+  )
+}
 
-        if (i >= 0) {
-          page.people.splice(i, 1);
-        }
-      }
-
-      return h('li',
-        h('input', {model: bind(person, 'name')}),
-        h('button', {onclick: deletePerson}, 'delete')
-      )
-    }
-
-    plastiq.attach(document.body, render, {
-      people: [
-        {name: 'Åke'},
-        {name: 'آمر'},
-        {name: '正'}
-      ]
-    });
+plastiq.attach(document.body, render, {
+  people: [
+    {name: 'Åke'},
+    {name: 'آمر'},
+    {name: '正'}
+  ]
+});
+```
 
 ## Animations
 
