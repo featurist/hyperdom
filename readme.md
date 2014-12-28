@@ -53,6 +53,16 @@ h('span.name', 'hi ', model.name);
 h('span', { style: { color: 'red' } }, 'name: ', model.name);
 ```
 
+### Classes
+
+* an string, e.g. `'item selected'`.
+* an array - the classes will be all the items space delimited, e.g. `['item', 'selected']`.
+* an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
+
+```JavaScript
+h('span', { className = { selected: model.selected } }, 'name: ', model.name);
+```
+
 ## Responding to Events
 
 Pass a function to any `on*` event handler.

@@ -198,9 +198,27 @@ exports.html = function (selector) {
       }
     });
 
+    if (properties.className) {
+      properties.className = generateClassName(properties.className);
+    }
+
     return h.call(undefined, selector, properties, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
+  }
+};
+
+function generateClassName(obj) {
+  if (typeof(obj) == 'object') {
+    if (obj instanceof Array) {
+      return obj.join(' ');
+    } else {
+      return Object.keys(obj).filter(function (key) {
+        return obj[key];
+      }).join(' ');
+    }
+  } else {
+    return obj;
   }
 };

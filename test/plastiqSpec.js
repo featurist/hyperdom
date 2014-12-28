@@ -53,6 +53,38 @@ describe('plastiq', function () {
     itCanRenderA('boolean', true);
     itCanRenderA('date', new Date());
     itCanRenderA('undefined', undefined, '');
+
+    describe('className', function () {
+      it('accepts a string', function () {
+        function render(model) {
+          return h('div.one', {className: 'two three'});
+        }
+
+        plastiq.attach(div, render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+
+      it('accepts an array', function () {
+        function render(model) {
+          return h('div.one', {className: ['two', 'three']});
+        }
+
+        plastiq.attach(div, render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+
+      it('accepts an object', function () {
+        function render(model) {
+          return h('div.one', {className: {two: true, three: true, four: false}});
+        }
+
+        plastiq.attach(div, render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+    });
   });
 
   it('can respond to button clicks', function () {
