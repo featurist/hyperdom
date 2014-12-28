@@ -19,7 +19,7 @@ var bind = plastiq.bind;
 function render(model) {
   return h('div',
     h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', model: bind(model, 'name')}),
+    h('input', {type: 'text', binding: bind(model, 'name')}),
     h('div', 'hi ', model.name)
   );
 }
@@ -100,7 +100,7 @@ Use the `plastiq.bind` function, and the `model` attribute to bind the model to 
 function render(model) {
   return h('div',
     h('label', "what's your name?"),
-    h('input', {type: 'text', model: bind(model, 'name')}),
+    h('input', {type: 'text', binding: bind(model, 'name')}),
     h('div', 'hi ' + model.name)
   );
 }
@@ -122,13 +122,13 @@ function render(model) {
     h('input.red', {
       type: 'radio',
       name: 'colour',
-      model: bind(model, 'colour'),
+      binding: bind(model, 'colour'),
       value: 'red'
     }),
     h('input.blue', {
       type: 'radio',
       name: 'colour',
-      model: bind(model, 'colour'),
+      binding: bind(model, 'colour'),
       value: blue
     }),
     h('span', JSON.stringify(model.colour))
@@ -148,7 +148,7 @@ var blue = { name: 'blue' };
 function render(model) {
   return h('div',
     h('select',
-      {model: bind(model, 'colour')},
+      {binding: bind(model, 'colour')},
       h('option.red', {value: 'red'}, 'red'),
       h('option.blue', {value: blue}, 'blue')
     ),
@@ -161,7 +161,7 @@ plastiq.attach(document.body, render, { colour: blue });
 
 ## File Inputs
 
-The file input is much like any other binding, except that the model is only ever written to, never read from. The file input can only be set by a user selecting a file.
+The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
 
 ```JavaScript
 function render(model) {
@@ -169,17 +169,19 @@ function render(model) {
     h('input',
       {
         type: 'file',
-        model: function (file) {
-          return new Promise(function (result) {
-            var reader = new FileReader();
-            reader.readAsText(file);
+        binding: {
+          set: function (file) {
+            return new Promise(function (result) {
+              var reader = new FileReader();
+              reader.readAsText(file);
 
-            reader.onloadend = function () {
-              model.filename = file.name;
-              model.contents = reader.result;
-              result();
-            };
-          });
+              reader.onloadend = function () {
+                model.filename = file.name;
+                model.contents = reader.result;
+                result();
+              };
+            });
+          }
         }
       }
     ),
@@ -228,7 +230,7 @@ We also render several people using the `renderPerson` function, containing a `d
       }
 
       return h('li',
-        h('input', {model: bind(person, 'name')}),
+        h('input', {binding: bind(person, 'name')}),
         h('button', {onclick: deletePerson}, 'delete')
       )
     }
@@ -296,28 +298,21 @@ If the event handler returns a function, then that function will be called with 
 
 ## Model Binding
 
-Form input elements can be passed a `model` attribute, which is expected to be a function. The function will be invoked in two ways.
+Form input elements can be passed a `binding` attribute, which is expected to be an object with two methods: `get` to get the current binding value, and `set` to set it. For example:
 
-To get the current value of the model property:
+    {
+      get: function () {
+        return model.property;
+      },
+      set: function (value) {
+        model.property = value;
+      }
+    }
 
-```JavaScript
-var modelValue = attributes.model();
-```
-
-* `modelValue` - the function should return the current value of the model property.
-
-To set the new value of the model property:
-
-```JavaScript
-attributes.model(newModelValue);
-```
-
-* `newModelValue` - the new value from the form input element.
-
-The `plastiq.bind` function can be used to create such a binding function:
+The `plastiq.bind` function is shorthand for this, creating a new binding for the model and property name:
 
 ```JavaScript
-attributes.model = plastiq.bind(model, propertyName);
+var binding = plastiq.bind(model, propertyName);
 ```
 
 * `model` - the object

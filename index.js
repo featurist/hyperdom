@@ -42,11 +42,12 @@ exports.attach = function (element, render, model, options) {
 };
 
 exports.bind = function (obj, prop) {
-  return function (arg) {
-    if (arg === undefined) {
+  return {
+    get: function () {
       return obj[prop];
-    } else {
-      obj[prop] = arg;
+    },
+    set: function (value) {
+      obj[prop] = value;
     }
   };
 };
@@ -87,7 +88,7 @@ function listenToEvents(attributes, eventNames, handler) {
   }
 }
 
-function bindValue(attributes, children, type) {
+function bindModel(attributes, children, type) {
   var inputTypeBindings = {
     text: bindTextInput,
     textarea: bindTextInput,
@@ -145,7 +146,7 @@ function bindValue(attributes, children, type) {
 
   var binding = inputTypeBindings[type] || bindTextInput;
 
-  binding(attributes, children, attributes.model, refreshFunction(attributes.model));
+  binding(attributes, children, attributes.binding.get, refreshFunction(attributes.binding.set));
 }
 
 function inputType(selector, properties) {
@@ -200,16 +201,16 @@ exports.html = function (selector) {
 
     Object.keys(properties).forEach(function (key) {
       if (typeof(properties[key]) == 'function') {
-        if (key == 'model') {
-          bindValue(properties, childElements, inputType(selector, properties));
-        } else {
-          properties[key] = refreshFunction(properties[key]);
-        }
+        properties[key] = refreshFunction(properties[key]);
       }
     });
 
     if (properties.className) {
       properties.className = generateClassName(properties.className);
+    }
+
+    if (properties.binding) {
+      bindModel(properties, childElements, inputType(selector, properties));
     }
 
     return h.call(undefined, selector, properties, childElements);

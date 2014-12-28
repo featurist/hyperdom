@@ -140,7 +140,7 @@ describe('plastiq', function () {
     it('can bind to a text input', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'text', model: bind(model, 'text')}),
+          h('input', {type: 'text', binding: bind(model, 'text')}),
           h('span', model.text)
         );
       }
@@ -158,7 +158,7 @@ describe('plastiq', function () {
     it('can bind to a textarea', function () {
       function render(model) {
         return h('div',
-          h('textarea', {model: bind(model, 'text')}),
+          h('textarea', {binding: bind(model, 'text')}),
           h('span', model.text)
         );
       }
@@ -176,7 +176,7 @@ describe('plastiq', function () {
     it('can bind to a checkbox', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'checkbox', model: bind(model, 'check')}),
+          h('input', {type: 'checkbox', binding: bind(model, 'check')}),
           h('span', model.check? 'on': 'off')
         );
       }
@@ -204,13 +204,13 @@ describe('plastiq', function () {
           h('input.red', {
             type: 'radio',
             name: 'colour',
-            model: bind(model, 'colour'),
+            binding: bind(model, 'colour'),
             value: 'red'
           }),
           h('input.blue', {
             type: 'radio',
             name: 'colour',
-            model: bind(model, 'colour'),
+            binding: bind(model, 'colour'),
             value: blue
           }),
           h('span', JSON.stringify(model.colour))
@@ -246,7 +246,7 @@ describe('plastiq', function () {
       function render(model) {
         return h('div',
           h('select',
-            {model: bind(model, 'colour')},
+            {binding: bind(model, 'colour')},
             h('option.red', {value: 'red'}, 'red'),
             h('option.blue', {value: blue}, 'blue')
           ),
