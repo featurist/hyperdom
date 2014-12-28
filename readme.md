@@ -356,6 +356,8 @@ plastiq.attach(element, render, model, [options]);
 
   The default is `requestAnimationFrame`, falling back to `setTimeout`.
 
+  For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
+
 # Philosophy and Motivation
 
 React introduced an amazing idea: re-render the page anew every time the model changes, but only apply the differences since the last render. This is not only very efficient, but also affords a very simple programming model for user interfaces. The user interface is created from a function that takes only the model as input.
