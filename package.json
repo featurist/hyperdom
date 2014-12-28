@@ -21,8 +21,7 @@
     "watchify": "^2.2.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "karma start --single-run"
   },
   "keywords": [
     "virtual-dom",
