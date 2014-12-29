@@ -9,6 +9,22 @@ It leverages a simple architecture for single page applications:
 
 Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Read the [philosophy and motivation](#philosophy-and-motivation).
 
+# install
+
+    npm install plastiq
+
+Use either with browserify:
+
+    var plastiq = require('plastiq');
+
+Or from HTML, first create a symlink:
+
+    ln -s node_modules/plastiq/plastiq.js public/plastiq.js
+
+Then
+
+    <script src="plastiq.js"></script>
+
 # An Example
 
 ```JavaScript
@@ -33,7 +49,7 @@ Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
 
 ## Rendering the View
 
-The **render** function should take a **model** and return a virtual DOM fragment:
+The `render` function should take a model object and return a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
 
 ```JavaScript
 function render(model) {
@@ -53,6 +69,18 @@ h('span.name', 'hi ', model.name);
 h('span', { style: { color: 'red' } }, 'name: ', model.name);
 ```
 
+### Raw HTML
+
+Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
+
+```JavaScript
+function render(model) {
+  return h.rawHtml('div',
+    {style: { color: 'red' } },
+    'some dangerous <script>doTerribleThings()</script> HTML');
+}
+```
+
 ### Classes
 
 * an string, e.g. `'item selected'`.
@@ -60,7 +88,7 @@ h('span', { style: { color: 'red' } }, 'name: ', model.name);
 * an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
 
 ```JavaScript
-h('span', { className = { selected: model.selected } }, 'name: ', model.name);
+h('span', { class = { selected: model.selected } }, 'name: ', model.name);
 ```
 
 ## Responding to Events
@@ -69,9 +97,11 @@ Pass a function to any `on*` event handler.
 
 When the event handler has completed the view is automatically re-rendered.
 
+If you return a promise, then the view is re-rendered when the promise resolves. You can also return a function to have more control over when rendering happens, see [animations](#animations).
+
 ```JavaScript
 function render(model) {
-  return h('div', 
+  return h('div',
     h('ul',
       model.people.map(function (person) {
         return h('li', person.name);
@@ -94,7 +124,7 @@ Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
 
-Use the `plastiq.bind` function, and the `model` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
+Use the `plastiq.bind` function, and the `binding` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
 
 ```JavaScript
 function render(model) {
@@ -198,50 +228,58 @@ plastiq.attach(document.body, render, {
 
 ## Components and Controllers
 
-Plastiq doesn't really have components as in React or directives as in AngularJS, nor does it have first class controllers. Instead the `render` functions can contain "controller" logic by responding to events, and the page can be broken down into reusable sections by extracting `render` functions that operate on different parts of the model. It's refreshingly simple, and uses normal JavaScript abstractions like functions and objects.
+Plastiq doesn't really have components like React or directives like AngularJS, nor does it have first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects so all the usual refactoring techniques apply.
 
-Here we have a `render` function that contains an `addPerson` function that adds a person when the `add` button is clicked.
+In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
 
-We also render several people using the `renderPerson` function, containing a `deletePerson` function to delete the person when the `delete` button is clicked.
+```JavaScript
+function render(model) {
+  return h('div.content',
+    h('h1', 'People'),
+    h('ol',
+      model.people.map(function (person) {
+        return renderPerson(model, person);
+      })
+    ),
+    h('button',
+      {
+        onclick: function () { model.addPerson(); }
+      },
+      'add')
+  );
+}
 
-    function render(page) {
-      function addPerson() {
-        page.people.push({name: "somebody"});
-      }
+function renderPerson(model, person) {
+  return h('li',
+    h('input', {binding: bind(person, 'name')}),
+    h('button',
+      {
+        onclick: function () { model.deletePerson(person); }
+      },
+      'delete')
+  )
+}
 
-      return h('div.content',
-        h('h1', 'People'),
-        h('ol',
-          page.people.map(function (person) {
-            return renderPerson(page, person);
-          })
-        ),
-        h('button', {onclick: addPerson}, 'add')
-      );
+plastiq.attach(document.body, render, {
+  people: [
+    {name: 'Åke'},
+    {name: 'آمر'},
+    {name: '正'}
+  ],
+
+  addPerson: function () {
+    this.people.push({name: "somebody"});
+  },
+
+  deletePerson: function (person) {
+    var i = this.people.indexOf(person);
+
+    if (i >= 0) {
+      this.people.splice(i, 1);
     }
-
-    function renderPerson(page, person) {
-      function deletePerson() {
-        var i = page.people.indexOf(person);
-
-        if (i >= 0) {
-          page.people.splice(i, 1);
-        }
-      }
-
-      return h('li',
-        h('input', {binding: bind(person, 'name')}),
-        h('button', {onclick: deletePerson}, 'delete')
-      )
-    }
-
-    plastiq.attach(document.body, render, {
-      people: [
-        {name: 'Åke'},
-        {name: 'آمر'},
-        {name: '正'}
-      ]
-    });
+  }
+});
+```
 
 ## Animations
 
@@ -276,7 +314,7 @@ Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 ## `plastiq.html`
 
 ```JavaScript
-var vdomFragment = plastiq.html(selector, [attributes], children, ...)
+var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 ```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
@@ -297,6 +335,18 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 ### Animations
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
+
+## `plastiq.html.rawHtml`
+
+Careful of script injection attacks! Make sure the HTML is trusted or free of `<script>` tags.
+
+```JavaScript
+var vdomFragment = plastiq.html.rawHtml(selector, [attributes], html);
+```
+
+* `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
+* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
+* `html` - the element's inner HTML.
 
 ## `plastiq.bind`
 

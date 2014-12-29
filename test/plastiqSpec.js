@@ -58,10 +58,10 @@ describe('plastiq', function () {
     itCanRenderA('date', new Date());
     itCanRenderA('undefined', undefined, '');
 
-    describe('className', function () {
+    describe('class', function () {
       it('accepts a string', function () {
         function render(model) {
-          return h('div.one', {className: 'two three'});
+          return h('div.one', {class: 'two three'});
         }
 
         attach(render, {});
@@ -71,7 +71,7 @@ describe('plastiq', function () {
 
       it('accepts an array', function () {
         function render(model) {
-          return h('div.one', {className: ['two', 'three']});
+          return h('div.one', {class: ['two', 'three']});
         }
 
         attach(render, {});
@@ -81,12 +81,72 @@ describe('plastiq', function () {
 
       it('accepts an object', function () {
         function render(model) {
-          return h('div.one', {className: {two: true, three: true, four: false}});
+          return h('div.one', {class: {two: true, three: true, four: false}});
         }
 
         attach(render, {});
 
         expect(find('div').attr('class')).to.eql('one two three');
+      });
+    });
+
+    describe('attribute naming exceptions', function () {
+      it('can render a for attribute', function () {
+          function render(model) {
+            return h('div',
+              h('label', {for: 'blah'})
+            );
+          }
+
+          attach(render, {text: 'one'});
+
+          expect(find('label').attr('for')).to.eql('blah');
+      });
+    });
+
+    describe('raw unescaped HTML', function () {
+      it('can render raw HTML', function () {
+        function render(model) {
+          return h('div',
+            model.text
+              ? h.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
+              : undefined,
+            h('button.two', {onclick: function () { model.text = 'two'; }}),
+            h('button.three', {onclick: function () { model.text = ''; }})
+          );
+        }
+
+        attach(render, {text: 'one'});
+
+        expect(find('p').html()).to.eql('some <strong>dangerous HTML (one)</strong>');
+
+        return click('button.two').then(function () {
+
+          return retry(function () {
+            expect(find('p').html()).to.eql('some <strong>dangerous HTML (two)</strong>');
+          }).then(function () {
+            return click('button.three').then(function () {
+              return retry(function () {
+                expect(find('p').length).to.eql(0);
+              });
+            });
+          });
+        });
+      });
+
+      it('can render raw HTML with attributes', function () {
+        function render(model) {
+          return h('div',
+            h.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
+          );
+        }
+
+        attach(render, {text: 'one'});
+
+        var p = find('p');
+        expect(p.html()).to.eql('some <strong>dangerous HTML</strong>');
+        expect(p.attr('class')).to.eql('raw');
+        expect(p.attr('style')).to.eql('color: red;');
       });
     });
   });
@@ -148,6 +208,30 @@ describe('plastiq', function () {
       attach(render, {text: ''});
 
       find('input').sendkeys('haha');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('haha');
+        expect(find('input').val()).to.equal('haha');
+      });
+    });
+
+    it('can bind to a text input and oninput', function () {
+      function render(model) {
+        return h('div',
+          h('input', {
+            type: 'text',
+            binding: bind(model, 'tempText'),
+            oninput: function (ev) {
+              model.text = model.tempText;
+            }
+          }),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {text: ''});
+
+      find('input').sendkeys('haha{newline}');
 
       return retry(function() {
         expect(find('span').text()).to.equal('haha');
