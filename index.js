@@ -162,7 +162,11 @@ function bindModel(attributes, children, type) {
 
   var binding = inputTypeBindings[type] || bindTextInput;
 
-  binding(attributes, children, attributes.binding.get, refreshFunction(attributes.binding.set));
+  var bindingAttr = attributes.binding;
+  if (bindingAttr instanceof Array) {
+    bindingAttr = exports.bind(bindingAttr[0], bindingAttr[1]);
+  }
+  binding(attributes, children, bindingAttr.get, refreshFunction(bindingAttr.set));
 }
 
 function inputType(selector, attributes) {
