@@ -95,7 +95,7 @@ describe('plastiq', function () {
         function render(model) {
           return h('div',
             model.text
-              ? h.rawHtml('<p>some <strong>dangerous HTML (' + model.text + ')</p>')
+              ? h.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
               : undefined,
             h('button.two', {onclick: function () { model.text = 'two'; }}),
             h('button.three', {onclick: function () { model.text = ''; }})
@@ -120,24 +120,19 @@ describe('plastiq', function () {
         });
       });
 
-      it('renders the first element of raw HTML', function () {
+      it('can render raw HTML with attributes', function () {
         function render(model) {
-          return h('div', h.rawHtml('some <strong>dangerous HTML'));
+          return h('div',
+            h.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
+          );
         }
 
         attach(render, {text: 'one'});
 
-        expect(find('div').html()).to.eql('some ');
-      });
-
-      it('can accept arguments like h()', function () {
-        function render(model) {
-          return h.rawHtml('div', 'some <strong>dangerous HTML');
-        }
-
-        attach(render, {text: 'one'});
-
-        expect(find('div').html()).to.eql('some <strong>dangerous HTML</strong>');
+        var p = find('p');
+        expect(p.html()).to.eql('some <strong>dangerous HTML</strong>');
+        expect(p.attr('class')).to.eql('raw');
+        expect(p.attr('style')).to.eql('color: red;');
       });
     });
   });

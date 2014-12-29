@@ -236,20 +236,21 @@ exports.html = function (selector) {
   }
 };
 
-function RawHtmlWidget(html) {
+function RawHtmlWidget(selector, options, html) {
+  this.selector = selector;
+  this.options = options;
   this.html = html;
 }
 
 RawHtmlWidget.prototype.type = 'Widget';
 
 RawHtmlWidget.prototype.init = function () {
-  var element = document.createElement('div');
+  var element = createElement(exports.html(this.selector, this.options));
   element.innerHTML = this.html;
-  return element.firstChild;
+  return element;
 };
 
 RawHtmlWidget.prototype.update = function (previous, element) {
-  console.log('updating element', element);
   element.parentNode.replaceChild(this.init(), element);
 };
 
@@ -257,8 +258,12 @@ RawHtmlWidget.prototype.destroy = function (element) {
 };
 
 
-exports.html.rawHtml = function (html) {
-  return new RawHtmlWidget(html);
+exports.html.rawHtml = function (selector, options, html) {
+  if (arguments.length == 2) {
+    return new RawHtmlWidget(selector, undefined, options);
+  } else {
+    return new RawHtmlWidget(selector, options, html);
+  }
 };
 
 function generateClassName(obj) {
