@@ -236,6 +236,31 @@ exports.html = function (selector) {
   }
 };
 
+function RawHtmlWidget(html) {
+  this.html = html;
+}
+
+RawHtmlWidget.prototype.type = 'Widget';
+
+RawHtmlWidget.prototype.init = function () {
+  var element = document.createElement('div');
+  element.innerHTML = this.html;
+  return element.firstChild;
+};
+
+RawHtmlWidget.prototype.update = function (previous, element) {
+  console.log('updating element', element);
+  element.parentNode.replaceChild(this.init(), element);
+};
+
+RawHtmlWidget.prototype.destroy = function (element) {
+};
+
+
+exports.html.rawHtml = function (html) {
+  return new RawHtmlWidget(html);
+};
+
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
     if (obj instanceof Array) {

@@ -91,14 +91,53 @@ describe('plastiq', function () {
     });
 
     describe('rawHtml', function () {
-      it.only('can render raw HTML', function () {
+      it('can render raw HTML', function () {
+        function render(model) {
+          return h('div',
+            model.text
+              ? h.rawHtml('<p>some <strong>dangerous HTML (' + model.text + ')</p>')
+              : undefined,
+            h('button.two', {onclick: function () { model.text = 'two'; }}),
+            h('button.three', {onclick: function () { model.text = ''; }})
+          );
+        }
+
+        attach(render, {text: 'one'});
+
+        expect(find('p').html()).to.eql('some <strong>dangerous HTML (one)</strong>');
+
+        return click('button.two').then(function () {
+
+          return retry(function () {
+            expect(find('p').html()).to.eql('some <strong>dangerous HTML (two)</strong>');
+          }).then(function () {
+            return click('button.three').then(function () {
+              return retry(function () {
+                expect(find('p').length).to.eql(0);
+              });
+            });
+          });
+        });
+      });
+
+      it('renders the first element of raw HTML', function () {
         function render(model) {
           return h('div', h.rawHtml('some <strong>dangerous HTML'));
         }
 
-        attach(render, {});
+        attach(render, {text: 'one'});
 
-        expect(find('div').html()).to.eql('some <strong>dangerous HTML');
+        expect(find('div').html()).to.eql('some ');
+      });
+
+      it('can accept arguments like h()', function () {
+        function render(model) {
+          return h.rawHtml('div', 'some <strong>dangerous HTML');
+        }
+
+        attach(render, {text: 'one'});
+
+        expect(find('div').html()).to.eql('some <strong>dangerous HTML</strong>');
       });
     });
   });
