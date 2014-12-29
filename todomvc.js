@@ -32,7 +32,7 @@ function render(model) {
                 }
               }
             }),
-            h('label', {'htmlFor': 'toggle-all'}, 'Mark all as complete'),
+            h('label', {for: 'toggle-all'}, 'Mark all as complete'),
             h('ul#todo-list', model.filteredTodos().map(function (todo, index) {
               return renderTodo(model, todo);
             }))
@@ -77,7 +77,7 @@ function renderFilter(model, filter, name) {
       model.filter = filter;
       return false;
     },
-    className: { selected: model.filter == filter }
+    class: { selected: model.filter == filter }
   }, name))
 }
 
@@ -86,7 +86,7 @@ function renderTodo(model, todo) {
 
   return h('li',
     {
-      className: {
+      class: {
         completed: todo.done,
         editing: editing
       }

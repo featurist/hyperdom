@@ -74,18 +74,34 @@ function bindTextInput(attributes, children, get, set) {
 
   attributes.value = get();
 
-  listenToEvents(attributes, textEventNames, function (ev) {
+  attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
   });
 }
 
-function listenToEvents(attributes, eventNames, handler) {
+function sequenceFunctions(handler1, handler2) {
+  return function (ev) {
+    handler1(ev);
+    return handler2(ev);
+  };
+}
+
+function insertEventHandler(attributes, eventName, handler) {
+  var previousHandler = attributes[eventName];
+  if (previousHandler) {
+    attributes[eventName] = sequenceFunctions(handler, previousHandler);
+  } else {
+    attributes[eventName] = handler;
+  }
+}
+
+function attachEventHandler(attributes, eventNames, handler) {
   if (eventNames instanceof Array) {
     eventNames.forEach(function (eventName) {
-      attributes[eventName] = handler;
+      insertEventHandler(attributes, eventName, handler);
     });
   } else {
-    attributes[eventNames] = handler;
+    insertEventHandler(attributes, eventNames, handler);
   }
 }
 
@@ -96,7 +112,7 @@ function bindModel(attributes, children, type) {
     checkbox: function (attributes, children, get, set) {
       attributes.checked = get();
 
-      listenToEvents(attributes, 'onclick', function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(ev.target.checked);
       });
     },
@@ -104,9 +120,9 @@ function bindModel(attributes, children, type) {
       var value = attributes.value;
       attributes.checked = get() == attributes.value;
 
-      attributes.onclick = function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(value);
-      };
+      });
     },
     select: function (attributes, children, get, set) {
       var currentValue = get();
@@ -128,20 +144,20 @@ function bindModel(attributes, children, type) {
         option.properties.value = index;
       });
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         set(values[ev.target.value]);
-      };
+      });
     },
     file: function (attributes, children, get, set) {
       var multiple = attributes.multiple;
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         if (multiple) {
           set(ev.target.files);
         } else {
           set(ev.target.files[0]);
         }
-      };
+      });
     }
   };
 
@@ -150,13 +166,13 @@ function bindModel(attributes, children, type) {
   binding(attributes, children, attributes.binding.get, refreshFunction(attributes.binding.set));
 }
 
-function inputType(selector, properties) {
+function inputType(selector, attributes) {
   if (/^textarea\b/i.test(selector)) {
     return 'textarea';
   } else if (/^select\b/i.test(selector)) {
     return 'select';
   } else {
-    return properties.type || 'text';
+    return attributes.type || 'text';
   }
 }
 
@@ -192,32 +208,77 @@ function normaliseChildren(children) {
   });
 }
 
+function applyAttributeRenames(attributes) {
+  var renames = {
+    for: 'htmlFor',
+    class: 'className'
+  };
+
+  Object.keys(renames).forEach(function (key) {
+    if (attributes[key] !== undefined) {
+      attributes[renames[key]] = attributes[key];
+    }
+  });
+}
+
 exports.html = function (selector) {
-  var properties;
+  var attributes;
   var childElements;
 
   if (arguments[1] && arguments[1].constructor == Object) {
-    properties = arguments[1];
+    attributes = arguments[1];
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
 
-    Object.keys(properties).forEach(function (key) {
-      if (typeof(properties[key]) == 'function') {
-        properties[key] = refreshFunction(properties[key]);
+    Object.keys(attributes).forEach(function (key) {
+      if (typeof(attributes[key]) == 'function') {
+        attributes[key] = refreshFunction(attributes[key]);
       }
     });
 
-    if (properties.className) {
-      properties.className = generateClassName(properties.className);
+    applyAttributeRenames(attributes);
+
+    if (attributes.className) {
+      attributes.className = generateClassName(attributes.className);
     }
 
-    if (properties.binding) {
-      bindModel(properties, childElements, inputType(selector, properties));
+    if (attributes.binding) {
+      bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
-    return h.call(undefined, selector, properties, childElements);
+    return h.call(undefined, selector, attributes, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
+  }
+};
+
+function RawHtmlWidget(selector, options, html) {
+  this.selector = selector;
+  this.options = options;
+  this.html = html;
+}
+
+RawHtmlWidget.prototype.type = 'Widget';
+
+RawHtmlWidget.prototype.init = function () {
+  var element = createElement(exports.html(this.selector, this.options));
+  element.innerHTML = this.html;
+  return element;
+};
+
+RawHtmlWidget.prototype.update = function (previous, element) {
+  element.parentNode.replaceChild(this.init(), element);
+};
+
+RawHtmlWidget.prototype.destroy = function (element) {
+};
+
+
+exports.html.rawHtml = function (selector, options, html) {
+  if (arguments.length == 2) {
+    return new RawHtmlWidget(selector, undefined, options);
+  } else {
+    return new RawHtmlWidget(selector, options, html);
   }
 };
 
@@ -1910,7 +1971,7 @@ function render(model) {
                 }
               }
             }),
-            h('label', {'htmlFor': 'toggle-all'}, 'Mark all as complete'),
+            h('label', {for: 'toggle-all'}, 'Mark all as complete'),
             h('ul#todo-list', model.filteredTodos().map(function (todo, index) {
               return renderTodo(model, todo);
             }))
@@ -1955,7 +2016,7 @@ function renderFilter(model, filter, name) {
       model.filter = filter;
       return false;
     },
-    className: { selected: model.filter == filter }
+    class: { selected: model.filter == filter }
   }, name))
 }
 
@@ -1964,7 +2025,7 @@ function renderTodo(model, todo) {
 
   return h('li',
     {
-      className: {
+      class: {
         completed: todo.done,
         editing: editing
       }
