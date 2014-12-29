@@ -88,7 +88,7 @@ function render(model) {
 * an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
 
 ```JavaScript
-h('span', { className = { selected: model.selected } }, 'name: ', model.name);
+h('span', { class = { selected: model.selected } }, 'name: ', model.name);
 ```
 
 ## Responding to Events

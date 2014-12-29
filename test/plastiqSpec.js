@@ -58,10 +58,10 @@ describe('plastiq', function () {
     itCanRenderA('date', new Date());
     itCanRenderA('undefined', undefined, '');
 
-    describe('className', function () {
+    describe('class', function () {
       it('accepts a string', function () {
         function render(model) {
-          return h('div.one', {className: 'two three'});
+          return h('div.one', {class: 'two three'});
         }
 
         attach(render, {});
@@ -71,7 +71,7 @@ describe('plastiq', function () {
 
       it('accepts an array', function () {
         function render(model) {
-          return h('div.one', {className: ['two', 'three']});
+          return h('div.one', {class: ['two', 'three']});
         }
 
         attach(render, {});
@@ -81,7 +81,7 @@ describe('plastiq', function () {
 
       it('accepts an object', function () {
         function render(model) {
-          return h('div.one', {className: {two: true, three: true, four: false}});
+          return h('div.one', {class: {two: true, three: true, four: false}});
         }
 
         attach(render, {});
@@ -90,7 +90,21 @@ describe('plastiq', function () {
       });
     });
 
-    describe('rawHtml', function () {
+    describe('attribute naming exceptions', function () {
+      it('can render a for attribute', function () {
+          function render(model) {
+            return h('div',
+              h('label', {for: 'blah'})
+            );
+          }
+
+          attach(render, {text: 'one'});
+
+          expect(find('label').attr('for')).to.eql('blah');
+      });
+    });
+
+    describe('raw unescaped HTML', function () {
       it('can render raw HTML', function () {
         function render(model) {
           return h('div',

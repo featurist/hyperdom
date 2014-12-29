@@ -165,13 +165,13 @@ function bindModel(attributes, children, type) {
   binding(attributes, children, attributes.binding.get, refreshFunction(attributes.binding.set));
 }
 
-function inputType(selector, properties) {
+function inputType(selector, attributes) {
   if (/^textarea\b/i.test(selector)) {
     return 'textarea';
   } else if (/^select\b/i.test(selector)) {
     return 'select';
   } else {
-    return properties.type || 'text';
+    return attributes.type || 'text';
   }
 }
 
@@ -207,29 +207,44 @@ function normaliseChildren(children) {
   });
 }
 
+function applyAttributeRenames(attributes) {
+  var renames = {
+    for: 'htmlFor',
+    class: 'className'
+  };
+
+  Object.keys(renames).forEach(function (key) {
+    if (attributes[key] !== undefined) {
+      attributes[renames[key]] = attributes[key];
+    }
+  });
+}
+
 exports.html = function (selector) {
-  var properties;
+  var attributes;
   var childElements;
 
   if (arguments[1] && arguments[1].constructor == Object) {
-    properties = arguments[1];
+    attributes = arguments[1];
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
 
-    Object.keys(properties).forEach(function (key) {
-      if (typeof(properties[key]) == 'function') {
-        properties[key] = refreshFunction(properties[key]);
+    Object.keys(attributes).forEach(function (key) {
+      if (typeof(attributes[key]) == 'function') {
+        attributes[key] = refreshFunction(attributes[key]);
       }
     });
 
-    if (properties.className) {
-      properties.className = generateClassName(properties.className);
+    applyAttributeRenames(attributes);
+
+    if (attributes.className) {
+      attributes.className = generateClassName(attributes.className);
     }
 
-    if (properties.binding) {
-      bindModel(properties, childElements, inputType(selector, properties));
+    if (attributes.binding) {
+      bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
-    return h.call(undefined, selector, properties, childElements);
+    return h.call(undefined, selector, attributes, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
