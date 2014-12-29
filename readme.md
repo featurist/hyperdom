@@ -75,7 +75,9 @@ Insert raw unescaped HTML. Be careful! Make sure there's no chance of script inj
 
 ```JavaScript
 function render(model) {
-  return h.rawHtml('div', {style: { color: 'red' } }, 'some dangerous <script>doTerribleThings()</script> HTML');
+  return h.rawHtml('div',
+    {style: { color: 'red' } },
+    'some dangerous <script>doTerribleThings()</script> HTML');
 }
 ```
 
