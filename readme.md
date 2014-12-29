@@ -112,7 +112,7 @@ Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
 
-Use the `plastiq.bind` function, and the `model` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
+Use the `plastiq.bind` function, and the `binding` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
 
 ```JavaScript
 function render(model) {
