@@ -14,6 +14,10 @@ describe('plastiq', function () {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   });
 
+  function attach(render, model) {
+    plastiq.attach(div, render, model, { requestRender: setTimeout });
+  }
+
   function find(selector) {
     return $(div).find(selector);
   }
@@ -32,7 +36,7 @@ describe('plastiq', function () {
         return h('div.haha');
       }
 
-      plastiq.attach(div, render, {});
+      attach(render, {});
 
       expect(find('.haha').length).to.eql(1);
     });
@@ -43,7 +47,7 @@ describe('plastiq', function () {
           return h('div.haha', value);
         }
 
-        plastiq.attach(div, render, {});
+        attach(render, {});
 
         expect(find('.haha').text()).to.eql(expectedValue != undefined? expectedValue: String(value));
       });
@@ -53,6 +57,98 @@ describe('plastiq', function () {
     itCanRenderA('boolean', true);
     itCanRenderA('date', new Date());
     itCanRenderA('undefined', undefined, '');
+
+    describe('class', function () {
+      it('accepts a string', function () {
+        function render(model) {
+          return h('div.one', {class: 'two three'});
+        }
+
+        attach(render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+
+      it('accepts an array', function () {
+        function render(model) {
+          return h('div.one', {class: ['two', 'three']});
+        }
+
+        attach(render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+
+      it('accepts an object', function () {
+        function render(model) {
+          return h('div.one', {class: {two: true, three: true, four: false}});
+        }
+
+        attach(render, {});
+
+        expect(find('div').attr('class')).to.eql('one two three');
+      });
+    });
+
+    describe('attribute naming exceptions', function () {
+      it('can render a for attribute', function () {
+          function render(model) {
+            return h('div',
+              h('label', {for: 'blah'})
+            );
+          }
+
+          attach(render, {text: 'one'});
+
+          expect(find('label').attr('for')).to.eql('blah');
+      });
+    });
+
+    describe('raw unescaped HTML', function () {
+      it('can render raw HTML', function () {
+        function render(model) {
+          return h('div',
+            model.text
+              ? h.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
+              : undefined,
+            h('button.two', {onclick: function () { model.text = 'two'; }}),
+            h('button.three', {onclick: function () { model.text = ''; }})
+          );
+        }
+
+        attach(render, {text: 'one'});
+
+        expect(find('p').html()).to.eql('some <strong>dangerous HTML (one)</strong>');
+
+        return click('button.two').then(function () {
+
+          return retry(function () {
+            expect(find('p').html()).to.eql('some <strong>dangerous HTML (two)</strong>');
+          }).then(function () {
+            return click('button.three').then(function () {
+              return retry(function () {
+                expect(find('p').length).to.eql(0);
+              });
+            });
+          });
+        });
+      });
+
+      it('can render raw HTML with attributes', function () {
+        function render(model) {
+          return h('div',
+            h.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
+          );
+        }
+
+        attach(render, {text: 'one'});
+
+        var p = find('p');
+        expect(p.html()).to.eql('some <strong>dangerous HTML</strong>');
+        expect(p.attr('class')).to.eql('raw');
+        expect(p.attr('style')).to.eql('color: red;');
+      });
+    });
   });
 
   it('can respond to button clicks', function () {
@@ -67,10 +163,12 @@ describe('plastiq', function () {
       );
     }
 
-    plastiq.attach(div, render, {});
+    attach(render, {});
 
     return click('button').then(function () {
-      expect(find('span').text()).to.eql('on');
+      return retry(function () {
+        expect(find('span').text()).to.eql('on');
+      });
     });
   });
 
@@ -89,7 +187,7 @@ describe('plastiq', function () {
       );
     }
 
-    plastiq.attach(div, render, {});
+    attach(render, {});
 
     return click('button').then(function () {
       return retry(function () {
@@ -102,14 +200,38 @@ describe('plastiq', function () {
     it('can bind to a text input', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'text', model: bind(model, 'text')}),
+          h('input', {type: 'text', binding: bind(model, 'text')}),
           h('span', model.text)
         );
       }
 
-      plastiq.attach(div, render, {text: ''});
+      attach(render, {text: ''});
 
       find('input').sendkeys('haha');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('haha');
+        expect(find('input').val()).to.equal('haha');
+      });
+    });
+
+    it('can bind to a text input and oninput', function () {
+      function render(model) {
+        return h('div',
+          h('input', {
+            type: 'text',
+            binding: bind(model, 'tempText'),
+            oninput: function (ev) {
+              model.text = model.tempText;
+            }
+          }),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {text: ''});
+
+      find('input').sendkeys('haha{newline}');
 
       return retry(function() {
         expect(find('span').text()).to.equal('haha');
@@ -120,12 +242,12 @@ describe('plastiq', function () {
     it('can bind to a textarea', function () {
       function render(model) {
         return h('div',
-          h('textarea', {model: bind(model, 'text')}),
+          h('textarea', {binding: bind(model, 'text')}),
           h('span', model.text)
         );
       }
 
-      plastiq.attach(div, render, {text: ''});
+      attach(render, {text: ''});
 
       find('textarea').sendkeys('haha');
 
@@ -138,12 +260,12 @@ describe('plastiq', function () {
     it('can bind to a checkbox', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'checkbox', model: bind(model, 'check')}),
+          h('input', {type: 'checkbox', binding: bind(model, 'check')}),
           h('span', model.check? 'on': 'off')
         );
       }
 
-      plastiq.attach(div, render, {check: false});
+      attach(render, {check: false});
 
       return retry(function() {
         expect(find('span').text()).to.equal('off');
@@ -166,20 +288,20 @@ describe('plastiq', function () {
           h('input.red', {
             type: 'radio',
             name: 'colour',
-            model: bind(model, 'colour'),
+            binding: bind(model, 'colour'),
             value: 'red'
           }),
           h('input.blue', {
             type: 'radio',
             name: 'colour',
-            model: bind(model, 'colour'),
+            binding: bind(model, 'colour'),
             value: blue
           }),
           h('span', JSON.stringify(model.colour))
         );
       }
 
-      plastiq.attach(div, render, { colour: blue });
+      attach(render, { colour: blue });
 
       return retry(function() {
         expect(find('span').text()).to.equal('{"name":"blue"}');
@@ -208,7 +330,7 @@ describe('plastiq', function () {
       function render(model) {
         return h('div',
           h('select',
-            {model: bind(model, 'colour')},
+            {binding: bind(model, 'colour')},
             h('option.red', {value: 'red'}, 'red'),
             h('option.blue', {value: blue}, 'blue')
           ),
@@ -216,7 +338,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, { colour: blue });
+      attach(render, { colour: blue });
 
       return retry(function() {
         expect(find('span').text()).to.equal('{"name":"blue"}');
@@ -244,6 +366,8 @@ describe('plastiq', function () {
 
   describe('animations', function () {
     it('can render several frames of an animation', function () {
+      this.timeout(10000);
+
       function render(model) {
         function startOperation() {
           return function (render) {
@@ -272,7 +396,7 @@ describe('plastiq', function () {
         );
       }
 
-      plastiq.attach(div, render, {});
+      attach(render, {});
 
       expect(find('span').text()).to.equal('');
 

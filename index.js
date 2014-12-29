@@ -18,12 +18,22 @@ function renderWithRefresh(render, model, refresh) {
   return tree;
 }
 
-exports.attach = function (element, render, model) {
+exports.attach = function (element, render, model, options) {
+  var requestRender = (options && options.requestRender) || window.requestAnimationFrame || setTimeout;
+  var requested = false;
+
   function refresh() {
-    var newTree = renderWithRefresh(render, model, refresh);
-    var patches = diff(tree, newTree);
-    rootNode = patch(rootNode, patches);
-    tree = newTree;
+    if (!requested) {
+      requestRender(function () {
+        requested = false;
+
+        var newTree = renderWithRefresh(render, model, refresh);
+        var patches = diff(tree, newTree);
+        rootNode = patch(rootNode, patches);
+        tree = newTree;
+      });
+      requested = true;
+    }
   }
 
   var tree = renderWithRefresh(render, model, refresh);
@@ -32,11 +42,12 @@ exports.attach = function (element, render, model) {
 };
 
 exports.bind = function (obj, prop) {
-  return function (arg) {
-    if (arg === undefined) {
+  return {
+    get: function () {
       return obj[prop];
-    } else {
-      obj[prop] = arg;
+    },
+    set: function (value) {
+      obj[prop] = value;
     }
   };
 };
@@ -62,29 +73,45 @@ function bindTextInput(attributes, children, get, set) {
 
   attributes.value = get();
 
-  listenToEvents(attributes, textEventNames, function (ev) {
+  attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
   });
 }
 
-function listenToEvents(attributes, eventNames, handler) {
-  if (eventNames instanceof Array) {
-    eventNames.forEach(function (eventName) {
-      attributes[eventName] = handler;
-    });
+function sequenceFunctions(handler1, handler2) {
+  return function (ev) {
+    handler1(ev);
+    return handler2(ev);
+  };
+}
+
+function insertEventHandler(attributes, eventName, handler) {
+  var previousHandler = attributes[eventName];
+  if (previousHandler) {
+    attributes[eventName] = sequenceFunctions(handler, previousHandler);
   } else {
-    attributes[eventNames] = handler;
+    attributes[eventName] = handler;
   }
 }
 
-function bindValue(attributes, children, type) {
+function attachEventHandler(attributes, eventNames, handler) {
+  if (eventNames instanceof Array) {
+    eventNames.forEach(function (eventName) {
+      insertEventHandler(attributes, eventName, handler);
+    });
+  } else {
+    insertEventHandler(attributes, eventNames, handler);
+  }
+}
+
+function bindModel(attributes, children, type) {
   var inputTypeBindings = {
     text: bindTextInput,
     textarea: bindTextInput,
     checkbox: function (attributes, children, get, set) {
       attributes.checked = get();
 
-      listenToEvents(attributes, 'onclick', function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(ev.target.checked);
       });
     },
@@ -92,9 +119,9 @@ function bindValue(attributes, children, type) {
       var value = attributes.value;
       attributes.checked = get() == attributes.value;
 
-      attributes.onclick = function (ev) {
+      attachEventHandler(attributes, 'onclick', function (ev) {
         set(value);
-      };
+      });
     },
     select: function (attributes, children, get, set) {
       var currentValue = get();
@@ -116,35 +143,35 @@ function bindValue(attributes, children, type) {
         option.properties.value = index;
       });
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         set(values[ev.target.value]);
-      };
+      });
     },
     file: function (attributes, children, get, set) {
       var multiple = attributes.multiple;
 
-      attributes.onchange = function (ev) {
+      attachEventHandler(attributes, 'onchange', function (ev) {
         if (multiple) {
           set(ev.target.files);
         } else {
           set(ev.target.files[0]);
         }
-      };
+      });
     }
   };
 
   var binding = inputTypeBindings[type] || bindTextInput;
 
-  binding(attributes, children, attributes.model, refreshFunction(attributes.model));
+  binding(attributes, children, attributes.binding.get, refreshFunction(attributes.binding.set));
 }
 
-function inputType(selector, properties) {
+function inputType(selector, attributes) {
   if (/^textarea\b/i.test(selector)) {
     return 'textarea';
   } else if (/^select\b/i.test(selector)) {
     return 'select';
   } else {
-    return properties.type || 'text';
+    return attributes.type || 'text';
   }
 }
 
@@ -180,27 +207,90 @@ function normaliseChildren(children) {
   });
 }
 
+function applyAttributeRenames(attributes) {
+  var renames = {
+    for: 'htmlFor',
+    class: 'className'
+  };
+
+  Object.keys(renames).forEach(function (key) {
+    if (attributes[key] !== undefined) {
+      attributes[renames[key]] = attributes[key];
+    }
+  });
+}
+
 exports.html = function (selector) {
-  var properties;
+  var attributes;
   var childElements;
 
   if (arguments[1] && arguments[1].constructor == Object) {
-    properties = arguments[1];
+    attributes = arguments[1];
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
 
-    Object.keys(properties).forEach(function (key) {
-      if (typeof(properties[key]) == 'function') {
-        if (key == 'model') {
-          bindValue(properties, childElements, inputType(selector, properties));
-        } else {
-          properties[key] = refreshFunction(properties[key]);
-        }
+    Object.keys(attributes).forEach(function (key) {
+      if (typeof(attributes[key]) == 'function') {
+        attributes[key] = refreshFunction(attributes[key]);
       }
     });
 
-    return h.call(undefined, selector, properties, childElements);
+    applyAttributeRenames(attributes);
+
+    if (attributes.className) {
+      attributes.className = generateClassName(attributes.className);
+    }
+
+    if (attributes.binding) {
+      bindModel(attributes, childElements, inputType(selector, attributes));
+    }
+
+    return h.call(undefined, selector, attributes, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
+  }
+};
+
+function RawHtmlWidget(selector, options, html) {
+  this.selector = selector;
+  this.options = options;
+  this.html = html;
+}
+
+RawHtmlWidget.prototype.type = 'Widget';
+
+RawHtmlWidget.prototype.init = function () {
+  var element = createElement(exports.html(this.selector, this.options));
+  element.innerHTML = this.html;
+  return element;
+};
+
+RawHtmlWidget.prototype.update = function (previous, element) {
+  element.parentNode.replaceChild(this.init(), element);
+};
+
+RawHtmlWidget.prototype.destroy = function (element) {
+};
+
+
+exports.html.rawHtml = function (selector, options, html) {
+  if (arguments.length == 2) {
+    return new RawHtmlWidget(selector, undefined, options);
+  } else {
+    return new RawHtmlWidget(selector, options, html);
+  }
+};
+
+function generateClassName(obj) {
+  if (typeof(obj) == 'object') {
+    if (obj instanceof Array) {
+      return obj.join(' ');
+    } else {
+      return Object.keys(obj).filter(function (key) {
+        return obj[key];
+      }).join(' ');
+    }
+  } else {
+    return obj;
   }
 };
