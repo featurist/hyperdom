@@ -49,7 +49,7 @@ Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
 
 ## Rendering the View
 
-The **render** function should take a **model** and return a virtual DOM fragment:
+The `render` function should take a model object and return a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
 
 ```JavaScript
 function render(model) {
@@ -216,9 +216,9 @@ plastiq.attach(document.body, render, {
 
 ## Components and Controllers
 
-Plastiq doesn't really have components as in React or directives as in AngularJS, nor does it have first class controllers. Instead the `render` functions can contain "controller" logic by responding to events, and the page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects.
+Plastiq doesn't really have components like React or directives like AngularJS, nor does it have first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects so all the usual refactoring techniques apply.
 
-In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person. It's just JavaScript so all the usual refactoring techniques apply.
+In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
 
 ```JavaScript
 function render(model) {
