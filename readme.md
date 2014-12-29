@@ -69,6 +69,16 @@ h('span.name', 'hi ', model.name);
 h('span', { style: { color: 'red' } }, 'name: ', model.name);
 ```
 
+### Raw HTML
+
+Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
+
+```JavaScript
+function render(model) {
+  return h.rawHtml('div', {style: { color: 'red' } }, 'some dangerous <script>doTerribleThings()</script> HTML');
+}
+```
+
 ### Classes
 
 * an string, e.g. `'item selected'`.
@@ -302,7 +312,7 @@ Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
 ## `plastiq.html`
 
 ```JavaScript
-var vdomFragment = plastiq.html(selector, [attributes], children, ...)
+var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 ```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
@@ -323,6 +333,18 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 ### Animations
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
+
+## `plastiq.html.rawHtml`
+
+Careful of script injection attacks! Make sure the HTML is trusted or free of `<script>` tags.
+
+```JavaScript
+var vdomFragment = plastiq.html.rawHtml(selector, [attributes], html);
+```
+
+* `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
+* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
+* `html` - the element's inner HTML.
 
 ## `plastiq.bind`
 
