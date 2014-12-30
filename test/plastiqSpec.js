@@ -15,7 +15,7 @@ describe('plastiq', function () {
   });
 
   function attach(render, model) {
-    plastiq.attach(div, render, model, { requestRender: setTimeout });
+    return plastiq.attach(div, render, model, { requestRender: setTimeout });
   }
 
   function find(selector) {
@@ -148,6 +148,23 @@ describe('plastiq', function () {
         expect(p.attr('class')).to.eql('raw');
         expect(p.attr('style')).to.eql('color: red;');
       });
+    });
+  });
+
+  it('can be refreshed explicitly by the attacher', function() {
+    function render (model) {
+      return h('h1', model.greeting);
+    }
+
+    var model = { greeting: 'bonjour' };
+    var attachment = attach(render, model);
+
+    expect(find('h1').text()).to.equal('bonjour');
+    model.greeting = 'au revoir';
+    expect(find('h1').text()).to.equal('bonjour');
+    attachment.refresh();
+    return retry(function() {
+      expect(find('h1').text()).to.equal('au revoir');
     });
   });
 
