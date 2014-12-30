@@ -39,6 +39,8 @@ exports.attach = function (element, render, model, options) {
   var tree = renderWithRefresh(render, model, refresh);
   var rootNode = createElement(tree);
   element.appendChild(rootNode);
+
+  return { refresh: refresh };
 };
 
 exports.bind = function (obj, prop) {
