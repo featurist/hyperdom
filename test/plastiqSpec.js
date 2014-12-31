@@ -436,6 +436,7 @@ describe('plastiq', function () {
   });
 
   describe('onattach', function() {
+
     it('triggers re-rendering', function() {
 
       function render(model) {
@@ -475,5 +476,38 @@ describe('plastiq', function () {
         });
       });
     });
+
+    context('returning a promise', function() {
+
+      it('triggers re-rendering', function() {
+
+        function writeToLog(model, what) {
+          return function() {
+            return new Promise(function(success) {
+              setTimeout(function() {
+                model.log += what;
+                success();
+              }, 3);
+            })
+          }
+        }
+
+        function render(model) {
+          return h('i', { onattach: writeToLog(model, 'A') },
+            h('i',      { onattach: writeToLog(model, 'B') }),
+            h('h1', model.log)
+          );
+        }
+
+        attach(render, { log: '' });
+
+        expect(find('h1').text()).to.equal('');
+
+        return retry(function() {
+          expect(find('h1').text()).to.equal('BA');
+        });
+      });
+    });
+
   });
 });
