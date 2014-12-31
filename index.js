@@ -248,12 +248,28 @@ exports.html = function (selector) {
       bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
+    if (typeof(attributes.onattach) == 'function') {
+      attributes.onattach = new OnAttachHook(attributes.onattach);
+    }
+
     return h.call(undefined, selector, attributes, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
   }
 };
+
+function OnAttachHook(handler) {
+  this.handler = handler;
+}
+OnAttachHook.prototype = {
+  hook: function() {
+    var handler = this.handler;
+    this.handler = function() {};
+    handler();
+  },
+  unhook: function() {}
+}
 
 function RawHtmlWidget(selector, options, html) {
   this.selector = selector;

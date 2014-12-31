@@ -434,4 +434,27 @@ describe('plastiq', function () {
       });
     });
   });
+
+  describe('onattach', function() {
+    it('fires once and re-renders', function() {
+      function render(model) {
+        return h('i.x', { onattach: function() { model.log += 'X'; } },
+          h('i.y', { onattach: function() { model.log += 'Y'; } }),
+          h('h1', model.log),
+          h('button', { onclick: function() { model.log += 'Z' }})
+        );
+      }
+
+      attach(render, { log: '' });
+
+      return retry(function() {
+        return click('button').then(function() {
+          expect(find('h1').text()).to.equal('XYZ');
+          return click('button').then(function() {
+            expect(find('h1').text()).to.equal('XYZZ');
+          });
+        });
+      });
+    });
+  });
 });
