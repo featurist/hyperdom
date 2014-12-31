@@ -249,7 +249,7 @@ exports.html = function (selector) {
     }
 
     if (typeof(attributes.onattach) == 'function') {
-      attributes.onattach = new OnAttachHook(attributes.onattach);
+      childElements.push(new OnAttachWidget(attributes.onattach));
     }
 
     return h.call(undefined, selector, attributes, childElements);
@@ -258,18 +258,6 @@ exports.html = function (selector) {
     return h.call(undefined, selector, childElements);
   }
 };
-
-function OnAttachHook(handler) {
-  this.handler = handler;
-}
-OnAttachHook.prototype = {
-  hook: function() {
-    var handler = this.handler;
-    this.handler = function() {};
-    handler();
-  },
-  unhook: function() {}
-}
 
 function RawHtmlWidget(selector, options, html) {
   this.selector = selector;
@@ -291,6 +279,22 @@ RawHtmlWidget.prototype.update = function (previous, element) {
 
 RawHtmlWidget.prototype.destroy = function (element) {
 };
+
+function OnAttachWidget(handler) {
+  this.handler = handler;
+}
+
+OnAttachWidget.prototype = {
+  type: 'Widget',
+
+  init: function () {
+    this.handler();
+    return null;
+  },
+
+  update: function (previous, element) {},
+  destroy: function (element) {}
+}
 
 
 exports.html.rawHtml = function (selector, options, html) {

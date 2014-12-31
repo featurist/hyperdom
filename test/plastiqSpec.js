@@ -436,22 +436,41 @@ describe('plastiq', function () {
   });
 
   describe('onattach', function() {
-    it('fires once and re-renders', function() {
+    it('triggers re-rendering', function() {
+
       function render(model) {
-        return h('i.x', { onattach: function() { model.log += 'X'; } },
-          h('i.y', { onattach: function() { model.log += 'Y'; } }),
-          h('h1', model.log),
-          h('button', { onclick: function() { model.log += 'Z' }})
+        return h('i', { onattach: function() { model.log += 'X'; } },
+          h('i',      { onattach: function() { model.log += 'Y'; } }),
+          h('h1', model.log)
         );
       }
 
       attach(render, { log: '' });
 
+      expect(find('h1').text()).to.equal('');
+
       return retry(function() {
+        expect(find('h1').text()).to.equal('YX');
+      });
+    });
+
+    it('fires once', function() {
+
+      function render(model) {
+        return h('i', { onattach: function() { model.log += 'X'; } },
+          h('i',      { onattach: function() { model.log += 'Y'; } }),
+          h('button',  { onclick: function() { model.log += 'Z'; } }),
+          h('h1', model.log)
+        );
+      }
+
+      attach(render, { log: '' });
+
+      expect(find('h1').text()).to.equal('');
+      return click('button').then(function() {
         return click('button').then(function() {
-          expect(find('h1').text()).to.equal('XYZ');
-          return click('button').then(function() {
-            expect(find('h1').text()).to.equal('XYZZ');
+          return retry(function() {
+            expect(find('h1').text()).to.equal('YXZZ');
           });
         });
       });
