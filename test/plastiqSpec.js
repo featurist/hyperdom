@@ -364,6 +364,49 @@ describe('plastiq', function () {
     });
   });
 
+  describe('life cycle', function () {
+    it.only('receives create, update and destroy events', function () {
+      var onclick = function () {
+        console.log('click window');
+      };
+
+      function render(model) {
+        return h('div',
+          model.state < 3
+            ? h.window(
+                {
+                  onclick: function () {
+                    console.log('click window');
+                  }
+                }
+              )
+            : undefined,
+          h('button', {onclick: function () { model.state++; }}, 'haha')
+        );
+      }
+
+      attach(render, {state: 0});
+
+      function wait(n) {
+        return new Promise(function (result) {
+          setTimeout(result, n);
+        });
+      }
+
+      return click('button').then(function () {
+        return wait(10).then(function () {
+          return click('button').then(function () {
+            return wait(10).then(function () {
+              return click('button').then(function () {
+                return wait(10);
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('animations', function () {
     it('can render several frames of an animation', function () {
       this.timeout(10000);
