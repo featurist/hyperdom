@@ -226,6 +226,71 @@ plastiq.attach(document.body, render, {
 });
 ```
 
+## Components
+
+One use case is to allow for events, in case you want to do some clever stuff like jQuery plugins:
+
+```JavaScript
+function render() {
+  return h.component(
+    {
+      onadd: function (element) {
+        // element is the <div>rest of the content</div>
+        // you may want to add jQuery plugins here
+      },
+      onupdate: function (previous, element) {
+      },
+      onremove: function (element) {
+      }
+    },
+    h('div', 'rest of the content')
+  );
+}
+```
+
+The other use case is re-rendering a subtree, for performance reasons:
+
+```JavaScript
+function render(model) {
+  var subComponent = h.component(
+    { /* life-cycle event handlers */ },
+    renderSubComponent,
+    model.subModel
+  );
+
+  function renderSubComponent(subModel) {
+    h('div', { onclick: function () { subModel.state = 'blah'; return subComponent; } });
+  }
+
+  return subComponent;
+}
+```
+
+The two APIs are similar in that they both support life-cycle events, however the second allows the component to be re-rendered independently from the rest of the page. This might be important for performance reasons, but I haven't explored the limits of performance for large pages yet.
+
+```JavaScript
+var component = h.component([eventHandlers], vdomFragment);
+```
+
+* `eventHandlers` - object containing:
+  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
+  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+* `vdomFragment` - the vdom fragment to render as the component.
+* `component` - a component which can be returned from any render function.
+
+```JavaScript
+var component = h.component([eventHandlers], renderComponent, args, ...);
+```
+
+* `eventHandlers` - object containing:
+  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
+  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+* `renderComponent` - a function that returns a vdom fragment of the component
+* `args` - arguments to be passed to the `renderComponent` function
+* `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
+
 ## Components and Controllers
 
 Plastiq doesn't really have components like React or directives like AngularJS, nor does it have first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects so all the usual refactoring techniques apply.
