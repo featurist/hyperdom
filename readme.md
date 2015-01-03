@@ -251,7 +251,7 @@ function render(model) {
 
 function renderPerson(model, person) {
   return h('li',
-    h('input', {binding: bind(person, 'name')}),
+    h('input', {type: 'text', binding: bind(person, 'name')}),
     h('button',
       {
         onclick: function () { model.deletePerson(person); }
