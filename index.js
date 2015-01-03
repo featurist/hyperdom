@@ -280,6 +280,14 @@ RawHtmlWidget.prototype.update = function (previous, element) {
 RawHtmlWidget.prototype.destroy = function (element) {
 };
 
+exports.html.rawHtml = function (selector, options, html) {
+  if (arguments.length == 2) {
+    return new RawHtmlWidget(selector, undefined, options);
+  } else {
+    return new RawHtmlWidget(selector, options, html);
+  }
+};
+
 function OnAttachWidget(handler) {
   this.handler = handler;
 }
@@ -289,21 +297,12 @@ OnAttachWidget.prototype = {
 
   init: function () {
     this.handler();
-    return null;
+    return document.createTextNode('');
   },
 
   update: function (previous, element) {},
   destroy: function (element) {}
 }
-
-
-exports.html.rawHtml = function (selector, options, html) {
-  if (arguments.length == 2) {
-    return new RawHtmlWidget(selector, undefined, options);
-  } else {
-    return new RawHtmlWidget(selector, options, html);
-  }
-};
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
