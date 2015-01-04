@@ -434,4 +434,80 @@ describe('plastiq', function () {
       });
     });
   });
+
+  describe('onattach', function() {
+
+    it('triggers re-rendering', function() {
+
+      function render(model) {
+        return h('i', { onattach: function() { model.log += 'X'; } },
+          h('i',      { onattach: function() { model.log += 'Y'; } }),
+          h('h1', model.log)
+        );
+      }
+
+      attach(render, { log: '' });
+
+      expect(find('h1').text()).to.equal('');
+
+      return retry(function() {
+        expect(find('h1').text()).to.equal('YX');
+      });
+    });
+
+    it('fires once', function() {
+
+      function render(model) {
+        return h('i', { onattach: function() { model.log += 'X'; } },
+          h('i',      { onattach: function() { model.log += 'Y'; } }),
+          h('button',  { onclick: function() { model.log += 'Z'; } }),
+          h('h1', model.log)
+        );
+      }
+
+      attach(render, { log: '' });
+
+      expect(find('h1').text()).to.equal('');
+      return click('button').then(function() {
+        return click('button').then(function() {
+          return retry(function() {
+            expect(find('h1').text()).to.equal('YXZZ');
+          });
+        });
+      });
+    });
+
+    context('returning a promise', function() {
+
+      it('triggers re-rendering', function() {
+
+        function writeToLog(model, what) {
+          return function() {
+            return new Promise(function(success) {
+              setTimeout(function() {
+                model.log += what;
+                success();
+              }, 3);
+            })
+          }
+        }
+
+        function render(model) {
+          return h('i', { onattach: writeToLog(model, 'A') },
+            h('i',      { onattach: writeToLog(model, 'B') }),
+            h('h1', model.log)
+          );
+        }
+
+        attach(render, { log: '' });
+
+        expect(find('h1').text()).to.equal('');
+
+        return retry(function() {
+          expect(find('h1').text()).to.equal('BA');
+        });
+      });
+    });
+
+  });
 });

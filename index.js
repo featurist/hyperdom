@@ -248,6 +248,10 @@ exports.html = function (selector) {
       bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
+    if (typeof(attributes.onattach) == 'function') {
+      childElements.push(new OnAttachWidget(attributes.onattach));
+    }
+
     return h.call(undefined, selector, attributes, childElements);
   } else {
     childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
@@ -276,7 +280,6 @@ RawHtmlWidget.prototype.update = function (previous, element) {
 RawHtmlWidget.prototype.destroy = function (element) {
 };
 
-
 exports.html.rawHtml = function (selector, options, html) {
   if (arguments.length == 2) {
     return new RawHtmlWidget(selector, undefined, options);
@@ -284,6 +287,22 @@ exports.html.rawHtml = function (selector, options, html) {
     return new RawHtmlWidget(selector, options, html);
   }
 };
+
+function OnAttachWidget(handler) {
+  this.handler = handler;
+}
+
+OnAttachWidget.prototype = {
+  type: 'Widget',
+
+  init: function () {
+    this.handler();
+    return document.createTextNode('');
+  },
+
+  update: function (previous, element) {},
+  destroy: function (element) {}
+}
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
