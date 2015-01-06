@@ -2,6 +2,7 @@ var h = require('virtual-dom/h');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
+var vtext = require('virtual-dom/vnode/vtext');
 
 var globalRefresh;
 
@@ -197,18 +198,20 @@ function flatten(array) {
   return flatArray;
 }
 
+function normaliseChild(child) {
+  if (child === undefined || child == null) {
+    return undefined;
+  } else if (typeof(child) != 'object') {
+    return String(child);
+  } else if (child instanceof Date) {
+    return String(child);
+  } else {
+    return child;
+  }
+}
+
 function normaliseChildren(children) {
-  return children.map(function (child) {
-    if (child === undefined || child == null) {
-      return undefined;
-    } else if (typeof(child) != 'object') {
-      return String(child);
-    } else if (child instanceof Date) {
-      return String(child);
-    } else {
-      return child;
-    }
-  });
+  return children.map(normaliseChild);
 }
 
 function applyAttributeRenames(attributes) {
@@ -276,6 +279,15 @@ RawHtmlWidget.prototype.update = function (previous, element) {
 RawHtmlWidget.prototype.destroy = function (element) {
 };
 
+function normalise(a) {
+  var normalised = normaliseChild(a);
+
+  if (typeof normalised == 'string') {
+    return new vtext(normalised);
+  } else {
+    return normalised;
+  }
+}
 
 exports.html.rawHtml = function (selector, options, html) {
   if (arguments.length == 2) {
@@ -283,6 +295,83 @@ exports.html.rawHtml = function (selector, options, html) {
   } else {
     return new RawHtmlWidget(selector, options, html);
   }
+};
+
+function PromiseWidget(promise, handlers) {
+  this.promise = promise;
+  this.handlers = handlers;
+  this.refresh = globalRefresh;
+}
+
+function runPromiseHandler(handlers, handler, value) {
+  if (typeof handler == 'function') {
+    return createElement(normalise(handler.call(handlers, value)));
+  } else if (handler === null || handler === undefined) {
+    return document.createTextNode('');
+  } else {
+    return createElement(normalise(handler));
+  }
+}
+
+PromiseWidget.prototype.type = 'Widget';
+
+PromiseWidget.prototype.init = function () {
+  var self = this;
+
+  this.promise.then(function (value) {
+    self.fulfilled = true;
+    self.value = value;
+    self.refresh();
+  }, function (reason) {
+    self.rejected = true;
+    self.reason = reason;
+    self.refresh();
+  });
+
+  return runPromiseHandler(this.handlers, this.handlers.pending);
+};
+
+PromiseWidget.prototype.update = function (previous) {
+  if (previous.promise === this.promise && (previous.rejected || previous.fulfilled)) {
+    this.fulfilled = previous.fulfilled;
+    this.value = previous.value;
+    this.rejected = previous.rejected;
+    this.reason = previous.reason;
+  } else {
+    return this.init();
+  }
+
+  if (this.fulfilled) {
+    return runPromiseHandler(this.handlers, this.handlers.fulfilled, this.value);
+  } else if (this.rejected) {
+    return runPromiseHandler(this.handlers, this.handlers.rejected, this.reason);
+  }
+};
+
+exports.html.promise = function(promise, handlers) {
+  return new PromiseWidget(promise, handlers);
+};
+
+function AnimationWidget(fn) {
+  this.fn = fn;
+  this.refresh = globalRefresh;
+}
+
+AnimationWidget.prototype.type = 'Widget';
+
+AnimationWidget.prototype.init = function () {
+  this.fn(this.refresh);
+  return document.createTextNode('');
+};
+
+AnimationWidget.prototype.update = function () {
+};
+
+AnimationWidget.prototype.destroy = function () {
+};
+
+exports.html.animation = function (fn) {
+  return new AnimationWidget(fn);
 };
 
 function generateClassName(obj) {
