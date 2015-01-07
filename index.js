@@ -8,14 +8,12 @@ var globalRefresh;
 function renderWithRefresh(render, model, refresh) {
   var tree;
 
-  console.log('started renderWithRefresh');
   try {
     globalRefresh = refresh;
     tree = render(model);
   } finally {
     globalRefresh = undefined;
   }
-  console.log('finished renderWithRefresh');
 
   return tree;
 }

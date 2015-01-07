@@ -16,8 +16,6 @@ function applyAttribute(attributes, name, element) {
 
 WindowWidget.prototype.type = 'Widget';
 WindowWidget.prototype.init = function () {
-  console.log('init', this.attributes);
-
   applyPropertyDiffs(window, {}, this.attributes, {}, this.cache);
 
   return document.createTextNode('');
@@ -54,17 +52,12 @@ function applyPropertyDiffs(element, previous, current, previousCache, currentCa
       var refreshCurr = currentCache[key];
 
       if (prev !== undefined && curr === undefined) {
-        console.log('removing listener for ', key);
         element.removeEventListener(event, refreshPrev);
       } else if (prev !== undefined && curr !== undefined && prev !== curr) {
-        console.log('updating listener for ', key);
         element.removeEventListener(event, refreshPrev);
         element.addEventListener(event, refreshCurr);
       } else if (prev === undefined && curr !== undefined) {
-        console.log('adding listener for ', key);
         element.addEventListener(event, refreshCurr);
-      } else {
-        console.log('leaving listener for ', key);
       }
     }
   });
@@ -72,12 +65,10 @@ function applyPropertyDiffs(element, previous, current, previousCache, currentCa
 
 WindowWidget.prototype.update = function (previous) {
   var self = this;
-  console.log('update');
   applyPropertyDiffs(window, previous.attributes, this.attributes, previous.cache, this.cache);
 };
 
 WindowWidget.prototype.destroy = function () {
-  console.log('destroy');
   applyPropertyDiffs(window, this.attributes, {}, this.cache, {});
 };
 

@@ -366,26 +366,26 @@ describe('plastiq', function () {
 
   describe('life cycle', function () {
     it.only('receives create, update and destroy events', function () {
-      var onclick = function () {
-        console.log('click window');
-      };
-
       function render(model) {
         return h('div',
-          model.state < 3
+          model.active
             ? h.window(
                 {
                   onclick: function () {
-                    console.log('click window');
+                    model.clicks++;
                   }
                 }
               )
             : undefined,
-          h('button', {onclick: function () { model.state++; }}, 'haha')
+          model.active
+            ? h('button.disactivate', {onclick: function () { model.active = false; return false; }}, 'disactivate')
+            :  h('button.activate', {onclick: function () { model.active = true; return false; }}, 'activate'),
+          h('div.click', 'click here'),
+          h('div.clicks', model.clicks)
         );
       }
 
-      attach(render, {state: 0});
+      attach(render, {clicks: 0, active: false});
 
       function wait(n) {
         return new Promise(function (result) {
@@ -393,12 +393,26 @@ describe('plastiq', function () {
         });
       }
 
-      return click('button').then(function () {
-        return wait(10).then(function () {
-          return click('button').then(function () {
-            return wait(10).then(function () {
-              return click('button').then(function () {
-                return wait(10);
+      return click('button.activate').then(function () {
+        return retry(function () {
+          return expect(find('button.disactivate').length).to.equal(1);
+        }).then(function () {
+          return click('div.click').then(function () {
+            return retry(function() {
+              expect(find('div.clicks').text()).to.equal('1');
+            }).then(function () {
+              return click('button.disactivate').then(function () {
+                return retry(function () {
+                  expect(find('button.activate').length).to.equal(1);
+                }).then(function () {
+                  return click('div.click').then(function () {
+                    wait(10).then(function () {
+                      return retry(function() {
+                        expect(find('div.clicks').text()).to.equal('1');
+                      });
+                    });
+                  });
+                });
               });
             });
           });
