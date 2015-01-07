@@ -120,6 +120,21 @@ plastiq.attach(document.body, render, { people: [] });
 
 Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
+## Window Events
+
+You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `h.window()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+
+E.g. to add an `onresize` handler:
+
+```JavaScript
+function render() {
+  return h('div',
+    'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
+    h.window({ onresize: function () {console.log('resizing');} })
+  );
+}
+```
+
 ## Binding the Inputs
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
