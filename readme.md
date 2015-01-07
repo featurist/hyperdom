@@ -7,7 +7,7 @@ It leverages a simple architecture for single page applications:
 1. There is one model for the whole page, this model is stateful, object-oriented and free of framework elements.
 2. The view is re-rendered fresh each time the model changes, but only the differences are applied to the DOM.
 
-Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Read the [philosophy and motivation](#philosophy-and-motivation).
+Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Why not React? Read the [philosophy and motivation](#philosophy-and-motivation).
 
 # install
 
@@ -144,7 +144,7 @@ Use the `plastiq.bind` function, and the `binding` attribute to bind the model t
 ```JavaScript
 function render(model) {
   return h('div',
-    h('label', "what's your name?"),
+    h('label', "what's your name?"), ' ',
     h('input', {type: 'text', binding: bind(model, 'name')}),
     h('div', 'hi ' + model.name)
   );
@@ -176,7 +176,8 @@ function render(model) {
       binding: bind(model, 'colour'),
       value: blue
     }),
-    h('span', JSON.stringify(model.colour))
+    ' ',
+    h('code', JSON.stringify(model.colour))
   );
 }
 
@@ -197,7 +198,8 @@ function render(model) {
       h('option.red', {value: 'red'}, 'red'),
       h('option.blue', {value: blue}, 'blue')
     ),
-    h('span', JSON.stringify(model.colour))
+    ' ',
+    h('code', JSON.stringify(model.colour))
   );
 }
 
@@ -266,7 +268,7 @@ function render(model) {
 
 function renderPerson(model, person) {
   return h('li',
-    h('input', {binding: bind(person, 'name')}),
+    h('input', {type: 'text', binding: bind(person, 'name')}),
     h('button',
       {
         onclick: function () { model.deletePerson(person); }

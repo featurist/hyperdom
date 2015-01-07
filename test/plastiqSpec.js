@@ -215,6 +215,24 @@ describe('plastiq', function () {
       });
     });
 
+    it('can bind with a shorthand binding syntax', function () {
+      function render(model) {
+        return h('div',
+          h('input', {type: 'text', binding: [model, 'text']}),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {text: ''});
+
+      find('input').sendkeys('omg');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('omg');
+        expect(find('input').val()).to.equal('omg');
+      });
+    });
+
     it('can bind to a text input and oninput', function () {
       function render(model) {
         return h('div',
