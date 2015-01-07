@@ -383,7 +383,7 @@ describe('plastiq', function () {
   });
 
   describe('life cycle', function () {
-    it.only('receives create, update and destroy events', function () {
+    it('receives create, update and destroy events', function () {
       function render(model) {
         return h('div',
           model.active
