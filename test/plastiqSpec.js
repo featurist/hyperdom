@@ -382,6 +382,63 @@ describe('plastiq', function () {
     });
   });
 
+  describe('life cycle', function () {
+    it('receives create, update and destroy events', function () {
+      function render(model) {
+        return h('div',
+          model.active
+            ? h.window(
+                {
+                  onclick: function () {
+                    model.clicks++;
+                  }
+                }
+              )
+            : undefined,
+          model.active
+            ? h('button.disactivate', {onclick: function () { model.active = false; return false; }}, 'disactivate')
+            :  h('button.activate', {onclick: function () { model.active = true; return false; }}, 'activate'),
+          h('div.click', 'click here'),
+          h('div.clicks', model.clicks)
+        );
+      }
+
+      attach(render, {clicks: 0, active: false});
+
+      function wait(n) {
+        return new Promise(function (result) {
+          setTimeout(result, n);
+        });
+      }
+
+      return click('button.activate').then(function () {
+        return retry(function () {
+          return expect(find('button.disactivate').length).to.equal(1);
+        }).then(function () {
+          return click('div.click').then(function () {
+            return retry(function() {
+              expect(find('div.clicks').text()).to.equal('1');
+            }).then(function () {
+              return click('button.disactivate').then(function () {
+                return retry(function () {
+                  expect(find('button.activate').length).to.equal(1);
+                }).then(function () {
+                  return click('div.click').then(function () {
+                    wait(10).then(function () {
+                      return retry(function() {
+                        expect(find('div.clicks').text()).to.equal('1');
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('animations', function () {
     it('can render several frames of an animation', function () {
       this.timeout(10000);

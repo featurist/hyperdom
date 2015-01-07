@@ -285,6 +285,12 @@ exports.html.rawHtml = function (selector, options, html) {
   }
 };
 
+var windowEvents = require('./windowEvents');
+
+exports.html.window = function (attributes) {
+  return windowEvents(attributes, refreshFunction);
+};
+
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
     if (obj instanceof Array) {

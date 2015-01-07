@@ -7,7 +7,7 @@ It leverages a simple architecture for single page applications:
 1. There is one model for the whole page, this model is stateful, object-oriented and free of framework elements.
 2. The view is re-rendered fresh each time the model changes, but only the differences are applied to the DOM.
 
-Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Read the [philosophy and motivation](#philosophy-and-motivation).
+Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Why not React? Read the [philosophy and motivation](#philosophy-and-motivation).
 
 # install
 
@@ -120,6 +120,21 @@ plastiq.attach(document.body, render, { people: [] });
 
 Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
+## Window Events
+
+You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `h.window()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+
+E.g. to add an `onresize` handler:
+
+```JavaScript
+function render() {
+  return h('div',
+    'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
+    h.window({ onresize: function () {console.log('resizing');} })
+  );
+}
+```
+
 ## Binding the Inputs
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
@@ -129,7 +144,7 @@ Use the `plastiq.bind` function, and the `binding` attribute to bind the model t
 ```JavaScript
 function render(model) {
   return h('div',
-    h('label', "what's your name?"),
+    h('label', "what's your name?"), ' ',
     h('input', {type: 'text', binding: bind(model, 'name')}),
     h('div', 'hi ' + model.name)
   );
@@ -161,7 +176,8 @@ function render(model) {
       binding: bind(model, 'colour'),
       value: blue
     }),
-    h('span', JSON.stringify(model.colour))
+    ' ',
+    h('code', JSON.stringify(model.colour))
   );
 }
 
@@ -182,7 +198,8 @@ function render(model) {
       h('option.red', {value: 'red'}, 'red'),
       h('option.blue', {value: blue}, 'blue')
     ),
-    h('span', JSON.stringify(model.colour))
+    ' ',
+    h('code', JSON.stringify(model.colour))
   );
 }
 
@@ -316,7 +333,7 @@ function render(model) {
 
 function renderPerson(model, person) {
   return h('li',
-    h('input', {binding: bind(person, 'name')}),
+    h('input', {type: 'text', binding: bind(person, 'name')}),
     h('button',
       {
         onclick: function () { model.deletePerson(person); }
@@ -448,24 +465,24 @@ plastiq.attach(element, render, model, [options]);
   * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
 
   ```JavaScript
-  function requestRender(fn) {
-    fn();
+  function requestRender(render) {
+    render();
   }
   ```
 
   Or on the next tick:
 
   ```JavaScript
-  function requestRender(fn) {
-    setTimeout(fn, 0);
+  function requestRender(render) {
+    setTimeout(render, 0);
   }
   ```
 
   Or on the next animation frame:
 
   ```JavaScript
-  function requestRender(fn) {
-    requestAnimationFrame(fn);
+  function requestRender(render) {
+    requestAnimationFrame(render);
   }
   ```
 
