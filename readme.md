@@ -400,24 +400,24 @@ plastiq.attach(element, render, model, [options]);
   * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
 
   ```JavaScript
-  function requestRender(fn) {
-    fn();
+  function requestRender(render) {
+    render();
   }
   ```
 
   Or on the next tick:
 
   ```JavaScript
-  function requestRender(fn) {
-    setTimeout(fn, 0);
+  function requestRender(render) {
+    setTimeout(render, 0);
   }
   ```
 
   Or on the next animation frame:
 
   ```JavaScript
-  function requestRender(fn) {
-    requestAnimationFrame(fn);
+  function requestRender(render) {
+    requestAnimationFrame(render);
   }
   ```
 
