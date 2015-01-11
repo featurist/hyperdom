@@ -39,7 +39,8 @@
   "license": "MIT",
   "files": [
     "index.js",
-    "plastiq.js"
+    "plastiq.js",
+    "windowEvents.js"
   ],
   "repository": {
     "type": "git",
