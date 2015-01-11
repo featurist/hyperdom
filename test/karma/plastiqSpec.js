@@ -1,5 +1,5 @@
 var $ = require('jquery');
-var plastiq = require('..');
+var plastiq = require('../..');
 var h = plastiq.html;
 var bind = plastiq.bind;
 var expect = require('chai').expect;
