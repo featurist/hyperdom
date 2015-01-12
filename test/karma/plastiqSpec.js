@@ -22,9 +22,15 @@ describe('plastiq', function () {
     return $(div).find(selector);
   }
 
+  function wait(n) {
+    return new Promise(function (result) {
+      setTimeout(result, n);
+    });
+  }
+
   function click(selector) {
     return retry(function () {
-      expect(find(selector).length).to.eql(1);
+      expect(find(selector).length).to.eql(1, "could not find button '" + selector + "'");
     }).then(function () {
       find(selector).click();
     });
@@ -400,8 +406,111 @@ describe('plastiq', function () {
     });
   });
 
-  describe('life cycle', function () {
-    it('receives create, update and destroy events', function () {
+  describe('plastiq.html.component', function () {
+    it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
+      var events = [];
+
+      function render(model) {
+        return h('div',
+          model.showComponent
+            ? h.component({
+                onadd: function (element) {
+                  events.push({
+                    type: 'onadd',
+                    parent: element.parentNode,
+                    element: element
+                  });
+                },
+                onupdate: function (element) {
+                  events.push({
+                    type: 'onupdate',
+                    element: element
+                  });
+                },
+                onremove: function (element) {
+                  events.push({
+                    type: 'onremove',
+                    element: element
+                  });
+                }
+              })
+            : undefined,
+          h('button.refresh', {onclick: function () {}},  'refresh'),
+          h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')
+        );
+      }
+
+      attach(render, {showComponent: true});
+
+      var expectedParent = div.firstChild;
+      var expectedElement = div.firstChild.firstChild;
+
+      return click('button.refresh').then(function () {
+        return wait(10).then(function () {
+          return click('button.refresh').then(function () {
+            return wait(10).then(function () {
+              return click('button.remove').then(function () {
+                return wait(10).then(function () {
+                  expect(events).to.eql([
+                    {
+                      type: 'onadd',
+                      parent: expectedParent,
+                      element: expectedElement
+                    },
+                    {
+                      type: 'onupdate',
+                      element: expectedElement
+                    },
+                    {
+                      type: 'onupdate',
+                      element: expectedElement
+                    },
+                    {
+                      type: 'onremove',
+                      element: expectedElement
+                    }
+                  ]);
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    it('renders and updates the vdom inside the component', function () {
+      var events = [];
+
+      function render(model) {
+        return h('div',
+          h.component({
+            },
+            h('span.counter', model.counter)
+          ),
+          h('button.add', {onclick: function () { model.counter++; }},  'add')
+        );
+      }
+
+      attach(render, {counter: 0});
+
+      return click('button.add').then(function () {
+        return wait(10).then(function () {
+          return retry(function () {
+            expect(find('span.counter').text()).to.equal('1');
+          }).then(function () {
+            return click('button.add').then(function () {
+              return retry(function () {
+                expect(find('span.counter').text()).to.equal('2');
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('plastiq.html.window', function () {
+    it('can add and remove event handlers on window', function () {
       function render(model) {
         return h('div',
           model.active
@@ -422,12 +531,6 @@ describe('plastiq', function () {
       }
 
       attach(render, {clicks: 0, active: false});
-
-      function wait(n) {
-        return new Promise(function (result) {
-          setTimeout(result, n);
-        });
-      }
 
       return click('button.activate').then(function () {
         return retry(function () {
