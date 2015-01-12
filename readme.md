@@ -120,6 +120,21 @@ plastiq.attach(document.body, render, { people: [] });
 
 Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
 
+## Window Events
+
+You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `h.window()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+
+E.g. to add an `onresize` handler:
+
+```JavaScript
+function render() {
+  return h('div',
+    'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
+    h.window({ onresize: function () {console.log('resizing');} })
+  );
+}
+```
+
 ## Binding the Inputs
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
@@ -227,6 +242,71 @@ plastiq.attach(document.body, render, {
   contents: ''
 });
 ```
+
+## Components
+
+One use case is to allow for events, in case you want to do some clever stuff like jQuery plugins:
+
+```JavaScript
+function render() {
+  return h.component(
+    {
+      onadd: function (element) {
+        // element is the <div>rest of the content</div>
+        // you may want to add jQuery plugins here
+      },
+      onupdate: function (previous, element) {
+      },
+      onremove: function (element) {
+      }
+    },
+    h('div', 'rest of the content')
+  );
+}
+```
+
+The other use case is re-rendering a subtree, for performance reasons:
+
+```JavaScript
+function render(model) {
+  var subComponent = h.component(
+    { /* life-cycle event handlers */ },
+    renderSubComponent,
+    model.subModel
+  );
+
+  function renderSubComponent(subModel) {
+    h('div', { onclick: function () { subModel.state = 'blah'; return subComponent; } });
+  }
+
+  return subComponent;
+}
+```
+
+The two APIs are similar in that they both support life-cycle events, however the second allows the component to be re-rendered independently from the rest of the page. This might be important for performance reasons, but I haven't explored the limits of performance for large pages yet.
+
+```JavaScript
+var component = h.component([eventHandlers], vdomFragment);
+```
+
+* `eventHandlers` - object containing:
+  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
+  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+* `vdomFragment` - the vdom fragment to render as the component.
+* `component` - a component which can be returned from any render function.
+
+```JavaScript
+var component = h.component([eventHandlers], renderComponent, args, ...);
+```
+
+* `eventHandlers` - object containing:
+  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
+  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+* `renderComponent` - a function that returns a vdom fragment of the component
+* `args` - arguments to be passed to the `renderComponent` function
+* `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
 
 ## Components and Controllers
 
@@ -385,24 +465,24 @@ plastiq.attach(element, render, model, [options]);
   * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
 
   ```JavaScript
-  function requestRender(fn) {
-    fn();
+  function requestRender(render) {
+    render();
   }
   ```
 
   Or on the next tick:
 
   ```JavaScript
-  function requestRender(fn) {
-    setTimeout(fn, 0);
+  function requestRender(render) {
+    setTimeout(render, 0);
   }
   ```
 
   Or on the next animation frame:
 
   ```JavaScript
-  function requestRender(fn) {
-    requestAnimationFrame(fn);
+  function requestRender(render) {
+    requestAnimationFrame(render);
   }
   ```
 
