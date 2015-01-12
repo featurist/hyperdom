@@ -10,6 +10,7 @@
     "browserify": "^8.1.0",
     "chai": "^1.10.0",
     "express": "^4.10.7",
+    "glob": "^4.3.2",
     "jquery": "^2.1.3",
     "jquery-sendkeys": "^1.0.2",
     "karma-browserify": "^2.0.0",
@@ -20,13 +21,13 @@
     "karma-mocha-reporter": "^0.3.1",
     "karma-safari-launcher": "^0.1.1",
     "mocha": "^2.1.0",
+    "rimraf": "^2.2.8",
     "trytryagain": "^0.1.0",
     "uglify-js": "^2.4.16",
     "watchify": "^2.2.1"
   },
   "scripts": {
-    "test": "mocha test/node/*Spec.js && karma start --single-run",
-    "mocha": "mocha test/node/*Spec.js",
+    "test": "karma start --single-run",
     "karma": "karma start --single-run",
     "prepublish": "browserify browser.js | uglifyjs > plastiq.js"
   },
@@ -40,9 +41,7 @@
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
   "license": "MIT",
   "files": [
-    "index.js",
-    "plastiq.js",
-    "windowEvents.js"
+    "*.js"
   ],
   "repository": {
     "type": "git",
