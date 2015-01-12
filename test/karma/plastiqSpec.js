@@ -104,6 +104,24 @@ describe('plastiq', function () {
       });
     });
 
+    describe('non-standard HTML attributes', function () {
+      it('can be rendered by passing an attributes object', function () {
+          function render(model) {
+            return h('div',
+              h('input', {
+                type: 'text',
+                attributes: { autocapitalize: 'none', autofocus: true }
+              })
+            );
+          }
+
+          attach(render, {});
+
+          expect(find('input').attr('autocapitalize')).to.equal('none');
+          expect(find('input').attr('autofocus')).to.equal('autofocus');
+      });
+    });
+
     describe('raw unescaped HTML', function () {
       it('can render raw HTML', function () {
         function render(model) {
