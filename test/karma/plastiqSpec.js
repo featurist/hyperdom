@@ -626,6 +626,49 @@ describe('plastiq', function () {
     });
   });
 
+  describe('plastiq.html.animation', function () {
+    it('can refresh several times', function () {
+      function render(model) {
+        return h('div', model.counter, h.animation(model.animation.bind(model)));
+      }
+
+      attach(render, {
+        animation: function (refresh) {
+          var self = this;
+
+          setTimeout(function () {
+            self.counter++;
+            refresh();
+
+            setTimeout(function () {
+              self.counter++;
+              refresh();
+
+              setTimeout(function () {
+                self.counter++;
+                refresh();
+              }, 40);
+            }, 40);
+          }, 40);
+        },
+        counter: 0
+      });
+
+      expect(find('div').text()).to.equal('0');
+      return retry(function () {
+        expect(find('div').text()).to.equal('1');
+      }).then(function () {
+        return retry(function () {
+          expect(find('div').text()).to.equal('2');
+        }).then(function () {
+          return retry(function () {
+            expect(find('div').text()).to.equal('3');
+          });
+        })
+      });
+    });
+  });
+
   describe('plastiq.html.window', function () {
     it('can add and remove event handlers on window', function () {
       function render(model) {
