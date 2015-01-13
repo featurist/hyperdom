@@ -245,7 +245,10 @@ plastiq.attach(document.body, render, {
 
 ## Components
 
-One use case is to allow for events, in case you want to do some clever stuff like jQuery plugins:
+Components can be used to track the life-time of some HTML. This is usually helpful if you want to
+install jQuery plugins.
+
+The `h.component()` allows you to respond to when the HTML is added, updated and removed.
 
 ```JavaScript
 function render() {
@@ -265,25 +268,21 @@ function render() {
 }
 ```
 
-The other use case is re-rendering a subtree, for performance reasons:
+Components can also be used to render just parts of the page, usually for performance reasons.
 
 ```JavaScript
 function render(model) {
   var subComponent = h.component(
-    { /* life-cycle event handlers */ },
-    renderSubComponent,
-    model.subModel
+    function () {
+      h('div', { onclick: function () { model.state = 'blah'; return subComponent; } });
+    }
   );
-
-  function renderSubComponent(subModel) {
-    h('div', { onclick: function () { subModel.state = 'blah'; return subComponent; } });
-  }
 
   return subComponent;
 }
 ```
 
-The two APIs are similar in that they both support life-cycle events, however the second allows the component to be re-rendered independently from the rest of the page. This might be important for performance reasons, but I haven't explored the limits of performance for large pages yet.
+The two APIs are similar in that they both support life-cycle events, however the second allows the component to be re-rendered independently from the rest of the page.
 
 ```JavaScript
 var component = h.component([eventHandlers], vdomFragment);
@@ -297,7 +296,7 @@ var component = h.component([eventHandlers], vdomFragment);
 * `component` - a component which can be returned from any render function.
 
 ```JavaScript
-var component = h.component([eventHandlers], renderComponent, args, ...);
+var component = h.component([eventHandlers], renderComponent);
 ```
 
 * `eventHandlers` - object containing:
@@ -305,10 +304,9 @@ var component = h.component([eventHandlers], renderComponent, args, ...);
   * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
 * `renderComponent` - a function that returns a vdom fragment of the component
-* `args` - arguments to be passed to the `renderComponent` function
 * `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
 
-## Use Components Sparingly
+## Controllers
 
 Most of the time you won't need components, nor first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familiar abstractions like functions and objects so all the usual refactoring techniques apply.
 
