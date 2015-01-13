@@ -446,11 +446,11 @@ describe('plastiq', function () {
       var expectedElement = div.firstChild.firstChild;
 
       return click('button.refresh').then(function () {
-        return wait(10).then(function () {
+        return wait(30).then(function () {
           return click('button.refresh').then(function () {
-            return wait(10).then(function () {
+            return wait(30).then(function () {
               return click('button.remove').then(function () {
-                return wait(10).then(function () {
+                return wait(30).then(function () {
                   expect(events).to.eql([
                     {
                       type: 'onadd',
@@ -494,7 +494,7 @@ describe('plastiq', function () {
       attach(render, {counter: 0});
 
       return click('button.add').then(function () {
-        return wait(10).then(function () {
+        return wait(30).then(function () {
           return retry(function () {
             expect(find('span.counter').text()).to.equal('1');
           }).then(function () {
@@ -506,6 +506,123 @@ describe('plastiq', function () {
           });
         });
       });
+    });
+  });
+
+  describe('plastiq.html.promise', function () {
+    it('renders pending until the promise is fulfilled', function () {
+      function render(model) {
+        return h('div',
+          h('div.one',
+            h.promise(model.promise1, {
+              pending: 'pending 1',
+              fulfilled: function (value) {
+                return 'fulfilled 1 ' + value;
+              }
+            })
+          ),
+          h('div.two',
+            h.promise(model.promise2, {
+              pending: 'pending 2',
+              fulfilled: function (value) {
+                return 'fulfilled 2 ' + value;
+              }
+            })
+          )
+        );
+      }
+
+      attach(render, {
+        promise1: new Promise(function (fulfill) {
+          setTimeout(function () {
+            fulfill('value 1');
+          }, 30);
+        }),
+        promise2: new Promise(function (fulfill) {
+          setTimeout(function () {
+            fulfill('value 2');
+          }, 60);
+        })
+      });
+
+      expect(find('div.one').text()).to.equal('pending 1');
+      expect(find('div.two').text()).to.equal('pending 2');
+      return retry(function () {
+        expect(find('div.one').text()).to.equal('fulfilled 1 value 1');
+        expect(find('div.two').text()).to.equal('pending 2');
+      }).then(function () {
+        return retry(function () {
+          expect(find('div.one').text()).to.equal('fulfilled 1 value 1');
+          expect(find('div.two').text()).to.equal('fulfilled 2 value 2');
+        });
+      });
+    });
+
+    it('renders pending until the promise is rejected', function () {
+      function render(model) {
+        return h('div',
+          h('div.one',
+            h.promise(model.promise1, {
+              pending: 'pending 1',
+              rejected: function (reason) {
+                return 'rejected 1 ' + reason;
+              }
+            })
+          ),
+          h('div.two',
+            h.promise(model.promise2, {
+              pending: 'pending 2',
+              rejected: function (reason) {
+                return 'rejected 2 ' + reason;
+              }
+            })
+          )
+        );
+      }
+
+      attach(render, {
+        promise1: new Promise(function (fulfill, reject) {
+          setTimeout(function () {
+            reject('reason 1');
+          }, 30);
+        }),
+        promise2: new Promise(function (fulfill, reject) {
+          setTimeout(function () {
+            reject('reason 2');
+          }, 60);
+        })
+      });
+
+      expect(find('div.one').text()).to.equal('pending 1');
+      expect(find('div.two').text()).to.equal('pending 2');
+      return retry(function () {
+        expect(find('div.one').text()).to.equal('rejected 1 reason 1');
+        expect(find('div.two').text()).to.equal('pending 2');
+      }).then(function () {
+        return retry(function () {
+          expect(find('div.one').text()).to.equal('rejected 1 reason 1');
+          expect(find('div.two').text()).to.equal('rejected 2 reason 2');
+        });
+      });
+    });
+
+    it('takes a non-promise as a fulfilled promise', function () {
+      function render(model) {
+        return h('div',
+          h.promise(model.value, {
+            pending: 'pending',
+            fulfilled: function (value) {
+              return 'fulfilled ' + value;
+            }
+          })
+        );
+      }
+
+      attach(render, {
+        value: 'value'
+      });
+
+      expect(find('div').text()).to.equal('fulfilled value');
     });
   });
 
@@ -545,7 +662,7 @@ describe('plastiq', function () {
                   expect(find('button.activate').length).to.equal(1);
                 }).then(function () {
                   return click('div.click').then(function () {
-                    wait(10).then(function () {
+                    wait(30).then(function () {
                       return retry(function() {
                         expect(find('div.clicks').text()).to.equal('1');
                       });

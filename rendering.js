@@ -2,6 +2,7 @@ var h = require('virtual-dom/h');
 var bind = require('./bind');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
+var coerceToVdom = require('./coerceToVdom');
 
 exports.globalRefresh;
 
@@ -202,20 +203,8 @@ function flatten(array) {
   return flatArray;
 }
 
-function normaliseChild(child) {
-  if (child === undefined || child == null) {
-    return undefined;
-  } else if (typeof(child) != 'object') {
-    return String(child);
-  } else if (child instanceof Date) {
-    return String(child);
-  } else {
-    return child;
-  }
-}
-
-function normaliseChildren(children) {
-  return children.map(normaliseChild);
+function coerceChildren(children) {
+  return children.map(coerceToVdom);
 }
 
 function applyAttributeRenames(attributes) {
@@ -237,7 +226,7 @@ exports.html = function (selector) {
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
-    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 2)));
+    childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 2)));
 
     Object.keys(attributes).forEach(function (key) {
       if (typeof(attributes[key]) == 'function') {
@@ -257,87 +246,9 @@ exports.html = function (selector) {
 
     return h.call(undefined, selector, attributes, childElements);
   } else {
-    childElements = normaliseChildren(flatten(Array.prototype.slice.call(arguments, 1)));
+    childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return h.call(undefined, selector, childElements);
   }
-};
-
-
-function PromiseWidget(promise, handlers) {
-  this.promise = promise;
-  this.handlers = handlers;
-  this.refresh = globalRefresh;
-}
-
-function runPromiseHandler(handlers, handler, value) {
-  if (typeof handler == 'function') {
-    return createElement(normalise(handler.call(handlers, value)));
-  } else if (handler === null || handler === undefined) {
-    return document.createTextNode('');
-  } else {
-    return createElement(normalise(handler));
-  }
-}
-
-PromiseWidget.prototype.type = 'Widget';
-
-PromiseWidget.prototype.init = function () {
-  var self = this;
-
-  this.promise.then(function (value) {
-    self.fulfilled = true;
-    self.value = value;
-    self.refresh();
-  }, function (reason) {
-    self.rejected = true;
-    self.reason = reason;
-    self.refresh();
-  });
-
-  return runPromiseHandler(this.handlers, this.handlers.pending);
-};
-
-PromiseWidget.prototype.update = function (previous) {
-  if (previous.promise === this.promise && (previous.rejected || previous.fulfilled)) {
-    this.fulfilled = previous.fulfilled;
-    this.value = previous.value;
-    this.rejected = previous.rejected;
-    this.reason = previous.reason;
-  } else {
-    return this.init();
-  }
-
-  if (this.fulfilled) {
-    return runPromiseHandler(this.handlers, this.handlers.fulfilled, this.value);
-  } else if (this.rejected) {
-    return runPromiseHandler(this.handlers, this.handlers.rejected, this.reason);
-  }
-};
-
-exports.html.promise = function(promise, handlers) {
-  return new PromiseWidget(promise, handlers);
-};
-
-function AnimationWidget(fn) {
-  this.fn = fn;
-  this.refresh = globalRefresh;
-}
-
-AnimationWidget.prototype.type = 'Widget';
-
-AnimationWidget.prototype.init = function () {
-  this.fn(this.refresh);
-  return document.createTextNode('');
-};
-
-AnimationWidget.prototype.update = function () {
-};
-
-AnimationWidget.prototype.destroy = function () {
-};
-
-exports.html.animation = function (fn) {
-  return new AnimationWidget(fn);
 };
 
 function generateClassName(obj) {
