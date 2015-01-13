@@ -308,9 +308,9 @@ var component = h.component([eventHandlers], renderComponent, args, ...);
 * `args` - arguments to be passed to the `renderComponent` function
 * `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
 
-## Components and Controllers
+## Use Components Sparingly
 
-Plastiq doesn't really have components like React or directives like AngularJS, nor does it have first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familar abstractions like functions and objects so all the usual refactoring techniques apply.
+Most of the time you won't need components, nor first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familiar abstractions like functions and objects so all the usual refactoring techniques apply.
 
 In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
 
