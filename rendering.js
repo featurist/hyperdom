@@ -3,6 +3,7 @@ var bind = require('./bind');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
+var ComponentWidget = require('./componentWidget');
 
 exports.globalRefresh;
 
@@ -65,6 +66,8 @@ function refreshifyEventHandler(fn) {
       result(r);
     } else if (result && typeof(result.then) == 'function') {
       result.then(r, r);
+    } else if (result instanceof ComponentWidget) {
+      result.update();
     } else {
       r();
       return result;

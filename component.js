@@ -1,17 +1,18 @@
 var rendering = require('./rendering');
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
+var ComponentWidget = require('./componentWidget');
 
-function ComponentWidget(handlers, vdom) {
+function LifetimeWidget(handlers, vdom) {
   this.handlers = handlers;
   this.vdom = vdom || new VText('');
   this.component = domComponent();
   this.renderFinished = rendering.renderFinished;
 }
 
-ComponentWidget.prototype.type = 'Widget';
+LifetimeWidget.prototype.type = 'Widget';
 
-ComponentWidget.prototype.init = function () {
+LifetimeWidget.prototype.init = function () {
   var self = this;
   var element = this.component.create(this.vdom);
 
@@ -24,7 +25,7 @@ ComponentWidget.prototype.init = function () {
   return element;
 };
 
-ComponentWidget.prototype.update = function (previous, element) {
+LifetimeWidget.prototype.update = function (previous, element) {
   var self = this;
 
   if (self.handlers.onupdate) {
@@ -37,7 +38,7 @@ ComponentWidget.prototype.update = function (previous, element) {
   return this.component.update(this.vdom);
 };
 
-ComponentWidget.prototype.destroy = function (element) {
+LifetimeWidget.prototype.destroy = function (element) {
   var self = this;
 
   if (self.handlers.onremove) {
@@ -48,5 +49,15 @@ ComponentWidget.prototype.destroy = function (element) {
 };
 
 module.exports = function (handlers, vdom) {
-  return new ComponentWidget(handlers, vdom);
+  if (typeof handlers === 'function') {
+    return new ComponentWidget(handlers);
+  } else if (typeof handlers === 'object' && typeof vdom === 'function') {
+    return new ComponentWidget(function () {
+      return new LifetimeWidget(handlers, vdom());
+    });
+  } else {
+    return new LifetimeWidget(handlers, vdom);
+  }
 };
+
+module.exports.ComponentWidget = ComponentWidget;

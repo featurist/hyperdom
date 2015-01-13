@@ -507,6 +507,34 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('only refreshes the component when returned from an event', function () {
+      var events = [];
+
+      function render(model) {
+        var component = h.component(function () {
+          return h('span.inner-counter', model.counter)
+        });
+
+        return h('div',
+          component,
+          h('span.outer-counter', model.counter),
+          h('button.add', {onclick: function () { model.counter++; return component; }},  'add')
+        );
+      }
+
+      attach(render, {counter: 0});
+
+      expect(find('span.inner-counter').text()).to.equal('0');
+      expect(find('span.outer-counter').text()).to.equal('0');
+
+      return click('button.add').then(function () {
+        return retry(function () {
+          expect(find('span.inner-counter').text()).to.equal('1');
+          expect(find('span.outer-counter').text()).to.equal('0');
+        });
+      });
+    });
   });
 
   describe('plastiq.html.promise', function () {
