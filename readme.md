@@ -306,9 +306,11 @@ var component = h.component([eventHandlers], renderComponent);
 * `renderComponent` - a function that returns a vdom fragment of the component
 * `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
 
-## Controllers
+## Controllers?
 
-Most of the time you won't need components, nor first class controllers. Instead the `render` functions can contain controller logic by responding to events and delegating to the model. The page can be broken down into reusable sections by extracting `render` functions that render different parts of the model. It's refreshingly simple, and reuses familiar abstractions like functions and objects so all the usual refactoring techniques apply.
+You won't find controllers or components in plastiq like you would in React's `React.createClass()` and AngularJS's `angular.directive()` and `angular.controller()`. This sounds like an omission, but in reality they're simply not needed. Plastiq works with render functions and model objects, the two primary building blocks of JavaScript, so it's refreshingly easy to structure and refactor your application.
+
+Render functions contain event handlers, which act as **controllers** in other frameworks. Event handlers can either handle events inline, or delegate to methods on the model.
 
 In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
 
@@ -360,6 +362,59 @@ plastiq.attach(document.body, render, {
   }
 });
 ```
+
+The model too can contain render methods so you can take advantage of polymorphism. This might be useful, for example, if you want to render a list of different types of widgets. Each object in the list would have its own render function, rendering different HTML depending on the object.
+
+Here we render different types of animal, each with it's own user interface. Each animal object has a `render` method to render it's own HTML and event handlers.
+
+```JavaScript
+function render(model) {
+  return h('div',
+    h('ul',
+      model.animals.map(function (animal) {
+        return h('li', animal.render(model));
+      })
+    ),
+    h('h1', { style: { color: 'red' } }, model.sound? model.sound + '!': '')
+  );
+}
+
+plastiq.attach(document.body, render, {
+  animals: [
+    {
+      name: 'Harry',
+      render: function (model) {
+        return [
+          h('h3', 'Dog ' + this.name),
+          h('button', {onclick: function () { return model.makeSound('woof'); }}, 'bark')
+        ];
+      }
+    },
+    {
+      name: 'Bobo',
+      render: function (model) {
+        return [
+          h('h3', 'Lion ' + this.name),
+          h('button', {onclick: function () { return model.makeSound('roar'); }}, 'roar')
+        ];
+      }
+    }
+  ],
+  makeSound: function (sound) {
+    var self = this;
+    return function (render) {
+      self.sound = sound;
+      render();
+
+      setTimeout(function () {
+        self.sound = undefined;
+        render();
+      }, 300);
+    }
+  }
+});
+```
+
 
 ## Animations
 
