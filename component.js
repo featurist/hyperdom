@@ -59,8 +59,10 @@ ComponentWidget.prototype.destroy = function (element) {
 module.exports = function (handlers, vdom) {
   if (typeof handlers === 'function') {
     return new ComponentWidget({}, handlers);
-  } else {
+  } else if (handlers.constructor === Object) {
     return new ComponentWidget(handlers, vdom);
+  } else {
+    return new ComponentWidget({}, handlers);
   }
 };
 

@@ -553,7 +553,6 @@ describe('plastiq', function () {
         return h('div',
           model.show
             ? h.component(
-                {},
                 h.component(
                   {
                     onadd: function (element) {
