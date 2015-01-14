@@ -52,6 +52,8 @@ ComponentWidget.prototype.destroy = function (element) {
       self.handlers.onremove(element);
     });
   }
+
+  this.component.destroy();
 };
 
 module.exports = function (handlers, vdom) {

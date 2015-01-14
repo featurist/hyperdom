@@ -63,6 +63,10 @@ PromiseWidget.prototype.update = function (previous) {
   }
 };
 
+PromiseWidget.prototype.destroy = function () {
+  this.component.destroy();
+};
+
 module.exports = function(promise, handlers) {
   return new PromiseWidget(promise, handlers);
 };

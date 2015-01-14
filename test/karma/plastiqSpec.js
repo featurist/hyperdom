@@ -553,20 +553,23 @@ describe('plastiq', function () {
         return h('div',
           model.show
             ? h.component(
-                {
-                  onadd: function (element) {
-                    events.push('add');
+                {},
+                h.component(
+                  {
+                    onadd: function (element) {
+                      events.push('add');
+                    },
+                    onupdate: function (previous, element) {
+                      events.push('update');
+                    },
+                    onremove: function (element) {
+                      events.push('remove');
+                    }
                   },
-                  onupdate: function (previous, element) {
-                    events.push('update');
-                  },
-                  onremove: function (element) {
-                    events.push('remove');
+                  function () {
+                    return h('div', 'rest of the content')
                   }
-                },
-                function () {
-                  return h('div', 'rest of the content')
-                }
+                )
               )
             : undefined,
           h('button.refresh', {onclick: function () {}}, 'refresh'),

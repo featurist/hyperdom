@@ -20,6 +20,18 @@ DomComponent.prototype.update = function (vdom) {
   return this.element;
 };
 
+DomComponent.prototype.destroy = function () {
+  function destroyWidgets(vdom) {
+    if (vdom.type === 'Widget') {
+      vdom.destroy();
+    } else if (vdom.children) {
+      vdom.children.forEach(destroyWidgets);
+    }
+  }
+
+  destroyWidgets(this.vdom);
+};
+
 function domComponent() {
   return new DomComponent();
 }
