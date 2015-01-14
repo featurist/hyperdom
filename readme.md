@@ -43,7 +43,7 @@ function render(model) {
 plastiq.attach(document.body, render, {name: ''});
 ```
 
-Try it on [requirebin](http://requirebin.com/?gist=1980d666f79b4a78f035).
+Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 # Features
 
@@ -118,7 +118,7 @@ function render(model) {
 plastiq.attach(document.body, render, { people: [] });
 ```
 
-Play on [requirebin](http://requirebin.com/?gist=729964ebb9c31a2ec698)
+Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
 
 ## Window Events
 
@@ -134,6 +134,8 @@ function render() {
   );
 }
 ```
+
+Try it on [requirebin](http://requirebin.com/?gist=8790af706dbd09840093)
 
 ## Binding the Inputs
 
@@ -153,7 +155,7 @@ function render(model) {
 plastiq.attach(document.body, render, { name: '' });
 ```
 
-Play on [requirebin](http://requirebin.com/?gist=2585872c1559007eef1f)
+Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 ## Radio Buttons
 
@@ -184,6 +186,8 @@ function render(model) {
 plastiq.attach(document.body, render, { colour: blue });
 ```
 
+Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
+
 ## Select Dropdowns
 
 Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
@@ -205,6 +209,8 @@ function render(model) {
 
 plastiq.attach(document.body, render, { colour: blue });
 ```
+
+Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
 
 ## File Inputs
 
@@ -243,6 +249,8 @@ plastiq.attach(document.body, render, {
 });
 ```
 
+Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
+
 ## Components
 
 Components can be used to track the life-time of some HTML. This is usually helpful if you want to
@@ -251,60 +259,67 @@ install jQuery plugins.
 The `h.component()` allows you to respond to when the HTML is added, updated and removed.
 
 ```JavaScript
-function render() {
-  return h.component(
-    {
-      onadd: function (element) {
-        // element is the <div>rest of the content</div>
-        // you may want to add jQuery plugins here
-      },
-      onupdate: function (previous, element) {
-      },
-      onremove: function (element) {
-      }
-    },
-    h('div', 'rest of the content')
+function render(model) {
+  return h('div',
+    model.show
+      ? h.component(
+          {
+            onadd: function (element) {
+              // element is the <div>rest of the content</div>
+              // you may want to add jQuery plugins here
+              console.log('added');
+            },
+            onupdate: function (element) {
+              console.log('updated');
+            },
+            onremove: function (element) {
+              console.log('removed');
+            }
+          },
+          h('div', 'component contents')
+        )
+      : undefined,
+    h('div',
+      h('label',
+        'show component ',
+        h('input', {type: 'checkbox', binding: [model, 'show']})
+      )
+    ),
+    h('div',
+      h('button', {onclick: function () {}}, 'refresh')
+    )
   );
 }
+
+plastiq.attach(document.body, render, {});
 ```
+
+Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 
 Components can also be used to render just parts of the page, usually for performance reasons.
 
 ```JavaScript
 function render(model) {
-  var subComponent = h.component(
-    function () {
-      h('div', { onclick: function () { model.state = 'blah'; return subComponent; } });
-    }
+  var component = h.component(function () {
+    return h('div', 'component counter: ', model.counter);
+  });
+  
+  return h('div',
+    component,
+    h('div', 'page counter: ', model.counter),
+    h('div',
+      h('button', {onclick: function () { model.counter++; return component; }}, 'refresh component')
+    ),
+    h('div',
+      h('button', {onclick: function () { model.counter++; }}, 'refresh page')
+    )
   );
-
-  return subComponent;
 }
+
+plastiq.attach(document.body, render, {counter: 0});
 ```
 
-The two APIs are similar in that they both support life-cycle events, however the second allows the component to be re-rendered independently from the rest of the page.
-
-```JavaScript
-var component = h.component([eventHandlers], vdomFragment);
-```
-
-* `eventHandlers` - object containing:
-  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
-  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
-  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
-* `vdomFragment` - the vdom fragment to render as the component.
-* `component` - a component which can be returned from any render function.
-
-```JavaScript
-var component = h.component([eventHandlers], renderComponent);
-```
-
-* `eventHandlers` - object containing:
-  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
-  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
-  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
-* `renderComponent` - a function that returns a vdom fragment of the component
-* `component` - a component which can be returned from any render function. Can also be returned from an event handler to indicate that only this component needs to be re-rendered.
+Try it on [requirebin](http://requirebin.com/?gist=afb1a6123309267b2d5a).
 
 ## Controllers?
 
@@ -363,6 +378,8 @@ plastiq.attach(document.body, render, {
 });
 ```
 
+Try it on [requirebin](http://requirebin.com/?gist=9ff1ee7bdb2b57fccfb6).
+
 The model too can contain render methods so you can take advantage of polymorphism. This might be useful, for example, if you want to render a list of different types of widgets. Each object in the list would have its own render function, rendering different HTML depending on the object.
 
 Here we render different types of animal, each with it's own user interface. Each animal object has a `render` method to render it's own HTML and event handlers.
@@ -415,6 +432,7 @@ plastiq.attach(document.body, render, {
 });
 ```
 
+Try it on [requirebin](http://requirebin.com/?gist=41d56a087b5f9fa7d062).
 
 ## Animations
 
@@ -442,7 +460,7 @@ function render(model) {
 plastiq.attach(document.body, render, { n: 0 });
 ```
 
-Play on [requirebin](http://requirebin.com/?gist=a51bffb7d591a1e0d2ca)
+Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
 
 # API
 
@@ -482,6 +500,20 @@ var vdomFragment = plastiq.html.rawHtml(selector, [attributes], html);
 * `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `html` - the element's inner HTML.
+
+## `plastiq.html.component`
+
+```JavaScript
+var component = h.component([eventHandlers], vdomFragment | renderFunction);
+```
+
+* `eventHandlers` - object containing:
+  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
+  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+* `vdomFragment` - the vdom fragment to render as the component.
+* `renderFunction` - a function that returns a vdom fragment of the component. This allows the component to be returned from event handlers to be refreshed independently from the rest of the page.
+* `component` - a component which can be returned from any render function. With the `renderFunction` argument, this can be returned from an event handler to refresh just this component.
 
 ## `plastiq.bind`
 
