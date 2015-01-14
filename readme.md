@@ -547,33 +547,35 @@ plastiq.attach(element, render, model, [options]);
 * `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
 * `model` - the model.
 * `options`
-  * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time, for example, immediately:
+  * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time.
 
-  ```JavaScript
-  function requestRender(render) {
-    render();
-  }
-  ```
+    For example, immediately:
 
-  Or on the next tick:
-
-  ```JavaScript
-  function requestRender(render) {
-    setTimeout(render, 0);
-  }
-  ```
-
-  Or on the next animation frame:
-
-  ```JavaScript
-  function requestRender(render) {
-    requestAnimationFrame(render);
-  }
-  ```
-
-  The default is `requestAnimationFrame`, falling back to `setTimeout`.
-
-  For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
+    ```JavaScript
+    function requestRender(render) {
+      render();
+    }
+    ```
+  
+    Or on the next tick:
+  
+    ```JavaScript
+    function requestRender(render) {
+      setTimeout(render, 0);
+    }
+    ```
+  
+    Or on the next animation frame:
+  
+    ```JavaScript
+    function requestRender(render) {
+      requestAnimationFrame(render);
+    }
+    ```
+  
+    The default is `requestAnimationFrame`, falling back to `setTimeout`.
+  
+    For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
 # Philosophy and Motivation
 
