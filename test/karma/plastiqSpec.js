@@ -30,7 +30,7 @@ describe('plastiq', function () {
 
   function click(selector) {
     return retry(function () {
-      expect(find(selector).length).to.eql(1, "could not find button '" + selector + "'");
+      expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'");
     }).then(function () {
       find(selector).click();
     });
@@ -519,7 +519,8 @@ describe('plastiq', function () {
         return h('div',
           component,
           h('span.outer-counter', model.counter),
-          h('button.add', {onclick: function () { model.counter++; return component; }},  'add')
+          h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner'),
+          h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
         );
       }
 
@@ -528,10 +529,84 @@ describe('plastiq', function () {
       expect(find('span.inner-counter').text()).to.equal('0');
       expect(find('span.outer-counter').text()).to.equal('0');
 
-      return click('button.add').then(function () {
+      return click('button.add-inner').then(function () {
         return retry(function () {
           expect(find('span.inner-counter').text()).to.equal('1');
           expect(find('span.outer-counter').text()).to.equal('0');
+        }).then(function () {
+          return click('button.add-outer').then(function () {
+            return retry(function () {
+              expect(find('span.inner-counter').text()).to.equal('2');
+              expect(find('span.outer-counter').text()).to.equal('2');
+            });
+          });
+        });
+      });
+    });
+
+    it('can refresh the component when returned from an event, and handle lifetime events', function () {
+      var events = [];
+      var refreshCount = 0;
+
+      function render(model) {
+        refreshCount++;
+        return h('div',
+          model.show
+            ? h.component(
+                {
+                  onadd: function (element) {
+                    events.push('add');
+                  },
+                  onupdate: function (previous, element) {
+                    events.push('update');
+                  },
+                  onremove: function (element) {
+                    events.push('remove');
+                  }
+                },
+                function () {
+                  return h('div', 'rest of the content')
+                }
+              )
+            : undefined,
+          h('button.refresh', {onclick: function () {}}, 'refresh'),
+          h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
+        );
+      }
+
+      var waitForRefresh = (function () {
+        var oldRefreshCount = 1;
+        return function () {
+          return retry(function () {
+            expect(refreshCount).to.equal(oldRefreshCount + 1);
+          }).then(function () {
+            oldRefreshCount = refreshCount;
+          });
+        };
+      })();
+
+      attach(render, {});
+
+      return click('input.show').then(function () {
+        return waitForRefresh().then(function () {
+          return click('button.refresh').then(function () {
+            return waitForRefresh().then(function () {
+              return click('button.refresh').then(function () {
+                return waitForRefresh().then(function () {
+                  return click('input.show').then(function () {
+                    return retry(function () {
+                      expect(events).to.eql([
+                        'add',
+                        'update',
+                        'update',
+                        'remove'
+                      ]);
+                    });
+                  });
+                });
+              });
+            });
+          });
         });
       });
     });

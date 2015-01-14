@@ -1,20 +1,26 @@
 var rendering = require('./rendering');
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
-var ComponentWidget = require('./componentWidget');
 
-function LifetimeWidget(handlers, vdom) {
+function ComponentWidget(handlers, vdom) {
   this.handlers = handlers;
-  this.vdom = vdom || new VText('');
+  if (typeof vdom === 'function') {
+    this.render = vdom;
+  } else {
+    vdom = vdom || new VText('');
+    this.render = function () {
+      return vdom;
+    }
+  }
   this.component = domComponent();
   this.renderFinished = rendering.renderFinished;
 }
 
-LifetimeWidget.prototype.type = 'Widget';
+ComponentWidget.prototype.type = 'Widget';
 
-LifetimeWidget.prototype.init = function () {
+ComponentWidget.prototype.init = function () {
   var self = this;
-  var element = this.component.create(this.vdom);
+  var element = this.component.create(this.render());
 
   if (self.handlers.onadd) {
     this.renderFinished.then(function () {
@@ -25,20 +31,20 @@ LifetimeWidget.prototype.init = function () {
   return element;
 };
 
-LifetimeWidget.prototype.update = function (previous, element) {
+ComponentWidget.prototype.update = function (previous) {
   var self = this;
 
   if (self.handlers.onupdate) {
     this.renderFinished.then(function () {
-      self.handlers.onupdate(element);
+      self.handlers.onupdate(self.component.element);
     });
   }
 
   this.component = previous.component;
-  return this.component.update(this.vdom);
+  return this.component.update(this.render());
 };
 
-LifetimeWidget.prototype.destroy = function (element) {
+ComponentWidget.prototype.destroy = function (element) {
   var self = this;
 
   if (self.handlers.onremove) {
@@ -50,13 +56,9 @@ LifetimeWidget.prototype.destroy = function (element) {
 
 module.exports = function (handlers, vdom) {
   if (typeof handlers === 'function') {
-    return new ComponentWidget(handlers);
-  } else if (typeof handlers === 'object' && typeof vdom === 'function') {
-    return new ComponentWidget(function () {
-      return new LifetimeWidget(handlers, vdom());
-    });
+    return new ComponentWidget({}, handlers);
   } else {
-    return new LifetimeWidget(handlers, vdom);
+    return new ComponentWidget(handlers, vdom);
   }
 };
 
