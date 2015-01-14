@@ -1,5 +1,4 @@
 var h = require('virtual-dom/h');
-var bind = require('./bind');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
@@ -176,6 +175,17 @@ function bindModel(attributes, children, type) {
     bindingAttr = bind(bindingAttr[0], bindingAttr[1]);
   }
   binding(attributes, children, bindingAttr.get, refreshifyEventHandler(bindingAttr.set));
+}
+
+function bind(obj, prop) {
+  return {
+    get: function () {
+      return obj[prop];
+    },
+    set: function (value) {
+      obj[prop] = value;
+    }
+  };
 }
 
 function inputType(selector, attributes) {

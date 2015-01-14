@@ -1,7 +1,6 @@
 var $ = require('jquery');
 var plastiq = require('../..');
 var h = plastiq.html;
-var bind = plastiq.bind;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
@@ -243,7 +242,7 @@ describe('plastiq', function () {
     it('can bind to a text input', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'text', binding: bind(model, 'text')}),
+          h('input', {type: 'text', binding: [model, 'text']}),
           h('span', model.text)
         );
       }
@@ -281,7 +280,7 @@ describe('plastiq', function () {
         return h('div',
           h('input', {
             type: 'text',
-            binding: bind(model, 'tempText'),
+            binding: [model, 'tempText'],
             oninput: function (ev) {
               model.text = model.tempText;
             }
@@ -303,7 +302,7 @@ describe('plastiq', function () {
     it('can bind to a textarea', function () {
       function render(model) {
         return h('div',
-          h('textarea', {binding: bind(model, 'text')}),
+          h('textarea', {binding: [model, 'text']}),
           h('span', model.text)
         );
       }
@@ -321,7 +320,7 @@ describe('plastiq', function () {
     it('can bind to a checkbox', function () {
       function render(model) {
         return h('div',
-          h('input', {type: 'checkbox', binding: bind(model, 'check')}),
+          h('input', {type: 'checkbox', binding: [model, 'check']}),
           h('span', model.check? 'on': 'off')
         );
       }
@@ -349,13 +348,13 @@ describe('plastiq', function () {
           h('input.red', {
             type: 'radio',
             name: 'colour',
-            binding: bind(model, 'colour'),
+            binding: [model, 'colour'],
             value: 'red'
           }),
           h('input.blue', {
             type: 'radio',
             name: 'colour',
-            binding: bind(model, 'colour'),
+            binding: [model, 'colour'],
             value: blue
           }),
           h('span', JSON.stringify(model.colour))
@@ -391,7 +390,7 @@ describe('plastiq', function () {
       function render(model) {
         return h('div',
           h('select',
-            {binding: bind(model, 'colour')},
+            {binding: [model, 'colour']},
             h('option.red', {value: 'red'}, 'red'),
             h('option.blue', {value: blue}, 'blue')
           ),
