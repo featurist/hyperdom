@@ -30,12 +30,11 @@ Then
 ```JavaScript
 var plastiq = require('plastiq');
 var h = plastiq.html;
-var bind = plastiq.bind;
 
 function render(model) {
   return h('div',
     h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: bind(model, 'name')}),
+    h('input', {type: 'text', binding: [model, 'name']}),
     h('div', 'hi ', model.name)
   );
 }
@@ -141,13 +140,13 @@ Try it on [requirebin](http://requirebin.com/?gist=8790af706dbd09840093)
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
 
-Use the `plastiq.bind` function, and the `binding` attribute to bind the model to a form input. When the binding changes the view is automatically re-rendered.
+The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object `{get: function () { ... }, set: function (value) { ... }}`.
 
 ```JavaScript
 function render(model) {
   return h('div',
     h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: bind(model, 'name')}),
+    h('input', {type: 'text', binding: [model, 'name']}),
     h('div', 'hi ' + model.name)
   );
 }
@@ -169,13 +168,13 @@ function render(model) {
     h('input.red', {
       type: 'radio',
       name: 'colour',
-      binding: bind(model, 'colour'),
+      binding: [model, 'colour'],
       value: 'red'
     }),
     h('input.blue', {
       type: 'radio',
       name: 'colour',
-      binding: bind(model, 'colour'),
+      binding: [model, 'colour'],
       value: blue
     }),
     ' ',
@@ -198,7 +197,7 @@ var blue = { name: 'blue' };
 function render(model) {
   return h('div',
     h('select',
-      {binding: bind(model, 'colour')},
+      {binding: [model, 'colour']},
       h('option.red', {value: 'red'}, 'red'),
       h('option.blue', {value: blue}, 'blue')
     ),
@@ -256,7 +255,7 @@ Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
 Components can be used to track the life-time of some HTML. This is usually helpful if you want to
 install jQuery plugins.
 
-The `h.component()` allows you to respond to when the HTML is added, updated and removed.
+The `plastiq.html.component()` allows you to respond to when the HTML is added, updated and removed.
 
 ```JavaScript
 function render(model) {
@@ -348,7 +347,7 @@ function render(model) {
 
 function renderPerson(model, person) {
   return h('li',
-    h('input', {type: 'text', binding: bind(person, 'name')}),
+    h('input', {type: 'text', binding: [person, 'name']}),
     h('button',
       {
         onclick: function () { model.deletePerson(person); }
@@ -464,7 +463,7 @@ Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
 
 # API
 
-## `plastiq.html`
+## Rending the Virtual DOM
 
 ```JavaScript
 var vdomFragment = plastiq.html(selector, [attributes], children, ...);
@@ -475,23 +474,46 @@ var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
 
-## Event Handlers
+### The `binding` Attribute
+
+Form input elements can be passed a `binding` attribute, which is expected to be either:
+
+* An array with two items, the first being the model and second the field name.
+
+    ```JavaScript
+    [object, 'fieldName']
+    ```
+
+* An object with two methods, `get` and `set`, to get and set the new value, respectively.
+
+    ```JavaScript
+    {
+      get: function () {
+        return model.property;
+      },
+      set: function (value) {
+        model.property = value;
+      }
+    }
+    ```
+
+### Event Handler `on*` Attributes
 
 Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
 
 When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
 
-### Promises
+#### Promises
 
 If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
 
-### Animations
+#### Animations
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
 
-## `plastiq.html.rawHtml`
+## Raw HTML
 
-Careful of script injection attacks! Make sure the HTML is trusted or free of `<script>` tags.
+**Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
 
 ```JavaScript
 var vdomFragment = plastiq.html.rawHtml(selector, [attributes], html);
@@ -501,10 +523,10 @@ var vdomFragment = plastiq.html.rawHtml(selector, [attributes], html);
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `html` - the element's inner HTML.
 
-## `plastiq.html.component`
+## Components
 
 ```JavaScript
-var component = h.component([eventHandlers], vdomFragment | renderFunction);
+var component = plastiq.html.component([eventHandlers], vdomFragment | renderFunction);
 ```
 
 * `eventHandlers` - object containing:
@@ -515,29 +537,7 @@ var component = h.component([eventHandlers], vdomFragment | renderFunction);
 * `renderFunction` - a function that returns a vdom fragment of the component. This allows the component to be returned from event handlers to be refreshed independently from the rest of the page.
 * `component` - a component which can be returned from any render function. With the `renderFunction` argument, this can be returned from an event handler to refresh just this component.
 
-## `plastiq.bind`
-
-Form input elements can be passed a `binding` attribute, which is expected to be an object with two methods: `get` to get the current binding value, and `set` to set it. For example:
-
-    {
-      get: function () {
-        return model.property;
-      },
-      set: function (value) {
-        model.property = value;
-      }
-    }
-
-The `plastiq.bind` function is shorthand for this, creating a new binding for the model and property name:
-
-```JavaScript
-var binding = plastiq.bind(model, propertyName);
-```
-
-* `model` - the object
-* `propertyName` - the name of the property
-
-## `plastiq.attach`
+## Attaching to the DOM
 
 ```JavaScript
 plastiq.attach(element, render, model, [options]);
