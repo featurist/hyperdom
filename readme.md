@@ -471,6 +471,21 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
 
+## `plastiq.html.promise`
+
+Sometimes you need to perform a long-running (asynchronous) operation and render a temporary view such as a loading spinner until that operation completes. In this case you can return a promise from your model and plastiq will render the `pending` dom fragment until the promise is fulfilled:
+
+```JavaScript
+function render(model) {
+  return h.promise(model.longRunningOperation, {
+    pending: 'loading...',
+    fulfilled: function (value) {
+      return 'the value from the long-running operation is ' + value;
+    }
+  });
+}
+```
+
 ## `plastiq.html.rawHtml`
 
 Careful of script injection attacks! Make sure the HTML is trusted or free of `<script>` tags.
