@@ -469,6 +469,72 @@ plastiq.attach(document.body, render, { n: 0 });
 
 Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
 
+## Refreshing the view from the model
+
+Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this plastiq views can subscribe to events produced by the model.
+
+
+### Promises
+
+For example, you may perform asynchronous operations while your application loads, such as making API calls to get the latest model data. While your model loads you can show a spinner, then the view can be refreshed when the load finishes. In this case you can place a promise in your model and plastiq will render a "pending" dom fragment until the promise is fulfilled:
+
+```JavaScript
+function render(model) {
+  return h.promise(model.longRunningOperation, {
+    pending: 'loading...',
+    fulfilled: function (value) {
+      return 'the value from the long-running operation is: ' + value;
+    }
+  });
+}
+
+plastiq.attach(document.body, render, {
+  longRunningOperation: new Promise(function (fulfill) {
+    setTimeout(function () {
+      fulfill('bananas');
+    }, 1000);
+  })
+});
+```
+
+Play on [requirebin](http://requirebin.com/?gist=9cca2ce4ef8044b8592b)
+
+### Animations
+
+Another option is to use an animation. The animation is started as soon as the view HTML is displayed, then the model can refresh the page several times during the animation.
+
+```JavaScript
+function render(model) {
+  return h('div',
+    h.animation(model.animation.bind(model)),
+    h('div', model.counter)
+  );
+}
+
+plastiq.attach(document.body, render, {
+  animation: function (refresh) {
+    var self = this;
+
+    setTimeout(function () {
+      self.counter++;
+      refresh();
+      setTimeout(function () {
+        self.counter++;
+        refresh();
+        setTimeout(function () {
+          self.counter++;
+          refresh();
+        }, 500);
+      }, 500);
+    }, 500);
+  },
+
+  counter: 0
+});
+```
+
+Play on [requirebin](http://requirebin.com/?gist=15d9e47fe0f906a522b2)
+
 # API
 
 ## Rending the Virtual DOM
@@ -518,21 +584,6 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 #### Animations
 
 If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
-
-## `plastiq.html.promise`
-
-Sometimes you need to perform a long-running (asynchronous) operation and render a temporary view such as a loading spinner until that operation completes. In this case you can return a promise from your model and plastiq will render the `pending` dom fragment until the promise is fulfilled:
-
-```JavaScript
-function render(model) {
-  return h.promise(model.longRunningOperation, {
-    pending: 'loading...',
-    fulfilled: function (value) {
-      return 'the value from the long-running operation is ' + value;
-    }
-  });
-}
-```
 
 ## Raw HTML
 
