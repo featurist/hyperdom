@@ -96,6 +96,25 @@ describe('plastiq', function () {
       });
     });
 
+    describe('selectors', function () {
+      function selectorProduces(selector, expectedSelector) {
+        it("h('" + selector + "') produces '" + expectedSelector + "'", function () {
+          function render() {
+            return h(selector);
+          }
+
+          attach(render);
+
+          expect(find(expectedSelector).length).to.equal(1);
+        });
+      }
+
+      selectorProduces('div.class', 'div.class');
+      selectorProduces('div#id', 'div#id');
+      selectorProduces('div.class#id', 'div.class#id');
+      selectorProduces('h1 a', 'h1 a');
+    });
+
     describe('attribute naming exceptions', function () {
       it('can render a for attribute', function () {
           function render(model) {

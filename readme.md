@@ -58,8 +58,16 @@ function render(model) {
 
 ### Use Selectors
 
+Use `tagname`, with any number of `.class` and `#id`.
+
 ```JavaScript
-h('span.name', 'hi ', model.name);
+h('div.class#id', 'hi ', model.name);
+```
+
+Spaces are taken to be small hierarchies of HTML elements, this will produce `<pre><code>...</code></pre>`:
+
+```JavaScript
+h('pre code', 'hi ', model.name);
 ```
 
 ### Add HTML Attributes
@@ -470,7 +478,7 @@ var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 ```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
-* `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
+* `selector` - (almost) any selector, containing element names, classes and ids: `tag.class#id`, or small hierarchies `pre code`.
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
 

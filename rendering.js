@@ -224,6 +224,18 @@ function applyAttributeRenames(attributes) {
 }
 
 exports.html = function (selector) {
+  var selectorElements = selector.match(/\S+/g);
+  selector = selectorElements[selectorElements.length - 1];
+
+  function createElementHierarchy(leaf) {
+    if (selectorElements.length > 1) {
+      var selectorElement = selectorElements.shift();
+      return h(selectorElement, createElementHierarchy(leaf));
+    } else {
+      return leaf;
+    }
+  }
+
   var attributes;
   var childElements;
 
@@ -247,10 +259,10 @@ exports.html = function (selector) {
       bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
-    return h.call(undefined, selector, attributes, childElements);
+    return createElementHierarchy(h(selector, attributes, childElements));
   } else {
     childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 1)));
-    return h.call(undefined, selector, childElements);
+    return createElementHierarchy(h(selector, childElements));
   }
 };
 
