@@ -29,16 +29,11 @@ var browsers = {
 
 module.exports = function(config) {
   config.set(_.defaults({
-    reporters: ['saucelabs', 'spec'],
-
-    sauceLabs: {
-        public: 'public',
-    },
-
+    reporters: ['dots', 'saucelabs'],
+    sauceLabs: { testName: 'plastiq' },
+    captureTimeout: 120000,
     browsers: Object.keys(browsers),
-
     customLaunchers: browsers,
-    
     singleRun: true
   }, base));
 };

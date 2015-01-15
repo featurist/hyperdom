@@ -5,6 +5,7 @@ before_install:
 - npm install npm -g
 before_script:
 - npm install
+- npm install karma-mocha -g
 script: npm run ci
 env:
   global:
