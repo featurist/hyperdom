@@ -31,6 +31,7 @@
   "scripts": {
     "test": "npm run karma && npm run mocha",
     "karma": "karma start --single-run",
+    "ci": "karma start --single-run karma.conf-ci.js",
     "mocha": "mocha test/mocha/*Spec.js",
     "prepublish": "browserify browser.js > plastiq.js && uglifyjs plastiq.js > plastiq.min.js"
   },

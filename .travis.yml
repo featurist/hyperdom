@@ -5,7 +5,7 @@ before_install:
 - npm install npm -g
 before_script:
 - npm install
-script: npm test
+script: npm run ci
 env:
   global:
     - secure: Pvn7kGKHAL0m5dFpBLXUybHaroG0CDq72ldK3dRLEzchq5E1k2fXMw380CIqUKczFBrwfcGEsL4z5qMhzd9/cOYNnV42VJ+UsTnBgKDPeN8ODr+lE6LvXxNJsBZ5hysEyqqtKlmWYNCimJ3VsD+3lcCKTkr4KwSmqhhjTVAQef8=
