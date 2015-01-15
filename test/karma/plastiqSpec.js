@@ -895,4 +895,34 @@ describe('plastiq', function () {
       });
     });
   });
+
+  describe('app', function () {
+    it('renders a vdom corresponding to the current URL', function() {
+      var model = { symbol: '!' };
+      
+      var app = plastiq.app();
+      app.get('/', function() {
+        return h('div.home', 'Home');
+      });
+      app.get('/about/:what', function(params, model) {
+        return h('div.about', 'About ' + params.what + model.symbol);
+      });
+      app.attach(div, model, '/about/me');
+      
+      return retry(function() {
+        expect($(div).text()).to.equal('About me!');
+      }).then(function() {
+        model.symbol = '?';
+        app.navigateTo('/about/us');
+        return retry(function() {
+          expect($(div).text()).to.equal('About us?');
+        });
+      }).then(function() {
+        app.navigateTo('/');
+        return retry(function() {
+          expect($(div).text()).to.equal('Home');
+        });
+      });
+    });
+  });
 });
