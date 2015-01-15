@@ -7,8 +7,8 @@ exports.bind = require('./bind');
 
 var windowEvents = require('./windowEvents');
 
-exports.html.window = function (attributes) {
-  return windowEvents(attributes, rendering.refreshifyEventHandler);
+exports.html.window = function (attributes, vdom) {
+  return windowEvents(attributes, vdom, rendering.refreshifyEventHandler);
 };
 
 exports.html.rawHtml = require('./rawHtml');
