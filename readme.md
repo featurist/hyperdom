@@ -272,15 +272,22 @@ function render(model) {
       ? h.component(
           {
             onadd: function (element) {
-              // element is the <div>rest of the content</div>
+              // element is the <div>component contents</div>
               // you may want to add jQuery plugins here
-              console.log('added');
+
+              // you can store state in `this`, and it will
+              // be present in subsequent event handlers
+              // in fact, the `this` is the same object
+              // for each event handler, across all view refreshes
+              this.someProperty = 'some value';
+
+              console.log('added: ', this.someProperty);
             },
             onupdate: function (element) {
-              console.log('updated');
+              console.log('updated: ', this.someProperty);
             },
             onremove: function (element) {
-              console.log('removed');
+              console.log('removed: ', this.someProperty);
             }
           },
           h('div', 'component contents')
@@ -607,6 +614,8 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
   * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
   * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+
+    The event handlers are all invoked with the same `this`, within the lifetime of the component. This means you can store state between events.
 * `vdomFragment` - the vdom fragment to render as the component.
 * `renderFunction` - a function that returns a vdom fragment of the component. This allows the component to be returned from event handlers to be refreshed independently from the rest of the page.
 * `component` - a component which can be returned from any render function. With the `renderFunction` argument, this can be returned from an event handler to refresh just this component.

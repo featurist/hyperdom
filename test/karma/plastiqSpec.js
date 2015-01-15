@@ -427,6 +427,7 @@ describe('plastiq', function () {
   describe('plastiq.html.component', function () {
     it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
       var events = [];
+      var componentState;
 
       function render(model) {
         return h('div',
@@ -438,17 +439,20 @@ describe('plastiq', function () {
                     parent: element.parentNode,
                     element: element
                   });
+                  componentState = this;
                 },
                 onupdate: function (element) {
                   events.push({
                     type: 'onupdate',
-                    element: element
+                    element: element,
+                    state: this
                   });
                 },
                 onremove: function (element) {
                   events.push({
                     type: 'onremove',
-                    element: element
+                    element: element,
+                    state: this
                   });
                 }
               })
@@ -477,15 +481,18 @@ describe('plastiq', function () {
                     },
                     {
                       type: 'onupdate',
-                      element: expectedElement
+                      element: expectedElement,
+                      state: componentState
                     },
                     {
                       type: 'onupdate',
-                      element: expectedElement
+                      element: expectedElement,
+                      state: componentState
                     },
                     {
                       type: 'onremove',
-                      element: expectedElement
+                      element: expectedElement,
+                      state: componentState
                     }
                   ]);
                 });

@@ -41,6 +41,14 @@ ComponentWidget.prototype.update = function (previous) {
   }
 
   this.component = previous.component;
+  
+  if (previous.handlers && this.handlers) {
+    previous.handlers.onadd = this.handlers.onadd;
+    previous.handlers.onupdate = this.handlers.onupdate;
+    previous.handlers.onremove = this.handlers.onremove;
+    this.handlers = previous.handlers;
+  }
+
   return this.component.update(this.render());
 };
 
