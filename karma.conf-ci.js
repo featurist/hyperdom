@@ -37,6 +37,8 @@ module.exports = function(config) {
 
     browsers: Object.keys(browsers),
 
-    customLaunchers: browsers
+    customLaunchers: browsers,
+    
+    singleRun: true
   }, base));
 };
