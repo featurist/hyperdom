@@ -4,6 +4,7 @@ var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
+var router = require('../../router');
 
 describe('plastiq', function () {
   var div;
@@ -418,6 +419,157 @@ describe('plastiq', function () {
           return retry(function() {
             expect(find('span').text()).to.equal('{"name":"blue"}');
             expect(find('option.blue').prop('selected')).to.equal(true);
+          });
+        });
+      });
+    });
+  });
+
+  describe('routes', function () {
+    var href;
+    var timer;
+
+    beforeEach(function () {
+      href = location.href;
+
+      var objects = [
+        { name: 'one', id: 1 },
+        { name: 'two', id: 2 },
+        { name: 'three', id: 3 },
+        { name: 'four', id: 4 }
+      ];
+
+      function render(model) {
+        return h('div',
+          h('.header', 'Hi ', model.name),
+          router(
+            router.page('/', function () {
+              return h('div',
+                h('h1', 'root'),
+                router.link('/objects', 'objects')
+              );
+            }),
+            router.page('/objects', function () {
+              return new Promise(function (result) {
+                setTimeout(function () {
+                  result(objects);
+                }, 300);
+              });
+            }, function (objects) {
+              return h('div',
+                h('h1', 'objects'),
+                h('ul',
+                  objects.map(function (o) {
+                    return h('li', router.link('/objects/' + o.id, o.name));
+                  })
+                )
+              );
+            }),
+            router.page('/objects/:id', function (params) {
+              return new Promise(function (result) {
+                setTimeout(function () {
+                  result(objects.filter(function (o) { return o.id == Number(params.id); })[0]);
+                }, 300);
+              });
+            },
+            function (object) {
+              return h('div',
+                h('h1', 'object'),
+                h('p', object.name)
+              );
+            })
+          )
+        );
+      }
+
+      history.pushState(undefined, undefined, '/');
+      attach(render, {name: 'User'});
+
+      timer = {
+        start: function() {
+          this.startTime = new Date().getTime();
+        },
+        stop: function () {
+          this.elapsed = new Date().getTime() - this.startTime;
+        }
+      };
+    });
+
+    afterEach(function () {
+      history.pushState(undefined, undefined, href);
+    });
+
+    it('can navigate from root, to objects, to object, loading state each time', function () {
+      expect(find('h1').text()).to.equal('root');
+      timer.start();
+      return click('a:contains("objects")').then(function () {
+        return retry(function () {
+          expect(find('h1').text()).to.equal('objects');
+        }).then(function () {
+          timer.stop();
+          expect(timer.elapsed).to.be.greaterThan(300);
+          timer.start();
+          return click('li a:contains("one")').then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('object');
+              expect(find('p').text()).to.equal('one');
+            }).then(function () {
+              timer.stop();
+              expect(timer.elapsed).to.be.greaterThan(300);
+            });
+          });
+        });
+      });
+    });
+
+    it('navigates back and forward, without reloading state', function () {
+      expect(find('h1').text()).to.equal('root');
+      return click('a:contains("objects")').then(function () {
+        return retry(function () {
+          expect(find('h1').text()).to.equal('objects');
+        }).then(function () {
+          return click('li a:contains("one")').then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('object');
+              expect(find('p').text()).to.equal('one');
+            }).then(function () {
+              history.back();
+              timer.start();
+              return retry(function () {
+                expect(find('h1').text()).to.equal('objects');
+              }).then(function () {
+                timer.stop();
+                expect(timer.elapsed).to.be.lessThan(300);
+
+                history.back();
+                timer.start();
+                return retry(function () {
+                  expect(find('h1').text()).to.equal('root');
+                }).then(function () {
+                  timer.stop();
+                  expect(timer.elapsed).to.be.lessThan(300);
+
+                  history.forward();
+                  timer.start();
+                  return retry(function () {
+                    expect(find('h1').text()).to.equal('objects');
+                  }).then(function () {
+                    timer.stop();
+                    expect(timer.elapsed).to.be.lessThan(300);
+
+                    history.forward();
+                    timer.start();
+                    return retry(function () {
+                      expect(find('h1').text()).to.equal('object');
+                      expect(find('p').text()).to.equal('one');
+                    }).then(function () {
+                      timer.stop();
+                      expect(timer.elapsed).to.be.lessThan(300);
+                    });
+                  });
+                });
+              });
+            });
           });
         });
       });
