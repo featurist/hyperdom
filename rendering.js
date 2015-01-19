@@ -3,6 +3,7 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
 var ComponentWidget = require('./component').ComponentWidget;
+var router = require('./router');
 
 exports.globalRefresh;
 
@@ -86,10 +87,14 @@ function sequenceFunctions(handler1, handler2) {
   };
 }
 
-function insertEventHandler(attributes, eventName, handler) {
+function insertEventHandler(attributes, eventName, handler, after) {
   var previousHandler = attributes[eventName];
   if (previousHandler) {
-    attributes[eventName] = sequenceFunctions(handler, previousHandler);
+    if (after) {
+      attributes[eventName] = sequenceFunctions(previousHandler, handler);
+    } else {
+      attributes[eventName] = sequenceFunctions(handler, previousHandler);
+    }
   } else {
     attributes[eventName] = handler;
   }
@@ -262,12 +267,31 @@ exports.html = function (selector) {
       bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
+    if (attributes.route) {
+      bindRoute(attributes, selector);
+    }
+
     return createElementHierarchy(h(selector, attributes, childElements));
   } else {
     childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 1)));
     return createElementHierarchy(h(selector, childElements));
   }
 };
+
+function bindRoute(attributes, selector) {
+  var isAnchor = /^a\b/.test(selector);
+
+  if (isAnchor) {
+    attributes.href = attributes.route;
+  }
+
+  function onclick () {
+    router.push(attributes.route);
+    return false;
+  };
+
+  insertEventHandler(attributes, 'onclick', refreshifyEventHandler(onclick), true);
+}
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {

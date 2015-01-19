@@ -1,12 +1,11 @@
 var plastiq = require('.');
-var h = plastiq.html;
 
 var routism = require('routism');
 
 var loadingModel;
 var state;
 
-router.page = function () {
+function page() {
   if (arguments.length == 3) {
     var url = arguments[0];
     var loadModel = arguments[1];
@@ -22,7 +21,7 @@ router.page = function () {
             loadingModel = loadModel(params);
           }
         }
-        return h.promise(loadingModel, {
+        return plastiq.html.promise(loadingModel, {
           fulfilled: function (model) {
             loadingModel = undefined;
             history.replaceState(model, undefined, location.href);
@@ -64,7 +63,7 @@ function router() {
   var route = compiledRoutes.recognise(location.pathname);
 
   if (route) {
-    return h.window(
+    return plastiq.html.window(
       {
         onpopstate: function (ev) {
           state = ev.state;
@@ -73,12 +72,22 @@ function router() {
       route.route.render(makeHash(route.params))
     );
   } else {
-    return h('div', '404');
+    return plastiq.html('div', '404');
   }
 };
 
+function push(url) {
+  state = undefined;
+  window.history.pushState(undefined, undefined, url);
+}
+
+function replace(url) {
+  state = undefined;
+  window.history.replaceState(undefined, undefined, url);
+}
+
 router.link = function (url, vdom) {
-  return h('a', {
+  return plastiq.html('a', {
     href: url,
     onclick: function () {
       state = undefined;
@@ -88,4 +97,7 @@ router.link = function (url, vdom) {
   }, vdom);
 }
 
-module.exports = router;
+module.exports.router = router;
+module.exports.page = page;
+module.exports.push = push;
+module.exports.replace = replace;

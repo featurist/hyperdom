@@ -4,7 +4,6 @@ var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
-var router = require('../../router');
 
 describe('plastiq', function () {
   var div;
@@ -442,42 +441,47 @@ describe('plastiq', function () {
       function render(model) {
         return h('div',
           h('.header', 'Hi ', model.name),
-          router(
-            router.page('/', function () {
+          h.router(
+            h.page('/', function () {
               return h('div',
                 h('h1', 'root'),
-                router.link('/objects', 'objects')
+                h('a', {route: '/objects'}, 'objects')
               );
             }),
-            router.page('/objects', function () {
-              return new Promise(function (result) {
-                setTimeout(function () {
-                  result(objects);
-                }, 300);
-              });
-            }, function (objects) {
-              return h('div',
-                h('h1', 'objects'),
-                h('ul',
-                  objects.map(function (o) {
-                    return h('li', router.link('/objects/' + o.id, o.name));
-                  })
-                )
-              );
-            }),
-            router.page('/objects/:id', function (params) {
-              return new Promise(function (result) {
-                setTimeout(function () {
-                  result(objects.filter(function (o) { return o.id == Number(params.id); })[0]);
-                }, 300);
-              });
-            },
-            function (object) {
-              return h('div',
-                h('h1', 'object'),
-                h('p', object.name)
-              );
-            })
+            h.page('/objects',
+              function () {
+                return new Promise(function (result) {
+                  setTimeout(function () {
+                    result(objects);
+                  }, 300);
+                });
+              },
+              function (objects) {
+                return h('div',
+                  h('h1', 'objects'),
+                  h('ul',
+                    objects.map(function (o) {
+                      return h('li', h('a', {route: '/objects/' + o.id}, o.name));
+                    })
+                  )
+                );
+              }
+            ),
+            h.page('/objects/:id',
+              function (params) {
+                return new Promise(function (result) {
+                  setTimeout(function () {
+                    result(objects.filter(function (o) { return o.id == Number(params.id); })[0]);
+                  }, 300);
+                });
+              },
+              function (object) {
+                return h('div',
+                  h('h1', 'object'),
+                  h('p', object.name)
+                );
+              }
+            )
           )
         );
       }
