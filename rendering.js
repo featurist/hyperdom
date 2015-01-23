@@ -6,27 +6,16 @@ var ComponentWidget = require('./component').ComponentWidget;
 
 exports.globalRefresh;
 
-function renderWithRefresh(render, model, refresh) {
-  var tree;
-
+function doThenFireAfterRender(refresh, fn) {
   try {
     exports.globalRefresh = refresh;
-    tree = render(model);
-  } finally {
-    exports.globalRefresh = undefined;
-  }
-
-  return tree;
-}
-
-function doThenFireAfterRender(fn) {
-  try {
     exports.renderFinished = simplePromise();
 
     fn();
   } finally {
     exports.renderFinished.fulfill();
     exports.renderFinished = undefined;
+    exports.globalRefresh = undefined;
   }
 }
 
@@ -39,8 +28,8 @@ exports.attach = function (element, render, model, options) {
       requestRender(function () {
         requested = false;
 
-        doThenFireAfterRender(function () {
-          var vdom = renderWithRefresh(render, model, refresh);
+        doThenFireAfterRender(refresh, function () {
+          var vdom = render(model);
           component.update(vdom);
         });
       });
@@ -50,14 +39,18 @@ exports.attach = function (element, render, model, options) {
 
   var component = domComponent();
 
-  doThenFireAfterRender(function () {
-    var vdom = renderWithRefresh(render, model, refresh);
+  doThenFireAfterRender(refresh, function () {
+    var vdom = render(model);
     element.appendChild(component.create(vdom));
   });
 };
 
 function refreshifyEventHandler(fn) {
   var r = exports.globalRefresh;
+
+  if (!r) {
+    throw new Error('no global refresh!');
+  }
 
   return function () {
     var result = fn.apply(undefined, arguments);
