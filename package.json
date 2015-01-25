@@ -18,6 +18,7 @@
     "karma-mocha": "^0.1.10",
     "karma-mocha-reporter": "^0.3.1",
     "karma-safari-launcher": "^0.1.1",
+    "marked": "^0.3.2",
     "mocha": "^2.1.0",
     "trytryagain": "^0.1.0",
     "uglify-js": "^2.4.16",
@@ -25,7 +26,8 @@
   },
   "scripts": {
     "test": "karma start --single-run",
-    "prepublish": "browserify browser.js | uglifyjs > plastiq.js"
+    "prepublish": "browserify browser.js | uglifyjs > plastiq.js",
+    "readme-examples": "node readme-examples.js"
   },
   "keywords": [
     "virtual-dom",
