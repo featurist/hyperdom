@@ -6,10 +6,6 @@ var ComponentWidget = require('./component').ComponentWidget;
 
 exports.currentRender;
 
-function badRefresh() {
-  throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
-}
-
 function doThenFireAfterRender(render, fn) {
   try {
     exports.currentRender = render;
@@ -27,8 +23,12 @@ function doThenFireAfterRender(render, fn) {
     exports.currentRender.finished.fulfill();
     exports.currentRender.finished = undefined;
     exports.currentRender = undefined;
-    exports.html.refresh = badRefresh;
+    exports.html.refresh = refreshOutOfRender;
   }
+}
+
+function refreshOutOfRender() {
+  throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
 }
 
 exports.attach = function (element, render, model, options) {
@@ -63,6 +63,10 @@ exports.attach = function (element, render, model, options) {
 };
 
 function refreshComponent(component, requestRender) {
+  if (!component.canRefresh) {
+    throw new Error("this component cannot be refreshed, make sure that the component's view is returned from a function");
+  }
+
   if (!component.requested) {
     requestRender(function () {
       component.requested = false;
@@ -296,6 +300,8 @@ exports.html = function (selector) {
     return createElementHierarchy(h(selector, childElements));
   }
 };
+
+exports.html.refresh = refreshOutOfRender;
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {

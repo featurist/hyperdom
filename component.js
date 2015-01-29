@@ -6,6 +6,7 @@ function ComponentWidget(handlers, vdom) {
   this.handlers = handlers;
   if (typeof vdom === 'function') {
     this.render = vdom;
+    this.canRefresh = true;
   } else {
     vdom = vdom || new VText('');
     this.render = function () {
