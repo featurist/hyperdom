@@ -2,7 +2,7 @@ var rendering = require('./rendering');
 
 function AnimationWidget(fn) {
   this.fn = fn;
-  this.refresh = rendering.globalRefresh;
+  this.refresh = rendering.currentRender.refresh;
 }
 
 AnimationWidget.prototype.type = 'Widget';

@@ -725,6 +725,23 @@ describe('plastiq', function () {
       });
     });
 
+    it('throws exception when component is returned from event but does not have a render function', function () {
+      function render(model) {
+        var component = h.component(h('span.inner-counter', model.counter));
+
+        return h('div',
+          component,
+          h('button', { onclick: function () { return component; } }, 'refresh component')
+        );
+      }
+
+      attach(render, {});
+
+      return click('button').then(undefined, function(error) {
+        expect(error.message).to.contain('refresh');
+      });
+    });
+
     it('can refresh the component when returned from an event, and handle lifetime events', function () {
       var events = [];
       var refreshCount = 0;
@@ -788,6 +805,116 @@ describe('plastiq', function () {
                   });
                 });
               });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('plastiq.html.refresh', function () {
+    it('refreshes the UI when called', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                model.text = 'after timeout';
+                refresh();
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('after timeout');
+            });
+          });
+        });
+      });
+    });
+
+    it('refreshes a component when called with that component', function () {
+      function render(model) {
+        var refresh = h.refresh;
+        var component = h.component(function () { return h('h2', model.text); });
+
+        return h('div',
+          h('h1', model.text),
+          component,
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                model.text = 'after timeout';
+                refresh(component);
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+            expect(find('h2').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('before timeout');
+              expect(find('h2').text()).to.equal('after timeout');
+            });
+          });
+        });
+      });
+    });
+
+    it('must be taken during render cycle, or exception is thrown', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                try {
+                  model.text = 'after timeout';
+                  h.refresh();
+                } catch (e) {
+                  model.text = e.message;
+                  refresh();
+                }
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.include("plastiq.html.refresh");
             });
           });
         });

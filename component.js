@@ -6,6 +6,7 @@ function ComponentWidget(handlers, vdom) {
   this.handlers = handlers;
   if (typeof vdom === 'function') {
     this.render = vdom;
+    this.canRefresh = true;
   } else {
     vdom = vdom || new VText('');
     this.render = function () {
@@ -13,7 +14,7 @@ function ComponentWidget(handlers, vdom) {
     }
   }
   this.component = domComponent();
-  this.renderFinished = rendering.renderFinished;
+  this.renderFinished = rendering.currentRender.finished;
 }
 
 ComponentWidget.prototype.type = 'Widget';
