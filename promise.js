@@ -6,7 +6,7 @@ var domComponent = require('./domComponent');
 function PromiseWidget(promise, handlers) {
   this.promise = promise;
   this.handlers = handlers;
-  this.refresh = rendering.globalRefresh;
+  this.refresh = rendering.currentRender.refresh;
   this.component = domComponent();
 }
 
