@@ -639,6 +639,112 @@ describe('plastiq', function () {
     });
   });
 
+  describe('plastiq.html.refresh', function () {
+    it('refreshes the UI when called', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                model.text = 'after timeout';
+                refresh();
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('after timeout');
+            });
+          });
+        });
+      });
+    });
+
+    it('refreshes a component when called', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                model.text = 'after timeout';
+                refresh();
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('after timeout');
+            });
+          });
+        });
+      });
+    });
+
+    it('must be taken during render cycle, or exception is thrown', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                try {
+                  model.text = 'after timeout';
+                  h.refresh();
+                } catch (e) {
+                  model.text = e.message;
+                  refresh();
+                }
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.include("plastiq.html.refresh");
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('plastiq.html.promise', function () {
     it('renders pending until the promise is fulfilled', function () {
       function render(model) {

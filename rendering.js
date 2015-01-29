@@ -4,18 +4,30 @@ var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
 var ComponentWidget = require('./component').ComponentWidget;
 
-exports.globalRefresh;
+exports.currentRender;
 
-function doThenFireAfterRender(refresh, fn) {
+function badRefresh() {
+  throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
+}
+
+function doThenFireAfterRender(render, fn) {
   try {
-    exports.globalRefresh = refresh;
-    exports.renderFinished = simplePromise();
+    exports.currentRender = render;
+    exports.currentRender.finished = simplePromise();
+    exports.html.refresh = function (component) {
+      if (component) {
+        refreshComponent(component, render.requestRender);
+      } else {
+        render.refresh();
+      }
+    }
 
     fn();
   } finally {
-    exports.renderFinished.fulfill();
-    exports.renderFinished = undefined;
-    exports.globalRefresh = undefined;
+    exports.currentRender.finished.fulfill();
+    exports.currentRender.finished = undefined;
+    exports.currentRender = undefined;
+    exports.html.refresh = badRefresh;
   }
 }
 
@@ -28,7 +40,7 @@ exports.attach = function (element, render, model, options) {
       requestRender(function () {
         requested = false;
 
-        doThenFireAfterRender(refresh, function () {
+        doThenFireAfterRender(attachment, function () {
           var vdom = render(model);
           component.update(vdom);
         });
@@ -37,16 +49,32 @@ exports.attach = function (element, render, model, options) {
     }
   }
 
+  var attachment = {
+    refresh: refresh,
+    requestRender: requestRender
+  }
+
   var component = domComponent();
 
-  doThenFireAfterRender(refresh, function () {
+  doThenFireAfterRender(attachment, function () {
     var vdom = render(model);
     element.appendChild(component.create(vdom));
   });
 };
 
+function refreshComponent(component, requestRender) {
+  if (!component.requested) {
+    requestRender(function () {
+      component.requested = false;
+      component.update(component);
+    });
+    component.requested = true;
+  }
+}
+
 function refreshifyEventHandler(fn) {
-  var r = exports.globalRefresh;
+  var requestRender = exports.currentRender.requestRender;
+  var r = exports.currentRender.refresh;
 
   if (!r) {
     throw new Error('no global refresh!');
@@ -59,7 +87,7 @@ function refreshifyEventHandler(fn) {
     } else if (result && typeof(result.then) == 'function') {
       result.then(r, r);
     } else if (result instanceof ComponentWidget) {
-      result.update(result);
+      refreshComponent(result, requestRender);
     } else {
       r();
       return result;

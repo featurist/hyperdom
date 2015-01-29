@@ -13,7 +13,7 @@ function ComponentWidget(handlers, vdom) {
     }
   }
   this.component = domComponent();
-  this.renderFinished = rendering.renderFinished;
+  this.renderFinished = rendering.currentRender.finished;
 }
 
 ComponentWidget.prototype.type = 'Widget';
