@@ -3,7 +3,7 @@ var rendering = require('./rendering');
 exports.html = rendering.html;
 exports.attach = rendering.attach;
 
-exports.bind = require('./bind');
+exports.bind = require('./oldbind');
 
 var windowEvents = require('./windowEvents');
 

@@ -1,5 +1,6 @@
 var $ = require('jquery');
 var plastiq = require('../..');
+var router = require('../../router');
 var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
@@ -425,138 +426,162 @@ describe('plastiq', function () {
   });
 
   describe('routes', function () {
-    var href;
-    var timer;
+    var originalHref;
 
     beforeEach(function () {
-      href = location.href;
-
-      var objects = [
-        { name: 'one', id: 1 },
-        { name: 'two', id: 2 },
-        { name: 'three', id: 3 },
-        { name: 'four', id: 4 }
-      ];
-
-      function render(model) {
-        return h('div',
-          h('.header', 'Hi ', model.name),
-          h.router(
-            h.page('/', function () {
-              return h('div',
-                h('h1', 'root'),
-                h('a', {route: '/objects'}, 'objects')
-              );
-            }),
-            h.page('/objects',
-              function () {
-                return new Promise(function (result) {
-                  setTimeout(function () {
-                    result(objects);
-                  }, 300);
-                });
-              },
-              function (objects) {
-                return h('div',
-                  h('h1', 'objects'),
-                  h('ul',
-                    objects.map(function (o) {
-                      return h('li', h('a', {route: '/objects/' + o.id}, o.name));
-                    })
-                  )
-                );
-              }
-            ),
-            h.page('/objects/:id',
-              function (params) {
-                return new Promise(function (result) {
-                  setTimeout(function () {
-                    result(objects.filter(function (o) { return o.id == Number(params.id); })[0]);
-                  }, 300);
-                });
-              },
-              function (object) {
-                return h('div',
-                  h('h1', 'object'),
-                  h('p', object.name)
-                );
-              }
-            )
-          )
-        );
-      }
-
+      originalHref = location.href;
       history.pushState(undefined, undefined, '/');
-      attach(render, {name: 'User'});
-
-      timer = {
-        start: function() {
-          this.startTime = new Date().getTime();
-        },
-        stop: function () {
-          this.elapsed = new Date().getTime() - this.startTime;
-        }
-      };
     });
 
     afterEach(function () {
-      history.pushState(undefined, undefined, href);
+      history.pushState(undefined, undefined, originalHref);
     });
 
-    it('can navigate from root, to objects, to object, loading state each time', function () {
-      expect(find('h1').text()).to.equal('root');
-      timer.start();
-      return click('a:contains("objects")').then(function () {
-        return retry(function () {
-          expect(find('h1').text()).to.equal('objects');
-        }).then(function () {
-          timer.stop();
-          expect(timer.elapsed).to.be.greaterThan(300);
-          timer.start();
-          return click('li a:contains("one")').then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('object');
-              expect(find('p').text()).to.equal('one');
-            }).then(function () {
-              timer.stop();
-              expect(timer.elapsed).to.be.greaterThan(300);
+    describe('url drives model', function () {
+      var timer;
+      var model;
+
+      beforeEach(function () {
+        var objects = [
+          { name: 'one', id: 1 },
+          { name: 'two', id: 2 },
+          { name: 'three', id: 3 },
+          { name: 'four', id: 4 }
+        ];
+
+        function render(model) {
+          return h('div',
+            h('.header', 'Hi ', model.name),
+            router(
+              router.page('/', function () {
+                return h('div',
+                  h('h1', 'root'),
+                  h('a', {href: '/objects', onclick: router.push}, 'objects')
+                );
+              }),
+              router.page('/objects',
+                {
+                  binding: [model, 'objects'],
+                  state: function () {
+                    return new Promise(function (result) {
+                      setTimeout(function () {
+                        result(objects);
+                      }, 300);
+                    });
+                  }
+                },
+                function () {
+                  return h('div',
+                    h('h1', 'objects'),
+                    h('ul',
+                      model.objects.map(function (o) {
+                        return h('li', h('a', {
+                          onclick: function () {
+                            router.push('/objects/' + o.id);
+                          }
+                        }, o.name));
+                      })
+                    )
+                  );
+                }
+              ),
+              router.page('/objects/:id',
+                {
+                  binding: [model, 'object'],
+                  state: function (params) {
+                    return new Promise(function (result) {
+                      setTimeout(function () {
+                        result(objects.filter(function (o) { return o.id == Number(params.id); })[0]);
+                      }, 300);
+                    });
+                  }
+                },
+                function () {
+                  return h('div',
+                    h('h1', 'object'),
+                    h('p', model.object.name)
+                  );
+                }
+              )
+            )
+          );
+        }
+
+        model = {name: 'User'};
+        attach(render, model);
+
+        timer = {
+          start: function() {
+            this.startTime = new Date().getTime();
+          },
+          stop: function () {
+            this.elapsed = new Date().getTime() - this.startTime;
+          }
+        };
+      });
+
+      it('can navigate from root, to objects, to object, loading state each time', function () {
+        expect(find('h1').text()).to.equal('root');
+        expect(model.objects).to.not.exist;
+        expect(model.object).to.not.exist;
+        timer.start();
+        return click('a:contains("objects")').then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('objects');
+            expect(model.objects).to.exist;
+            expect(model.object).to.not.exist;
+          }).then(function () {
+            timer.stop();
+            expect(timer.elapsed).to.be.greaterThan(300);
+            timer.start();
+            return click('li a:contains("one")').then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('object');
+                expect(find('p').text()).to.equal('one');
+                expect(model.objects).to.not.exist;
+                expect(model.object).to.exist;
+              }).then(function () {
+                timer.stop();
+                expect(timer.elapsed).to.be.greaterThan(300);
+              });
             });
           });
         });
       });
-    });
 
-    it('navigates back and forward, without reloading state', function () {
-      expect(find('h1').text()).to.equal('root');
-      return click('a:contains("objects")').then(function () {
-        return retry(function () {
-          expect(find('h1').text()).to.equal('objects');
-        }).then(function () {
-          return click('li a:contains("one")').then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('object');
-              expect(find('p').text()).to.equal('one');
-            }).then(function () {
-              history.back();
-              timer.start();
+      it('navigates back and forward, without reloading state', function () {
+        expect(find('h1').text()).to.equal('root');
+        expect(model.objects).to.not.exist;
+        expect(model.object).to.not.exist;
+        return click('a:contains("objects")').then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('objects');
+            expect(model.objects).to.exist;
+            expect(model.object).to.not.exist;
+          }).then(function () {
+            return click('li a:contains("one")').then(function () {
               return retry(function () {
-                expect(find('h1').text()).to.equal('objects');
+                expect(find('h1').text()).to.equal('object');
+                expect(find('p').text()).to.equal('one');
+                expect(model.objects).to.not.exist;
+                expect(model.object).to.exist;
               }).then(function () {
-                timer.stop();
-                expect(timer.elapsed).to.be.lessThan(300);
-
                 history.back();
                 timer.start();
                 return retry(function () {
-                  expect(find('h1').text()).to.equal('root');
+                  expect(find('h1').text()).to.equal('objects');
+                  expect(model.objects).to.exist;
+                  expect(model.object).to.not.exist;
                 }).then(function () {
                   timer.stop();
                   expect(timer.elapsed).to.be.lessThan(300);
 
-                  history.forward();
+                  history.back();
                   timer.start();
                   return retry(function () {
-                    expect(find('h1').text()).to.equal('objects');
+                    expect(find('h1').text()).to.equal('root');
+                    expect(model.objects).to.not.exist;
+                    expect(model.object).to.not.exist;
                   }).then(function () {
                     timer.stop();
                     expect(timer.elapsed).to.be.lessThan(300);
@@ -564,12 +589,79 @@ describe('plastiq', function () {
                     history.forward();
                     timer.start();
                     return retry(function () {
-                      expect(find('h1').text()).to.equal('object');
-                      expect(find('p').text()).to.equal('one');
+                      expect(find('h1').text()).to.equal('objects');
+                      expect(model.objects).to.exist;
+                      expect(model.object).to.not.exist;
                     }).then(function () {
                       timer.stop();
                       expect(timer.elapsed).to.be.lessThan(300);
+
+                      history.forward();
+                      timer.start();
+                      return retry(function () {
+                        expect(find('h1').text()).to.equal('object');
+                        expect(find('p').text()).to.equal('one');
+                        expect(model.objects).to.not.exist;
+                        expect(model.object).to.exist;
+                      }).then(function () {
+                        timer.stop();
+                        expect(timer.elapsed).to.be.lessThan(300);
+                      });
                     });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    describe('model drives url', function () {
+      beforeEach(function () {
+        function render(model) {
+          return router(
+            router.page('/', function () {
+              return h('button', {onclick: function () { router.push('/counter/10'); } }, 'start');
+            }),
+            router.page('/counter/:n',
+              {
+                binding: [model, 'counter'],
+                state: function (params) {
+                  return Number(params.n);
+                }
+              },
+              function () {
+                return h('div',
+                  h('h1', model.counter),
+                  h('button.count', {onclick: function () { model.counter++; }}, 'count'),
+                  h('a.somewhere', {href: '/somewhere', onclick: router.push}, 'count')
+                );
+              }
+            ),
+            router.page('/somewhere',
+              function () {
+                return h('h1', 'somewhere');
+              }
+            )
+          );
+        }
+
+        attach(render, {});
+      });
+
+      it('state can be updated after the route, then is kept after coming back', function () {
+        return click('button').then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('10');
+          }).then(function () {
+            return click('button.count').then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('11');
+              }).then(function () {
+                return click('a.somewhere').then(function () {
+                  return retry(function () {
+                    expect(find('h1').text()).to.equal('somewhere');
                   });
                 });
               });

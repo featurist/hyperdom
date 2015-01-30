@@ -3,7 +3,7 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
 var ComponentWidget = require('./component').ComponentWidget;
-var router = require('./router');
+var binding = require('./binding');
 
 exports.currentRender;
 
@@ -198,24 +198,10 @@ function bindModel(attributes, children, type) {
     }
   };
 
-  var binding = inputTypeBindings[type] || bindTextInput;
+  var bind = inputTypeBindings[type] || bindTextInput;
 
-  var bindingAttr = attributes.binding;
-  if (bindingAttr instanceof Array) {
-    bindingAttr = bind(bindingAttr[0], bindingAttr[1]);
-  }
-  binding(attributes, children, bindingAttr.get, refreshifyEventHandler(bindingAttr.set));
-}
-
-function bind(obj, prop) {
-  return {
-    get: function () {
-      return obj[prop];
-    },
-    set: function (value) {
-      obj[prop] = value;
-    }
-  };
+  var bindingAttr = binding(attributes.binding);
+  bind(attributes, children, bindingAttr.get, refreshifyEventHandler(bindingAttr.set));
 }
 
 function inputType(selector, attributes) {
@@ -299,10 +285,6 @@ exports.html = function (selector) {
       bindModel(attributes, childElements, inputType(selector, attributes));
     }
 
-    if (attributes.route) {
-      bindRoute(attributes, selector);
-    }
-
     return createElementHierarchy(h(selector, attributes, childElements));
   } else {
     childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 1)));
@@ -311,21 +293,6 @@ exports.html = function (selector) {
 };
 
 exports.html.refresh = refreshOutOfRender;
-
-function bindRoute(attributes, selector) {
-  var isAnchor = /^a\b/.test(selector);
-
-  if (isAnchor) {
-    attributes.href = attributes.route;
-  }
-
-  function onclick () {
-    router.push(attributes.route);
-    return false;
-  };
-
-  insertEventHandler(attributes, 'onclick', refreshifyEventHandler(onclick), true);
-}
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
