@@ -14,6 +14,14 @@ function page() {
 
     return {
       url: url,
+      newUrl: function () {
+        if (options.url) {
+          var newUrl = options.url(binding.get());
+          if (newUrl != location.pathname + location.search) {
+            return newUrl;
+          }
+        }
+      },
       render: function (params, isNewLocation) {
         if (isNewLocation) {
           if (rendering.currentRender.lastBinding) {
@@ -46,6 +54,7 @@ function page() {
 
     return {
       url: url,
+      newUrl: function () {},
       render: function (params, isNewLocation) {
         if (isNewLocation) {
           if (rendering.currentRender.lastBinding) {
@@ -88,14 +97,22 @@ function router() {
   var route = compiledRoutes.recognise(location.pathname);
 
   if (route) {
-    return plastiq.html.window(
-      {
-        onpopstate: function (ev) {
-          state = ev.state;
-        }
-      },
-      route.route.render(makeHash(route.params), hrefChanged())
-    );
+    var newUrl = route.route.newUrl();
+    var changed = hrefChanged();
+
+    if (newUrl && !changed) {
+      replace(newUrl);
+      return router.apply(this, arguments);
+    } else {
+      return plastiq.html.window(
+        {
+          onpopstate: function (ev) {
+            state = ev.state;
+          }
+        },
+        route.route.render(makeHash(route.params), changed)
+      );
+    }
   } else {
     return plastiq.html('div', '404');
   }

@@ -617,7 +617,7 @@ describe('plastiq', function () {
       });
     });
 
-    describe('model drives url', function () {
+    describe('state is stored', function () {
       beforeEach(function () {
         function render(model) {
           return router(
@@ -662,8 +662,60 @@ describe('plastiq', function () {
                 return click('a.somewhere').then(function () {
                   return retry(function () {
                     expect(find('h1').text()).to.equal('somewhere');
+                  }).then(function () {
+                    history.back();
+
+                    return retry(function () {
+                      expect(find('h1').text()).to.equal('11');
+                    });
                   });
                 });
+              });
+            });
+          });
+        });
+      });
+    });
+
+    describe('model drives url', function () {
+      beforeEach(function () {
+        function render(model) {
+          return router(
+            router.page('/', function () {
+              return h('button', {onclick: function () { router.push('/counter/10'); } }, 'start');
+            }),
+            router.page('/counter/:n',
+              {
+                binding: [model, 'counter'],
+                state: function (params) {
+                  return Number(params.n);
+                },
+                url: function (state) {
+                  return '/counter/' + state;
+                }
+              },
+              function () {
+                return h('div',
+                  h('h1', model.counter),
+                  h('button.count', {onclick: function () { model.counter++; }}, 'count')
+                );
+              }
+            )
+          );
+        }
+
+        attach(render, {});
+      });
+
+      it('state can be updated after the route, then is kept after coming back', function () {
+        return click('button').then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('10');
+          }).then(function () {
+            return click('button.count').then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('11');
+                expect(location.pathname).to.equal('/counter/11');
               });
             });
           });
