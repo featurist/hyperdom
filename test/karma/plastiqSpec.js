@@ -191,12 +191,13 @@ describe('plastiq', function () {
         expect(p.attr('style')).to.eql('color: red;');
       });
 
-      it('only updates the dom when the HTML changes', function() {
+      it('updates the dom when the HTML changes', function() {
         function render(model) {
           return h('div',
             h.rawHtml('p.raw', model.html),
             h('p.x', model.x),
-            h('button', {onclick: function () { model.x = 'zzz'; }})
+            h('button.one', {onclick: function () { model.x = 'zzz'; }}),
+            h('button.two', {onclick: function () { model.html = 'Nice <b>HTML</b>'; }})
           );
         }
 
@@ -206,11 +207,16 @@ describe('plastiq', function () {
 
         var b = find('p.raw b')[0];
 
-        return click('button').then(function () {
+        return click('button.one').then(function () {
           return retry(function() {
             expect(find('p.x').html()).to.equal('zzz');
           }).then(function() {
             expect(find('p.raw b')[0]).to.equal(b);
+            return click('button.two').then(function () {
+              return retry(function() {
+                expect(find('p.raw b')[0]).not.to.equal(b);
+              });
+            });
           })
         });
       });
