@@ -1,6 +1,5 @@
 var $ = require('jquery');
-var plastiq = require('../..');
-var h = plastiq.html;
+var h = require('../..').html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
@@ -14,7 +13,7 @@ describe('plastiq', function () {
   });
 
   function attach(render, model) {
-    plastiq.attach(div, render, model, { requestRender: setTimeout });
+    h.attach(div, render, model, { requestRender: setTimeout });
   }
 
   function find(selector) {

@@ -1,7 +1,7 @@
 var rendering = require('./rendering');
 
 exports.html = rendering.html;
-exports.attach = rendering.attach;
+exports.html.attach = rendering.attach;
 
 exports.bind = require('./bind');
 
