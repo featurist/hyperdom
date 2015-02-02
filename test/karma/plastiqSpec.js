@@ -190,6 +190,30 @@ describe('plastiq', function () {
         expect(p.attr('class')).to.eql('raw');
         expect(p.attr('style')).to.eql('color: red;');
       });
+
+      it('only updates the dom when the HTML changes', function() {
+        function render(model) {
+          return h('div',
+            h.rawHtml('p.raw', model.html),
+            h('p.x', model.x),
+            h('button', {onclick: function () { model.x = 'zzz'; }})
+          );
+        }
+
+        attach(render, {html: 'Naughty <b>HTML</b>', x: 'yyy'});
+
+        expect(find('p.raw').html()).to.equal('Naughty <b>HTML</b>');
+
+        var b = find('p.raw b')[0];
+
+        return click('button').then(function () {
+          return retry(function() {
+            expect(find('p.x').html()).to.equal('zzz');
+          }).then(function() {
+            expect(find('p.raw b')[0]).to.equal(b);
+          })
+        });
+      });
     });
   });
 
