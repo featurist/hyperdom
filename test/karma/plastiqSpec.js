@@ -45,6 +45,15 @@ describe('plastiq', function () {
 
       expect(find('.haha').length).to.eql(1);
     });
+    it('can render pound sign', function () {
+      function render(model) {
+        return h('div','£');
+      }
+
+      attach(render, {});
+
+      expect(find('div').text()).to.eql('£');
+    });
 
     function itCanRenderA(type, value, expectedValue) {
       it('can render a ' + type, function () {
