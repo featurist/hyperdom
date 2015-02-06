@@ -484,7 +484,15 @@ Sometimes you want to refresh the view at an arbitrary point, not just after a U
 
 You can refresh the view at any time by getting a **refresh** function. You can get this function from `plastiq.html.refresh`, and call it after the view has rendered, i.e. after an AJAX response.
 
-**Note that calling `plastiq.html.refresh()` will not work!**
+**Note that just calling `plastiq.html.refresh()` will not work, please assign it to the model, or a local variable, then call it.**
+
+```JavaScript
+var refresh = plastiq.html.refresh;
+
+// later
+
+refresh();
+```
 
 This is because `plastiq.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
 
