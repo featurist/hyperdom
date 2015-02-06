@@ -1,6 +1,5 @@
 var plastiq = require('.');
 var rendering = require('./rendering');
-var createBinding = require('./binding');
 var routism = require('routism');
 
 var state;
@@ -10,7 +9,7 @@ function page() {
     var url = arguments[0];
     var options = arguments[1];
     var render = arguments[2];
-    var binding = createBinding(options.binding);
+    var binding = plastiq.binding(options.binding, { refreshOnSet: false });
 
     return {
       url: url,

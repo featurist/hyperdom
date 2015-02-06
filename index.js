@@ -4,6 +4,7 @@ exports.html = rendering.html;
 exports.attach = rendering.attach;
 
 exports.bind = require('./oldbind');
+exports.binding = rendering.binding;
 
 var windowEvents = require('./windowEvents');
 

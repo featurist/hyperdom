@@ -3,7 +3,6 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
 var ComponentWidget = require('./component').ComponentWidget;
-var binding = require('./binding');
 
 exports.currentRender;
 
@@ -77,6 +76,8 @@ function refreshComponent(component, requestRender) {
   }
 }
 
+var norefresh = {};
+
 function refreshifyEventHandler(fn) {
   var requestRender = exports.currentRender.requestRender;
   var r = exports.currentRender.refresh;
@@ -93,6 +94,8 @@ function refreshifyEventHandler(fn) {
       result.then(r, r);
     } else if (result instanceof ComponentWidget) {
       refreshComponent(result, requestRender);
+    } else if (result === norefresh) {
+      // don't refresh;
     } else {
       r();
       return result;
@@ -200,7 +203,7 @@ function bindModel(attributes, children, type) {
 
   var bind = inputTypeBindings[type] || bindTextInput;
 
-  var bindingAttr = binding(attributes.binding);
+  var bindingAttr = makeBinding(attributes.binding);
   bind(attributes, children, bindingAttr.get, refreshifyEventHandler(bindingAttr.set));
 }
 
@@ -293,6 +296,32 @@ exports.html = function (selector) {
 };
 
 exports.html.refresh = refreshOutOfRender;
+exports.html.norefresh = norefresh;
+
+function makeBinding(b, options) {
+  var binding = b instanceof Array
+    ?  bindingObject(b[0], b[1])
+    : b;
+
+  if (!options || !options.refreshOnSet) {
+    binding.set = refreshifyEventHandler(binding.set);
+  }
+
+  return binding;
+};
+
+function bindingObject(obj, prop) {
+  return {
+    get: function () {
+      return obj[prop];
+    },
+    set: function (value) {
+      obj[prop] = value;
+    }
+  };
+};
+
+exports.binding = makeBinding;
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
