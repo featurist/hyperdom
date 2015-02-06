@@ -480,10 +480,48 @@ Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
 
 Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this plastiq views can subscribe to events produced by the model.
 
+### Refresh Function
+
+You can refresh the view at any time by getting a **refresh** function. You can get this function from `plastiq.html.refresh`, and call it after the view has rendered, i.e. after an AJAX response.
+
+**Note that calling `plastiq.html.refresh()` will not work!**
+
+This is because `plastiq.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
+
+```JavaScript
+function render(model) {
+  model.refresh = h.refresh;
+
+  return h('div',
+    h('h1', 'my favourite color is'),
+    model.color
+      ? h('h2', model.color)
+      : model.loading
+        ? h('h2', 'loading...')
+        : h('button', {
+            onclick: function () {
+              setTimeout(function () {
+                model.color = 'red';
+                model.refresh();
+              }, 1000);
+          }, '?')
+  );
+}
+
+plastiq.attach(document.body, render, {});
+```
+
+```JavaScript
+var refresh = plastiq.html.refresh;
+refresh([component]);
+```
+
+* `refresh()` refreshes the whole UI for the attachment. (Other attached UIs aren't refreshed.)
+* `refresh(component)` just refreshes the component. See [components](#components).
 
 ### Promises
 
-For example, you may perform asynchronous operations while your application loads, such as making API calls to get the latest model data. While your model loads you can show a spinner, then the view can be refreshed when the load finishes. In this case you can place a promise in your model and plastiq will render a "pending" dom fragment until the promise is fulfilled:
+If your model uses promises, your view can represent the different states of the promise: pending, fulfilled or rejected. This allows your view to render accordingly a loading spinner, the result, or indeed an error if one ocurrs.
 
 ```JavaScript
 function render(model) {
