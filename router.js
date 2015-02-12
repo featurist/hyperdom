@@ -118,21 +118,21 @@ function router() {
 };
 
 function push(url) {
-  if (typeof url === 'string') {
-    state = undefined;
-    window.history.pushState(undefined, undefined, url);
-  } else {
-    var ev = url;
-    var href = ev.target.href;
-    push(href);
-    ev.preventDefault();
-  }
+  return replacePushState('push', url);
 }
 
 function replace(url) {
+  return replacePushState('replace', url);
+}
+
+function replacePushState(replacePush, url) {
   if (typeof url === 'string') {
     state = undefined;
-    window.history.replaceState(undefined, undefined, url);
+    window.history[replacePush + 'State'](undefined, undefined, url);
+
+    if (rendering.currentRender) {
+      plastiq.html.refresh();
+    }
   } else {
     var ev = url;
     var href = ev.target.href;

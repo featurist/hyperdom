@@ -248,6 +248,50 @@ describe('plastiq', function () {
     });
   });
 
+  describe('norefresh', function () {
+    it("when returned the view doesn't refresh after the handler has run", function () {
+      var refreshes = 0;
+      function render(model) {
+        refreshes++;
+
+        return h('div',
+          h('button.refresh', {
+            onclick: function () {
+            }
+          }),
+          h('button.norefresh', {
+            onclick: function () {
+              return h.norefresh;
+            }
+          }),
+          h('span', refreshes)
+        );
+      }
+
+      attach(render, {});
+
+      return click('button.refresh').then(function () {
+        return retry(function () {
+          expect(refreshes).to.eql(2);
+        }).then(function () {
+          return click('button.norefresh').then(function () {
+            return wait(10).then(function () {
+              return retry(function () {
+                expect(refreshes, 'expected not to refresh').to.eql(2);
+              }).then(function () {
+                return click('button.refresh').then(function () {
+                  return retry(function () {
+                    expect(refreshes, 'expected to refresh').to.eql(3);
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('model binding', function () {
     it('can bind to a text input', function () {
       function render(model) {

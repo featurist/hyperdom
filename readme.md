@@ -476,6 +476,10 @@ plastiq.attach(document.body, render, { n: 0 });
 
 Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
 
+## Not Refreshing
+
+By default the view will refresh after an event handler has run, however you can return `plastiq.html.norefresh` from an event handler to prevent this.
+
 ## Refreshing the view from the model
 
 Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this plastiq views can subscribe to events produced by the model.
