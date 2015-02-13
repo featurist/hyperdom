@@ -1,0 +1,95 @@
+pre {
+  margin-left: 20px;
+  padding: 17px;
+  padding-left: 30px;
+  border-left: 12px solid rgb(47, 200, 255);
+  background-color: rgba(27, 177, 255, 0.1);
+}
+
+body {
+  font-family: sans-serif;
+}
+
+body > * {
+  width: 700px;
+  margin: 1em auto;
+}
+
+body > p {
+  align: justify;
+}
+
+body > .plastiq-editor {
+  width: auto;
+  margin: inherit;
+}
+
+pre.ace_editor {
+  border: none;
+}
+
+.plastiq-editor .render, .plastiq-editor .error {
+  margin-left: 20px;
+  padding: 20px;
+  padding-left: 20px;
+  font-family: sans-serif;
+}
+
+.plastiq-editor .render {
+  background-color: rgb(240, 240, 240);
+  color: rgb(39, 124, 255);
+  border-left: 12px solid rgb(171, 171, 171);
+}
+
+.plastiq-editor > div {
+  display:flex;
+  flex-wrap: wrap;
+}
+
+.plastiq-editor > div > pre {
+  flex: 1;
+  height: 300px;
+}
+.plastiq-editor > div > .render, .plastiq-editor > div > .error {
+  width: 100%;
+}
+
+.plastiq-editor > div > .error {
+  color: rgb(228, 0, 0);
+  background-color: rgb(255, 241, 243);
+  border-left: 12px solid rgb(255, 205, 205);
+}
+
+.plastiq-editor .render button {
+  background-color: rgb(75, 139, 255);
+  border:none;
+  color:white;
+  font-size: 15px;
+  padding: 3px 6px 4px 6px;
+}
+
+.plastiq-editor .render input[type=text] + button {
+  margin-left: 15px;
+}
+
+.plastiq-editor .render li {
+  padding: 3px;
+}
+
+.plastiq-editor .render input[type=text] {
+  background-color: rgba(158, 175, 244, 0.15);
+  border: none;
+  border-bottom: 1px dashed rgba(128, 159, 207, 0.63);
+  padding: 3px;
+  font-size: 14px;
+  color: inherit;
+  outline: none;
+}
+
+.plastiq-editor .render input, .plastiq-output button {
+  outline: none;
+}
+
+.plastiq-editor .render code {
+  background-color: rgba(0, 119, 255, 0.05);
+}

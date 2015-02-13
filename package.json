@@ -1,0 +1,28 @@
+{
+  "name": "plastiq-pages",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/featurist/plastiq"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/featurist/plastiq/issues"
+  },
+  "homepage": "https://github.com/featurist/plastiq",
+  "dependencies": {
+    "bluebird": "^2.5.3",
+    "browserify": "^8.0.3",
+    "marked": "^0.3.2",
+    "mustache": "^1.0.0",
+    "plastiq": "^1.5.1",
+    "pogo": "^0.9.6",
+    "qo": "^0.3.0"
+  }
+}
