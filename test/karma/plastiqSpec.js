@@ -311,6 +311,31 @@ describe('plastiq', function () {
       });
     });
 
+    it('when model returns undefined, it clears the input', function () {
+      function render(model) {
+        return h('div',
+          h('input', {type: 'text', binding: [model, 'text']}),
+          h('button.clear', {onclick: function () { delete model.text; }}, 'clear'),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {text: ''});
+
+      find('input').sendkeys('haha');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('haha');
+        expect(find('input').val()).to.equal('haha');
+        return click('button.clear').then(function () {
+          return retry(function () {
+            expect(find('span').text()).to.equal('');
+            expect(find('input').val()).to.equal('');
+          });
+        });
+      });
+    });
+
     it('can bind with a shorthand binding syntax', function () {
       function render(model) {
         return h('div',

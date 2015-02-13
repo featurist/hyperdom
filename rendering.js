@@ -108,7 +108,8 @@ exports.refreshifyEventHandler = refreshifyEventHandler;
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
-  attributes.value = get();
+  var bindingValue = get();
+  attributes.value = bindingValue != undefined? bindingValue: '';
 
   attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
