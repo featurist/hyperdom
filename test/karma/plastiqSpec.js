@@ -311,6 +311,26 @@ describe('plastiq', function () {
       });
     });
 
+    it('can bind to a text input converting to number', function () {
+      function render(model) {
+        return h('div',
+          h('input', {type: 'text', binding: [model, 'number', Number]}),
+          h('span', model.number)
+        );
+      }
+
+      var model = {number: 0};
+      attach(render, model);
+
+      find('input').sendkeys('{selectall}{backspace}123');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('123');
+        expect(find('input').val()).to.equal('123');
+        expect(model.number).to.equal(123);
+      });
+    });
+
     it('when model returns undefined, it clears the input', function () {
       function render(model) {
         return h('div',
@@ -333,24 +353,6 @@ describe('plastiq', function () {
             expect(find('input').val()).to.equal('');
           });
         });
-      });
-    });
-
-    it('can bind with a shorthand binding syntax', function () {
-      function render(model) {
-        return h('div',
-          h('input', {type: 'text', binding: [model, 'text']}),
-          h('span', model.text)
-        );
-      }
-
-      attach(render, {text: ''});
-
-      find('input').sendkeys('omg');
-
-      return retry(function() {
-        expect(find('span').text()).to.equal('omg');
-        expect(find('input').val()).to.equal('omg');
       });
     });
 

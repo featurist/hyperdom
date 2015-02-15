@@ -301,7 +301,7 @@ exports.html.norefresh = norefresh;
 
 function makeBinding(b, options) {
   var binding = b instanceof Array
-    ?  bindingObject(b[0], b[1])
+    ?  bindingObject.apply(undefined, b)
     : b;
 
   if (!options || !options.refreshOnSet) {
@@ -311,12 +311,15 @@ function makeBinding(b, options) {
   return binding;
 };
 
-function bindingObject(obj, prop) {
+function bindingObject(obj, prop, convert) {
   return {
     get: function () {
       return obj[prop];
     },
     set: function (value) {
+      if (convert) {
+        value = convert(value);
+      }
       obj[prop] = value;
     }
   };

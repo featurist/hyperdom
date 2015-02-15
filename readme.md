@@ -609,11 +609,15 @@ var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 
 Form input elements can be passed a `binding` attribute, which is expected to be either:
 
-* An array with two items, the first being the model and second the field name.
+* An array with two items, the first being the model and second the field name, the third being an optional function called on the input when set, for example to convert a string into a number use `Number`.
 
     ```JavaScript
-    [object, 'fieldName']
+    [object, 'fieldName', convert]
     ```
+
+* `object` - an object
+* `fieldName` - the name of a field on `object`
+* `convert` (optional) - a function called on the value when setting the model, i.e. `model.field = convert(value)`.
 
 * An object with two methods, `get` and `set`, to get and set the new value, respectively.
 

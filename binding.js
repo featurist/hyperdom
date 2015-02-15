@@ -6,12 +6,15 @@ module.exports = function(binding) {
   }
 };
 
-function bind(obj, prop) {
+function bind(obj, prop, convert) {
   return {
     get: function () {
       return obj[prop];
     },
     set: function (value) {
+      if (convert) {
+        value = convert(value);
+      }
       obj[prop] = value;
     }
   };
