@@ -304,7 +304,7 @@ function makeBinding(b, options) {
     ?  bindingObject.apply(undefined, b)
     : b;
 
-  if (!options || !options.refreshOnSet) {
+  if (!options || !options.norefresh) {
     binding.set = refreshifyEventHandler(binding.set);
   }
 

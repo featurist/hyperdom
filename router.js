@@ -9,7 +9,7 @@ function page() {
     var url = arguments[0];
     var options = arguments[1];
     var render = arguments[2];
-    var binding = plastiq.binding(options.binding, { refreshOnSet: false });
+    var binding = plastiq.binding(options.binding, { norefresh: true });
 
     return {
       url: url,
