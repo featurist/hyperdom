@@ -30,8 +30,10 @@ function page() {
 
           if (state) {
             rendering.currentRender.routeState = state;
-          } else {
+          } else if (typeof state === 'function') {
             rendering.currentRender.routeState = options.state(params);
+          } else {
+            rendering.currentRender.routeState = options.state;
           }
         }
 
