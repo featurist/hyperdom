@@ -16,7 +16,9 @@ RawHtmlWidget.prototype.init = function () {
 };
 
 RawHtmlWidget.prototype.update = function (previous, element) {
-  element.parentNode.replaceChild(this.init(), element);
+  if (this.html != previous.html) {
+    element.parentNode.replaceChild(this.init(), element);
+  }
 };
 
 RawHtmlWidget.prototype.destroy = function (element) {
