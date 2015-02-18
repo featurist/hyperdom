@@ -832,6 +832,34 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('state is set on startup', function () {
+      function render(model) {
+        return router(
+          router.page('/',
+            function () {
+              return h('h1', 'root');
+            }
+          ),
+          router.page('/page',
+            {
+              binding: [model, 'state'],
+              state: 'state'
+            },
+            function () {
+              return h('span.state', model.state);
+            }
+          )
+        );
+      }
+
+      history.pushState(undefined, undefined, '/page');
+      var model = {};
+      attach(render, model);
+
+      expect(find('span.state').text()).to.equal('state');
+      expect(model.state).to.equal('state');
+    });
   });
 
   describe('plastiq.html.component', function () {
