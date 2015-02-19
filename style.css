@@ -2,12 +2,19 @@ pre {
   margin-left: 20px;
   padding: 17px;
   padding-left: 30px;
-  border-left: 12px solid rgb(47, 200, 255);
-  background-color: rgba(27, 177, 255, 0.1);
+  box-shadow: rgba(0, 0, 0, 0.1) 3px 3px 15px;
 }
 
 body {
   font-family: sans-serif;
+  background-color: rgb(255, 255, 255);
+}
+
+body > h1:first-of-type, h1.header {
+  color: rgb(255, 255, 255);
+  font-size: 100px;
+  text-align: center;
+  text-shadow: rgba(200, 255, 0, 0.6) 0.775331284649776px -9.9698977627177px 21px, rgba(255, 0, 126, 0.73) 8.24651909332227px 5.65640547021439px 21px, rgba(104, 67, 176, 1) -9.02185037797205px 4.31349229250331px 21px;
 }
 
 body > * {

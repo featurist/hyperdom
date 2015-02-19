@@ -3467,7 +3467,8 @@ exports.refreshifyEventHandler = refreshifyEventHandler;
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
-  attributes.value = get();
+  var bindingValue = get();
+  attributes.value = bindingValue != undefined? bindingValue: '';
 
   attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
@@ -3659,7 +3660,7 @@ exports.html.norefresh = norefresh;
 
 function makeBinding(b, options) {
   var binding = b instanceof Array
-    ?  bindingObject(b[0], b[1])
+    ?  bindingObject.apply(undefined, b)
     : b;
 
   if (!options || !options.refreshOnSet) {
@@ -3669,12 +3670,15 @@ function makeBinding(b, options) {
   return binding;
 };
 
-function bindingObject(obj, prop) {
+function bindingObject(obj, prop, convert) {
   return {
     get: function () {
       return obj[prop];
     },
     set: function (value) {
+      if (convert) {
+        value = convert(value);
+      }
       obj[prop] = value;
     }
   };
@@ -3817,21 +3821,21 @@ function router() {
 };
 
 function push(url) {
-  if (typeof url === 'string') {
-    state = undefined;
-    window.history.pushState(undefined, undefined, url);
-  } else {
-    var ev = url;
-    var href = ev.target.href;
-    push(href);
-    ev.preventDefault();
-  }
+  return replacePushState('push', url);
 }
 
 function replace(url) {
+  return replacePushState('replace', url);
+}
+
+function replacePushState(replacePush, url) {
   if (typeof url === 'string') {
     state = undefined;
-    window.history.replaceState(undefined, undefined, url);
+    window.history[replacePush + 'State'](undefined, undefined, url);
+
+    if (rendering.currentRender) {
+      plastiq.html.refresh();
+    }
   } else {
     var ev = url;
     var href = ev.target.href;

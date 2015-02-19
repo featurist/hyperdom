@@ -1,21 +1,25 @@
 (function () {
   var h = plastiq.html;
 
-  var codeElements = Array.apply(undefined, document.querySelectorAll('pre code.language-JavaScript'));
-  var demos = codeElements.filter(function (c) {
-    return c.textContent.indexOf('plastiq.attach') > 0;
-  });
+  function startExamples() {
+    var codeElements = Array.apply(undefined, document.querySelectorAll('pre code.language-JavaScript'));
+    var demos = codeElements.filter(function (c) {
+      return c.textContent.indexOf('plastiq.attach') > 0;
+    });
 
-  demos.forEach(function (code) {
-    var pre = code.parentNode;
+    demos.forEach(function (code) {
+      var pre = code.parentNode;
 
-    var editorElement = document.createElement('div');
-    editorElement.className = 'plastiq-editor';
+      var editorElement = document.createElement('div');
+      editorElement.className = 'plastiq-editor';
 
-    pre.parentNode.replaceChild(editorElement, pre);
+      pre.parentNode.replaceChild(editorElement, pre);
 
-    attachEditor(editorElement, code.textContent);
-  });
+      attachEditor(editorElement, code.textContent);
+    });
+  }
+
+  startExamples();
 
   function aceify(textarea, mode) {
     var editor = ace.edit(textarea);
