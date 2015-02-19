@@ -457,21 +457,32 @@ Notice that the `render()` function only *requests* a re-render, which will happ
 ```JavaScript
 function render(model) {
   return h('div',
-    h('button', {
-      onclick: function () {
-        return function (render) {
-          setInterval(function () {
-            model.n++;
-            render();
-          }, 100);
-        };
-      }
-    }, 'Start'),
+    model.interval
+      ? h('button', {
+          onclick: function () {
+            return function (render) {
+              clearInterval(model.interval);
+              delete model.interval;
+            };
+          }
+        }, 'Stop')
+      : h('button', {
+          onclick: function () {
+            return function (render) {
+              model.interval = setInterval(function () {
+                model.n++;
+                render();
+              }, 100);
+            };
+          }
+        }, 'Start'),
     h('div', 'n = ' + model.n)
   );
 }
 
-plastiq.append(document.body, render, { n: 0 });
+plastiq.append(document.body, render, {
+  n: 0
+});
 ```
 
 Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
