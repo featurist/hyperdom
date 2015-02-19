@@ -2,28 +2,79 @@ pre {
   margin-left: 20px;
   padding: 17px;
   padding-left: 30px;
-  box-shadow: rgba(0, 0, 0, 0.1) 3px 3px 15px;
+  /* box-shadow: rgba(255, 255, 255, 0.2) 3px 4px 23px; */
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+pre code {
+  background-color: transparent;
+}
+
+a {
+  font-weight: 500;
+}
+
+strong, a, code {
+  color: white;
+}
+
+p code {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 body {
-  font-family: sans-serif;
-  background-color: rgb(255, 255, 255);
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  background-color: rgb(255, 54, 115);
+  width: 700px;
+  margin: 1em auto;
+  color: white;
 }
 
-body > h1:first-of-type, h1.header {
+body > h1 {
+  font-size: 60px;
+}
+
+body > h2 {
+  font-size: 39px;
+}
+
+body > h3 {
+  font-size: 30px;
+}
+
+body > h4 {
+  font-size: 23px;
+}
+
+body > h1, body > h2, body > h3, body > h4, body > h5 {
+  margin-top: 65px;
+  
+  font-weight: 100;
+//  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0 10px;
+}
+
+body > h1:first-of-type {
   color: rgb(255, 255, 255);
   font-size: 100px;
+  font-weight: 100;
   text-align: center;
-  text-shadow: rgba(200, 255, 0, 0.6) 0.775331284649776px -9.9698977627177px 21px, rgba(255, 0, 126, 0.73) 8.24651909332227px 5.65640547021439px 21px, rgba(104, 67, 176, 1) -9.02185037797205px 4.31349229250331px 21px;
 }
 
 body > * {
-  width: 700px;
-  margin: 1em auto;
 }
 
 body > p {
-  align: justify;
+  text-align: justify;
+}
+
+body > p, body > ol, body > ul {
+  font-size: 18px;
+  font-weight: 200;
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 30px;
 }
 
 body > .plastiq-editor {

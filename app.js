@@ -9,13 +9,9 @@
 
     demos.forEach(function (code) {
       var pre = code.parentNode;
+      pre.className = 'plastiq-editor';
 
-      var editorElement = document.createElement('div');
-      editorElement.className = 'plastiq-editor';
-
-      pre.parentNode.replaceChild(editorElement, pre);
-
-      attachEditor(editorElement, code.textContent);
+      attachEditor(pre, code.textContent);
     });
   }
 
@@ -165,6 +161,6 @@
     }
 
     var parsedSource = parseSource(source);
-    plastiq.attach(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
+    plastiq.replace(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
   }
 })();
