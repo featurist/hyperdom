@@ -2,6 +2,8 @@ var rendering = require('./rendering');
 
 exports.html = rendering.html;
 exports.attach = rendering.attach;
+exports.replace = rendering.replace;
+exports.append = rendering.append;
 
 exports.bind = require('./oldbind');
 exports.binding = rendering.binding;

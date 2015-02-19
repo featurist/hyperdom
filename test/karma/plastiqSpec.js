@@ -15,7 +15,7 @@ describe('plastiq', function () {
   });
 
   function attach(render, model) {
-    plastiq.attach(div, render, model, { requestRender: setTimeout });
+    plastiq.append(div, render, model, { requestRender: setTimeout });
   }
 
   function find(selector) {
@@ -35,6 +35,34 @@ describe('plastiq', function () {
       find(selector).click();
     });
   }
+
+  describe('attaching', function () {
+    var targetDiv;
+
+    beforeEach(function () {
+      targetDiv = $('<div></div>').appendTo(div)[0];
+    });
+
+    it('can append an element as a child of another', function () {
+      function render() {
+        return h('div.rendered');
+      }
+
+      plastiq.append(targetDiv, render);
+
+      expect(div.innerHTML).to.equal('<div><div class="rendered"></div></div>');
+    });
+
+    it('can replace an element', function () {
+      function render() {
+        return h('div.rendered');
+      }
+
+      plastiq.replace(targetDiv, render);
+
+      expect(div.innerHTML).to.equal('<div class="rendered"></div>');
+    });
+  });
 
   describe('rendering', function () {
     it('can render a div', function () {

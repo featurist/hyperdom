@@ -39,7 +39,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {name: ''});
+plastiq.append(document.body, render, {name: ''});
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
@@ -122,7 +122,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { people: [] });
+plastiq.append(document.body, render, { people: [] });
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
@@ -159,7 +159,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { name: '' });
+plastiq.append(document.body, render, { name: '' });
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
@@ -190,7 +190,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { colour: blue });
+plastiq.append(document.body, render, { colour: blue });
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
@@ -214,7 +214,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { colour: blue });
+plastiq.append(document.body, render, { colour: blue });
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
@@ -250,7 +250,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   filename: '(no file selected)',
   contents: ''
 });
@@ -305,7 +305,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {});
+plastiq.append(document.body, render, {});
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
@@ -330,7 +330,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {counter: 0});
+plastiq.append(document.body, render, {counter: 0});
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=afb1a6123309267b2d5a).
@@ -371,7 +371,7 @@ function renderPerson(model, person) {
   )
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   people: [
     {name: 'Åke'},
     {name: 'آمر'},
@@ -410,7 +410,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   animals: [
     {
       name: 'Harry',
@@ -452,7 +452,7 @@ Try it on [requirebin](http://requirebin.com/?gist=41d56a087b5f9fa7d062).
 
 An event handler can return a function that is passed a `render` function that can be called to request a re-render of the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
 
-Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.attach`](#plastiqattach) below.
+Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.append`](#plastiqappend) below.
 
 ```JavaScript
 function render(model) {
@@ -471,7 +471,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { n: 0 });
+plastiq.append(document.body, render, { n: 0 });
 ```
 
 Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
@@ -520,7 +520,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {});
+plastiq.append(document.body, render, {});
 ```
 
 ```JavaScript
@@ -545,7 +545,7 @@ function render(model) {
   });
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   longRunningOperation: new Promise(function (fulfill) {
     setTimeout(function () {
       fulfill('bananas');
@@ -568,7 +568,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   animation: function (refresh) {
     var self = this;
 
@@ -677,10 +677,13 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 ## Attaching to the DOM
 
 ```JavaScript
-plastiq.attach(element, render, model, [options]);
+plastiq.append(element, render, model, [options]);
+plastiq.replace(element, render, model, [options]);
 ```
 
-* `element` - any HTML element. The view is attached via `element.appendChild(view)`
+* `element` - any HTML element.
+  * in the case of `plastiq.append` the view is attached via `element.appendChild(view)`
+  * in the case of `plastiq.replace` the view is attached via `element.parentNode.replaceChild(view, element)`
 * `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
 * `model` - the model.
 * `options`
