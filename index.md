@@ -13,6 +13,24 @@ It leverages a simple architecture for single page applications:
 
 Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Why not React? Read the [philosophy and motivation](#philosophy-and-motivation).
 
+# An Example
+
+~~~JavaScript
+var plastiq = require('plastiq');
+var h = plastiq.html;
+
+function render(model) {
+  return h('div',
+    h('label', "what's your name?"), ' ',
+    h('input', {type: 'text', binding: [model, 'name']}),
+    h('div', 'hi ', model.name)
+  );
+}
+
+plastiq.append(document.body, render, {name: ''});
+~~~
+
+
 # install
 
     npm install plastiq
@@ -28,25 +46,6 @@ Or from HTML, first create a symlink:
 Then
 
     <script src="plastiq.js"></script>
-
-# An Example
-
-~~~JavaScript
-var plastiq = require('plastiq');
-var h = plastiq.html;
-
-function render(model) {
-  return h('div',
-    h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: [model, 'name']}),
-    h('div', 'hi ', model.name)
-  );
-}
-
-plastiq.attach(document.body, render, {name: ''});
-~~~
-
-Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 # Features
 
@@ -126,10 +125,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { people: [] });
+plastiq.append(document.body, render, { people: [] });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
 
 ## Window Events
 
@@ -146,7 +144,6 @@ function render() {
 }
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=8790af706dbd09840093)
 
 ## Binding the Inputs
 
@@ -163,10 +160,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { name: '' });
+plastiq.append(document.body, render, { name: '' });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 ## Radio Buttons
 
@@ -194,10 +190,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { colour: blue });
+plastiq.append(document.body, render, { colour: blue });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
 
 ## Select Dropdowns
 
@@ -218,10 +213,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, { colour: blue });
+plastiq.append(document.body, render, { colour: blue });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
 
 ## File Inputs
 
@@ -254,13 +248,12 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   filename: '(no file selected)',
   contents: ''
 });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
 
 ## Components
 
@@ -309,10 +302,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {});
+plastiq.append(document.body, render, {});
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 
 Components can also be used to render just parts of the page, usually for performance reasons.
 
@@ -334,10 +326,9 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {counter: 0});
+plastiq.append(document.body, render, {counter: 0});
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=afb1a6123309267b2d5a).
 
 ## Controllers?
 
@@ -375,7 +366,7 @@ function renderPerson(model, person) {
   )
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   people: [
     {name: 'Åke'},
     {name: 'آمر'},
@@ -396,7 +387,6 @@ plastiq.attach(document.body, render, {
 });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=9ff1ee7bdb2b57fccfb6).
 
 The model too can contain render methods so you can take advantage of polymorphism. This might be useful, for example, if you want to render a list of different types of widgets. Each object in the list would have its own render function, rendering different HTML depending on the object.
 
@@ -414,7 +404,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   animals: [
     {
       name: 'Harry',
@@ -450,44 +440,102 @@ plastiq.attach(document.body, render, {
 });
 ~~~
 
-Try it on [requirebin](http://requirebin.com/?gist=41d56a087b5f9fa7d062).
 
 ## Animations
 
 An event handler can return a function that is passed a `render` function that can be called to request a re-render of the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
 
-Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.attach`](#plastiqattach) below.
+Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.append`](#plastiqappend) below.
 
 ~~~JavaScript
 function render(model) {
   return h('div',
-    h('button', {
-      onclick: function () {
-        return function (render) {
-          setInterval(function () {
-            model.n++;
-            render();
-          }, 100);
-        };
-      }
-    }, 'Start'),
+    model.interval
+      ? h('button', {
+          onclick: function () {
+            clearInterval(model.interval);
+            delete model.interval;
+          }
+        }, 'Stop')
+      : h('button', {
+          onclick: function () {
+            return function (render) {
+              model.interval = setInterval(function () {
+                model.n++;
+                render();
+              }, 100);
+            };
+          }
+        }, 'Start'),
     h('div', 'n = ' + model.n)
   );
 }
 
-plastiq.attach(document.body, render, { n: 0 });
+plastiq.append(document.body, render, {
+  n: 0
+});
 ~~~
 
-Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
+
+## Not Refreshing
+
+By default the view will refresh after an event handler has run, however you can return `plastiq.html.norefresh` from an event handler to prevent this.
 
 ## Refreshing the view from the model
 
 Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this plastiq views can subscribe to events produced by the model.
 
+### Refresh Function
+
+You can refresh the view at any time by getting a **refresh** function. You can get this function from `plastiq.html.refresh`, and call it after the view has rendered, i.e. after an AJAX response.
+
+**Note that just calling `plastiq.html.refresh()` will not work, please assign it to the model, or a local variable, then call it.**
+
+~~~JavaScript
+var refresh = plastiq.html.refresh;
+
+// later
+
+refresh();
+~~~
+
+This is because `plastiq.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
+
+~~~JavaScript
+function render(model) {
+  model.refresh = h.refresh;
+
+  return h('div',
+    h('h1', 'my favourite color is'),
+    model.color
+      ? h('h2', model.color)
+      : model.loading
+        ? h('h2', 'loading...')
+        : h('button', {
+            onclick: function () {
+              setTimeout(function () {
+                model.color = 'red';
+                model.refresh();
+              }, 1000);
+            }
+          }, '?')
+  );
+}
+
+plastiq.append(document.body, render, {});
+~~~
+
+~~~JavaScript
+var refresh = plastiq.html.refresh;
+refresh([component]);
+~~~
+
+* `refresh()` refreshes the whole UI for the attachment. (Other attached UIs aren't refreshed.)
+* `refresh(component)` just refreshes the component. See [components](#components).
 
 ### Promises
 
-For example, you may perform asynchronous operations while your application loads, such as making API calls to get the latest model data. While your model loads you can show a spinner, then the view can be refreshed when the load finishes. In this case you can place a promise in your model and plastiq will render a "pending" dom fragment until the promise is fulfilled:
+If your model uses promises, your view can represent the different states of the promise: pending, fulfilled or rejected. This allows your view to render accordingly a loading spinner, the result, or indeed an error if one ocurrs.
 
 ~~~JavaScript
 function render(model) {
@@ -499,7 +547,7 @@ function render(model) {
   });
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   longRunningOperation: new Promise(function (fulfill) {
     setTimeout(function () {
       fulfill('bananas');
@@ -508,7 +556,6 @@ plastiq.attach(document.body, render, {
 });
 ~~~
 
-Play on [requirebin](http://requirebin.com/?gist=9cca2ce4ef8044b8592b)
 
 ### Animations
 
@@ -522,7 +569,7 @@ function render(model) {
   );
 }
 
-plastiq.attach(document.body, render, {
+plastiq.append(document.body, render, {
   animation: function (refresh) {
     var self = this;
 
@@ -544,7 +591,6 @@ plastiq.attach(document.body, render, {
 });
 ~~~
 
-Play on [requirebin](http://requirebin.com/?gist=15d9e47fe0f906a522b2)
 
 # API
 
@@ -563,15 +609,19 @@ var vdomFragment = plastiq.html(selector, [attributes], children, ...);
 
 Form input elements can be passed a `binding` attribute, which is expected to be either:
 
-* An array with two items, the first being the model and second the field name.
+* An array with two items, the first being the model and second the field name, the third being an optional function called on the input when set, for example to convert a string into a number use `Number`.
 
-    ```JavaScript
-    [object, 'fieldName']
-    ```
+    ~~~JavaScript
+    [object, 'fieldName', convert]
+    ~~~
+
+* `object` - an object
+* `fieldName` - the name of a field on `object`
+* `convert` (optional) - a function called on the value when setting the model, i.e. `model.field = convert(value)`.
 
 * An object with two methods, `get` and `set`, to get and set the new value, respectively.
 
-    ```JavaScript
+    ~~~JavaScript
     {
       get: function () {
         return model.property;
@@ -580,7 +630,7 @@ Form input elements can be passed a `binding` attribute, which is expected to be
         model.property = value;
       }
     }
-    ```
+    ~~~
 
 ### Event Handler `on*` Attributes
 
@@ -627,10 +677,13 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 ## Attaching to the DOM
 
 ~~~JavaScript
-plastiq.attach(element, render, model, [options]);
+plastiq.append(element, render, model, [options]);
+plastiq.replace(element, render, model, [options]);
 ~~~
 
-* `element` - any HTML element. The view is attached via `element.appendChild(view)`
+* `element` - any HTML element.
+  * in the case of `plastiq.append` the view is added as a child via `element.appendChild(view)`
+  * in the case of `plastiq.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
 * `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
 * `model` - the model.
 * `options`
@@ -638,27 +691,27 @@ plastiq.attach(element, render, model, [options]);
 
     For example, immediately:
 
-    ```JavaScript
+    ~~~JavaScript
     function requestRender(render) {
       render();
     }
-    ```
+    ~~~
   
     Or on the next tick:
   
-    ```JavaScript
+    ~~~JavaScript
     function requestRender(render) {
       setTimeout(render, 0);
     }
-    ```
+    ~~~
   
     Or on the next animation frame:
   
-    ```JavaScript
+    ~~~JavaScript
     function requestRender(render) {
       requestAnimationFrame(render);
     }
-    ```
+    ~~~
   
     The default is `requestAnimationFrame`, falling back to `setTimeout`.
   

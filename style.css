@@ -1,8 +1,11 @@
+body {
+  background-color: rgb(255, 54, 115)
+}
+
 pre {
   margin-left: 20px;
   padding: 17px;
   padding-left: 30px;
-  /* box-shadow: rgba(255, 255, 255, 0.2) 3px 4px 23px; */
   background-color: rgba(0, 0, 0, 0.03);
 }
 
@@ -22,54 +25,54 @@ p code {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-body {
+.content {
   font-family: "Helvetica Neue","Open Sans",sans-serif;
-  background-color: rgb(255, 54, 115);
   width: 700px;
   margin: 1em auto;
   color: white;
 }
 
-body > h1 {
-  font-size: 60px;
-}
-
-body > h2 {
-  font-size: 39px;
-}
-
-body > h3 {
-  font-size: 30px;
-}
-
-body > h4 {
-  font-size: 23px;
-}
-
-body > h1, body > h2, body > h3, body > h4, body > h5 {
+.content > h1, .content > h2, .content > h3, .content > h4, .content > h5 {
   margin-top: 65px;
   
   font-weight: 100;
-//  display: inline-block;
   background-color: rgba(255, 255, 255, 0.1);
   padding: 0 10px;
+  text-transform: lowercase;
 }
 
-body > h1:first-of-type {
+.content > h1 {
+  font-size: 60px;
+}
+
+.content > h2 {
+  font-size: 39px;
+}
+
+.content > h3 {
+  font-size: 30px;
+  margin-top: 35px;
+}
+
+.content > h4 {
+  font-size: 23px;
+}
+
+.content > h1:first-of-type {
   color: rgb(255, 255, 255);
   font-size: 100px;
   font-weight: 100;
   text-align: center;
 }
 
-body > * {
+.content > * {
 }
 
-body > p {
-  text-align: justify;
+.content > p {
+  /* text-align: justify; */
 }
 
-body > p, body > ol, body > ul {
+.content > p, .content > ol, .content > ul {
   font-size: 18px;
   font-weight: 200;
   font-family: "Helvetica Neue","Open Sans",sans-serif;
@@ -77,7 +80,7 @@ body > p, body > ol, body > ul {
   line-height: 30px;
 }
 
-body > .plastiq-editor {
+.content > .example {
   width: auto;
   margin: inherit;
 }
@@ -86,68 +89,81 @@ pre.ace_editor {
   border: none;
 }
 
-.plastiq-editor .render, .plastiq-editor .error {
+.example .render, .example .error {
   margin-left: 20px;
   padding: 20px;
   padding-left: 20px;
   font-family: sans-serif;
 }
 
-.plastiq-editor .render {
-  background-color: rgb(240, 240, 240);
-  color: rgb(39, 124, 255);
-  border-left: 12px solid rgb(171, 171, 171);
+.example .render {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
-.plastiq-editor > div {
-  display:flex;
-  flex-wrap: wrap;
-}
-
-.plastiq-editor > div > pre {
-  flex: 1;
+.example > pre {
   height: 300px;
-}
-.plastiq-editor > div > .render, .plastiq-editor > div > .error {
-  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.plastiq-editor > div > .error {
+.example > pre .ace_marker-layer .ace_active-line {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.example > pre .ace_gutter {
+  background-color: rgba(0, 0, 0, 0.24);
+  color: rgba(255, 255, 255, 0.39)
+}
+
+.example > pre .ace_gutter-active-line {
+  background-color: rgba(0, 0, 0, 0.25)
+}
+
+.example > .render, .example > .error {
+}
+
+.example > div > .error {
   color: rgb(228, 0, 0);
   background-color: rgb(255, 241, 243);
   border-left: 12px solid rgb(255, 205, 205);
 }
 
-.plastiq-editor .render button {
-  background-color: rgb(75, 139, 255);
+.example .render button {
+  background-color: rgba(0, 0, 0, 0.2);
   border:none;
-  color:white;
-  font-size: 15px;
-  padding: 3px 6px 4px 6px;
+  color: rgba(255, 255, 255, 1);
+  font-size: 18px;
+  padding: 4px 9px;
+  margin: 5px 0px;
+  cursor: pointer;
+  outline: none;
 }
 
-.plastiq-editor .render input[type=text] + button {
+.example .render button:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.example .render input[type=text] + button {
   margin-left: 15px;
 }
 
-.plastiq-editor .render li {
+.example .render li {
   padding: 3px;
 }
 
-.plastiq-editor .render input[type=text] {
-  background-color: rgba(158, 175, 244, 0.15);
+.example .render input[type=text] {
+  background-color: rgba(237, 237, 237, 0.17);
   border: none;
-  border-bottom: 1px dashed rgba(128, 159, 207, 0.63);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.72);
   padding: 3px;
   font-size: 14px;
   color: inherit;
   outline: none;
 }
 
-.plastiq-editor .render input, .plastiq-output button {
+.example .render input, .plastiq-output button {
   outline: none;
 }
 
-.plastiq-editor .render code {
+.example .render code {
   background-color: rgba(0, 119, 255, 0.05);
 }
