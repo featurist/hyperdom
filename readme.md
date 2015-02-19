@@ -682,8 +682,8 @@ plastiq.replace(element, render, model, [options]);
 ```
 
 * `element` - any HTML element.
-  * in the case of `plastiq.append` the view is attached via `element.appendChild(view)`
-  * in the case of `plastiq.replace` the view is attached via `element.parentNode.replaceChild(view, element)`
+  * in the case of `plastiq.append` the view is added as a child via `element.appendChild(view)`
+  * in the case of `plastiq.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
 * `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
 * `model` - the model.
 * `options`
