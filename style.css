@@ -1,8 +1,4 @@
 pre {
-  margin-left: 20px;
-  padding: 17px;
-  padding-left: 30px;
-  border-left: 12px solid rgb(47, 200, 255);
   background-color: rgba(27, 177, 255, 0.1);
 }
 
@@ -15,13 +11,32 @@ body > * {
   margin: 1em auto;
 }
 
+body > h1 {
+  margin-top: 3em;
+}
+
+body > h2, body > h3 {
+  margin-top: 2em;
+}
+
 body > p {
   align: justify;
 }
 
+body > p, body > * > li, body > pre {
+  line-height: 1.3em;
+}
+
+body > pre {
+  padding: 10px;
+}
+
 body > .plastiq-editor {
-  width: auto;
-  margin: inherit;
+  margin: auto;
+}
+
+body > * > li {
+  margin-bottom: 0.5em;
 }
 
 pre.ace_editor {
@@ -29,7 +44,6 @@ pre.ace_editor {
 }
 
 .plastiq-editor .render, .plastiq-editor .error {
-  margin-left: 20px;
   padding: 20px;
   padding-left: 20px;
   font-family: sans-serif;
@@ -49,7 +63,11 @@ pre.ace_editor {
 .plastiq-editor > div > pre {
   flex: 1;
   height: 300px;
+  margin: 0;
+  border-left: 10px solid #F9F9F9;
+  border-top: 10px solid #F9F9F9;
 }
+
 .plastiq-editor > div > .render, .plastiq-editor > div > .error {
   width: 100%;
 }
@@ -58,6 +76,10 @@ pre.ace_editor {
   color: rgb(228, 0, 0);
   background-color: rgb(255, 241, 243);
   border-left: 12px solid rgb(255, 205, 205);
+}
+
+.plastiq-editor .render {
+  border-top: 1px solid #ccc;
 }
 
 .plastiq-editor .render button {

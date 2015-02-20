@@ -3,7 +3,7 @@
 
   var codeElements = Array.apply(undefined, document.querySelectorAll('pre code.language-JavaScript'));
   var demos = codeElements.filter(function (c) {
-    return c.textContent.indexOf('plastiq.attach') > 0;
+    return c.textContent.indexOf('plastiq.append') > 0;
   });
 
   demos.forEach(function (code) {
@@ -14,14 +14,15 @@
 
     pre.parentNode.replaceChild(editorElement, pre);
 
-    attachEditor(editorElement, code.textContent);
+    appendEditor(editorElement, code.textContent);
   });
 
   function aceify(textarea, mode) {
     var editor = ace.edit(textarea);
-    editor.setTheme("ace/theme/molokai");
+    editor.setTheme("ace/theme/dawn");
     editor.getSession().setMode("ace/mode/" + mode);
     editor.renderer.setShowGutter(false);
+    editor.renderer.setShowPrintMargin(false);
     return editor;
   }
 
@@ -65,13 +66,13 @@
     );
   }
 
-  function attachEditor(element, source) {
+  function appendEditor(element, source) {
     function parseSource(source) {
       var model;
       var render;
 
       var fakePlastiq = {
-        attach: function (element, r, m) {
+        append: function (element, r, m) {
           model = m;
           render = r;
         },
@@ -83,7 +84,7 @@
       }
 
       function parseExample(example) {
-        var match = /^((.|\n)*plastiq\s*\.\s*attach\s*\(\s*[a-z_$.]+\s*,\s*[a-z_$.]+\s*,\s*)((.|\n)*)(\);)\s*$/.exec(example);
+        var match = /^((.|\n)*plastiq\s*\.\s*append\s*\(\s*[a-z_$.]+\s*,\s*[a-z_$.]+\s*,\s*)((.|\n)*)(\);)\s*$/.exec(example);
 
         if (match) {
           return {
@@ -151,7 +152,7 @@
                 }
               }
             },
-            mode: 'json'
+            mode: 'javascript'
           }
         ),
         model.source.error
@@ -161,6 +162,6 @@
     }
 
     var parsedSource = parseSource(source);
-    plastiq.attach(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
+    plastiq.append(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
   }
 })();
