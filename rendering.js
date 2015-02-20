@@ -38,7 +38,8 @@ exports.append = function (element, render, model, options) {
 };
 
 function start(render, model, options, attachToDom) {
-  var requestRender = (options && options.requestRender) || window.requestAnimationFrame || setTimeout;
+  var win = (options && options.window) || window;
+  var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
   var requested = false;
 
   function refresh() {
