@@ -340,8 +340,8 @@ In the example below we have a `render` function and a `renderPerson` function. 
 
 ~~~JavaScript
 function render(model) {
-  return h('div.content',
-    h('h1', 'People'),
+  return h('div',
+    h('h3', 'People'),
     h('ol',
       model.people.map(function (person) {
         return renderPerson(model, person);
@@ -446,7 +446,7 @@ plastiq.append(document.body, render, {
       render();
 
       setTimeout(function () {
-        self.sound = undefined;
+        delete self.sound;
         render();
       }, 300);
     }

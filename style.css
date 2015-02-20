@@ -31,7 +31,7 @@ p code {
   color: white;
 }
 
-.content > h1, .content > h2, .content > h3, .content > h4, .content > h5 {
+h1, h2, h3, h4, h5 {
   margin-top: 65px;
   
   font-weight: 100;
@@ -40,20 +40,20 @@ p code {
   text-transform: lowercase;
 }
 
-.content > h1 {
+h1 {
   font-size: 60px;
 }
 
-.content > h2 {
+h2 {
   font-size: 39px;
 }
 
-.content > h3 {
+h3 {
   font-size: 30px;
   margin-top: 35px;
 }
 
-.content > h4 {
+h4 {
   font-size: 23px;
 }
 
@@ -92,10 +92,11 @@ pre.ace_editor {
 .example .render, .example .error {
   padding: 20px;
   padding-left: 20px;
-  font-family: sans-serif;
+  /* font-family: sans-serif; */
 }
 
 .example .render {
+  position: relative;
   background-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -103,7 +104,11 @@ pre.ace_editor {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.example.original:hover:before, .example.edited button.restore {
+.example .render h3 {
+  /* width: auto; */
+}
+
+.example.original:before, .example.edited button.restore {
   position: absolute;
   z-index: 10;
   right: 0;
@@ -117,10 +122,18 @@ pre.ace_editor {
   color: rgba(255, 255, 255, 0.53);
 }
 
-.example.original:hover:before {
+.example.original:before {
+  right: -300px;
   color: rgba(255, 255, 255, 0.53);
   background-color: rgba(0, 0, 0, 0.1);
   content: 'edit me!';
+  transition: 0.3s opacity, 0.3s right;
+  opacity: 0;
+}
+
+.example.original:hover:before {
+  opacity: 1;
+  right: 0;
 }
 
 .example > pre .ace_marker-layer .ace_active-line {
