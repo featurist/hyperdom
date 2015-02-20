@@ -1,95 +1,212 @@
+body {
+  background-color: rgb(255, 54, 115)
+}
+
 pre {
-  margin-left: 20px;
   padding: 17px;
   padding-left: 30px;
-  border-left: 12px solid rgb(47, 200, 255);
-  background-color: rgba(27, 177, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
-body {
-  font-family: sans-serif;
+pre code {
+  background-color: transparent;
 }
 
-body > * {
+a {
+  font-weight: 500;
+}
+
+strong, a, code {
+  color: white;
+}
+
+p code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.content {
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
   width: 700px;
   margin: 1em auto;
+  color: white;
 }
 
-body > p {
-  align: justify;
+h1, h2, h3, h4, h5 {
+  margin-top: 65px;
+  
+  font-weight: 100;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0 10px;
+  text-transform: lowercase;
 }
 
-body > .plastiq-editor {
-  width: auto;
+h1 {
+  font-size: 60px;
+}
+
+h2 {
+  font-size: 39px;
+}
+
+h3 {
+  font-size: 30px;
+  margin-top: 35px;
+}
+
+h4 {
+  font-size: 23px;
+}
+
+.content > h1:first-of-type {
+  color: rgb(255, 255, 255);
+  font-size: 100px;
+  font-weight: 100;
+  text-align: center;
+}
+
+.content > * {
+}
+
+.content > p {
+}
+
+.content > p, .content > ol, .content > ul {
+  font-size: 18px;
+  font-weight: 200;
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 30px;
+}
+
+.content > .example {
+  width: 628px;
   margin: inherit;
+  position: relative;
+  padding-top: 16px;
+  overflow: hidden;
 }
 
 pre.ace_editor {
   border: none;
 }
 
-.plastiq-editor .render, .plastiq-editor .error {
-  margin-left: 20px;
+.example .render, .example .error {
   padding: 20px;
   padding-left: 20px;
-  font-family: sans-serif;
+  /* font-family: sans-serif; */
 }
 
-.plastiq-editor .render {
-  background-color: rgb(240, 240, 240);
-  color: rgb(39, 124, 255);
-  border-left: 12px solid rgb(171, 171, 171);
+.example .render {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
-.plastiq-editor > div {
-  display:flex;
-  flex-wrap: wrap;
+.example > pre {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.plastiq-editor > div > pre {
-  flex: 1;
-  height: 300px;
-}
-.plastiq-editor > div > .render, .plastiq-editor > div > .error {
-  width: 100%;
+.example .render h3 {
+  /* width: auto; */
 }
 
-.plastiq-editor > div > .error {
+.example.original:before, .example.edited button.restore {
+  position: absolute;
+  z-index: 10;
+  right: 0;
+  top: 0;
+  border: none;
+  font-size: inherit;
+  padding: 5px 12px;
+  margin: 0;
+  color: inherit;
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  color: rgba(255, 255, 255, 0.53);
+}
+
+.example.original:before {
+  right: 300px;
+  color: rgba(255, 255, 255, 0.53);
+  background-color: rgba(0, 0, 0, 0.1);
+  content: 'edit me!';
+  transition: 0.3s opacity, 0.3s right;
+  opacity: 0;
+}
+
+.example.original:hover:before {
+  opacity: 1;
+  right: 0;
+}
+
+.example > pre .ace_marker-layer .ace_active-line {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.example > pre .ace_gutter {
+  background-color: rgba(0, 0, 0, 0.24);
+  color: rgba(255, 255, 255, 0.39)
+}
+
+.example > pre .ace_gutter-active-line {
+  background-color: rgba(0, 0, 0, 0.25)
+}
+
+.example > .render {
+  
+}
+
+.example > .error {
+  background-color: rgba(255, 36, 36, 0.57);
+}
+
+.example > div > .error {
   color: rgb(228, 0, 0);
   background-color: rgb(255, 241, 243);
   border-left: 12px solid rgb(255, 205, 205);
 }
 
-.plastiq-editor .render button {
-  background-color: rgb(75, 139, 255);
+.example button {
+  background-color: rgba(0, 0, 0, 0.2);
   border:none;
-  color:white;
-  font-size: 15px;
-  padding: 3px 6px 4px 6px;
+  color: rgba(255, 255, 255, 1);
+  font-size: 18px;
+  padding: 4px 9px;
+  margin: 5px 0px;
+  cursor: pointer;
+  outline: none;
 }
 
-.plastiq-editor .render input[type=text] + button {
+.example button:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.example .render input[type=text] + button {
   margin-left: 15px;
 }
 
-.plastiq-editor .render li {
+.example .render li {
   padding: 3px;
 }
 
-.plastiq-editor .render input[type=text] {
-  background-color: rgba(158, 175, 244, 0.15);
+.example .render input[type=text] {
+  background-color: rgba(237, 237, 237, 0.17);
   border: none;
-  border-bottom: 1px dashed rgba(128, 159, 207, 0.63);
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.72);
   padding: 3px;
   font-size: 14px;
   color: inherit;
   outline: none;
 }
 
-.plastiq-editor .render input, .plastiq-output button {
+.example .render input, .plastiq-output button, .example .render textarea {
   outline: none;
 }
 
-.plastiq-editor .render code {
+.example .render textarea {
+  background-color: rgba(237, 237, 237, 0.17);
+  border:none;
+  color: inherit;
+}
+
+.example .render code {
   background-color: rgba(0, 119, 255, 0.05);
 }

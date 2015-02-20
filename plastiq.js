@@ -48,6 +48,7 @@ var domComponent = require('./domComponent');
 
 function ComponentWidget(handlers, vdom) {
   this.handlers = handlers;
+  this.key = handlers.key;
   if (typeof vdom === 'function') {
     this.render = vdom;
     this.canRefresh = true;
@@ -167,6 +168,8 @@ var rendering = require('./rendering');
 
 exports.html = rendering.html;
 exports.attach = rendering.attach;
+exports.replace = rendering.replace;
+exports.append = rendering.append;
 
 exports.bind = require('./oldbind');
 exports.binding = rendering.binding;
@@ -3342,7 +3345,9 @@ RawHtmlWidget.prototype.init = function () {
 };
 
 RawHtmlWidget.prototype.update = function (previous, element) {
-  element.parentNode.replaceChild(this.init(), element);
+  if (this.html != previous.html) {
+    element.parentNode.replaceChild(this.init(), element);
+  }
 };
 
 RawHtmlWidget.prototype.destroy = function (element) {
@@ -3390,7 +3395,13 @@ function refreshOutOfRender() {
   throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
 }
 
-exports.attach = function (element, render, model, options) {
+exports.append = function (element, render, model, options) {
+  start(render, model, options, function(createdElement) {
+    element.appendChild(createdElement);
+  });
+};
+
+function start(render, model, options, attachToDom) {
   var requestRender = (options && options.requestRender) || window.requestAnimationFrame || setTimeout;
   var requested = false;
 
@@ -3417,9 +3428,21 @@ exports.attach = function (element, render, model, options) {
 
   doThenFireAfterRender(attachment, function () {
     var vdom = render(model);
-    element.appendChild(component.create(vdom));
+    attachToDom(component.create(vdom));
   });
 };
+
+exports.replace = function (element, render, model, options) {
+  start(render, model, options, function(createdElement) {
+    var parent = element.parentNode;
+    element.parentNode.replaceChild(createdElement, element);
+  });
+};
+
+exports.attach = function () {
+  console.log('warning: plastiq.attach has been renamed to plastiq.append, plastiq.attach will be deprecated in a future version');
+  return exports.append.apply(this, arguments);
+}
 
 function refreshComponent(component, requestRender) {
   if (!component.canRefresh) {
@@ -3467,7 +3490,8 @@ exports.refreshifyEventHandler = refreshifyEventHandler;
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
-  attributes.value = get();
+  var bindingValue = get();
+  attributes.value = bindingValue != undefined? bindingValue: '';
 
   attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);
@@ -3659,22 +3683,25 @@ exports.html.norefresh = norefresh;
 
 function makeBinding(b, options) {
   var binding = b instanceof Array
-    ?  bindingObject(b[0], b[1])
+    ?  bindingObject.apply(undefined, b)
     : b;
 
-  if (!options || !options.refreshOnSet) {
+  if (!options || !options.norefresh) {
     binding.set = refreshifyEventHandler(binding.set);
   }
 
   return binding;
 };
 
-function bindingObject(obj, prop) {
+function bindingObject(obj, prop, convert) {
   return {
     get: function () {
       return obj[prop];
     },
     set: function (value) {
+      if (convert) {
+        value = convert(value);
+      }
       obj[prop] = value;
     }
   };
@@ -3708,7 +3735,7 @@ function page() {
     var url = arguments[0];
     var options = arguments[1];
     var render = arguments[2];
-    var binding = plastiq.binding(options.binding, { refreshOnSet: false });
+    var binding = plastiq.binding(options.binding, { norefresh: true });
 
     return {
       url: url,
@@ -3729,8 +3756,10 @@ function page() {
 
           if (state) {
             rendering.currentRender.routeState = state;
-          } else {
+          } else if (typeof options.state === 'function') {
             rendering.currentRender.routeState = options.state(params);
+          } else {
+            rendering.currentRender.routeState = options.state;
           }
         }
 
@@ -3817,21 +3846,21 @@ function router() {
 };
 
 function push(url) {
-  if (typeof url === 'string') {
-    state = undefined;
-    window.history.pushState(undefined, undefined, url);
-  } else {
-    var ev = url;
-    var href = ev.target.href;
-    push(href);
-    ev.preventDefault();
-  }
+  return replacePushState('push', url);
 }
 
 function replace(url) {
+  return replacePushState('replace', url);
+}
+
+function replacePushState(replacePush, url) {
   if (typeof url === 'string') {
     state = undefined;
-    window.history.replaceState(undefined, undefined, url);
+    window.history[replacePush + 'State'](undefined, undefined, url);
+
+    if (rendering.currentRender) {
+      plastiq.html.refresh();
+    }
   } else {
     var ev = url;
     var href = ev.target.href;

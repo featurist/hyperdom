@@ -1,27 +1,30 @@
 (function () {
   var h = plastiq.html;
 
-  var codeElements = Array.apply(undefined, document.querySelectorAll('pre code.language-JavaScript'));
-  var demos = codeElements.filter(function (c) {
-    return c.textContent.indexOf('plastiq.attach') > 0;
-  });
+  function startExamples() {
+    var codeElements = Array.apply(undefined, document.querySelectorAll('pre code.language-JavaScript'));
+    var demos = codeElements.filter(function (c) {
+      return c.textContent.indexOf('plastiq.append') > 0;
+    });
 
-  demos.forEach(function (code) {
-    var pre = code.parentNode;
+    demos.forEach(function (code) {
+      attachEditor(code.parentNode, code.textContent);
+    });
+  }
 
-    var editorElement = document.createElement('div');
-    editorElement.className = 'plastiq-editor';
-
-    pre.parentNode.replaceChild(editorElement, pre);
-
-    attachEditor(editorElement, code.textContent);
-  });
+  startExamples();
 
   function aceify(textarea, mode) {
     var editor = ace.edit(textarea);
-    editor.setTheme("ace/theme/molokai");
+    editor.setTheme("ace/theme/idle_fingers");
     editor.getSession().setMode("ace/mode/" + mode);
-    editor.renderer.setShowGutter(false);
+    // editor.renderer.setShowGutter(false);
+    editor.$blockScrolling = Infinity;
+    editor.getSession().setTabSize(2);
+    editor.getSession().setUseSoftTabs(true);
+    editor.setOptions({
+          maxLines: Infinity
+    });
     return editor;
   }
 
@@ -29,6 +32,7 @@
     var binding = plastiq.binding(options.binding);
     return h.component(
       {
+        key: options.key,
         onadd: function (element) {
           var self = this;
           this.binding = binding;
@@ -71,7 +75,7 @@
       var render;
 
       var fakePlastiq = {
-        attach: function (element, r, m) {
+        append: function (element, r, m) {
           model = m;
           render = r;
         },
@@ -83,7 +87,7 @@
       }
 
       function parseExample(example) {
-        var match = /^((.|\n)*plastiq\s*\.\s*attach\s*\(\s*[a-z_$.]+\s*,\s*[a-z_$.]+\s*,\s*)((.|\n)*)(\);)\s*$/.exec(example);
+        var match = /^((.|\n)*plastiq\s*\.\s*append\s*\(\s*[a-z_$.]+\s*,\s*[a-z_$.]+\s*,\s*)((.|\n)*)(\);)\s*$/.exec(example);
 
         if (match) {
           return {
@@ -122,9 +126,26 @@
     }
 
     function render(model) {
-      return h('div',
+      return h('div.example',
+        {
+          class: { original: !model.edited, edited: model.edited }
+        },
+        model.edited
+          ? h('button.restore',
+              {
+                key: 'restoreButton',
+                onclick: function () {
+                  var parsedSource = parseSource(source);
+                  model.source = parsedSource;
+                  model.sourceText = parsedSource.generate(true);
+                  delete model.edited;
+                }
+              },
+              'restore')
+          : undefined,
         renderAceEditor(
           {
+            key: 'editor',
             binding: {
               get: function () {
                 model.sourceText;
@@ -143,6 +164,7 @@
                 }
               },
               set: function (value) {
+                model.edited = true;
                 model.sourceText = value;
                 try {
                   model.source = parseSource(value);
@@ -151,16 +173,16 @@
                 }
               }
             },
-            mode: 'json'
+            mode: 'javascript'
           }
         ),
         model.source.error
-          ? h('div.error', model.source.error.message)
-          : h('div.render', model.source.render(model.source.model))
+          ? h('div.error', {key: 'error'}, model.source.error.message)
+          : h('div.render', {key: 'render'}, model.source.render(model.source.model))
       );
     }
 
     var parsedSource = parseSource(source);
-    plastiq.attach(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
+    plastiq.replace(element, render, {source: parsedSource, sourceText: parsedSource.generate(true)});
   }
 })();
