@@ -205,8 +205,8 @@ function render(model) {
   return h('div',
     h('select',
       {binding: [model, 'colour']},
-      h('option.red', {value: 'red'}, 'red'),
-      h('option.blue', {value: blue}, 'blue')
+      h('option', {value: 'red'}, 'red'),
+      h('option', {value: blue}, 'blue')
     ),
     ' ',
     h('code', JSON.stringify(model.colour))
@@ -411,7 +411,14 @@ plastiq.append(document.body, render, {
       render: function (model) {
         return [
           h('h3', 'Dog ' + this.name),
-          h('button', {onclick: function () { return model.makeSound('woof'); }}, 'bark')
+          h('button',
+            {
+              onclick: function () {
+                return model.makeSound('woof');
+              }
+            },
+            'bark'
+          )
         ];
       }
     },
@@ -420,7 +427,14 @@ plastiq.append(document.body, render, {
       render: function (model) {
         return [
           h('h3', 'Lion ' + this.name),
-          h('button', {onclick: function () { return model.makeSound('roar'); }}, 'roar')
+          h('button',
+            {
+              onclick: function () {
+                return model.makeSound('roar');
+              }
+            },
+            'roar'
+          )
         ];
       }
     }
@@ -611,9 +625,9 @@ Form input elements can be passed a `binding` attribute, which is expected to be
 
 * An array with two items, the first being the model and second the field name, the third being an optional function called on the input when set, for example to convert a string into a number use `Number`.
 
-    ~~~JavaScript
-    [object, 'fieldName', convert]
-    ~~~
+  ~~~JavaScript
+  [object, 'fieldName', convert]
+  ~~~
 
 * `object` - an object
 * `fieldName` - the name of a field on `object`
@@ -621,16 +635,16 @@ Form input elements can be passed a `binding` attribute, which is expected to be
 
 * An object with two methods, `get` and `set`, to get and set the new value, respectively.
 
-    ~~~JavaScript
-    {
-      get: function () {
-        return model.property;
-      },
-      set: function (value) {
-        model.property = value;
-      }
+  ~~~JavaScript
+  {
+    get: function () {
+      return model.property;
+    },
+    set: function (value) {
+      model.property = value;
     }
-    ~~~
+  }
+  ~~~
 
 ### Event Handler `on*` Attributes
 

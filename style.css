@@ -3,7 +3,6 @@ body {
 }
 
 pre {
-  margin-left: 20px;
   padding: 17px;
   padding-left: 30px;
   background-color: rgba(0, 0, 0, 0.03);
@@ -69,7 +68,6 @@ p code {
 }
 
 .content > p {
-  /* text-align: justify; */
 }
 
 .content > p, .content > ol, .content > ul {
@@ -81,8 +79,10 @@ p code {
 }
 
 .content > .example {
-  width: auto;
+  width: 628px;
   margin: inherit;
+  position: relative;
+  padding-top: 16px;
 }
 
 pre.ace_editor {
@@ -90,7 +90,6 @@ pre.ace_editor {
 }
 
 .example .render, .example .error {
-  margin-left: 20px;
   padding: 20px;
   padding-left: 20px;
   font-family: sans-serif;
@@ -101,8 +100,27 @@ pre.ace_editor {
 }
 
 .example > pre {
-  height: 300px;
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.example.original:hover:before, .example.edited button.restore {
+  position: absolute;
+  z-index: 10;
+  right: 0;
+  top: 0;
+  border: none;
+  font-size: inherit;
+  padding: 5px 12px;
+  margin: 0;
+  color: inherit;
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  color: rgba(255, 255, 255, 0.53);
+}
+
+.example.original:hover:before {
+  color: rgba(255, 255, 255, 0.53);
+  background-color: rgba(0, 0, 0, 0.1);
+  content: 'edit me!';
 }
 
 .example > pre .ace_marker-layer .ace_active-line {
@@ -118,7 +136,12 @@ pre.ace_editor {
   background-color: rgba(0, 0, 0, 0.25)
 }
 
-.example > .render, .example > .error {
+.example > .render {
+  
+}
+
+.example > .error {
+  background-color: rgba(255, 36, 36, 0.57);
 }
 
 .example > div > .error {
@@ -127,7 +150,7 @@ pre.ace_editor {
   border-left: 12px solid rgb(255, 205, 205);
 }
 
-.example .render button {
+.example button {
   background-color: rgba(0, 0, 0, 0.2);
   border:none;
   color: rgba(255, 255, 255, 1);
@@ -138,7 +161,7 @@ pre.ace_editor {
   outline: none;
 }
 
-.example .render button:hover {
+.example button:hover {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -160,8 +183,14 @@ pre.ace_editor {
   outline: none;
 }
 
-.example .render input, .plastiq-output button {
+.example .render input, .plastiq-output button, .example .render textarea {
   outline: none;
+}
+
+.example .render textarea {
+  background-color: rgba(237, 237, 237, 0.17);
+  border:none;
+  color: inherit;
 }
 
 .example .render code {

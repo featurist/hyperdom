@@ -123,13 +123,19 @@ module.exports.pretty = function (jsObject, indentLength, outputTo, fullFunction
                 return fromArray + '{' + newLine + prettyObject(element, indent) + indent + '}';
 
             case 'string':
-                return fromArray + '"' + element + '"';
+                return fromArray + JSON.stringify(element);
 
             case 'function':
                 return fromArray + functionSignature(element);
 
+            case 'undefined':
+                return fromArray + '"undefined"';
+
             default:
-                return fromArray + element.toString();
+                if (element.toString) {
+                    return fromArray + '"' + element.toString() + '"';
+                }
+                return fromArray + '<<<ERROR>>> Cannot get the string value of the element';
             }
         }
         return fromArray + 'circular reference to ' + element.toString();

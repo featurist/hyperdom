@@ -1,4 +1,4 @@
-all: index.md plastiq.js skrollr.js
+all: index.md plastiq.js skrollr.js prettyprint.js
 
 index.md : __nothing
 	echo "---\nlayout: index\ntitle: plastiq\n---" > index.md
@@ -10,5 +10,8 @@ plastiq.js: node_modules/plastiq/plastiq.js
 
 skrollr.js: node_modules/skrollr/dist/skrollr.min.js
 	cp node_modules/skrollr/dist/skrollr.min.js skrollr.js
+
+prettyprint.js: node_modules/js-object-pretty-print/index.js
+	browserify node_modules/js-object-pretty-print/index.js -s prettyprint > prettyprint.js
 
 __nothing:

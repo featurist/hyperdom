@@ -32,6 +32,7 @@
     var binding = plastiq.binding(options.binding);
     return h.component(
       {
+        key: options.key,
         onadd: function (element) {
           var self = this;
           this.binding = binding;
@@ -126,8 +127,25 @@
 
     function render(model) {
       return h('div.example',
+        {
+          class: { original: !model.edited, edited: model.edited }
+        },
+        model.edited
+          ? h('button.restore',
+              {
+                key: 'restoreButton',
+                onclick: function () {
+                  var parsedSource = parseSource(source);
+                  model.source = parsedSource;
+                  model.sourceText = parsedSource.generate(true);
+                  delete model.edited;
+                }
+              },
+              'restore')
+          : undefined,
         renderAceEditor(
           {
+            key: 'editor',
             binding: {
               get: function () {
                 model.sourceText;
@@ -146,6 +164,7 @@
                 }
               },
               set: function (value) {
+                model.edited = true;
                 model.sourceText = value;
                 try {
                   model.source = parseSource(value);
@@ -158,8 +177,8 @@
           }
         ),
         model.source.error
-          ? h('div.error', model.source.error.message)
-          : h('div.render', model.source.render(model.source.model))
+          ? h('div.error', {key: 'error'}, model.source.error.message)
+          : h('div.render', {key: 'render'}, model.source.render(model.source.model))
       );
     }
 

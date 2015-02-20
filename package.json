@@ -17,12 +17,11 @@
   },
   "homepage": "https://github.com/featurist/plastiq",
   "dependencies": {
-    "bluebird": "^2.5.3",
-    "browserify": "^8.0.3",
-    "marked": "^0.3.2",
-    "mustache": "^1.0.0",
-    "plastiq": "^1.5.1",
-    "pogo": "^0.9.6",
-    "qo": "^0.3.0"
+    "js-object-pretty-print": "git+https://github.com/featurist/js-object-pretty-print.git",
+    "plastiq": "1.9.2",
+    "skrollr": "0.6.26"
+  },
+  "devDependencies": {
+    "browserify": "8.1.3"
   }
 }
