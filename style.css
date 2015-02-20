@@ -33,10 +33,10 @@ p code {
 
 h1, h2, h3, h4, h5 {
   margin-top: 65px;
-  
+
   font-weight: 100;
   background-color: rgba(255, 255, 255, 0.1);
-  padding: 0 10px;
+  padding: 20px 10px;
   text-transform: lowercase;
 }
 
@@ -151,7 +151,7 @@ pre.ace_editor {
 }
 
 .example > .render {
-  
+
 }
 
 .example > .error {

@@ -1,0 +1,26 @@
+body {
+  -skrollr-animation-name: body-animation;
+}
+@-skrollr-keyframes body-animation {
+  0 {
+    background-color: rgb(255, 54, 115)
+  }
+  2000 {
+    background-color: rgb(123, 16, 121)
+  }
+  4000 {
+    background-color: rgb(17, 56, 108)
+  }
+  6000 {
+    background-color: rgb(62, 160, 195)
+  }
+  8000 {
+    background-color: rgb(9, 150, 107)
+  }
+  10000 {
+    background-color: rgb(106, 144, 13)
+  }
+  bottom {
+    background-color: rgb(10, 157, 12)
+  }
+}
