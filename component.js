@@ -4,6 +4,7 @@ var domComponent = require('./domComponent');
 
 function ComponentWidget(handlers, vdom) {
   this.handlers = handlers;
+  this.key = handlers.key;
   if (typeof vdom === 'function') {
     this.render = vdom;
     this.canRefresh = true;
