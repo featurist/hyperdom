@@ -83,6 +83,7 @@ h4 {
   margin: inherit;
   position: relative;
   padding-top: 16px;
+  overflow: hidden;
 }
 
 pre.ace_editor {
@@ -123,7 +124,7 @@ pre.ace_editor {
 }
 
 .example.original:before {
-  right: -300px;
+  right: 300px;
   color: rgba(255, 255, 255, 0.53);
   background-color: rgba(0, 0, 0, 0.1);
   content: 'edit me!';

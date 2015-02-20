@@ -318,10 +318,19 @@ function render(model) {
     component,
     h('div', 'page counter: ', model.counter),
     h('div',
-      h('button', {onclick: function () { model.counter++; return component; }}, 'refresh component')
+      h('button', {
+        onclick: function () {
+          model.counter++;
+          return component;
+        }
+      }, 'refresh component')
     ),
     h('div',
-      h('button', {onclick: function () { model.counter++; }}, 'refresh page')
+      h('button', {
+        onclick: function () {
+          model.counter++;
+        }
+      }, 'refresh page')
     )
   );
 }
