@@ -1,7 +1,7 @@
 body {
-  -skrollr-animation-name: body-animation;
+  -skrollr-animation-name: body-anim;
 }
-@-skrollr-keyframes body-animation {
+@-skrollr-keyframes body-anim {
   0 {
     background-color: rgb(255, 54, 115)
   }
@@ -23,4 +23,39 @@ body {
   bottom {
     background-color: rgb(10, 157, 12)
   }
+}
+
+.content{
+  position:relative;
+  overflow-x:hidden;
+}
+
+.example.original {
+    -skrollr-animation-name:example-original-anim;
+}
+
+@-skrollr-keyframes example-original-anim {
+    0 {
+      left:200%;
+    }
+
+    650 {
+      left:0px;
+    }
+
+
+}
+#an-example{
+  -skrollr-animation-name:an-example-anim;
+
+}
+@-skrollr-keyframes an-example-anim {
+    0 {
+      transform:scale(0) rotate(0deg);
+        }
+
+    550 {
+      transform:scale(1) rotate(360deg);opacity:1;    }
+
+
 }

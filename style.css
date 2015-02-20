@@ -1,5 +1,6 @@
-body {
-  background-color: rgb(255, 54, 115)
+body, html {
+position: relative;
+max-width: 100%;
 }
 
 pre {
