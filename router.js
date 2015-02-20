@@ -1,4 +1,4 @@
-var plastiq = require('.');
+var plastiq = require('./');
 var rendering = require('./rendering');
 var routism = require('routism');
 
