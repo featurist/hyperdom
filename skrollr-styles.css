@@ -2,24 +2,11 @@ body {
   -skrollr-animation-name: body-anim;
 }
 @-skrollr-keyframes body-anim {
-  0 {
+  top {
     background-color: rgb(255, 54, 115)
   }
-  2000 {
-    background-color: rgb(123, 16, 121)
-  }
-  4000 {
-    background-color: rgb(17, 56, 108)
-  }
-  6000 {
-    background-color: rgb(62, 160, 195)
-  }
-  8000 {
-    background-color: rgb(9, 150, 107)
-  }
-  10000 {
-    background-color: rgb(106, 144, 13)
-  }
+
+
   bottom {
     background-color: rgb(10, 157, 12)
   }
@@ -45,17 +32,30 @@ body {
 
 
 }
-#an-example{
-  -skrollr-animation-name:an-example-anim;
+h1:first-of-type {
+  -skrollr-animation-name:first-h-anim;
 
 }
-@-skrollr-keyframes an-example-anim {
+@-skrollr-keyframes first-h-anim {
+    0 {
+      transform:scale(1) rotate(0deg);
+        }
+
+    350 {
+      transform:scale(.5) rotate(360deg);opacity:1;    }
+
+
+}
+h1:nth-of-type(2) {
+  -skrollr-animation-name:second-h-anim;
+
+}
+@-skrollr-keyframes second-h-anim {
     0 {
       transform:scale(0) rotate(0deg);
         }
 
     550 {
-      transform:scale(1) rotate(360deg);opacity:1;    }
-
-
+      transform:scale(1) rotate(360deg);opacity:1;
+      }
 }
