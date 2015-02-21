@@ -50,7 +50,7 @@ module.exports = function(config) {
     customLaunchers: browsers,
     captureTimeout: 120000,
     singleRun: true,
-    browserNoActivityTimeout: 20000,
+    browserNoActivityTimeout: 30000,
     sauceLabs: {
       startConnect: !process.env.TRAVIS_JOB_NUMBER,
       tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER || (new Date().getTime())
