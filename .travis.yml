@@ -6,7 +6,7 @@ before_install:
 before_script:
 - npm install
 after_failure: "cat /home/travis/build/featurist/plastiq/npm-debug.log"
-script: npm run ci
+script: karma start karma.conf-ci.js --log-level debug
 addons:
   sauce_connect:
     username: "featurist-opensource"
