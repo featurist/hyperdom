@@ -12,6 +12,8 @@
 
 ## run
 
+    # watchify page.js
+    ./watch
     jekyll serve --watch
 
 [http://localhost:4000](http://localhost:4000)

@@ -1,0 +1,1 @@
+watchify page.js -v --debug -o _site/app.js
