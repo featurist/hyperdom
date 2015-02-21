@@ -6,7 +6,9 @@ var domComponent = require('./domComponent');
 function PromiseWidget(promise, handlers) {
   this.promise = promise;
   this.handlers = handlers;
-  this.refresh = rendering.currentRender.refresh;
+  if (rendering.currentRender) {
+    this.refresh = rendering.currentRender.refresh;
+  }
   this.component = domComponent();
 }
 
@@ -44,6 +46,9 @@ PromiseWidget.prototype.init = function () {
     return this.component.create(runPromiseHandler(this.handlers, this.handlers.fulfilled, this.value));
   }
 };
+
+PromiseWidget.prototype.refresh = function () {
+}
 
 PromiseWidget.prototype.update = function (previous) {
   if (previous.promise === this.promise && (previous.rejected || previous.fulfilled)) {
