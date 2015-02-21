@@ -42,7 +42,7 @@ module.exports = function(config) {
     },
     reporters: ['dots', 'saucelabs'],
     port: 9877,
-    colors: false,
+    colors: true,
     logLevel: config.LOG_WARN,
     autoWatch: false,
     browsers: Object.keys(browsers),
