@@ -24,7 +24,6 @@
     "mocha": "^2.1.0",
     "trytryagain": "^0.1.0",
     "uglify-js": "^2.4.16",
-    "underscore": "^1.7.0",
     "virtual-dom-stringify": "^2.1.0",
     "watchify": "^2.2.1"
   },

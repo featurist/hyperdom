@@ -1,6 +1,3 @@
-var _ = require('underscore');
-var base = require('./karma.conf.js');
-
 var browsers = {
   sl_chrome: {
     base: 'SauceLabs',
@@ -28,12 +25,29 @@ var browsers = {
 };
 
 module.exports = function(config) {
-  config.set(_.defaults({
+  config.set({
+    basePath: '',
+    frameworks: ['browserify', 'mocha'],
+    files: [
+      'test/karma/**/*Spec.js'
+    ],
+    exclude: [
+      '**/.*.sw?'
+    ],
+    preprocessors: {
+      'test/**/*Spec.js': ['browserify']
+    },
+    browserify: {
+      debug: false
+    },
     reporters: ['dots', 'saucelabs'],
-    sauceLabs: { testName: 'plastiq' },
-    captureTimeout: 120000,
+    port: 9877,
+    colors: false,
+    logLevel: config.LOG_WARN,
+    autoWatch: false,
     browsers: Object.keys(browsers),
     customLaunchers: browsers,
+    captureTimeout: 120000,
     singleRun: true
-  }, base));
-};
+  });
+}
