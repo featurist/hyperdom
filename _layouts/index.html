@@ -6,13 +6,10 @@
   <link rel="stylesheet" href="style.css" media="all">
 </head>
 <body
+  style="background-color: rgb(255, 54, 115)"
   data-0="background-color: rgb(255, 54, 115)"
-  data-2000="background-color: rgb(123, 16, 121)"
-  data-4000="background-color: rgb(17, 56, 108)"
-  data-6000="background-color: rgb(62, 160, 195)"
-  data-8000="background-color: rgb(9, 150, 107)"
-  data-10000="background-color: rgb(106, 144, 13)"
-  data-12000="background-color: rgb(10, 157, 12)"
+  data-10500="background-color: rgb(174, 76, 210)"
+  data-21000="background-color: rgb(61, 158, 194)"
   >
   <div class="content">
     {{content}}
@@ -20,8 +17,11 @@
   <script src="ace/ace.js"></script>
   <script src="skrollr.js"></script>
   <script type="text/javascript">
-    skrollr.init();
-  </script> 
+    skrollr.init({
+      smoothScrollingDuration: 1000,
+      forceHeight: false
+    });
+  </script>
   <script src="prettyprint.js"></script>
   <script src="plastiq.js"></script>
   <script src="app.js"></script>
