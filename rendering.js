@@ -98,6 +98,10 @@ function refreshComponent(component, requestRender) {
 var norefresh = {};
 
 function refreshifyEventHandler(fn) {
+  if (!exports.currentRender) {
+    return fn;
+  }
+
   var requestRender = exports.currentRender.requestRender;
   var r = exports.currentRender.refresh;
 
