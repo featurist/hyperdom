@@ -24,6 +24,18 @@ describe('plastiq', function() {
       expect(model.counter).to.equal(2);
     });
 
+    it('creates a virtual dom with animations', function() {
+      var h = plastiq.html;
+      var animation = function (refresh) {
+        refresh();
+      }
+      var vdom = h('.outer',
+        h('.inner', h.animation(animation))
+      );
+      var html = stringify(vdom);
+      expect(html).to.equal('<div class="outer"><div class="inner"></div></div>');
+    });
+
   });
 
 });

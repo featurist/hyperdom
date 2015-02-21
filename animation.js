@@ -2,7 +2,9 @@ var rendering = require('./rendering');
 
 function AnimationWidget(fn) {
   this.fn = fn;
-  this.refresh = rendering.currentRender.refresh;
+  if (rendering.currentRender) {
+    this.refresh = rendering.currentRender.refresh;
+  }
 }
 
 AnimationWidget.prototype.type = 'Widget';
@@ -11,6 +13,9 @@ AnimationWidget.prototype.init = function () {
   this.fn(this.refresh);
   return document.createTextNode('');
 };
+
+AnimationWidget.prototype.refresh = function () {
+}
 
 AnimationWidget.prototype.update = function () {
 };
