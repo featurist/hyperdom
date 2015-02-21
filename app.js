@@ -12,6 +12,15 @@
     });
   }
 
+  $.get('https://wzrd.in/standalone/prote@latest', function(data) {
+    var module = {
+      exports: {}
+    };
+
+    new Function('module', 'exports', data)(module, module.exports);
+    console.log(module.exports);
+  });
+
   startExamples();
 
   function aceify(textarea, options) {
