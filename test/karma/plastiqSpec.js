@@ -544,14 +544,14 @@ describe('plastiq', function () {
         expect(find('option.red').prop('selected')).to.equal(false);
         expect(find('option.blue').prop('selected')).to.equal(true);
       }).then(function () {
-        find('option.red').prop('selected', true);
+        find('select')[0].selectedIndex = 0;
         find('select').change();
 
         return retry(function() {
           expect(find('span').text()).to.equal('"red"');
           expect(find('option.red').prop('selected')).to.equal(true);
         }).then(function () {
-          find('option.blue').prop('selected', true);
+          find('select')[0].selectedIndex = 1;
           find('select').change();
 
           return retry(function() {
