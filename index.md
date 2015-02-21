@@ -9,9 +9,9 @@ Plastiq is a framework for building dynamic user interfaces in HTML.
 It leverages a simple architecture for single page applications:
 
 1. There is one model for the whole page, this model is stateful, object-oriented and free of framework elements.
-2. The view is re-rendered fresh each time the model changes, but only the differences are applied to the DOM.
+2. The view is re-rendered each time the model changes, but only the differences are applied to the DOM.
 
-Plastiq is hugely influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Why not React? Read the [philosophy and motivation](#philosophy-and-motivation).
+Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Why not React? Read the [philosophy and motivation](#philosophy-and-motivation).
 
 # An Example
 
@@ -51,7 +51,7 @@ Then
 
 ## Rendering the View
 
-The `render` function should take a model object and return a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
+The `render` function takes a model object and returns a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
 
 ~~~JavaScript
 function render(model) {
