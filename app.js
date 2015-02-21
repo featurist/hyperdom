@@ -14,11 +14,15 @@
 
   startExamples();
 
-  function aceify(textarea, mode) {
+  function aceify(textarea, options) {
     var editor = ace.edit(textarea);
-    editor.setTheme("ace/theme/idle_fingers");
-    editor.getSession().setMode("ace/mode/" + mode);
-    // editor.renderer.setShowGutter(false);
+    if (options.theme) {
+      editor.setTheme("ace/theme/" + options.theme);
+    }
+    if (options.mode) {
+      editor.getSession().setMode("ace/mode/" + options.mode);
+    }
+    editor.setDisplayIndentGuides(false);
     editor.$blockScrolling = Infinity;
     editor.getSession().setTabSize(2);
     editor.getSession().setUseSoftTabs(true);
@@ -38,7 +42,7 @@
           this.binding = binding;
           this.text = binding.get();
 
-          var editor = aceify(element, options.mode);
+          var editor = aceify(element, options);
           this.document = editor.getSession().getDocument();
           this.document.setValue(this.text);
 
@@ -173,7 +177,8 @@
                 }
               }
             },
-            mode: 'javascript'
+            mode: 'javascript',
+            theme: 'tomorrow_night_blue'
           }
         ),
         model.source.error
