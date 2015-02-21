@@ -20,6 +20,7 @@
     "karma-mocha": "^0.1.10",
     "karma-mocha-reporter": "^0.3.1",
     "karma-safari-launcher": "^0.1.1",
+    "karma-sauce-launcher": "^0.2.10",
     "mocha": "^2.1.0",
     "trytryagain": "^0.1.0",
     "uglify-js": "^2.4.16",
@@ -29,6 +30,7 @@
   "scripts": {
     "test": "npm run karma && npm run mocha",
     "karma": "karma start --single-run",
+    "ci": "karma start karma.conf-ci.js --single-run",
     "mocha": "mocha test/mocha/*Spec.js",
     "prepublish": "browserify browser.js > plastiq.js && uglifyjs plastiq.js > plastiq.min.js"
   },
