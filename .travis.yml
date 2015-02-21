@@ -5,7 +5,7 @@ before_install:
 - npm install npm -g
 before_script:
 - npm install
-- npm install karma-mocha -g
+after_failure: "cat /home/travis/build/featurist/plastiq/npm-debug.log"
 script: npm run ci
 addons:
   sauce_connect:
