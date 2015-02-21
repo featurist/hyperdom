@@ -48,6 +48,7 @@ module.exports = function(config) {
     browsers: Object.keys(browsers),
     customLaunchers: browsers,
     captureTimeout: 120000,
-    singleRun: true
+    singleRun: true,
+    tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER || (new Date().getTime())
   });
 }
