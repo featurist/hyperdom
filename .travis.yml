@@ -7,9 +7,8 @@ before_script:
 - npm install
 - npm install karma-mocha -g
 script: npm run ci
-env:
-  global:
-    - secure: Pvn7kGKHAL0m5dFpBLXUybHaroG0CDq72ldK3dRLEzchq5E1k2fXMw380CIqUKczFBrwfcGEsL4z5qMhzd9/cOYNnV42VJ+UsTnBgKDPeN8ODr+lE6LvXxNJsBZ5hysEyqqtKlmWYNCimJ3VsD+3lcCKTkr4KwSmqhhjTVAQef8=
-    - secure: C8Hk8TmQ+PCdBvRIWZxq2I/tqKvoC4X9wORU8nKMT4UftpxzMySvj8xc3k35GB7jD2s7eai6Ax6hJzB8gIMozXzSJiWexBobvnk2f+yb0jnipEZP1EWBECF2Rr79ChK1b93NdY/ADEbQ+naafiR1X3huBpJfJ5d6Pq6AX9Nv8mU=
 addons:
-  sauce_connect: true
+  sauce_connect:
+    username: "featurist-opensource"
+    access_key:
+      secure: "DoLRgiYG0+G3/cg5EVdAxwFTkmovikh2BYN2dRJ9digs/o9z3G3/TYlDJsNvQQnfFpopdC4mnX/hhbmLnpSsqOCHT3/+57CcdIHPPK8mIM27qZ70+bvPKIrpGOG1ewzt+jc4YHDdC596LyrbLjXqLbo8h4gnFCwihAxCSIAR3S8="
