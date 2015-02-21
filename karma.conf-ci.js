@@ -49,6 +49,9 @@ module.exports = function(config) {
     customLaunchers: browsers,
     captureTimeout: 120000,
     singleRun: true,
-    tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER || (new Date().getTime())
+    sauceLabs: {
+      startConnect: !process.env.TRAVIS_JOB_NUMBER,
+      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER || (new Date().getTime())
+    }
   });
 }
