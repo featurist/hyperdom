@@ -93,10 +93,9 @@ pre.ace_editor {
   border: none;
 }
 
-.example .render, .example .error {
+.example .render, .example .error, .example .loading {
   padding: 20px;
   padding-left: 20px;
-  /* font-family: sans-serif; */
 }
 
 .example .render {
@@ -106,10 +105,6 @@ pre.ace_editor {
 
 .example > pre {
   background-color: rgba(0, 0, 0, 0.1);
-}
-
-.example .render h3 {
-  /* width: auto; */
 }
 
 .example.original:before, .example.edited button.restore {
@@ -153,12 +148,12 @@ pre.ace_editor {
   background-color: rgba(0, 0, 0, 0.25)
 }
 
-.example > .render {
-  
-}
-
 .example > .error {
   background-color: rgba(255, 36, 36, 0.57);
+}
+
+.example > .loading {
+  background-color: rgba(35, 59, 228, 0.53);
 }
 
 .example > div > .error {
