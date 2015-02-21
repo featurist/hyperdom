@@ -1447,6 +1447,8 @@ describe('plastiq', function () {
     it('can render several frames of an animation', function () {
       this.timeout(10000);
 
+      var delay = 40;
+
       function render(model) {
         function startOperation() {
           return function (render) {
@@ -1462,10 +1464,10 @@ describe('plastiq', function () {
                   setTimeout(function () {
                     model.progress = 'four';
                     render();
-                  }, 20);
-                }, 20);
-              }, 20);
-            }, 20);
+                  }, delay);
+                }, delay);
+              }, delay);
+            }, delay);
           };
         }
 
