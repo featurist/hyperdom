@@ -1,4 +1,4 @@
-# plastiq
+# plastiq [![Build Status](https://travis-ci.org/featurist/plastiq.svg?branch=master)](https://travis-ci.org/featurist/plastiq)
 
 Plastiq is a framework for building dynamic user interfaces in HTML.
 
