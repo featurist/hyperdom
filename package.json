@@ -8,6 +8,7 @@
     "virtual-dom": "^1.1.0"
   },
   "devDependencies": {
+    "bluebird": "^2.9.12",
     "browserify": "^8.1.0",
     "chai": "^1.10.0",
     "jquery": "^2.1.3",
