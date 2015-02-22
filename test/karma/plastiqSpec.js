@@ -544,14 +544,14 @@ describe('plastiq', function () {
         expect(find('option.red').prop('selected')).to.equal(false);
         expect(find('option.blue').prop('selected')).to.equal(true);
       }).then(function () {
-        find('option.red').prop('selected', true);
+        find('select')[0].selectedIndex = 0;
         find('select').change();
 
         return retry(function() {
           expect(find('span').text()).to.equal('"red"');
           expect(find('option.red').prop('selected')).to.equal(true);
         }).then(function () {
-          find('option.blue').prop('selected', true);
+          find('select')[0].selectedIndex = 1;
           find('select').change();
 
           return retry(function() {
@@ -1447,6 +1447,8 @@ describe('plastiq', function () {
     it('can render several frames of an animation', function () {
       this.timeout(10000);
 
+      var delay = 40;
+
       function render(model) {
         function startOperation() {
           return function (render) {
@@ -1462,10 +1464,10 @@ describe('plastiq', function () {
                   setTimeout(function () {
                     model.progress = 'four';
                     render();
-                  }, 20);
-                }, 20);
-              }, 20);
-            }, 20);
+                  }, delay);
+                }, delay);
+              }, delay);
+            }, delay);
           };
         }
 
