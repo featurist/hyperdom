@@ -2,11 +2,11 @@ var plastiq = require('./');
 var rendering = require('./rendering');
 var routism = require('routism');
 
-function Router() {
-  this.history =
-    typeof window != 'undefined'
+function Router(options) {
+  this.history = (options && options.history) ||
+    (typeof window != 'undefined'
       ? exports.historyApi()
-      : undefined;
+      : undefined);
 }
 
 Router.prototype.page = function() {
@@ -70,7 +70,6 @@ Router.prototype.page = function() {
           }
           rendering.currentRender.lastBinding = undefined;
         }
-
         return render(params);
       }
     };
@@ -123,8 +122,9 @@ exports.historyApi = function () {
 };
 
 Router.prototype.hrefChanged = function() {
-  var changed = this.history.location().href != rendering.currentRender.lastHref;
-  rendering.currentRender.lastHref = this.history.location().href;
+  var currentRender = rendering.currentRender || this;
+  var changed = this.history.location().href != currentRender.lastHref;
+  currentRender.lastHref = this.history.location().href;
   return changed;
 };
 
@@ -181,8 +181,8 @@ Router.prototype.replacePushState = function (replacePush, url) {
   }
 };
 
-function router() {
-  var routerObject = new Router();
+function router(options) {
+  var routerObject = new Router(options);
   var r = routerObject.router.bind(routerObject);
 
   ['page', 'push', 'replace'].forEach(function (m) {
@@ -193,3 +193,7 @@ function router() {
 }
 
 module.exports = router();
+
+module.exports.with = function(options) {
+  return router(options);
+}
