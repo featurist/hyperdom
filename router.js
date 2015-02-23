@@ -2,9 +2,16 @@ var plastiq = require('./');
 var rendering = require('./rendering');
 var routism = require('routism');
 
-var state;
+function Router() {
+  this.history =
+    typeof window != 'undefined'
+      ? exports.historyApi()
+      : undefined;
+}
 
-function page() {
+Router.prototype.page = function() {
+  var self = this;
+
   if (arguments.length == 3) {
     var url = arguments[0];
     var options = arguments[1];
@@ -16,7 +23,7 @@ function page() {
       newUrl: function () {
         if (options.url) {
           var newUrl = options.url(binding.get());
-          if (newUrl != exports.history.location().pathname + exports.history.location().search) {
+          if (newUrl != self.history.location().pathname + self.history.location().search) {
             return newUrl;
           }
         }
@@ -28,7 +35,7 @@ function page() {
           }
           rendering.currentRender.lastBinding = binding;
 
-          var state = exports.history.state.get();
+          var state = self.history.state.get();
 
           rendering.currentRender.routeState = state
             ? state
@@ -43,7 +50,7 @@ function page() {
               binding.set(model);
               rendering.currentRender.routeState = undefined;
             }
-            exports.history.state.set(binding.get());
+            self.history.state.set(binding.get());
             return render();
           }
         });
@@ -80,7 +87,7 @@ function makeHash(paramArray) {
   return params;
 }
 
-exports.historyApi = (function () {
+exports.historyApi = function () {
   var state;
 
   window.addEventListener('popstate', function (ev) {
@@ -113,20 +120,18 @@ exports.historyApi = (function () {
   };
 
   return h;
-})();
+};
 
-exports.history = exports.historyApi;
-
-function hrefChanged() {
-  var changed = exports.history.location().href != rendering.currentRender.lastHref;
-  rendering.currentRender.lastHref = exports.history.location().href;
+Router.prototype.hrefChanged = function() {
+  var changed = this.history.location().href != rendering.currentRender.lastHref;
+  rendering.currentRender.lastHref = this.history.location().href;
   return changed;
-}
+};
 
-function router() {
-  exports.history.refresh = plastiq.html.refresh;
+Router.prototype.router = function() {
+  this.history.refresh = plastiq.html.refresh;
 
-  var newLocation = hrefChanged();
+  var newLocation = this.hrefChanged();
 
   var routes = [];
 
@@ -136,13 +141,13 @@ function router() {
   }
 
   var compiledRoutes = routism.compile(routes);
-  var route = compiledRoutes.recognise(exports.history.location().pathname);
+  var route = compiledRoutes.recognise(this.history.location().pathname);
 
   if (route) {
     var newUrl = route.route.newUrl();
 
     if (newUrl && !newLocation) {
-      replace(newUrl);
+      this.replace(newUrl);
       return router.apply(this, arguments);
     } else {
       return route.route.render(makeHash(route.params), newLocation)
@@ -152,18 +157,18 @@ function router() {
   }
 };
 
-function push(url) {
-  return replacePushState('push', url);
-}
+Router.prototype.push = function (url) {
+  return this.replacePushState('push', url);
+};
 
-function replace(url) {
-  return replacePushState('replace', url);
-}
+Router.prototype.replace = function (url) {
+  return this.replacePushState('replace', url);
+};
 
-function replacePushState(replacePush, url) {
+Router.prototype.replacePushState = function (replacePush, url) {
   if (typeof url === 'string') {
-    exports.history[replacePush](url);
-    exports.history.clearState();
+    this.history[replacePush](url);
+    this.history.clearState();
 
     if (rendering.currentRender) {
       plastiq.html.refresh();
@@ -171,12 +176,20 @@ function replacePushState(replacePush, url) {
   } else {
     var ev = url;
     var href = ev.target.href;
-    push(href);
+    this.push(href);
     ev.preventDefault();
   }
+};
+
+function router() {
+  var routerObject = new Router();
+  var r = routerObject.router.bind(routerObject);
+
+  ['page', 'push', 'replace'].forEach(function (m) {
+    r[m] = routerObject[m].bind(routerObject);
+  });
+
+  return r;
 }
 
-module.exports = router;
-module.exports.page = page;
-module.exports.push = push;
-module.exports.replace = replace;
+module.exports = router();
