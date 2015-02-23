@@ -16,7 +16,7 @@ function page() {
       newUrl: function () {
         if (options.url) {
           var newUrl = options.url(binding.get());
-          if (newUrl != location.pathname + location.search) {
+          if (newUrl != exports.history.location().pathname + exports.history.location().search) {
             return newUrl;
           }
         }
@@ -28,13 +28,13 @@ function page() {
           }
           rendering.currentRender.lastBinding = binding;
 
-          if (state) {
-            rendering.currentRender.routeState = state;
-          } else if (typeof options.state === 'function') {
-            rendering.currentRender.routeState = options.state(params);
-          } else {
-            rendering.currentRender.routeState = options.state;
-          }
+          var state = exports.history.state.get();
+
+          rendering.currentRender.routeState = state
+            ? state
+            : typeof options.state === 'function'
+              ? options.state(params)
+              : options.state;
         }
 
         return plastiq.html.promise(rendering.currentRender.routeState, {
@@ -43,7 +43,7 @@ function page() {
               binding.set(model);
               rendering.currentRender.routeState = undefined;
             }
-            history.replaceState(binding.get(), undefined, location.href);
+            exports.history.state.set(binding.get());
             return render();
           }
         });
@@ -80,13 +80,54 @@ function makeHash(paramArray) {
   return params;
 }
 
+exports.historyApi = (function () {
+  var state;
+
+  window.addEventListener('popstate', function (ev) {
+    state = ev.state;
+    h.refresh();
+  });
+
+  var h = {
+    location: function () {
+      return window.location;
+    },
+    state: {
+      get: function () {
+        return state;
+      },
+      set: function (state) {
+        window.history.replaceState(state, undefined, window.location.href);
+      }
+    },
+    clearState: function () {
+      state = undefined;
+    },
+    push: function(url) {
+      window.history.pushState(undefined, undefined, url);
+    },
+    replace: function(url) {
+      window.history.replaceState(undefined, undefined, url);
+    },
+    refresh: function () {}
+  };
+
+  return h;
+})();
+
+exports.history = exports.historyApi;
+
 function hrefChanged() {
-  var changed = location.href != rendering.currentRender.lastHref;
-  rendering.currentRender.lastHref = location.href;
+  var changed = exports.history.location().href != rendering.currentRender.lastHref;
+  rendering.currentRender.lastHref = exports.history.location().href;
   return changed;
 }
 
 function router() {
+  exports.history.refresh = plastiq.html.refresh;
+
+  var newLocation = hrefChanged();
+
   var routes = [];
 
   for (var n = 0; n < arguments.length; n++) {
@@ -95,24 +136,16 @@ function router() {
   }
 
   var compiledRoutes = routism.compile(routes);
-  var route = compiledRoutes.recognise(location.pathname);
+  var route = compiledRoutes.recognise(exports.history.location().pathname);
 
   if (route) {
     var newUrl = route.route.newUrl();
-    var changed = hrefChanged();
 
-    if (newUrl && !changed) {
+    if (newUrl && !newLocation) {
       replace(newUrl);
       return router.apply(this, arguments);
     } else {
-      return plastiq.html.window(
-        {
-          onpopstate: function (ev) {
-            state = ev.state;
-          }
-        },
-        route.route.render(makeHash(route.params), changed)
-      );
+      return route.route.render(makeHash(route.params), newLocation)
     }
   } else {
     return plastiq.html('div', '404');
@@ -129,8 +162,8 @@ function replace(url) {
 
 function replacePushState(replacePush, url) {
   if (typeof url === 'string') {
-    state = undefined;
-    window.history[replacePush + 'State'](undefined, undefined, url);
+    exports.history[replacePush](url);
+    exports.history.clearState();
 
     if (rendering.currentRender) {
       plastiq.html.refresh();
