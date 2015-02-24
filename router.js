@@ -192,8 +192,4 @@ function router(options) {
   return r;
 }
 
-module.exports = router();
-
-module.exports.with = function(options) {
-  return router(options);
-}
+module.exports = router;

@@ -13,7 +13,7 @@ describe('plastiq.html.router', function() {
         return { pathname: pathname };
       }
     }
-    var router = h.router.with({ history: history });
+    var router = plastiq.router({ history: history });
     function html() {
       return stringify(
         h('.app',

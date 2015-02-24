@@ -1,6 +1,6 @@
 var $ = require('jquery');
 var plastiq = require('../..');
-var router = require('../../router');
+var router = plastiq.router();
 var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
