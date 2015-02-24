@@ -2,7 +2,6 @@ var h = require('virtual-dom/h');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
-var ComponentWidget = require('./component').ComponentWidget;
 
 exports.currentRender;
 
@@ -115,7 +114,11 @@ function refreshifyEventHandler(fn) {
       result(r);
     } else if (result && typeof(result.then) == 'function') {
       result.then(r, r);
-    } else if (result instanceof ComponentWidget) {
+    } else if (
+        result
+        && typeof result.init === 'function'
+        && typeof result.update === 'function'
+        && typeof result.destroy === 'function') {
       refreshComponent(result, requestRender);
     } else if (result === norefresh) {
       // don't refresh;

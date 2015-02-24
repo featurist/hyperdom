@@ -18,5 +18,3 @@ exports.html.rawHtml = require('./rawHtml');
 exports.html.component = require('./component');
 exports.html.promise = require('./promise');
 exports.html.animation = require('./animation');
-exports.html.router = require('./router').router;
-exports.html.page = require('./router').page;
