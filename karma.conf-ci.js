@@ -29,8 +29,8 @@ module.exports = function(config) {
     basePath: '',
     frameworks: ['browserify', 'mocha'],
     files: [
-      'test/karma/promisePolyfill.js',
-      'test/karma/**/*Spec.js'
+      'test/browser/promisePolyfill.js',
+      'test/browser/**/*Spec.js'
     ],
     exclude: [
       '**/.*.sw?'

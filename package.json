@@ -32,7 +32,7 @@
     "test": "npm run karma && npm run mocha",
     "karma": "karma start --single-run",
     "ci": "karma start karma.conf-ci.js --single-run",
-    "mocha": "mocha test/mocha/*Spec.js",
+    "mocha": "mocha test/server/*Spec.js",
     "prepublish": "browserify browser.js > plastiq.js && uglifyjs plastiq.js > plastiq.min.js"
   },
   "keywords": [

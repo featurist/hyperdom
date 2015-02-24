@@ -15,8 +15,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/karma/promisePolyfill.js',
-      'test/karma/**/*Spec.js'
+      'test/browser/promisePolyfill.js',
+      'test/browser/**/*Spec.js'
     ],
 
 
