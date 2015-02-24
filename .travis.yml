@@ -9,6 +9,6 @@ env:
   global:
     - secure: SPnL9OJgLpZBfAI1txpCNJ5fXFsDxn09s61lgJpYJE5WiiVccWAMPB4dOfYfuUO7zV8/E2weU06yXeltECPxLd8Y4Lxf+WyziBGa9MsvE7h9fTVHdIFcnIvbsHbl23hGgc3Djg6HBd1uyudtkU8R42Q+5ZOPcdMhMjUXqXMqqC0=
     - secure: GwZz5tEx1p8hpA5cnG22pniH87IhmUYYCSW4nv2mSWTpkfW394a7LoXHcf7yQz5Ld/rxtixnLL21/wYZOaA0zdg4Pt9RFai6v5S1/id80/kkcXogETxb3bR2RKZOF76CZGkH3qafRoyWwNJ7vZjDJ9n/5yz6YAj9/yTQlcxp+Ws=
-script: karma start karma.conf-ci.js --log-level debug
+script: npm run mocha && karma start karma.conf-ci.js
 addons:
   sauce_connect: true

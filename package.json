@@ -13,7 +13,7 @@
     "chai": "2.0.0",
     "jquery": "^2.1.3",
     "jquery-sendkeys": "^1.0.2",
-    "jsdom": "4.0.0",
+    "jsdom": "3.1.2",
     "karma-browserify": "3.0.3",
     "karma-chrome-launcher": "^0.1.7",
     "karma-cli": "0.0.4",
