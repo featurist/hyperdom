@@ -627,7 +627,7 @@ Play on [requirebin](http://requirebin.com/?gist=15d9e47fe0f906a522b2)
 
 # API
 
-## Rending the Virtual DOM
+## Rendering the Virtual DOM
 
 ```JavaScript
 var vdomFragment = plastiq.html(selector, [attributes], children, ...);
