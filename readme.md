@@ -1,5 +1,7 @@
 # plastiq [![Build Status](https://travis-ci.org/featurist/plastiq.svg?branch=master)](https://travis-ci.org/featurist/plastiq) [![Gitter chat](https://badges.gitter.im/featurist/plastiq.png)](https://gitter.im/featurist/plastiq)
 
+[![Join the chat at https://gitter.im/featurist/plastiq](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/featurist/plastiq?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Plastiq is a framework for building dynamic user interfaces in HTML.
 
 It leverages a simple architecture for single page applications:
