@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/featurist/plastiq",
   "dependencies": {
+    "detective": "^4.0.0",
     "js-object-pretty-print": "git+https://github.com/featurist/js-object-pretty-print.git",
     "plastiq": "1.9.2",
     "skrollr": "0.6.26"

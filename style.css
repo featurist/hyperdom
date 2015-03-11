@@ -1,24 +1,27 @@
 body {
-  background-color: rgb(255, 54, 115)
+  background-color: rgb(255, 54, 115);
+  background-image: url(background.svg);
+  background-size: cover;
 }
 
-.content > pre {
-  width: 594px;
+.content pre {
   padding: 17px;
-  background-color: rgba(0, 0, 0, 0.2);
-  margin: inherit;
+  background-color: #EAEADA;
+  margin: 0;
+  overflow: scroll;
+  border-radius: 3px;
+  margin-bottom: 20px;
 }
 
 pre code {
   background-color: transparent;
+  font-size: 14px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
 }
 
-a {
-  font-weight: 500;
-}
-
-strong, a, code {
-  color: white;
+strong, code {
+  color: #625E3C;
+  font-weight: 400;
 }
 
 p code {
@@ -28,68 +31,76 @@ p code {
 
 .content {
   font-family: "Helvetica Neue","Open Sans",sans-serif;
-  width: 700px;
-  margin: 1em auto;
-  color: white;
+  max-width: 700px;
+  background-color: #ffffee;
+  margin: auto;
+  box-sizing: border-box;
+  padding: 20px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  border-radius: 10px;
 }
 
 h1, h2, h3, h4, h5 {
-  margin-top: 65px;
-  
-  font-weight: 100;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 0 10px;
-  text-transform: lowercase;
+  font-family: "Helvetica Neue","Open Sans",sans-serif;
+  font-weight: 300;
+  padding: 0px;
 }
 
-h1 {
-  font-size: 60px;
+.content > h1 {
+  margin-top: 50px;
+  border-bottom: 2px solid #EDEDDE;
+  color: #2A6F88;
 }
 
-h2 {
-  font-size: 39px;
+.content > h2 {
+  margin-top: 40px;
+  font-size: 1.5em;
+  margin-bottom: 12px;
+  color: #3BA2A8;
 }
 
-h3 {
-  font-size: 30px;
+.content > h3 {
   margin-top: 35px;
+  font-size: 1.3em;
+  margin-bottom: 10px;
+  color: #3FA851;
 }
 
-h4 {
-  font-size: 23px;
+.content > h4 {
+  margin-bottom: 10px;
 }
 
 .content > h1:first-of-type {
-  color: rgb(255, 255, 255);
   font-size: 100px;
   font-weight: 100;
   text-align: center;
+  border: none;
 }
 
 .content > * {
 }
 
 .content > p {
+  margin-top: 0;
 }
 
 .content > p, .content > ol, .content > ul {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 200;
   font-family: "Helvetica Neue","Open Sans",sans-serif;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 30px;
-  text-transform: lowercase;
+  color: #222;
+  line-height: 26px;
 }
 
 .content > .example {
-  width: 628px;
-  margin: inherit;
+  margin: 0;
   position: relative;
-  padding-top: 16px;
   overflow: hidden;
 }
 
 pre.ace_editor {
+  margin-top: 0;
   border: none;
 }
 
@@ -100,34 +111,40 @@ pre.ace_editor {
 
 .example .render {
   position: relative;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: #EAEADA;
+  margin-bottom: 20px;
 }
 
 .example > pre {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: #EAEADA;
+  margin-bottom: 0;
+  margin-top: 10px;
+  padding-bottom: 0;
 }
 
 .example.original:before, .example.edited button.restore {
   position: absolute;
   z-index: 10;
   right: 0;
-  top: 0;
+  top: -10px;
   border: none;
   font-size: inherit;
   padding: 5px 12px;
   margin: 0;
-  color: inherit;
+  background-color: #fff;
   font-family: "Helvetica Neue","Open Sans",sans-serif;
-  color: rgba(255, 255, 255, 0.53);
+  color: #000;
 }
 
 .example.original:before {
-  right: 300px;
-  color: rgba(255, 255, 255, 0.53);
-  background-color: rgba(0, 0, 0, 0.1);
+  right: 200px;
+  background-color: rgba(255,255,255,0.4);
+  color: #555;
   content: 'edit me!';
   transition: 0.3s opacity, 0.3s right;
   opacity: 0;
+  height: 30px;
+  line-height: 36px;
 }
 
 .example.original:hover:before {
@@ -136,16 +153,16 @@ pre.ace_editor {
 }
 
 .example > pre .ace_marker-layer .ace_active-line {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: #DDDDCE;
 }
 
 .example > pre .ace_gutter {
-  background-color: rgba(0, 0, 0, 0.24);
-  color: rgba(255, 255, 255, 0.39)
+  background-color: #DAD8C0;
+  color: #949279
 }
 
 .example > pre .ace_gutter-active-line {
-  background-color: rgba(0, 0, 0, 0.25)
+  background-color: #C3C2AD;
 }
 
 .example > .error {
@@ -163,10 +180,11 @@ pre.ace_editor {
 }
 
 .example button {
-  background-color: rgba(0, 0, 0, 0.2);
-  border:none;
-  color: rgba(255, 255, 255, 1);
-  font-size: 18px;
+  background-color: #DAD8C0;
+  border: 1px solid #C3C2AD;
+  border-radius: 5px;
+  color: #444;
+  font-size: 14px;
   padding: 4px 9px;
   margin: 5px 0px;
   cursor: pointer;
@@ -175,6 +193,13 @@ pre.ace_editor {
 
 .example button:hover {
   background-color: rgba(0, 0, 0, 0.4);
+  color: #ffffee;
+  border-color: #cccc77;
+}
+
+.example .render {
+  margin-top: 10px;
+  border-left: 48px solid #DAD8C0;
 }
 
 .example .render input[type=text] + button {
@@ -187,10 +212,9 @@ pre.ace_editor {
 
 .example .render input[type=text] {
   background-color: rgba(237, 237, 237, 0.17);
-  border: none;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.72);
   padding: 3px;
   font-size: 14px;
+  border: 1px solid #C3C2AD;
   color: inherit;
   outline: none;
 }
