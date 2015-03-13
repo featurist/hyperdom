@@ -7,10 +7,7 @@ SimplePromise.prototype.fulfill = function (value) {
     this.isFulfilled = true;
     this.value = value;
     this.listeners.forEach(function (listener) {
-      try {
-        listener();
-      } catch (e) {
-      }
+      listener();
     });
   }
 };
@@ -19,10 +16,7 @@ SimplePromise.prototype.then = function (success) {
   if (this.isFulfilled) {
     var self = this;
     setTimeout(function () {
-      try {
-        success(self.value);
-      } catch (e) {
-      }
+      success(self.value);
     });
   } else {
     this.listeners.push(success);
