@@ -37,6 +37,7 @@ Router.prototype.page = function() {
 
           var state = self.history.state.get();
 
+          rendering.currentRender.hasRouteState = true;
           rendering.currentRender.routeState = state
             ? state
             : typeof options.state === 'function'
@@ -46,9 +47,10 @@ Router.prototype.page = function() {
 
         return plastiq.html.promise(rendering.currentRender.routeState, {
           fulfilled: function (model) {
-            if (rendering.currentRender.routeState) {
+            if (rendering.currentRender.hasRouteState) {
               binding.set(model);
-              rendering.currentRender.routeState = undefined;
+              delete rendering.currentRender.routeState;
+              delete rendering.currentRender.hasRouteState;
             }
             self.history.state.set(binding.get());
             return render();
@@ -147,8 +149,8 @@ Router.prototype.router = function() {
     var newUrl = route.route.newUrl();
 
     if (newUrl && !newLocation) {
-      this.replace(newUrl);
-      return router.apply(this, arguments);
+      this.push(newUrl);
+      return this.router.apply(this, arguments);
     } else {
       return route.route.render(makeHash(route.params), newLocation)
     }
