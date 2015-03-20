@@ -24,6 +24,10 @@ ComponentWidget.prototype.init = function () {
   var self = this;
   var element = this.component.create(this.render());
 
+  if (self.handlers.onbeforeadd) {
+    self.handlers.onbeforeadd(element);
+  }
+
   if (self.handlers.onadd) {
     this.renderFinished.then(function () {
       self.handlers.onadd(element);

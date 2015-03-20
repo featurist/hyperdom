@@ -271,6 +271,14 @@ function render(model) {
     model.show
       ? h.component(
           {
+            onbeforeadd: function (element) {
+              // this is called before the element is added
+              // to the DOM, some jQuery plugins
+              // should be used here, for example
+              // if they change the location of the element
+              // duration initialisation, e.g. dialogs.
+            },
+
             onadd: function (element) {
               // element is the <div>component contents</div>
               // you may want to add jQuery plugins here
