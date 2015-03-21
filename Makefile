@@ -18,3 +18,5 @@ app.js: page.js
 	browserify page.js > app.js
 
 __nothing:
+
+.PHONY:app.js

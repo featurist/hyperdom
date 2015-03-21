@@ -33,8 +33,9 @@ function aceify(textarea, options) {
   editor.getSession().setTabSize(2);
   editor.getSession().setUseSoftTabs(true);
   editor.setOptions({
-        maxLines: Infinity
+    maxLines: Infinity
   });
+  editor.setOption("showPrintMargin", false);
   return editor;
 }
 
@@ -265,7 +266,7 @@ function attachEditor(element, source) {
             }
           },
           mode: 'javascript',
-          theme: 'tomorrow_night_blue'
+          theme: 'tomorrow'
         }
       ),
       model.source.error
