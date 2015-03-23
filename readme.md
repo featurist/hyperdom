@@ -271,14 +271,6 @@ function render(model) {
     model.show
       ? h.component(
           {
-            onbeforeadd: function (element) {
-              // this is called before the element is added
-              // to the DOM, some jQuery plugins
-              // should be used here, for example
-              // if they change the location of the element
-              // duration initialisation, e.g. dialogs.
-            },
-
             onadd: function (element) {
               // element is the <div>component contents</div>
               // you may want to add jQuery plugins here
@@ -709,6 +701,7 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
   * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
   * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
+  * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and plastiq will still be able to track it.
 
     The event handlers are all invoked with the same `this`, within the lifetime of the component. This means you can store state between events.
 * `vdomFragment` - the vdom fragment to render as the component.

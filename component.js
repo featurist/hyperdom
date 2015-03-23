@@ -24,17 +24,17 @@ ComponentWidget.prototype.init = function () {
   var self = this;
   var element = this.component.create(this.render());
 
-  if (self.handlers.onbeforeadd) {
-    self.handlers.onbeforeadd(element);
-  }
-
   if (self.handlers.onadd) {
     this.renderFinished.then(function () {
       self.handlers.onadd(element);
     });
   }
 
-  return element;
+  if (self.handlers.detached) {
+    return document.createTextNode('');
+  } else {
+    return element;
+  }
 };
 
 ComponentWidget.prototype.update = function (previous) {
@@ -55,7 +55,13 @@ ComponentWidget.prototype.update = function (previous) {
     this.handlers = previous.handlers;
   }
 
-  return this.component.update(this.render());
+  var element = this.component.update(this.render());
+
+  if (self.handlers.detached) {
+    return document.createTextNode('');
+  } else {
+    return element;
+  }
 };
 
 ComponentWidget.prototype.destroy = function (element) {
