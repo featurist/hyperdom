@@ -1,7 +1,7 @@
 var rendering = require('./rendering');
 
 function ListenerHook(listener) {
-  this.listener = rendering.refreshifyEventHandler(listener);
+  this.listener = rendering.html.refreshify(listener);
 }
 
 ListenerHook.prototype.hook = function (element, propertyName, previous) {

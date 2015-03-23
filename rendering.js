@@ -96,7 +96,7 @@ function refreshComponent(component, requestRender) {
 
 var norefresh = {};
 
-function refreshifyEventHandler(fn) {
+function refreshify(fn) {
   if (!exports.currentRender) {
     return fn;
   }
@@ -128,8 +128,6 @@ function refreshifyEventHandler(fn) {
     }
   };
 }
-
-exports.refreshifyEventHandler = refreshifyEventHandler;
 
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
@@ -231,7 +229,7 @@ function bindModel(attributes, children, type) {
   var bind = inputTypeBindings[type] || bindTextInput;
 
   var bindingAttr = makeBinding(attributes.binding);
-  bind(attributes, children, bindingAttr.get, refreshifyEventHandler(bindingAttr.set));
+  bind(attributes, children, bindingAttr.get, refreshify(bindingAttr.set));
 }
 
 function inputType(selector, attributes) {
@@ -301,7 +299,7 @@ exports.html = function (selector) {
 
     Object.keys(attributes).forEach(function (key) {
       if (typeof(attributes[key]) == 'function') {
-        attributes[key] = refreshifyEventHandler(attributes[key]);
+        attributes[key] = refreshify(attributes[key]);
       }
     });
 
@@ -322,6 +320,7 @@ exports.html = function (selector) {
   }
 };
 
+exports.html.refreshify = refreshify;
 exports.html.refresh = refreshOutOfRender;
 exports.html.norefresh = norefresh;
 
@@ -331,7 +330,7 @@ function makeBinding(b, options) {
     : b;
 
   if (!options || !options.norefresh) {
-    binding.set = refreshifyEventHandler(binding.set);
+    binding.set = refreshify(binding.set);
   }
 
   return binding;

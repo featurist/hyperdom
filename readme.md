@@ -564,6 +564,10 @@ refresh([component]);
 * `refresh()` refreshes the whole UI for the attachment. (Other attached UIs aren't refreshed.)
 * `refresh(component)` just refreshes the component. See [components](#components).
 
+### Refreshify
+
+Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `plastiq.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
+
 ### Promises
 
 If your model uses promises, your view can represent the different states of the promise: pending, fulfilled or rejected. This allows your view to render accordingly a loading spinner, the result, or indeed an error if one ocurrs.

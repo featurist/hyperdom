@@ -11,7 +11,7 @@ exports.binding = rendering.binding;
 var windowEvents = require('./windowEvents');
 
 exports.html.window = function (attributes, vdom) {
-  return windowEvents(attributes, vdom, rendering.refreshifyEventHandler);
+  return windowEvents(attributes, vdom, rendering.html.refreshify);
 };
 
 exports.html.rawHtml = require('./rawHtml');
