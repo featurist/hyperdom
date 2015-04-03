@@ -278,6 +278,7 @@ function applyAttributeRenames(attributes) {
   Object.keys(renames).forEach(function (key) {
     if (attributes[key] !== undefined) {
       attributes[renames[key]] = attributes[key];
+      delete attributes[key];
     }
   });
 }
@@ -316,6 +317,7 @@ exports.html = function (selector) {
 
     if (attributes.binding) {
       bindModel(attributes, childElements, inputType(selector, attributes));
+      delete attributes.binding;
     }
 
     return createElementHierarchy(h(selector, attributes, childElements));
