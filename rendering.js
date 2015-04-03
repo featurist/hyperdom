@@ -115,7 +115,7 @@ function refreshify(fn) {
       if (result && typeof(result) == 'function') {
         result(r);
       } else if (result && typeof(result.then) == 'function') {
-        result.then(handleResult, handleResult);
+        result.then(handleResult);
       } else if (
           result
           && typeof result.init === 'function'
