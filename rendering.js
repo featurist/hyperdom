@@ -110,22 +110,28 @@ function refreshify(fn) {
 
   return function () {
     var result = fn.apply(undefined, arguments);
-    if (result && typeof(result) == 'function') {
-      result(r);
-    } else if (result && typeof(result.then) == 'function') {
-      result.then(r, r);
-    } else if (
-        result
-        && typeof result.init === 'function'
-        && typeof result.update === 'function'
-        && typeof result.destroy === 'function') {
-      refreshComponent(result, requestRender);
-    } else if (result === norefresh) {
-      // don't refresh;
-    } else {
-      r();
-      return result;
+
+    function handleResult(result) {
+      console.log('handler finished', result);
+      if (result && typeof(result) == 'function') {
+        result(r);
+      } else if (result && typeof(result.then) == 'function') {
+        result.then(handleResult, handleResult);
+      } else if (
+          result
+          && typeof result.init === 'function'
+          && typeof result.update === 'function'
+          && typeof result.destroy === 'function') {
+        refreshComponent(result, requestRender);
+      } else if (result === norefresh) {
+        // don't refresh;
+      } else {
+        r();
+        return result;
+      }
     }
+
+    return handleResult(result);
   };
 }
 
