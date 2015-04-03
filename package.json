@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "routism": "0.0.6",
-    "virtual-dom": "^1.1.0"
+    "virtual-dom": "2.0.1"
   },
   "devDependencies": {
     "bluebird": "^2.9.12",
