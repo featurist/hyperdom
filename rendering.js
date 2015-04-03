@@ -112,7 +112,6 @@ function refreshify(fn) {
     var result = fn.apply(undefined, arguments);
 
     function handleResult(result) {
-      console.log('handler finished', result);
       if (result && typeof(result) == 'function') {
         result(r);
       } else if (result && typeof(result.then) == 'function') {
