@@ -109,7 +109,7 @@ function refreshify(fn) {
   }
 
   return function () {
-    var result = fn.apply(undefined, arguments);
+    var result = fn.apply(this, arguments);
 
     function handleResult(result) {
       if (result && typeof(result) == 'function') {
