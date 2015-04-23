@@ -73,5 +73,6 @@ PromiseWidget.prototype.destroy = function () {
 };
 
 module.exports = function(promise, handlers) {
+  console.warn('plastiq.html.promise is deprecated, consider using plastiq.html.refresh');
   return new PromiseWidget(promise, handlers);
 };
