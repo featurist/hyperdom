@@ -104,7 +104,7 @@ Pass a function to any `on*` event handler.
 
 When the event handler has completed the view is automatically re-rendered.
 
-If you return a promise, then the view is re-rendered when the promise resolves. You can also return a function to have more control over when rendering happens, see [animations](#animations).
+If you return a promise, then the view is also re-rendered when the promise resolves.
 
 ```JavaScript
 function render(model) {
@@ -471,43 +471,6 @@ plastiq.append(document.body, render, {
 
 Try it on [requirebin](http://requirebin.com/?gist=41d56a087b5f9fa7d062).
 
-## Animations
-
-An event handler can return a function that is passed a `render` function that can be called to request a re-render of the page when the model has been updated. This can be used to create animations that change the model and re-render the page.
-
-Notice that the `render()` function only *requests* a re-render, which will happen at some point in the future but not immediately. Several calls to `render()` may only result in one actual render. See the `requestRender` option in [`plastiq.append`](#plastiqappend) below.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    model.interval
-      ? h('button', {
-          onclick: function () {
-            clearInterval(model.interval);
-            delete model.interval;
-          }
-        }, 'Stop')
-      : h('button', {
-          onclick: function () {
-            return function (render) {
-              model.interval = setInterval(function () {
-                model.n++;
-                render();
-              }, 100);
-            };
-          }
-        }, 'Start'),
-    h('div', 'n = ' + model.n)
-  );
-}
-
-plastiq.append(document.body, render, {
-  n: 0
-});
-```
-
-Play on [requirebin](http://requirebin.com/?gist=641b92c81d69300a4277)
-
 ## Not Refreshing
 
 By default the view will refresh after an event handler has run, however you can return `plastiq.html.norefresh` from an event handler to prevent this.
@@ -593,42 +556,6 @@ plastiq.append(document.body, render, {
 
 Play on [requirebin](http://requirebin.com/?gist=9cca2ce4ef8044b8592b)
 
-### Animations
-
-Another option is to use an animation. The animation is started as soon as the view HTML is displayed, then the model can refresh the page several times during the animation.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h.animation(model.animation.bind(model)),
-    h('div', model.counter)
-  );
-}
-
-plastiq.append(document.body, render, {
-  animation: function (refresh) {
-    var self = this;
-
-    setTimeout(function () {
-      self.counter++;
-      refresh();
-      setTimeout(function () {
-        self.counter++;
-        refresh();
-        setTimeout(function () {
-          self.counter++;
-          refresh();
-        }, 500);
-      }, 500);
-    }, 500);
-  },
-
-  counter: 0
-});
-```
-
-Play on [requirebin](http://requirebin.com/?gist=15d9e47fe0f906a522b2)
-
 # API
 
 ## Rendering the Virtual DOM
@@ -678,10 +605,6 @@ When event handlers complete, the entire page's virtual DOM is re-rendered. Of c
 #### Promises
 
 If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
-
-#### Animations
-
-If the event handler returns a function, then that function will be called with a `render` function that can be called to re-render the page when the model has been updated.
 
 ## Raw HTML
 

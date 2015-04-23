@@ -76,7 +76,7 @@ exports.replace = function (element, render, model, options) {
 };
 
 exports.attach = function () {
-  console.log('warning: plastiq.attach has been renamed to plastiq.append, plastiq.attach will be deprecated in a future version');
+  console.warn('plastiq.attach has been renamed to plastiq.append, plastiq.attach will be deprecated in a future version');
   return exports.append.apply(this, arguments);
 }
 
@@ -113,6 +113,7 @@ function refreshify(fn) {
 
     function handleResult(result) {
       if (result && typeof(result) == 'function') {
+        console.warn('animations are now deprecated, you should consider using plastiq.html.refresh');
         result(r);
       } else if (result && typeof(result.then) == 'function') {
         result.then(handleResult);

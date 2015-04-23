@@ -24,5 +24,6 @@ AnimationWidget.prototype.destroy = function () {
 };
 
 module.exports = function (fn) {
+  console.warn('plastiq.html.animation is deprecated, consider using plastiq.html.refresh');
   return new AnimationWidget(fn);
 };
