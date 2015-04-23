@@ -108,7 +108,11 @@ function refreshify(fn) {
     throw new Error('no global refresh!');
   }
 
-  return function () {
+  if (fn.refreshified) {
+    throw new Error('already refreshified');
+  }
+
+  var refreshified = function () {
     var result = fn.apply(this, arguments);
 
     function handleResult(result) {
@@ -134,6 +138,9 @@ function refreshify(fn) {
 
     return handleResult(result);
   };
+
+  refreshified.refreshified = true;
+  return refreshified;
 }
 
 function bindTextInput(attributes, children, get, set) {
@@ -236,7 +243,7 @@ function bindModel(attributes, children, type) {
   var bind = inputTypeBindings[type] || bindTextInput;
 
   var bindingAttr = makeBinding(attributes.binding);
-  bind(attributes, children, bindingAttr.get, refreshify(bindingAttr.set));
+  bind(attributes, children, bindingAttr.get, bindingAttr.set);
 }
 
 function inputType(selector, attributes) {
