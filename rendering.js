@@ -108,11 +108,7 @@ function refreshify(fn) {
     throw new Error('no global refresh!');
   }
 
-  if (fn.refreshified) {
-    throw new Error('already refreshified');
-  }
-
-  var refreshified = function () {
+  return function () {
     var result = fn.apply(this, arguments);
 
     function handleResult(result) {
@@ -138,9 +134,6 @@ function refreshify(fn) {
 
     return handleResult(result);
   };
-
-  refreshified.refreshified = true;
-  return refreshified;
 }
 
 function bindTextInput(attributes, children, get, set) {
