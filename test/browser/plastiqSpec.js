@@ -287,13 +287,16 @@ describe('plastiq', function () {
       return h('div',
         h('button', {
           onclick: function () {
+            model.text = 'loading';
             return new Promise(function (result) {
-              model.on = true;
-              result();
+              setTimeout(function () {
+                model.text = 'loaded';
+                result();
+              }, 100);
             });
           }
         }),
-        model.on? h('span', 'on'): undefined
+        h('span', model.text)
       );
     }
 
@@ -301,7 +304,11 @@ describe('plastiq', function () {
 
     return click('button').then(function () {
       return retry(function () {
-        expect(find('span').text()).to.eql('on');
+        expect(find('span').text()).to.eql('loading');
+      });
+    }).then(function () {
+      return retry(function () {
+        expect(find('span').text()).to.eql('loaded');
       });
     });
   });

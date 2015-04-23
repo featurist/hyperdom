@@ -116,6 +116,7 @@ function refreshify(fn) {
         console.warn('animations are now deprecated, you should consider using plastiq.html.refresh');
         result(r);
       } else if (result && typeof(result.then) == 'function') {
+        r();
         result.then(handleResult);
       } else if (
           result
