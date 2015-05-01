@@ -4,7 +4,6 @@
   "description": "a small and beautiful front-end MVC framework",
   "main": "index.js",
   "dependencies": {
-    "routism": "0.0.6",
     "virtual-dom": "2.0.1"
   },
   "devDependencies": {
