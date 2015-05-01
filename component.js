@@ -49,9 +49,9 @@ ComponentWidget.prototype.update = function (previous) {
   this.component = previous.component;
   
   if (previous.handlers && this.handlers) {
-    previous.handlers.onadd = this.handlers.onadd;
-    previous.handlers.onupdate = this.handlers.onupdate;
-    previous.handlers.onremove = this.handlers.onremove;
+    Object.keys(this.handlers).forEach(function (key) {
+      previous.handlers[key] = self.handlers[key];
+    });
     this.handlers = previous.handlers;
   }
 

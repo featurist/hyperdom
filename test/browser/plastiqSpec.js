@@ -1127,6 +1127,41 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('can capture fields from each refresh', function () {
+      var events = [];
+
+      function render(model) {
+        model.value++;
+        var refresh = h.refresh;
+
+        return h('div',
+          h.component(
+            {
+              value: model.value,
+
+              onadd: function (element) {
+                var self = this;
+                element.addEventListener('click', function () {
+                  events.push(self.value);
+                  refresh();
+                });
+              }
+            },
+            h('.button-' + model.value, 'click me')
+          )
+        );
+      }
+
+      attach(render, {value: 0});
+      return click('.button-1').then(function () {
+        expect(events).to.eql([1]);
+      }).then(function () {
+        return click('.button-2').then(function () {
+          expect(events).to.eql([1, 2]);
+        });
+      });
+    });
   });
 
   describe('plastiq.html.refresh', function () {
