@@ -345,21 +345,36 @@ function makeBinding(b, options) {
   return binding;
 };
 
-function bindingObject(obj, prop, convert) {
+function bindingObject(obj, prop, options) {
+  var set =
+    options && (typeof options === 'function'
+    ? options
+    : options.set);
+
+  var get = options && options.get;
+
   return {
     get: function () {
-      return obj[prop];
+      var value = obj[prop];
+
+      if (get) {
+        return get(value);
+      } else {
+        return value;
+      }
     },
     set: function (value) {
-      if (convert) {
-        value = convert(value);
+      if (set) {
+        value = set(value);
       }
+
       obj[prop] = value;
     }
   };
 };
 
 exports.binding = makeBinding;
+exports.html.binding = makeBinding;
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {

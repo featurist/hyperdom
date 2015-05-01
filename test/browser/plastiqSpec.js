@@ -376,23 +376,45 @@ describe('plastiq', function () {
       });
     });
 
-    it('can bind to a text input converting to number', function () {
-      function render(model) {
-        return h('div',
-          h('input', {type: 'text', binding: [model, 'number', Number]}),
-          h('span', model.number)
-        );
-      }
+    describe('binding options', function () {
+      it('can bind to a text input converting to number', function () {
+        function render(model) {
+          return h('div',
+            h('input', {type: 'text', binding: [model, 'number', Number]}),
+            h('span', model.number)
+          );
+        }
 
-      var model = {number: 0};
-      attach(render, model);
+        var model = {number: 0};
+        attach(render, model);
 
-      find('input').sendkeys('{selectall}{backspace}123');
+        find('input').sendkeys('{selectall}{backspace}123');
 
-      return retry(function() {
-        expect(find('span').text()).to.equal('123');
-        expect(find('input').val()).to.equal('123');
-        expect(model.number).to.equal(123);
+        return retry(function() {
+          expect(find('span').text()).to.equal('123');
+          expect(find('input').val()).to.equal('123');
+          expect(model.number).to.equal(123);
+        });
+      });
+
+      it('can bind with set conversion', function () {
+        function render(model) {
+          return h('div',
+            h('input', {type: 'text', binding: [model, 'number', {set: Number}]}),
+            h('span', model.number)
+          );
+        }
+
+        var model = {number: 0};
+        attach(render, model);
+
+        find('input').sendkeys('{selectall}{backspace}123');
+
+        return retry(function() {
+          expect(find('span').text()).to.equal('123');
+          expect(find('input').val()).to.equal('123');
+          expect(model.number).to.equal(123);
+        });
       });
     });
 
