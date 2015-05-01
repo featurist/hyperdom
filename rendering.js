@@ -379,11 +379,11 @@ exports.html.binding = makeBinding;
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
     if (obj instanceof Array) {
-      return obj.join(' ');
+      return obj.join(' ') || undefined;
     } else {
       return Object.keys(obj).filter(function (key) {
         return obj[key];
-      }).join(' ');
+      }).join(' ') || undefined;
     }
   } else {
     return obj;
