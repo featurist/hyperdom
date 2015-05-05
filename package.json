@@ -1,6 +1,6 @@
 {
   "name": "plastiq",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "a small and beautiful front-end MVC framework",
   "main": "index.js",
   "dependencies": {
