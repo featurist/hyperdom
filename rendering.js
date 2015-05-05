@@ -31,7 +31,7 @@ function refreshOutOfRender() {
 }
 
 exports.append = function (element, render, model, options) {
-  start(render, model, options, function(createdElement) {
+  return start(render, model, options, function(createdElement) {
     element.appendChild(createdElement);
   });
 };
@@ -40,16 +40,19 @@ function start(render, model, options, attachToDom) {
   var win = (options && options.window) || window;
   var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
   var requested = false;
+  var detached = false;
 
   function refresh() {
     if (!requested) {
       requestRender(function () {
         requested = false;
 
-        doThenFireAfterRender(attachment, function () {
-          var vdom = render(model);
-          component.update(vdom);
-        });
+        if (!detached) {
+          doThenFireAfterRender(attachment, function () {
+            var vdom = render(model);
+            component.update(vdom);
+          });
+        }
       });
       requested = true;
     }
@@ -66,10 +69,20 @@ function start(render, model, options, attachToDom) {
     var vdom = render(model);
     attachToDom(component.create(vdom));
   });
+
+  return {
+    detach: function () {
+      detached = true;
+    },
+    remove: function () {
+      component.destroy({removeElement: true});
+      detached = true;
+    }
+  };
 };
 
 exports.replace = function (element, render, model, options) {
-  start(render, model, options, function(createdElement) {
+  return start(render, model, options, function(createdElement) {
     var parent = element.parentNode;
     element.parentNode.replaceChild(createdElement, element);
   });

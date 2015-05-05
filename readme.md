@@ -645,10 +645,11 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 ## Attaching to the DOM
 
 ```JavaScript
-plastiq.append(element, render, model, [options]);
-plastiq.replace(element, render, model, [options]);
+var attachment = plastiq.append(element, render, model, [options]);
+var attachment = plastiq.replace(element, render, model, [options]);
 ```
 
+* `attachment` - the instance of the plastiq attachment, see below.
 * `element` - any HTML element.
   * in the case of `plastiq.append` the view is added as a child via `element.appendChild(view)`
   * in the case of `plastiq.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
@@ -684,6 +685,22 @@ plastiq.replace(element, render, model, [options]);
     The default is `requestAnimationFrame`, falling back to `setTimeout`.
   
     For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
+
+### Detach
+
+```js
+attachment.detach();
+```
+
+Detaches the rendering engine from the DOM. Note that this doesn't remove the DOM, just prevents any plastiq rendering events from modifying the DOM.
+
+### Remove
+
+```js
+attachment.remove();
+```
+
+Destroys the DOM, running any `onremove` handlers found in components. This will remove the DOM element.
 
 # Philosophy and Motivation
 
