@@ -1,69 +1,83 @@
 var plastiq = require('.');
 var h = plastiq.html;
 
-module.exports = function (value, options, fn) {
-  if (typeof options === 'function') {
-    fn = options;
-    options = undefined;
+module.exports = function () {
+  var refresh;
+  var throttle;
+
+  var promise, awaitingPromise, lastTime, lastValue, timeout;
+
+  var currentValue;
+  var currentFn;
+
+  function callFn() {
+    var self = this;
+
+    if (promise) {
+      if (!awaitingPromise) {
+        promise.then(function () {
+          promise = undefined;
+          awaitingPromise = undefined;
+          sync();
+        });
+
+        awaitingPromise = true;
+      }
+    } else {
+      var result = currentFn(currentValue);
+      if (result && typeof result.then === 'function') {
+        promise = result;
+        promise.then(refresh);
+      }
+      valueChanged();
+      lastTime = Date.now();
+    }
   }
 
-  var refresh = h.refresh;
-  var throttle = options && options.hasOwnProperty('throttle') && options.throttle !== undefined? options.throttle: 300;
 
-  return h.component(
-    {
-      fn: fn,
-      value: value,
+  function valueHasChanged() {
+    return lastValue !== normalisedValue(currentValue);
+  }
 
-      onadd: function () {
-        this.sync();
-      },
+  function valueChanged() {
+    lastValue = normalisedValue(currentValue);
+  }
 
-      callFn: function () {
-        var self = this;
+  function sync() {
+    var self = this;
+    var now = Date.now();
 
-        if (this.promise) {
-          if (!this.awaitingPromise) {
-            this.promise.then(function () {
-              delete self.promise;
-              delete self.awaitingPromise;
-              self.sync();
-            });
-
-            this.awaitingPromise = true;
-          }
-        } else {
-          var result = this.fn(this.value);
-          if (result && typeof result.then === 'function') {
-            this.promise = result;
-            this.promise.then(refresh);
-          }
-          this.lastValue = this.value;
-          this.lastTime = Date.now();
-        }
-      },
-
-      sync: function () {
-        var self = this;
-        var now = Date.now();
-
-        if (this.lastValue != this.value) {
-          if (!this.lastTime || (this.lastTime + throttle < now)) {
-            this.callFn();
-          } else if (!this.timeout) {
-            var timeoutDuration = this.lastTime - now + throttle;
-            this.timeout = setTimeout(function () {
-              delete self.timeout;
-              self.callFn();
-            }, timeoutDuration);
-          }
-        }
-      },
-
-      onupdate: function () {
-        this.sync();
+    if (valueHasChanged()) {
+      if (!lastTime || (lastTime + throttle < now)) {
+        callFn();
+      } else if (!timeout) {
+        var timeoutDuration = lastTime - now + throttle;
+        timeout = setTimeout(function () {
+          timeout = undefined;
+          callFn();
+        }, timeoutDuration);
       }
-    },
-    ''
-  );
+    }
+  }
+
+  return function (value, options, fn) {
+    if (typeof options === 'function') {
+      fn = options;
+      options = undefined;
+    }
+
+    refresh = h.refresh;
+    throttle = options && options.hasOwnProperty('throttle') && options.throttle !== undefined? options.throttle: 0;
+
+    currentValue = value;
+    currentFn = fn;
+
+    sync();
+  }
 };
+
+function normalisedValue(value) {
+  return value.constructor === Object || value instanceof Array
+    ? JSON.stringify(value)
+    : value;
+}
