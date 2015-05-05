@@ -20,7 +20,7 @@ DomComponent.prototype.update = function (vdom) {
   return this.element;
 };
 
-DomComponent.prototype.destroy = function () {
+DomComponent.prototype.destroy = function (options) {
   function destroyWidgets(vdom) {
     if (vdom.type === 'Widget') {
       vdom.destroy();
@@ -30,6 +30,10 @@ DomComponent.prototype.destroy = function () {
   }
 
   destroyWidgets(this.vdom);
+
+  if (options && options.removeElement) {
+    this.element.parentNode.removeChild(this.element);
+  }
 };
 
 function domComponent() {
