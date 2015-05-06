@@ -39,7 +39,8 @@
     "front-end",
     "mvc",
     "framework",
-    "html"
+    "html",
+    "plastiq"
   ],
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
   "license": "MIT",
