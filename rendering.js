@@ -109,8 +109,14 @@ function refreshComponent(component, requestRender) {
 
 var norefresh = {};
 
-function refreshify(fn) {
+function refreshify(fn, options) {
   if (!exports.currentRender) {
+    return fn;
+  }
+
+  var onlyRefreshAfterPromise = options && options.refresh == 'promise';
+
+  if (options && (options.norefresh == true || options.refresh == false)) {
     return fn;
   }
 
@@ -124,13 +130,17 @@ function refreshify(fn) {
   return function () {
     var result = fn.apply(this, arguments);
 
-    function handleResult(result) {
-      if (result && typeof(result) == 'function') {
+    function handleResult(result, promiseResult) {
+      var allowRefresh = !onlyRefreshAfterPromise || promiseResult;
+
+      if (allowRefresh && result && typeof(result) == 'function') {
         console.warn('animations are now deprecated, you should consider using plastiq.html.refresh');
         result(r);
       } else if (result && typeof(result.then) == 'function') {
-        r();
-        result.then(handleResult);
+        if (allowRefresh) {
+          r();
+        }
+        result.then(function (result) { handleResult(result, onlyRefreshAfterPromise); });
       } else if (
           result
           && typeof result.init === 'function'
@@ -139,7 +149,7 @@ function refreshify(fn) {
         refreshComponent(result, requestRender);
       } else if (result === norefresh) {
         // don't refresh;
-      } else {
+      } else if (allowRefresh) {
         r();
         return result;
       }
@@ -351,9 +361,7 @@ function makeBinding(b, options) {
     ?  bindingObject.apply(undefined, b)
     : b;
 
-  if (!options || !options.norefresh) {
-    binding.set = refreshify(binding.set);
-  }
+  binding.set = refreshify(binding.set, options);
 
   return binding;
 };

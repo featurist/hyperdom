@@ -4,6 +4,7 @@ var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
+var rendering = require('../../rendering');
 
 describe('plastiq', function () {
   var div;
@@ -19,12 +20,6 @@ describe('plastiq', function () {
 
   function find(selector) {
     return $(div).find(selector);
-  }
-
-  function wait(n) {
-    return new Promise(function (result) {
-      setTimeout(result, n);
-    });
   }
 
   function click(selector) {
@@ -1135,4 +1130,86 @@ describe('plastiq', function () {
       });
     });
   });
+
+  describe.only('h.binding', function () {
+    var refreshCalled;
+
+    beforeEach(function () {
+      refreshCalled = false;
+      rendering.currentRender = {
+        refresh: function () {
+          refreshCalled = true;
+        }
+      };
+    });
+
+    function expectToRefresh(options, v) {
+      var model = {};
+
+      h.binding([model, 'field'], options).set('value');
+      expect(refreshCalled).to.equal(v);
+    }
+
+    function expectPromiseToRefresh(options, before, after) {
+      var model = {};
+
+      h.binding({
+        set: function () {
+          return wait(10);
+        }
+      }, options).set('value');
+      expect(refreshCalled).to.equal(before);
+      refreshCalled = false;
+
+      return wait(20).then(function () {
+        expect(refreshCalled).to.equal(after);
+      });
+    }
+
+    context('normal', function () {
+      it('normally calls refresh', function () {
+        expectToRefresh(undefined, true);
+      });
+
+      it('normally calls refresh, even after a promise', function () {
+        return expectPromiseToRefresh(undefined, true, true);
+      });
+    });
+
+    context('norefresh: true', function () {
+      it('never calls refresh', function () {
+        expectToRefresh({norefresh: true}, false);
+      });
+
+      it('never calls refresh, even after promise', function () {
+        return expectPromiseToRefresh({norefresh: true}, false, false);
+      });
+    });
+
+    context('refresh: false', function () {
+      it('never calls refresh', function () {
+        expectToRefresh({refresh: false}, false);
+      });
+
+      it('never calls refresh, even after promise', function () {
+        return expectPromiseToRefresh({refresh: false}, false, false);
+      });
+    });
+
+    context("refresh: 'promise'", function () {
+      it('never calls refresh', function () {
+        expectToRefresh({refresh: 'promise'}, false);
+      });
+
+      it("doesn't call refresh, but does after a promise", function () {
+        return expectPromiseToRefresh({refresh: 'promise'}, false, true);
+      });
+    });
+  });
 });
+
+function wait(n) {
+  return new Promise(function (result) {
+    setTimeout(result, n);
+  });
+}
