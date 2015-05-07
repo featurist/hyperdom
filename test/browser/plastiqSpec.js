@@ -1131,7 +1131,7 @@ describe('plastiq', function () {
     });
   });
 
-  describe.only('h.binding', function () {
+  describe('h.binding', function () {
     var refreshCalled;
 
     beforeEach(function () {
