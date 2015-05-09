@@ -26,33 +26,6 @@ describe('plastiq', function() {
       expect(model.counter).to.equal(2);
     });
 
-    it('creates a virtual dom with animations', function() {
-      var animation = function (refresh) {
-        refresh();
-      }
-      var vdom = h('.outer',
-        h('.inner', h.animation(animation))
-      );
-      var html = stringify(vdom);
-      expect(html).to.equal('<div class="outer"><div class="inner"></div></div>');
-    });
-
-    it('creates a virtual dom with promises', function() {
-      var p = new Promise(function (fulfill) {
-        fulfill('value');
-      });
-
-      var vdom = h('.outer',
-        h('.inner', h.promise({
-          pending: 'hello',
-          fulfilled: 'goodbye',
-          rejected: 'oh noes'
-        }))
-      );
-      var html = stringify(vdom);
-      expect(html).to.equal('<div class="outer"><div class="inner"></div></div>');
-    });
-
   });
 
 });
