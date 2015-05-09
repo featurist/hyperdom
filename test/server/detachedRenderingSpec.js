@@ -1,7 +1,7 @@
 var plastiq = require('../..');
 var h = plastiq.html;
 
-var stringify = require('virtual-dom-stringify');
+var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
 var Promise = require('bluebird').Promise;
 
@@ -18,7 +18,7 @@ describe('plastiq', function() {
           }
         })
       );
-      var html = stringify(vdom);
+      var html = vdomToHtml(vdom);
       expect(html).to.equal('<div class="outer"><div class="inner"></div></div>');
       vdom.children[0].properties.onclick();
       expect(model.counter).to.equal(1);
