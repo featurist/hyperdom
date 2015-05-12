@@ -30,6 +30,8 @@ Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 # install
 
+## npm
+
     npm install plastiq
 
 Use either with browserify:
@@ -43,6 +45,12 @@ Or from HTML, first create a symlink:
 Then
 
     <script src="plastiq.js"></script>
+
+## cdn
+
+[Plastiq on CDNJS](https://cdnjs.com/libraries/plastiq):
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plastiq/<version>/plastiq.min.js"></script>
 
 # sister projects
 
