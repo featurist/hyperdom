@@ -634,9 +634,10 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 
 * `eventHandlers` - object containing:
   * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
-  * `function onupdate(previous, element)` - invoked after the component has been re-rendered, `previous` being the previous state of the component, `element` being the top-most DOM element in the component.
+  * `function onupdate(element)` - invoked after the component has been re-rendered, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
   * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and plastiq will still be able to track it.
+  * any other fields you want to access from the handlers.
 
     The event handlers are all invoked with the same `this`, within the lifetime of the component. This means you can store state between events.
 * `vdomFragment` - the vdom fragment to render as the component.
