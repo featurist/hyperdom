@@ -10,7 +10,7 @@ function doThenFireAfterRender(render, fn) {
     exports.currentRender = render;
     exports.currentRender.finished = simplePromise();
     exports.html.refresh = function (component) {
-      if (component) {
+      if (isComponent(component)) {
         refreshComponent(component, render.requestRender);
       } else {
         render.refresh();
@@ -28,6 +28,13 @@ function doThenFireAfterRender(render, fn) {
 
 function refreshOutOfRender() {
   throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
+}
+
+function isComponent(component) {
+  return component
+    && typeof component.init === 'function'
+    && typeof component.update === 'function'
+    && typeof component.destroy === 'function';
 }
 
 exports.append = function (element, render, model, options) {

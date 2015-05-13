@@ -924,6 +924,39 @@ describe('plastiq', function () {
       });
     });
 
+    it('refreshes whole page if passed a non-component', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        return h('div',
+          h('h1', model.text),
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                model.text = 'after timeout';
+                refresh({});
+              }, 50);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return click('button.refresh').then(function () {
+        return wait(20).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('before timeout');
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('after timeout');
+            });
+          });
+        });
+      });
+    });
+
     it('must be taken during render cycle, or exception is thrown', function () {
       function render(model) {
         var refresh = h.refresh;
