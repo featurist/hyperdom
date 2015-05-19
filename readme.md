@@ -5,7 +5,7 @@ A fast, feature rich and **simple** framework for building dynamic browser appli
 1. There is one **model** for the whole page, this model is stateful, object-oriented and free of framework elements.
 2. There is a **render function** that renders the model into HTML every time the model changes, but only applies the differences from the last render to the DOM.
 
-Of course, the **model** can be as simple or sophisticated as you need, and you can refactor the **render function** into **render functions** or **render methods**, or whatever works best. Plastiq is more library than framework.
+Of course, the **model** can be as simple or sophisticated as you need, and you can refactor the **render function** into **render functions** or polymorphic **render methods**, or whatever works best. It's just javascript, you know what you're doing.
 
 Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
