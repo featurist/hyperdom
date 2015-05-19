@@ -1,11 +1,11 @@
 # plastiq [![npm version](https://badge.fury.io/js/plastiq.svg)](http://badge.fury.io/js/plastiq) [![npm](https://img.shields.io/npm/dm/localeval.svg?style=flat-square)]() [![Build Status](https://travis-ci.org/featurist/plastiq.svg?branch=master)](https://travis-ci.org/featurist/plastiq) [![Gitter chat](https://badges.gitter.im/featurist/plastiq.png)](https://gitter.im/featurist/plastiq)
 
-Plastiq is a framework for building dynamic user interfaces in HTML.
-
-It leverages a simple architecture for single page applications:
+A fast, feature rich and **simple** framework for building dynamic browser applications.
 
 1. There is one **model** for the whole page, this model is stateful, object-oriented and free of framework elements.
-2. There is a **render** function that renders the model into HTML every time the model changes, but only applies the differences from the last render to the DOM.
+2. There is a **render function** that renders the model into HTML every time the model changes, but only applies the differences from the last render to the DOM.
+
+Of course, the **model** can be as simple or sophisticated as you need, and you can refactor the **render function** into **render functions** or **render methods**, or whatever works best. Plastiq is more library than framework.
 
 Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
