@@ -7,6 +7,8 @@ module.exports = function (child) {
     return new vtext(String(child));
   } else if (child instanceof Date) {
     return new vtext(String(child));
+  } else if (child instanceof Error) {
+    return new vtext(child.toString());
   } else {
     return child;
   }

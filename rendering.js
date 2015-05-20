@@ -170,7 +170,9 @@ function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
   var bindingValue = get();
-  attributes.value = bindingValue != undefined? bindingValue: '';
+  if (!(bindingValue instanceof Error)) {
+    attributes.value = bindingValue != undefined? bindingValue: '';
+  }
 
   attachEventHandler(attributes, textEventNames, function (ev) {
     set(ev.target.value);

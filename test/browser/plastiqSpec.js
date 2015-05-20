@@ -410,6 +410,43 @@ describe('plastiq', function () {
           expect(model.number).to.equal(123);
         });
       });
+
+      it.only("doesn't set the input text if the value is an Error", function () {
+        function number(value) {
+          var n = Number(value);
+          if (isNaN(n)) {
+            return new Error('expected a number');
+          } else {
+            return n;
+          }
+        }
+
+        function render(model) {
+          return h('div',
+            h('input', {type: 'text', binding: [model, 'number', number]}),
+            h('span', model.number)
+          );
+        }
+
+        var model = {number: 0};
+        attach(render, model);
+
+        find('input').sendkeys('{selectall}{backspace}abc');
+
+        return retry(function() {
+          expect(find('span').text()).to.equal('Error: expected a number');
+          expect(find('input').val()).to.equal('abc');
+          expect(model.number).to.be.instanceof(Error);
+        }).then(function () {
+          find('input').sendkeys('{selectall}{backspace}123');
+        }).then(function () {
+          return retry(function() {
+            expect(find('span').text()).to.equal('123');
+            expect(find('input').val()).to.equal('123');
+            expect(model.number).to.equal(123);
+          });
+        });
+      });
     });
 
     it('when model returns undefined, it clears the input', function () {
