@@ -5,15 +5,15 @@ var coerceToVdom = require('./coerceToVdom');
 
 exports.currentRender;
 
-function doThenFireAfterRender(render, fn) {
+function doThenFireAfterRender(attachment, fn) {
   try {
-    exports.currentRender = render;
+    exports.currentRender = attachment;
     exports.currentRender.finished = simplePromise();
     exports.html.refresh = function (component) {
       if (isComponent(component)) {
-        refreshComponent(component, render.requestRender);
+        refreshComponent(component, attachment);
       } else {
-        render.refresh();
+        attachment.refresh();
       }
     }
 
@@ -100,15 +100,19 @@ exports.attach = function () {
   return exports.append.apply(this, arguments);
 }
 
-function refreshComponent(component, requestRender) {
+function refreshComponent(component, attachment) {
   if (!component.canRefresh) {
     throw new Error("this component cannot be refreshed, make sure that the component's view is returned from a function");
   }
 
   if (!component.requested) {
+    var requestRender = attachment.requestRender;
+
     requestRender(function () {
-      component.requested = false;
-      component.update(component);
+      doThenFireAfterRender(attachment, function () {
+        component.requested = false;
+        component.update(component);
+      });
     });
     component.requested = true;
   }
@@ -127,7 +131,7 @@ function refreshify(fn, options) {
     return fn;
   }
 
-  var requestRender = exports.currentRender.requestRender;
+  var attachment = exports.currentRender;
   var r = exports.currentRender.refresh;
 
   if (!r) {
@@ -153,7 +157,7 @@ function refreshify(fn, options) {
           && typeof result.init === 'function'
           && typeof result.update === 'function'
           && typeof result.destroy === 'function') {
-        refreshComponent(result, requestRender);
+        refreshComponent(result, attachment);
       } else if (result === norefresh) {
         // don't refresh;
       } else if (allowRefresh) {

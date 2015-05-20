@@ -2,9 +2,9 @@ var rendering = require('./rendering');
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
 
-function ComponentWidget(handlers, vdom) {
-  this.handlers = handlers;
-  this.key = handlers.key;
+function ComponentWidget(state, vdom) {
+  this.state = state;
+  this.key = state.key;
   if (typeof vdom === 'function') {
     this.render = vdom;
     this.canRefresh = true;
@@ -22,15 +22,15 @@ ComponentWidget.prototype.type = 'Widget';
 
 ComponentWidget.prototype.init = function () {
   var self = this;
-  var element = this.component.create(this.render());
+  var element = this.component.create(this.render(this));
 
-  if (self.handlers.onadd) {
+  if (self.state.onadd) {
     this.renderFinished.then(function () {
-      self.handlers.onadd(element);
+      self.state.onadd(element);
     });
   }
 
-  if (self.handlers.detached) {
+  if (self.state.detached) {
     return document.createTextNode('');
   } else {
     return element;
@@ -40,24 +40,24 @@ ComponentWidget.prototype.init = function () {
 ComponentWidget.prototype.update = function (previous) {
   var self = this;
 
-  if (self.handlers.onupdate) {
+  if (self.state.onupdate) {
     this.renderFinished.then(function () {
-      self.handlers.onupdate(self.component.element);
+      self.state.onupdate(self.component.element);
     });
   }
 
   this.component = previous.component;
   
-  if (previous.handlers && this.handlers) {
-    Object.keys(this.handlers).forEach(function (key) {
-      previous.handlers[key] = self.handlers[key];
+  if (previous.state && this.state) {
+    Object.keys(this.state).forEach(function (key) {
+      previous.state[key] = self.state[key];
     });
-    this.handlers = previous.handlers;
+    this.state = previous.state;
   }
 
-  var element = this.component.update(this.render());
+  var element = this.component.update(this.render(this));
 
-  if (self.handlers.detached) {
+  if (self.state.detached) {
     return document.createTextNode('');
   } else {
     return element;
@@ -67,22 +67,22 @@ ComponentWidget.prototype.update = function (previous) {
 ComponentWidget.prototype.destroy = function (element) {
   var self = this;
 
-  if (self.handlers.onremove) {
+  if (self.state.onremove) {
     this.renderFinished.then(function () {
-      self.handlers.onremove(element);
+      self.state.onremove(element);
     });
   }
 
   this.component.destroy();
 };
 
-module.exports = function (handlers, vdom) {
-  if (typeof handlers === 'function') {
-    return new ComponentWidget({}, handlers);
-  } else if (handlers.constructor === Object) {
-    return new ComponentWidget(handlers, vdom);
+module.exports = function (state, vdom) {
+  if (typeof state === 'function') {
+    return new ComponentWidget({}, state);
+  } else if (state.constructor === Object) {
+    return new ComponentWidget(state, vdom);
   } else {
-    return new ComponentWidget({}, handlers);
+    return new ComponentWidget({}, state);
   }
 };
 

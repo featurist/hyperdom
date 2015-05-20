@@ -736,14 +736,15 @@ describe('plastiq', function () {
       var events = [];
 
       function render(model) {
-        var component = h.component(function () {
-          return h('span.inner-counter', model.counter)
-        });
 
         return h('div',
-          component,
+          h.component(function (component) {
+            return h('div',
+              h('span.inner-counter', model.counter),
+              h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
+            );
+          }),
           h('span.outer-counter', model.counter),
-          h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner'),
           h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
         );
       }
@@ -757,12 +758,19 @@ describe('plastiq', function () {
         return retry(function () {
           expect(find('span.inner-counter').text()).to.equal('1');
           expect(find('span.outer-counter').text()).to.equal('0');
-        }).then(function () {
-          return click('button.add-outer').then(function () {
-            return retry(function () {
-              expect(find('span.inner-counter').text()).to.equal('2');
-              expect(find('span.outer-counter').text()).to.equal('2');
-            });
+        });
+      }).then(function () {
+        return click('button.add-inner');
+      }).then(function () {
+        return retry(function () {
+          expect(find('span.inner-counter').text()).to.equal('2');
+          expect(find('span.outer-counter').text()).to.equal('0');
+        });
+      }).then(function () {
+        return click('button.add-outer').then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('3');
+            expect(find('span.outer-counter').text()).to.equal('3');
           });
         });
       });
