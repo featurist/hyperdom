@@ -411,7 +411,7 @@ describe('plastiq', function () {
         });
       });
 
-      it.only("doesn't set the input text if the value is an Error", function () {
+      it("doesn't set the input text if the value is an Error", function () {
         function number(value) {
           var n = Number(value);
           if (isNaN(n)) {
