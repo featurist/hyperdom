@@ -22,7 +22,13 @@ ComponentWidget.prototype.type = 'Widget';
 
 ComponentWidget.prototype.init = function () {
   var self = this;
-  var element = this.component.create(this.render(this));
+
+  var vdom = this.render(this);
+  if (vdom instanceof Array) {
+    throw new Error('vdom returned from component cannot be an array');
+  }
+
+  var element = this.component.create(vdom);
 
   if (self.state.onadd) {
     this.renderFinished.then(function () {
