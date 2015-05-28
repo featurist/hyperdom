@@ -3,12 +3,10 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var coerceToVdom = require('./coerceToVdom');
 
-exports.currentRender;
-
 function doThenFireAfterRender(attachment, fn) {
   try {
-    exports.currentRender = attachment;
-    exports.currentRender.finished = simplePromise();
+    exports.html.currentRender = attachment;
+    exports.html.currentRender.finished = simplePromise();
     exports.html.refresh = function (component) {
       if (isComponent(component)) {
         refreshComponent(component, attachment);
@@ -19,9 +17,9 @@ function doThenFireAfterRender(attachment, fn) {
 
     fn();
   } finally {
-    exports.currentRender.finished.fulfill();
-    exports.currentRender.finished = undefined;
-    exports.currentRender = undefined;
+    exports.html.currentRender.finished.fulfill();
+    exports.html.currentRender.finished = undefined;
+    delete exports.html.currentRender;
     exports.html.refresh = refreshOutOfRender;
   }
 }
@@ -43,18 +41,19 @@ exports.append = function (element, render, model, options) {
   });
 };
 
+var attachmentId = 1;
+
 function start(render, model, options, attachToDom) {
   var win = (options && options.window) || window;
   var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
   var requested = false;
-  var detached = false;
 
   function refresh() {
     if (!requested) {
       requestRender(function () {
         requested = false;
 
-        if (!detached) {
+        if (attachment.attached) {
           doThenFireAfterRender(attachment, function () {
             var vdom = render(model);
             component.update(vdom);
@@ -67,7 +66,9 @@ function start(render, model, options, attachToDom) {
 
   var attachment = {
     refresh: refresh,
-    requestRender: requestRender
+    requestRender: requestRender,
+    id: attachmentId++,
+    attached: true
   }
 
   var component = domComponent();
@@ -79,11 +80,11 @@ function start(render, model, options, attachToDom) {
 
   return {
     detach: function () {
-      detached = true;
+      attachment.attached = false;
     },
     remove: function () {
       component.destroy({removeElement: true});
-      detached = true;
+      attachment.attached = false;
     }
   };
 };
@@ -131,8 +132,8 @@ function refreshify(fn, options) {
     return fn;
   }
 
-  var attachment = exports.currentRender;
-  var r = exports.currentRender.refresh;
+  var attachment = exports.html.currentRender;
+  var r = exports.html.currentRender.refresh;
 
   if (!r) {
     throw new Error('no global refresh!');
@@ -397,6 +398,7 @@ function bindingObject(obj, prop, options) {
         return value;
       }
     },
+
     set: function (value) {
       if (set) {
         value = set(value);

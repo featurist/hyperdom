@@ -1097,7 +1097,7 @@ describe('plastiq', function () {
 
     beforeEach(function () {
       refreshCalled = false;
-      rendering.currentRender = {
+      h.currentRender = {
         refresh: function () {
           refreshCalled = true;
         }

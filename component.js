@@ -1,4 +1,4 @@
-var rendering = require('./rendering');
+var h = require('./rendering').html;
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
 
@@ -15,7 +15,7 @@ function ComponentWidget(state, vdom) {
     }
   }
   this.component = domComponent();
-  this.renderFinished = rendering.currentRender.finished;
+  this.renderFinished = h.currentRender.finished;
 }
 
 ComponentWidget.prototype.type = 'Widget';
