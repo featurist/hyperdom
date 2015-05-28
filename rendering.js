@@ -401,7 +401,56 @@ function makeBinding(b, options) {
   return binding;
 };
 
-function bindingObject(obj, prop, options) {
+function Binding(model, property) {
+  this.model = model;
+  this.property = property;
+}
+
+Binding.prototype.get = function () {
+  return this.model[this.property];
+};
+
+Binding.prototype.set = function (value) {
+  this.model[this.property] = value;
+};
+
+Binding.prototype.meta: function () {
+  var plastiqMeta = this.model._plastiqMeta;
+
+  if (!plastiqMeta) {
+    plastiqMeta = {};
+    Object.defineProperty(this.model, '_plastiqMeta', {value: plastiqMeta});
+  }
+
+  var meta = plastiqMeta[this.property];
+
+  if (!meta) {
+    meta = plastiqMeta[this.property] = {};
+  }
+
+  return meta;
+};
+
+function ConversionBinding(model, property, converter) {
+  this.model = model;
+  this.property = property;
+  this.converter = converter;
+}
+
+ConversionBinding.prototype = new Binding();
+
+ConversionBinding.prototype.get = function() {
+  return this.converter.text(this.model[this.property]);
+};
+
+ConversionBinding.prototype.set = function(value) {
+  this.model[this.property] = this.converter.value(value);
+};
+
+function bindingObject(obj, prop) {
+  if (arguments.length > 2) {
+    return 
+  }
   var set =
     options && (typeof options === 'function'
     ? options
@@ -426,6 +475,23 @@ function bindingObject(obj, prop, options) {
       }
 
       obj[prop] = value;
+    },
+
+    meta: function () {
+      var plastiqMeta = obj._plastiqMeta;
+
+      if (!plastiqMeta) {
+        plastiqMeta = {};
+        Object.defineProperty(obj, '_plastiqMeta', {value: plastiqMeta});
+      }
+
+      var meta = plastiqMeta[prop];
+
+      if (!meta) {
+        meta = plastiqMeta[prop] = {};
+      }
+
+      return meta;
     }
   };
 };
