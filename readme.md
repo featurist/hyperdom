@@ -548,30 +548,15 @@ refresh([component]);
 
 Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `plastiq.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
 
-### Promises
-
-If your model uses promises, your view can represent the different states of the promise: pending, fulfilled or rejected. This allows your view to render accordingly a loading spinner, the result, or indeed an error if one ocurrs.
-
-```JavaScript
-function render(model) {
-  return h.promise(model.longRunningOperation, {
-    pending: 'loading...',
-    fulfilled: function (value) {
-      return 'the value from the long-running operation is: ' + value;
-    }
-  });
-}
-
-plastiq.append(document.body, render, {
-  longRunningOperation: new Promise(function (fulfill) {
-    setTimeout(function () {
-      fulfill('bananas');
-    }, 1000);
-  })
-});
+```js
+var refreshHandler = h.refreshify(handler, [options]);
 ```
 
-Play on [requirebin](http://requirebin.com/?gist=9cca2ce4ef8044b8592b)
+* `handler` - a function that handles some event, can return a promise.
+* `options.refresh` - one of these values:
+  * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
+  * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
+  * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
 
 # API
 
