@@ -31,7 +31,7 @@ DomComponent.prototype.destroy = function (options) {
 
   destroyWidgets(this.vdom);
 
-  if (options && options.removeElement) {
+  if (options && options.removeElement && this.element.parentNode) {
     this.element.parentNode.removeChild(this.element);
   }
 };
