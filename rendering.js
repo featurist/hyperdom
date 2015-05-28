@@ -122,8 +122,8 @@ function refreshComponent(component, attachment) {
 var norefresh = {};
 
 function refreshify(fn, options) {
-  if (!exports.currentRender) {
-    return fn;
+  if (!exports.html.currentRender) {
+    throw new Error('You cannot create virtual-dom outside of a render function');
   }
 
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
