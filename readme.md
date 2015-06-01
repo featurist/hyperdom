@@ -93,6 +93,59 @@ h('pre code', 'hi ', model.name);
 h('span', { style: { color: 'red' } }, 'name: ', model.name);
 ```
 
+### Keys
+
+Plastiq (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
+
+```js
+h('ul', h('li', 'one'), h('li', 'two'), h('li', 'three'))
+```
+
+And then, followed by:
+
+```js
+h('ul', h('li', 'zero'), h('li', 'one'), h('li', 'two'), h('li', 'three'))
+```
+
+The lists will be compared like this, and lots of work will be done to change the DOM:
+
+```html
+<li>one</li>   => <li>zero</li>  (change)
+<li>two</li>   => <li>one</li>   (change)
+<li>three</li> => <li>two</li>   (change)
+                  <li>three</li> (new)
+```
+
+If we put a unique `key` (String or Number) into the attributes, then we can avoid all that extra work, and just insert the `<li>zero</li>`.
+
+```js
+h('ul',
+  h('li', {key: 'one'}, 'one'),
+  h('li', {key: 'two'}, 'two'),
+  h('li', {key: 'three'}, 'three'))
+```
+
+And:
+
+```js
+h('ul',
+  h('li', {key: 'zero'}, 'zero'),
+  h('li', {key: 'one'}, 'one'),
+  h('li', {key: 'two'}, 'two'),
+  h('li', {key: 'three'}, 'three'))
+```
+
+It will be compared like this, much faster:
+
+```html
+                  <li>zero</li>  (new)
+<li>one</li>   => <li>one</li>
+<li>two</li>   => <li>two</li>
+<li>three</li> => <li>three</li>
+```
+
+Its not all about performance, there are other things that can be affected by this too, including CSS transitions when CSS classes or style is changed.
+
 ### Raw HTML
 
 Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
