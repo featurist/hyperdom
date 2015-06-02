@@ -1,4 +1,4 @@
-# plastiq [![npm version](https://badge.fury.io/js/plastiq.svg)](http://badge.fury.io/js/plastiq) [![npm](https://img.shields.io/npm/dm/localeval.svg?style=flat-square)]() [![Build Status](https://travis-ci.org/featurist/plastiq.svg?branch=master)](https://travis-ci.org/featurist/plastiq) [![Gitter chat](https://badges.gitter.im/featurist/plastiq.png)](https://gitter.im/featurist/plastiq)
+# plastiq [![npm version](https://badge.fury.io/js/plastiq.svg)](https://www.npmjs.com/package/plastiq) [![npm](https://img.shields.io/npm/dm/localeval.svg?style=flat-square)](https://www.npmjs.com/package/plastiq) [![Build Status](https://travis-ci.org/featurist/plastiq.svg?branch=master)](https://travis-ci.org/featurist/plastiq) [![Gitter chat](https://badges.gitter.im/featurist/plastiq.png)](https://gitter.im/featurist/plastiq)
 
 A fast, feature rich and **simple** framework for building dynamic browser applications.
 
