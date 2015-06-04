@@ -164,6 +164,10 @@ function render(model) {
 * an array - the classes will be all the items space delimited, e.g. `['item', 'selected']`.
 * an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
 
+```JavaScript
+h('span', { class: { selected: model.selected } }, 'name: ', model.name);
+```
+
 ### data attributes
 
 ```js
@@ -174,10 +178,6 @@ or
 
 ```js
 h('div', {dataset: {stuff: 'something'}});
-```
-
-```JavaScript
-h('span', { class: { selected: model.selected } }, 'name: ', model.name);
 ```
 
 ## Responding to Events
