@@ -311,7 +311,8 @@ function coerceChildren(children) {
 function applyAttributeRenames(attributes) {
   var renames = {
     for: 'htmlFor',
-    class: 'className'
+    class: 'className',
+    contenteditable: 'contentEditable'
   };
 
   Object.keys(renames).forEach(function (key) {
@@ -320,6 +321,25 @@ function applyAttributeRenames(attributes) {
       delete attributes[key];
     }
   });
+
+  applyDataAttributeRenames(attributes);
+}
+
+function applyDataAttributeRenames(attributes) {
+  var dataAttributes = Object.keys(attributes).filter(function (attribute) {
+    return attribute.indexOf('data-') == 0;
+  });
+  
+  if (dataAttributes.length > 0) {
+    if (!(attributes.dataset instanceof Object)) {
+      attributes.dataset = {};
+    }
+
+    dataAttributes.forEach(function (attribute) {
+      var dataAttribute = attribute.replace(/^data-/, '');
+      attributes.dataset[dataAttribute] = attributes[attribute];
+    });
+  }
 }
 
 exports.html = function (selector) {

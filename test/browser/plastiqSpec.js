@@ -68,6 +68,7 @@ describe('plastiq', function () {
 
       expect(find('.haha').length).to.eql(1);
     });
+
     it('can render pound sign', function () {
       function render(model) {
         return h('div','£');
@@ -157,6 +158,39 @@ describe('plastiq', function () {
           attach(render, {text: 'one'});
 
           expect(find('label').attr('for')).to.eql('blah');
+      });
+
+      it('can render a contenteditable attribute', function () {
+          function render(model) {
+            return h('div', {contenteditable: true});
+          }
+
+          attach(render);
+
+          expect(find('div').attr('contenteditable')).to.eql('true');
+      });
+
+      it('can render data- attributes', function () {
+          function render(model) {
+            return h('div', {'data-one': 'one', 'data-two': 'two'});
+          }
+
+          attach(render);
+
+          expect(find('div').data('one')).to.eql('one');
+          expect(find('div').data('two')).to.eql('two');
+      });
+
+      it('can render data- and dataset attributes', function () {
+          function render(model) {
+            return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
+          }
+
+          attach(render);
+
+          expect(find('div').data('one')).to.eql('one');
+          expect(find('div').data('two')).to.eql('two');
+          expect(find('div').data('three')).to.eql('three');
       });
     });
 
