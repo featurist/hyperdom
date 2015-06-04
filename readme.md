@@ -54,10 +54,11 @@ Then
 
 # sister projects
 
+* [plastiq-ace-editor](https://github.com/featurist/plastiq-ace-editor)
+* [plastiq-medium-editor](https://github.com/featurist/plastiq-medium-editor)
+* [plastiq-ckeditor](https://github.com/featurist/plastiq-ckeditor)
 * [plastiq-router](https://github.com/featurist/plastiq-router)
 * [plastiq-semantic-ui](https://github.com/featurist/plastiq-semantic-ui)
-* [plastiq-medium-editor](https://github.com/featurist/plastiq-medium-editor)
-* [plastiq-ace-editor](https://github.com/featurist/plastiq-ace-editor)
 * [plastiq-throttle](https://github.com/featurist/plastiq-throttle)
 * [plastiq-zeroclipboard](https://github.com/featurist/plastiq-zeroclipboard)
 
