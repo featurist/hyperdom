@@ -94,6 +94,14 @@ h('pre code', 'hi ', model.name);
 h('span', { style: { color: 'red' } }, 'name: ', model.name);
 ```
 
+[virtual-dom](https://github.com/Matt-Esch/virtual-dom) uses JavaScript names for HTML attributes like `className`, `htmlFor` and `tabIndex`. Plastiq supports these, but also allows regular HTML names so you can use `class`, `for` and `tabindex`. These are much more familiar to people and you don't have to learn anything new.
+
+Non-standard HTML attribtes can be placed in the `attributes` key:
+
+```JavaScript
+h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
+```
+
 ### Keys
 
 Plastiq (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
@@ -169,7 +177,7 @@ function render(model) {
 h('span', { class: { selected: model.selected } }, 'name: ', model.name);
 ```
 
-### data attributes
+### Data Attributes
 
 ```js
 h('div', {'data-stuff': 'something'});
@@ -623,6 +631,13 @@ var refreshHandler = h.refreshify(handler, [options]);
   * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
   * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
   * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
+
+### Performance
+
+Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, even making React look slow. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
+
+* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return that component from the event handler.
+* Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
 
 # API
 
