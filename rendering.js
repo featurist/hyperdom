@@ -312,7 +312,8 @@ function applyAttributeRenames(attributes) {
   var renames = {
     for: 'htmlFor',
     class: 'className',
-    contenteditable: 'contentEditable'
+    contenteditable: 'contentEditable',
+    tabindex: 'tabIndex'
   };
 
   Object.keys(renames).forEach(function (key) {

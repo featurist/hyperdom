@@ -170,6 +170,16 @@ describe('plastiq', function () {
           expect(find('div').attr('contenteditable')).to.eql('true');
       });
 
+      it('can render a tabindex attribute', function () {
+          function render(model) {
+            return h('div', {tabindex: 3});
+          }
+
+          attach(render);
+
+          expect(find('div').attr('tabindex')).to.eql('3');
+      });
+
       it('can render data- attributes', function () {
           function render(model) {
             return h('div', {'data-one': 'one', 'data-two': 'two'});
