@@ -1,7 +1,7 @@
 {
   "name": "plastiq",
   "version": "1.17.1",
-  "description": "a small and beautiful front-end MVC framework",
+  "description": "A fast, feature rich and simple framework for building dynamic browser applications.",
   "main": "index.js",
   "dependencies": {
     "virtual-dom": "2.0.1"
