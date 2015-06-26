@@ -362,21 +362,24 @@ function render(model) {
     model.show
       ? h.component(
           {
-            onadd: function (element) {
-              // element is the <div>component contents</div>
-              // you may want to add jQuery plugins here
-
+            onbeforeadd: function () {
               // you can store state in `this`, and it will
               // be present in subsequent event handlers
               // in fact, the `this` is the same object
               // for each event handler, across all view refreshes
               this.someProperty = 'some value';
+            },
 
+            onadd: function (element) {
+              // element is the <div>component contents</div>
+              // you may want to add jQuery plugins here
               console.log('added: ', this.someProperty);
             },
+
             onupdate: function (element) {
               console.log('updated: ', this.someProperty);
             },
+
             onremove: function (element) {
               console.log('removed: ', this.someProperty);
             }
@@ -708,6 +711,7 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 ```
 
 * `eventHandlers` - object containing:
+  * `function onbeforeadd()` - invoked before the component is rendered for the first time, before `renderFunction`. This is a good place to setup state for the component.
   * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
   * `function onupdate(element)` - invoked after the component has been re-rendered, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.

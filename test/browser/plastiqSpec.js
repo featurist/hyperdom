@@ -746,6 +746,46 @@ describe('plastiq', function () {
       });
     });
 
+    it('can expose long-running state for components', function () {
+      var events = [];
+
+      function render(model) {
+        return h.component(
+          {
+            onbeforeadd: function () {
+              this.counter = 2;
+            }
+          },
+          function () {
+            var self = this;
+
+            return h('div',
+              h('span.counter', this.counter),
+              h('button.add', {onclick: function () { self.counter++; }}, 'add')
+            );
+          }
+        );
+      }
+
+      attach(render, {counter: 0});
+
+      return retry(function () {
+        expect(find('span.counter').text()).to.equal('2');
+      }).then(function () {
+        return click('button.add');
+      }).then(function () {
+        return retry(function () {
+          expect(find('span.counter').text()).to.equal('3');
+        });
+      }).then(function () {
+        return click('button.add');
+      }).then(function () {
+        return retry(function () {
+          expect(find('span.counter').text()).to.equal('4');
+        });
+      });
+    });
+
     it('renders and updates the vdom inside the component', function () {
       var events = [];
 

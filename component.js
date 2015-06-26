@@ -6,7 +6,9 @@ function ComponentWidget(state, vdom) {
   this.state = state;
   this.key = state.key;
   if (typeof vdom === 'function') {
-    this.render = vdom;
+    this.render = function () {
+      return vdom.apply(this.state, arguments);
+    };
     this.canRefresh = true;
   } else {
     vdom = vdom || new VText('');
@@ -22,6 +24,10 @@ ComponentWidget.prototype.type = 'Widget';
 
 ComponentWidget.prototype.init = function () {
   var self = this;
+
+  if (self.state.onbeforeadd) {
+    self.state.onbeforeadd();
+  }
 
   var vdom = this.render(this);
   if (vdom instanceof Array) {
