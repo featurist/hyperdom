@@ -1,6 +1,7 @@
 var h = require('virtual-dom/h');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
+var bindingMeta = require('./meta');
 var coerceToVdom = require('./coerceToVdom');
 
 function doThenFireAfterRender(attachment, fn) {
@@ -401,103 +402,122 @@ function makeBinding(b, options) {
   return binding;
 };
 
-function Binding(model, property) {
-  this.model = model;
-  this.property = property;
-}
-
-Binding.prototype.get = function () {
-  return this.model[this.property];
-};
-
-Binding.prototype.set = function (value) {
-  this.model[this.property] = value;
-};
-
-Binding.prototype.meta: function () {
-  var plastiqMeta = this.model._plastiqMeta;
-
-  if (!plastiqMeta) {
-    plastiqMeta = {};
-    Object.defineProperty(this.model, '_plastiqMeta', {value: plastiqMeta});
-  }
-
-  var meta = plastiqMeta[this.property];
-
-  if (!meta) {
-    meta = plastiqMeta[this.property] = {};
-  }
-
-  return meta;
-};
-
-function ConversionBinding(model, property, converter) {
-  this.model = model;
-  this.property = property;
-  this.converter = converter;
-}
-
-ConversionBinding.prototype = new Binding();
-
-ConversionBinding.prototype.get = function() {
-  return this.converter.text(this.model[this.property]);
-};
-
-ConversionBinding.prototype.set = function(value) {
-  this.model[this.property] = this.converter.value(value);
-};
-
-function bindingObject(obj, prop) {
-  if (arguments.length > 2) {
-    return 
-  }
-  var set =
-    options && (typeof options === 'function'
-    ? options
-    : options.set);
-
-  var get = options && options.get;
-
-  return {
-    get: function () {
-      var value = obj[prop];
-
-      if (get) {
-        return get(value);
-      } else {
+function makeConverter(converter) {
+  if (typeof converter == 'function') {
+    return {
+      text: function (value) {
         return value;
+      },
+      value: function (text) {
+        return converter(text);
       }
-    },
+    };
+  } else {
+    return converter;
+  }
+}
 
-    set: function (value) {
-      if (set) {
-        value = set(value);
+function chainConverters(startIndex, converters) {
+  if ((converters.length - startIndex) == 1) {
+    return makeConverter(converters[startIndex]);
+  } else {
+    var _converters;
+    function makeConverters() {
+      if (!_converters) {
+        _converters = new Array(converters.length - startIndex);
+
+        for(var n = startIndex; n < converters.length; n++) {
+          _converters[n - startIndex] = makeConverter(converters[n]);
+        }
       }
-
-      obj[prop] = value;
-    },
-
-    meta: function () {
-      var plastiqMeta = obj._plastiqMeta;
-
-      if (!plastiqMeta) {
-        plastiqMeta = {};
-        Object.defineProperty(obj, '_plastiqMeta', {value: plastiqMeta});
-      }
-
-      var meta = plastiqMeta[prop];
-
-      if (!meta) {
-        meta = plastiqMeta[prop] = {};
-      }
-
-      return meta;
     }
-  };
+
+    return {
+      text: function (value) {
+        makeConverters();
+        var intermediateValue = value;
+        for(var n = 0; n < _converters.length; n++) {
+          intermediateValue = _converters[n].text(intermediateValue);
+        }
+        return intermediateValue;
+      },
+
+      value: function (text) {
+        makeConverters();
+        var intermediateValue = text;
+        for(var n = _converters.length - 1; n >= 0; n--) {
+          intermediateValue = _converters[n].value(intermediateValue);
+        }
+        return intermediateValue;
+      }
+    };
+  }
+}
+
+function bindingObject(model, property, options) {
+  if (arguments.length > 2) {
+    var _converter;
+    function buildConverter() {
+      if (!_converter) {
+        _converter = chainConverters(2, arguments);
+      }
+    }
+
+    return {
+      get: function() {
+        buildConverter();
+        var meta = bindingMeta(model, property);
+
+        var modelValue = model[property];
+        if (meta.error) {
+          return meta.text;
+        } else if (meta.text === undefined) {
+          var modelText = _converter.text(modelValue);
+          meta.text = modelText;
+          return modelText;
+        } else {
+          var previousValue = _converter.value(meta.text);
+          var modelText = _converter.text(modelValue);
+          var normalisedPreviousText = _converter.text(previousValue);
+
+          if (modelText === normalisedPreviousText) {
+            return meta.text;
+          } else {
+            meta.text = modelText;
+            return modelText;
+          }
+        }
+      },
+
+      set: function(text) {
+        buildConverter();
+        var meta = bindingMeta(model, property);
+        meta.text = text;
+
+        try {
+          model[property] = _converter.value(text, model[property]);
+          delete meta.error;
+        } catch (e) {
+          meta.error = e;
+        }
+      }
+    };
+  } else {
+    return {
+      get: function () {
+        return model[property];
+      },
+
+      set: function (value) {
+        model[property] = value;
+      }
+    };
+  }
 };
 
 exports.binding = makeBinding;
 exports.html.binding = makeBinding;
+exports.html.meta = bindingMeta;
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {

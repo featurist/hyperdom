@@ -438,7 +438,7 @@ describe('plastiq', function () {
       it('can bind with set conversion', function () {
         function render(model) {
           return h('div',
-            h('input', {type: 'text', binding: [model, 'number', {set: Number}]}),
+            h('input', {type: 'text', binding: [model, 'number', {value: Number}]}),
             h('span', model.number)
           );
         }
