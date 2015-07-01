@@ -61,9 +61,11 @@ ComponentWidget.prototype.update = function (previous) {
   this.component = previous.component;
   
   if (previous.state && this.state) {
-    Object.keys(this.state).forEach(function (key) {
+    var keys = Object.keys(this.state);
+    for(var n = 0; n < keys.length; n++) {
+      var key = keys[n];
       previous.state[key] = self.state[key];
-    });
+    }
     this.state = previous.state;
   }
 

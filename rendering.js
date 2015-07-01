@@ -207,70 +207,71 @@ function insertEventHandler(attributes, eventName, handler, after) {
 
 function attachEventHandler(attributes, eventNames, handler) {
   if (eventNames instanceof Array) {
-    eventNames.forEach(function (eventName) {
-      insertEventHandler(attributes, eventName, handler);
-    });
+    for (var n = 0; n < eventNames.length; n++) {
+      insertEventHandler(attributes, eventNames[n], handler);
+    }
   } else {
     insertEventHandler(attributes, eventNames, handler);
   }
 }
 
-function bindModel(attributes, children, type) {
-  var inputTypeBindings = {
-    text: bindTextInput,
-    textarea: bindTextInput,
-    checkbox: function (attributes, children, get, set) {
-      attributes.checked = get();
+var inputTypeBindings = {
+  text: bindTextInput,
+  textarea: bindTextInput,
+  checkbox: function (attributes, children, get, set) {
+    attributes.checked = get();
 
-      attachEventHandler(attributes, 'onclick', function (ev) {
-        set(ev.target.checked);
-      });
-    },
-    radio: function (attributes, children, get, set) {
-      var value = attributes.value;
-      attributes.checked = get() == attributes.value;
+    attachEventHandler(attributes, 'onclick', function (ev) {
+      set(ev.target.checked);
+    });
+  },
+  radio: function (attributes, children, get, set) {
+    var value = attributes.value;
+    attributes.checked = get() == attributes.value;
 
-      attachEventHandler(attributes, 'onclick', function (ev) {
-        set(value);
-      });
-    },
-    select: function (attributes, children, get, set) {
-      var currentValue = get();
+    attachEventHandler(attributes, 'onclick', function (ev) {
+      set(value);
+    });
+  },
+  select: function (attributes, children, get, set) {
+    var currentValue = get();
 
-      var options = children.filter(function (child) {
-        return child.tagName.toLowerCase() == 'option';
-      });
+    var options = children.filter(function (child) {
+      return child.tagName.toLowerCase() == 'option';
+    });
 
-      var selectedOption = options.filter(function (child) {
-        return child.properties.value == currentValue;
-      })[0];
+    var selectedOption = options.filter(function (child) {
+      return child.properties.value == currentValue;
+    })[0];
 
-      var values = options.map(function (option) {
-        return option.properties.value;
-      });
+    var values = options.map(function (option) {
+      return option.properties.value;
+    });
 
-      options.forEach(function (option, index) {
-        option.properties.selected = option == selectedOption;
-        option.properties.value = index;
-      });
-
-      attachEventHandler(attributes, 'onchange', function (ev) {
-        set(values[ev.target.value]);
-      });
-    },
-    file: function (attributes, children, get, set) {
-      var multiple = attributes.multiple;
-
-      attachEventHandler(attributes, 'onchange', function (ev) {
-        if (multiple) {
-          set(ev.target.files);
-        } else {
-          set(ev.target.files[0]);
-        }
-      });
+    for(var n = 0; n < options.length; n++) {
+      var option = options[n];
+      option.properties.selected = option == selectedOption;
+      option.properties.value = n;
     }
-  };
 
+    attachEventHandler(attributes, 'onchange', function (ev) {
+      set(values[ev.target.value]);
+    });
+  },
+  file: function (attributes, children, get, set) {
+    var multiple = attributes.multiple;
+
+    attachEventHandler(attributes, 'onchange', function (ev) {
+      if (multiple) {
+        set(ev.target.files);
+      } else {
+        set(ev.target.files[0]);
+      }
+    });
+  }
+};
+
+function bindModel(attributes, children, type) {
   var bind = inputTypeBindings[type] || bindTextInput;
 
   var bindingAttr = makeBinding(attributes.binding);
@@ -430,7 +431,6 @@ function chainConverters(startIndex, converters) {
     var _converters;
     function makeConverters() {
       if (!_converters) {
-        console.log('converters.length', converters.length);
         _converters = new Array(converters.length - startIndex);
 
         for(var n = startIndex; n < converters.length; n++) {
