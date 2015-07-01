@@ -144,7 +144,6 @@ describe('plastiq', function () {
       selectorProduces('div.class', 'div.class');
       selectorProduces('div#id', 'div#id');
       selectorProduces('div.class#id', 'div.class#id');
-      selectorProduces('h1 a', 'h1 a');
     });
 
     describe('attribute naming exceptions', function () {
@@ -415,30 +414,20 @@ describe('plastiq', function () {
     });
 
     describe('binding options', function () {
-      it('can bind to a text input converting to number', function () {
-        function render(model) {
-          return h('div',
-            h('input', {type: 'text', binding: [model, 'number', Number]}),
-            h('span', model.number)
-          );
-        }
-
-        var model = {number: 0};
-        attach(render, model);
-
-        find('input').sendkeys('{selectall}{backspace}123');
-
-        return retry(function() {
-          expect(find('span').text()).to.equal('123');
-          expect(find('input').val()).to.equal('123');
-          expect(model.number).to.equal(123);
-        });
-      });
-
       it('can bind with set conversion', function () {
+        var numberConversion = {
+          value: function (text) {
+            return Number(text);
+          },
+
+          text: function (value) {
+            return String(value);
+          }
+        };
+
         function render(model) {
           return h('div',
-            h('input', {type: 'text', binding: [model, 'number', {value: Number}]}),
+            h('input', {type: 'text', binding: [model, 'number', numberConversion]}),
             h('span', model.number)
           );
         }

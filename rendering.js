@@ -287,20 +287,21 @@ function inputType(selector, attributes) {
   }
 }
 
-function flatten(array) {
+function flatten(startIndex, array) {
   var flatArray = [];
 
-  function append(array) {
-    array.forEach(function(item) {
+  function append(startIndex, array) {
+    for(var n = startIndex; n < array.length; n++) {
+      var item = array[n];
       if (item instanceof Array) {
-        append(item);
+        append(0, item);
       } else {
         flatArray.push(item);
       }
-    });
+    }
   }
 
-  append(array);
+  append(startIndex, array);
 
   return flatArray;
 }
@@ -309,42 +310,52 @@ function coerceChildren(children) {
   return children.map(coerceToVdom);
 }
 
-function applyAttributeRenames(attributes) {
-  var renames = {
-    for: 'htmlFor',
-    class: 'className',
-    contenteditable: 'contentEditable',
-    tabindex: 'tabIndex'
-  };
+var renames = {
+  for: 'htmlFor',
+  class: 'className',
+  contenteditable: 'contentEditable',
+  tabindex: 'tabIndex'
+};
 
-  Object.keys(renames).forEach(function (key) {
-    if (attributes[key] !== undefined) {
-      attributes[renames[key]] = attributes[key];
+var dataAttributeRegex = /^data-/;
+
+function prepareAttributes(attributes) {
+  var keys = Object.keys(attributes);
+  var dataset;
+  for (var k = 0; k < keys.length; k++) {
+    var key = keys[k];
+    var attribute = attributes[key];
+
+    if (typeof(attribute) == 'function') {
+      attributes[key] = refreshify(attribute);
+    }
+
+    var rename = renames[key];
+    if (rename) {
+      attributes[rename] = attribute;
       delete attributes[key];
-    }
-  });
-
-  applyDataAttributeRenames(attributes);
-}
-
-function applyDataAttributeRenames(attributes) {
-  var dataAttributes = Object.keys(attributes).filter(function (attribute) {
-    return attribute.indexOf('data-') == 0;
-  });
-  
-  if (dataAttributes.length > 0) {
-    if (!(attributes.dataset instanceof Object)) {
-      attributes.dataset = {};
+      continue;
     }
 
-    dataAttributes.forEach(function (attribute) {
-      var dataAttribute = attribute.replace(/^data-/, '');
-      attributes.dataset[dataAttribute] = attributes[attribute];
-    });
+    if (dataAttributeRegex.test(key)) {
+      if (!dataset) {
+        dataset = attributes.dataset;
+
+        if (!dataset) {
+          dataset = attributes.dataset = {};
+        }
+      }
+
+      var datakey = key.replace(dataAttributeRegex, '');
+      dataset[datakey] = attribute;
+      delete attributes[key];
+      continue;
+    }
   }
 }
 
 exports.html = function (selector) {
+  /*
   var selectorElements = selector.match(/\S+/g);
   selector = selectorElements[selectorElements.length - 1];
 
@@ -356,21 +367,16 @@ exports.html = function (selector) {
       return leaf;
     }
   }
+  */
 
   var attributes;
   var childElements;
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
-    childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 2)));
+    childElements = coerceChildren(flatten(2, arguments));
 
-    Object.keys(attributes).forEach(function (key) {
-      if (typeof(attributes[key]) == 'function') {
-        attributes[key] = refreshify(attributes[key]);
-      }
-    });
-
-    applyAttributeRenames(attributes);
+    prepareAttributes(attributes);
 
     if (attributes.className) {
       attributes.className = generateClassName(attributes.className);
@@ -381,10 +387,10 @@ exports.html = function (selector) {
       delete attributes.binding;
     }
 
-    return createElementHierarchy(h(selector, attributes, childElements));
+    return h(selector, attributes, childElements);
   } else {
-    childElements = coerceChildren(flatten(Array.prototype.slice.call(arguments, 1)));
-    return createElementHierarchy(h(selector, childElements));
+    childElements = coerceChildren(flatten(1, arguments));
+    return h(selector, childElements);
   }
 };
 
@@ -424,6 +430,7 @@ function chainConverters(startIndex, converters) {
     var _converters;
     function makeConverters() {
       if (!_converters) {
+        console.log('converters.length', converters.length);
         _converters = new Array(converters.length - startIndex);
 
         for(var n = startIndex; n < converters.length; n++) {
@@ -457,9 +464,10 @@ function chainConverters(startIndex, converters) {
 function bindingObject(model, property, options) {
   if (arguments.length > 2) {
     var _converter;
+    var bindingArguments = arguments;
     function buildConverter() {
       if (!_converter) {
-        _converter = chainConverters(2, arguments);
+        _converter = chainConverters(2, bindingArguments);
       }
     }
 
