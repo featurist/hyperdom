@@ -1171,8 +1171,13 @@ describe('plastiq', function () {
     beforeEach(function () {
       refreshCalled = false;
       h.currentRender = {
-        refresh: function () {
+        refresh: function (component) {
           refreshCalled = true;
+          componentRefreshed = component;
+        },
+
+        requestRender: function (fn) {
+          fn();
         }
       };
     });
@@ -1207,6 +1212,22 @@ describe('plastiq', function () {
 
       it('normally calls refresh, even after a promise', function () {
         return expectPromiseToRefresh(undefined, true, true);
+      });
+    });
+
+    context('component: component', function () {
+      it('calls refresh with the component', function () {
+        var component = {
+          canRefresh: true,
+          update: function () {
+            this.wasRefreshed = true;
+          }
+        }
+
+        var model = {};
+        h.binding([model, 'field'], {component: component}).set('value');
+
+        expect(component.wasRefreshed).to.be.true;
       });
     });
 

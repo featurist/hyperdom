@@ -634,6 +634,18 @@ var refreshHandler = h.refreshify(handler, [options]);
   * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
   * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
   * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
+* `options.component` - only refresh this [component](#components)
+
+### Binding
+
+You can customise how bindings refresh the page by using `plastiq.html.binding()`.
+
+```js
+var binding = plastiq.html.binding(binding, options);
+```
+
+* `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
+* `options` - options that are passed directly to [refreshify](#refreshify).
 
 ### Performance
 
@@ -641,6 +653,7 @@ Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Mat
 
 * Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return that component from the event handler.
 * Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
+* For form inputs, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
 
 # API
 

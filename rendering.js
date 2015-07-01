@@ -128,6 +128,7 @@ function refreshify(fn, options) {
   }
 
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
+  var componentToRefresh = options && options.component;
 
   if (options && (options.norefresh == true || options.refresh == false)) {
     return fn;
@@ -160,6 +161,8 @@ function refreshify(fn, options) {
           && typeof result.update === 'function'
           && typeof result.destroy === 'function') {
         refreshComponent(result, attachment);
+      } else if (componentToRefresh) {
+        refreshComponent(componentToRefresh, attachment);
       } else if (result === norefresh) {
         // don't refresh;
       } else if (allowRefresh) {
