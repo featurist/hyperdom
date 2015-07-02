@@ -144,6 +144,7 @@ describe('plastiq', function () {
       selectorProduces('div.class', 'div.class');
       selectorProduces('div#id', 'div#id');
       selectorProduces('div.class#id', 'div.class#id');
+      selectorProduces('h1 a', 'h1 a');
     });
 
     describe('attribute naming exceptions', function () {

@@ -323,7 +323,7 @@ var renames = {
 
 var dataAttributeRegex = /^data-/;
 
-function prepareAttributes(attributes) {
+function prepareAttributes(selector, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
   for (var k = 0; k < keys.length; k++) {
@@ -356,46 +356,57 @@ function prepareAttributes(attributes) {
       continue;
     }
   }
+
+  if (attributes.className) {
+    attributes.className = generateClassName(attributes.className);
+  }
+
+  if (attributes.binding) {
+    bindModel(attributes, childElements, inputType(selector, attributes));
+    delete attributes.binding;
+  }
 }
 
-exports.html = function (selector) {
-  /*
-  var selectorElements = selector.match(/\S+/g);
-  selector = selectorElements[selectorElements.length - 1];
+/**
+ * this function is quite ugly and you may be very tempted
+ * to refactor it into smaller functions, I certainly am.
+ * however, it was written like this for performance
+ * so think of that before refactoring! :)
+ */
+exports.html = function (hierarchySelector) {
+  var hasHierarchy = hierarchySelector.indexOf(' ') >= 0;
+  var selector, selectorElements;
 
-  function createElementHierarchy(leaf) {
-    if (selectorElements.length > 1) {
-      var selectorElement = selectorElements.shift();
-      return h(selectorElement, createElementHierarchy(leaf));
-    } else {
-      return leaf;
-    }
+  if (hasHierarchy) {
+    selectorElements = hierarchySelector.match(/\S+/g);
+    selector = selectorElements[selectorElements.length - 1];
+  } else {
+    selector = hierarchySelector;
   }
-  */
 
   var attributes;
   var childElements;
+  var vdom;
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
     childElements = coerceChildren(flatten(2, arguments));
 
-    prepareAttributes(attributes);
+    prepareAttributes(selector, attributes, childElements);
 
-    if (attributes.className) {
-      attributes.className = generateClassName(attributes.className);
-    }
-
-    if (attributes.binding) {
-      bindModel(attributes, childElements, inputType(selector, attributes));
-      delete attributes.binding;
-    }
-
-    return h(selector, attributes, childElements);
+    vdom = h(selector, attributes, childElements);
   } else {
     childElements = coerceChildren(flatten(1, arguments));
-    return h(selector, childElements);
+    vdom = h(selector, childElements);
   }
+
+  if (hasHierarchy) {
+    for(var n = selectorElements.length - 2; n >= 0; n--) {
+      vdom = h(selectorElements[n], vdom);
+    }
+  }
+
+  return vdom;
 };
 
 exports.html.refreshify = refreshify;

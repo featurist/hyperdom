@@ -107,13 +107,22 @@ h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
 Plastiq (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
 
 ```js
-h('ul', h('li', 'one'), h('li', 'two'), h('li', 'three'))
+h('ul',
+  h('li', 'one'),
+  h('li', 'two'),
+  h('li', 'three')
+)
 ```
 
 And then, followed by:
 
 ```js
-h('ul', h('li', 'zero'), h('li', 'one'), h('li', 'two'), h('li', 'three'))
+h('ul',
+  h('li', 'zero'),
+  h('li', 'one'),
+  h('li', 'two'),
+  h('li', 'three')
+)
 ```
 
 The lists will be compared like this, and lots of work will be done to change the DOM:
@@ -649,11 +658,11 @@ var binding = plastiq.html.binding(binding, options);
 
 ### Performance
 
-Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, even making React look slow. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
+Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
 
 * Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return that component from the event handler.
 * Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
-* For form inputs, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
+* For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
 
 # API
 
