@@ -52,6 +52,12 @@ Then
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plastiq/<version>/plastiq.min.js"></script>
 
+# size
+
+* plastiq.js: 68K
+* plastiq.min.js: 27K
+* plastiq.min.js.gz: 9K
+
 # sister projects
 
 * [plastiq-ace-editor](https://github.com/featurist/plastiq-ace-editor)
