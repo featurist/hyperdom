@@ -61,10 +61,12 @@ Then
 # sister projects
 
 * [plastiq-ace-editor](https://github.com/featurist/plastiq-ace-editor)
+* [plastiq-draggabilly](https://github.com/featurist/plastiq-draggabilly)
 * [plastiq-medium-editor](https://github.com/featurist/plastiq-medium-editor)
 * [plastiq-ckeditor](https://github.com/featurist/plastiq-ckeditor)
 * [plastiq-router](https://github.com/featurist/plastiq-router)
 * [plastiq-semantic-ui](https://github.com/featurist/plastiq-semantic-ui)
+* [plastiq-sortable](https://github.com/featurist/plastiq-sortable)
 * [plastiq-throttle](https://github.com/featurist/plastiq-throttle)
 * [plastiq-zeroclipboard](https://github.com/featurist/plastiq-zeroclipboard)
 
