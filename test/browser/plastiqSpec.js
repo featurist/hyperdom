@@ -1013,6 +1013,7 @@ describe('plastiq', function () {
         return click('button');
       }).then(function () {
         return retry(function () {
+          expect(renders).to.equal(3);
           expect(componentRenders).to.equal(2);
           expect(updates).to.equal(1);
         });
@@ -1087,6 +1088,51 @@ describe('plastiq', function () {
               expect(find('h2').text()).to.equal('after timeout');
             });
           });
+        });
+      });
+    });
+
+    it('updates the component when refreshed', function () {
+      var updated = 0, rendered = 0;
+
+      function render(model) {
+        var refresh = h.refresh;
+
+        var component = h.component(
+          {
+            cacheKey: true,
+            onupdate: function () {
+              updated++;
+            }
+          },
+          function () {
+            rendered++;
+            return h('h2', model.text);
+          }
+        );
+
+        return h('div',
+          component,
+          h('button.refresh', {
+            onclick: function () {
+              setTimeout(function () {
+                refresh(component);
+              }, 1);
+            }
+          },
+          'refresh')
+        );
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      expect(updated).to.equal(0);
+      expect(rendered).to.equal(1);
+
+      return click('button.refresh').then(function () {
+        return retry(function () {
+          expect(updated).to.equal(1);
+          expect(rendered).to.equal(2);
         });
       });
     });

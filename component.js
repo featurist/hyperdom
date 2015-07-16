@@ -92,6 +92,9 @@ ComponentWidget.prototype.asdfasd = function () {
 
 ComponentWidget.prototype.refresh = function () {
   this.component.update(this.render(this));
+  if (this.state.onupdate) {
+    this.state.onupdate(this.component.element);
+  }
 };
 
 ComponentWidget.prototype.destroy = function (element) {
