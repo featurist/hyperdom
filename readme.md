@@ -671,6 +671,8 @@ Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Mat
 * Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return that component from the event handler.
 * Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
 * For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
+* Consider using a component with a `cacheKey`, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `cacheKey` is changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
+* Consider explicitly rendering a component when the model changes. You can set the `cacheKey` to something that never changes, such as just `true`, then use `plastiq.html.refresh(component)` to render it.
 
 # API
 
@@ -746,6 +748,7 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
   * `function onupdate(element)` - invoked after the component has been re-rendered, `element` being the top-most DOM element in the component.
   * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
   * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and plastiq will still be able to track it.
+  * `cacheKey` - if truthy, the component will only update if it's different from the previous rendering of the component. If falsey, then the component will re-render normally with everything else.
   * any other fields you want to access from the handlers.
 
     The event handlers are all invoked with the same `this`, within the lifetime of the component. This means you can store state between events.

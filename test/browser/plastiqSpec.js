@@ -970,6 +970,54 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('can update the component only when the cacheKey changes', function () {
+      var updates = 0;
+      var componentRenders = 0;
+      var renders = 0;
+
+      function render() {
+        renders++;
+        return h.component(
+          {
+            cacheKey: model.cacheKey,
+            onupdate: function () {
+              updates++;
+            }
+          },
+          function () {
+            componentRenders++;
+            return h('button', {onclick: function () {}}, 'refresh');
+          }
+        );
+      }
+
+      var model = {
+        cacheKey: 1
+      };
+
+      attach(render, model);
+
+      expect(renders).to.equal(1);
+      expect(componentRenders).to.equal(1);
+      expect(updates).to.equal(0);
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(renders).to.equal(2);
+          expect(componentRenders).to.equal(1);
+          expect(updates).to.equal(0);
+        });
+      }).then(function () {
+        model.cacheKey++;
+        return click('button');
+      }).then(function () {
+        return retry(function () {
+          expect(componentRenders).to.equal(2);
+          expect(updates).to.equal(1);
+        });
+      });
+    });
   });
 
   describe('plastiq.html.refresh', function () {
@@ -1220,7 +1268,7 @@ describe('plastiq', function () {
       it('calls refresh with the component', function () {
         var component = {
           canRefresh: true,
-          update: function () {
+          refresh: function () {
             this.wasRefreshed = true;
           }
         }

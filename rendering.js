@@ -113,7 +113,7 @@ function refreshComponent(component, attachment) {
     requestRender(function () {
       doThenFireAfterRender(attachment, function () {
         component.requested = false;
-        component.update(component);
+        component.refresh();
       });
     });
     component.requested = true;

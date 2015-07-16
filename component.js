@@ -16,6 +16,7 @@ function ComponentWidget(state, vdom) {
       return vdom;
     }
   }
+  this.cacheKey = state.cacheKey;
   this.component = domComponent();
   this.renderFinished = h.currentRender.finished;
 }
@@ -52,10 +53,14 @@ ComponentWidget.prototype.init = function () {
 ComponentWidget.prototype.update = function (previous) {
   var self = this;
 
-  if (self.state.onupdate) {
-    this.renderFinished.then(function () {
-      self.state.onupdate(self.component.element);
-    });
+  var refresh = !this.cacheKey || this.cacheKey !== previous.cacheKey;
+
+  if (refresh) {
+    if (self.state.onupdate) {
+      this.renderFinished.then(function () {
+        self.state.onupdate(self.component.element);
+      });
+    }
   }
 
   this.component = previous.component;
@@ -69,13 +74,24 @@ ComponentWidget.prototype.update = function (previous) {
     this.state = previous.state;
   }
 
-  var element = this.component.update(this.render(this));
+  if (refresh) {
+    var element = this.component.update(this.render(this));
 
-  if (self.state.detached) {
-    return document.createTextNode('');
-  } else {
-    return element;
+    if (self.state.detached) {
+      return document.createTextNode('');
+    } else {
+      return element;
+    }
   }
+};
+
+ComponentWidget.prototype.asdfasd = 4;
+
+ComponentWidget.prototype.asdfasd = function () {
+};
+
+ComponentWidget.prototype.refresh = function () {
+  this.component.update(this.render(this));
 };
 
 ComponentWidget.prototype.destroy = function (element) {
