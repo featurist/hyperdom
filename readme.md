@@ -674,6 +674,25 @@ Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Mat
 * Consider using a component with a `cacheKey`, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `cacheKey` is changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
 * Consider explicitly rendering a component when the model changes. You can set the `cacheKey` to something that never changes, such as just `true`, then use `plastiq.html.refresh(component)` to render it.
 
+# Common Errors
+
+## Outside Render Cycle
+
+> You cannot create virtual-dom event handlers outside a render function
+
+This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
+
+Another cause of this error is if you have more than one instance of the plastiq module loaded. This can occur if you have an NPM listing like this:
+
+```
+my-app@1.0.0 /Users/bob/dev/my-app
+├── plastiq@1.19.1
+├── my-plastiq-component@1.0.0
+│ ├── plastiq@1.19.1
+```
+
+With `my-plastiq-component` depending on another `plastiq`. Better to have `my-plastiq-component` have a `peerDependency` on plastiq, allowing it to use the `plastiq` under `my-app`.
+
 # API
 
 ## Rendering the Virtual DOM
