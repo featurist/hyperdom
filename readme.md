@@ -64,6 +64,7 @@ Then
 * [plastiq-draggabilly](https://github.com/featurist/plastiq-draggabilly)
 * [plastiq-medium-editor](https://github.com/featurist/plastiq-medium-editor)
 * [plastiq-ckeditor](https://github.com/featurist/plastiq-ckeditor)
+* [plastiq-jsxify](https://github.com/featurist/plastiq-jsxify)
 * [plastiq-router](https://github.com/featurist/plastiq-router)
 * [plastiq-semantic-ui](https://github.com/featurist/plastiq-semantic-ui)
 * [plastiq-sortable](https://github.com/featurist/plastiq-sortable)
