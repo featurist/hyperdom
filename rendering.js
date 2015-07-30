@@ -180,7 +180,9 @@ function bindTextInput(attributes, children, get, set) {
   }
 
   attachEventHandler(attributes, textEventNames, function (ev) {
-    set(ev.target.value);
+    if (bindingValue != ev.target.value) {
+      set(ev.target.value);
+    }
   });
 }
 
