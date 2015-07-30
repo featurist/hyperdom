@@ -26,7 +26,7 @@ function doThenFireAfterRender(attachment, fn) {
 }
 
 function refreshOutOfRender() {
-  throw new Error('please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers');
+  throw new Error('Please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/plastiq#refresh-outside-render-cycle');
 }
 
 function isComponent(component) {
@@ -124,7 +124,7 @@ var norefresh = {};
 
 function refreshify(fn, options) {
   if (!exports.html.currentRender) {
-    throw new Error('You cannot create virtual-dom outside of a render function');
+    throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/plastiq#outside-render-cycle');
   }
 
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
@@ -136,10 +136,6 @@ function refreshify(fn, options) {
 
   var attachment = exports.html.currentRender;
   var r = exports.html.currentRender.refresh;
-
-  if (!r) {
-    throw new Error('no global refresh!');
-  }
 
   return function () {
     var result = fn.apply(this, arguments);
