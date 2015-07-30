@@ -693,6 +693,12 @@ my-app@1.0.0 /Users/bob/dev/my-app
 
 With `my-plastiq-component` depending on another `plastiq`. Better to have `my-plastiq-component` have a `peerDependency` on plastiq, allowing it to use the `plastiq` under `my-app`.
 
+## Refresh Outside Render Cycle
+
+> Please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers
+
+This can occur if you use `plastiq.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).
+
 # API
 
 ## Rendering the Virtual DOM
