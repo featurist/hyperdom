@@ -186,6 +186,8 @@ function render(model) {
 }
 ```
 
+This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `h.rawHtml('td', '&nbsp;')`.
+
 ### Classes
 
 * an string, e.g. `'item selected'`.
