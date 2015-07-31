@@ -316,7 +316,8 @@ var renames = {
   for: 'htmlFor',
   class: 'className',
   contenteditable: 'contentEditable',
-  tabindex: 'tabIndex'
+  tabindex: 'tabIndex',
+  colspan: 'colSpan'
 };
 
 var dataAttributeRegex = /^data-/;

@@ -180,6 +180,16 @@ describe('plastiq', function () {
           expect(find('div').attr('tabindex')).to.eql('3');
       });
 
+      it('can render a colspan attribute', function () {
+          function render(model) {
+            return h('table tbody tr td', {colspan: 3});
+          }
+
+          attach(render);
+
+          expect(find('table tbody tr td').attr('colspan')).to.eql('3');
+      });
+
       it('can render data- attributes', function () {
           function render(model) {
             return h('div', {'data-one': 'one', 'data-two': 'two'});
