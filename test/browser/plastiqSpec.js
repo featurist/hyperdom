@@ -252,6 +252,16 @@ describe('plastiq', function () {
         });
       });
 
+      it('renders undefined as empty string', function () {
+        function render(model) {
+          return h.rawHtml('.raw', undefined);
+        }
+
+        attach(render, {text: 'one'});
+
+        expect(find('.raw').text()).to.eql('');
+      });
+
       it('can render raw HTML with attributes', function () {
         function render(model) {
           return h('div',

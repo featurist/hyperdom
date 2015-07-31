@@ -11,7 +11,10 @@ RawHtmlWidget.prototype.type = 'Widget';
 
 RawHtmlWidget.prototype.init = function () {
   var element = createElement(rendering.html(this.selector, this.options));
-  element.innerHTML = this.html;
+  var html = this.html;
+
+  element.innerHTML = html === undefined || html === null ?  '' : html;
+
   return element;
 };
 

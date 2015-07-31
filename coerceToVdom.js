@@ -1,7 +1,7 @@
 var vtext = require("virtual-dom/vnode/vtext.js")
 
 module.exports = function (child) {
-  if (child === undefined || child == null) {
+  if (child === undefined || child === null) {
     return undefined;
   } else if (typeof(child) != 'object') {
     return new vtext(String(child));
