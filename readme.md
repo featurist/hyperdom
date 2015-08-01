@@ -789,14 +789,18 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
 
 ```JavaScript
 var attachment = plastiq.append(element, render, model, [options]);
+var attachment = plastiq.append(element, modelWithRender, [options]);
+
 var attachment = plastiq.replace(element, render, model, [options]);
+var attachment = plastiq.replace(element, modelWithRender, [options]);
 ```
 
 * `attachment` - the instance of the plastiq attachment, see below.
 * `element` - any HTML element.
   * in the case of `plastiq.append` the view is added as a child via `element.appendChild(view)`
   * in the case of `plastiq.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
-* `render` - the render function, is called initially, then after each event handler. The `model` is passed as the first argument.
+* `render` - the render function, called as `render(model)`, is called initially, then after each event handler. The `model` is passed as the first argument.
+* `modelWithRender` - a model with a `.render()` method. This will be called as `model.render()` initially, and after each event handler.
 * `model` - the model.
 * `options`
   * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time.

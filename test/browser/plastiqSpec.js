@@ -47,6 +47,29 @@ describe('plastiq', function () {
       expect(div.innerHTML).to.equal('<div><div class="rendered"></div></div>');
     });
 
+    it('can pass a model with a render method', function () {
+      var model = {
+        stuff: 'stuff',
+        render: function () {
+          return h('div.rendered', {onclick: function () {}}, this.stuff);
+        }
+      };
+
+      var renderRequested = false;
+
+      plastiq.append(targetDiv, model, {
+        requestRender: function (render) {
+          renderRequested = true;
+          setTimeout(render);
+        }
+      });
+
+      expect(div.innerHTML).to.equal('<div><div class="rendered">stuff</div></div>');
+      return click('div.rendered').then(function () {
+        expect(renderRequested).to.be.true;
+      });
+    });
+
     it('can replace an element', function () {
       function render() {
         return h('div.rendered');

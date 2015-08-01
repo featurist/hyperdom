@@ -37,14 +37,29 @@ function isComponent(component) {
 }
 
 exports.append = function (element, render, model, options) {
-  return start(render, model, options, function(createdElement) {
+  return startAttachment(render, model, options, function(createdElement) {
     element.appendChild(createdElement);
+  });
+};
+
+exports.replace = function (element, render, model, options) {
+  return startAttachment(render, model, options, function(createdElement) {
+    var parent = element.parentNode;
+    element.parentNode.replaceChild(createdElement, element);
   });
 };
 
 var attachmentId = 1;
 
-function start(render, model, options, attachToDom) {
+function startAttachment(render, model, options, attachToDom) {
+  if (typeof render == 'object' && typeof render.render == 'function') {
+    return start(function () { return render.render(); }, model, attachToDom);
+  } else {
+    return start(function () { return render(model); }, options, attachToDom);
+  }
+}
+
+function start(render, options, attachToDom) {
   var win = (options && options.window) || window;
   var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
   var requested = false;
@@ -56,7 +71,7 @@ function start(render, model, options, attachToDom) {
 
         if (attachment.attached) {
           doThenFireAfterRender(attachment, function () {
-            var vdom = render(model);
+            var vdom = render();
             component.update(vdom);
           });
         }
@@ -75,7 +90,7 @@ function start(render, model, options, attachToDom) {
   var component = domComponent();
 
   doThenFireAfterRender(attachment, function () {
-    var vdom = render(model);
+    var vdom = render();
     attachToDom(component.create(vdom));
   });
 
@@ -88,13 +103,6 @@ function start(render, model, options, attachToDom) {
       attachment.attached = false;
     }
   };
-};
-
-exports.replace = function (element, render, model, options) {
-  return start(render, model, options, function(createdElement) {
-    var parent = element.parentNode;
-    element.parentNode.replaceChild(createdElement, element);
-  });
 };
 
 exports.attach = function () {
