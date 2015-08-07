@@ -6,7 +6,7 @@ var coerceToVdom = require('./coerceToVdom');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
-    exports.html.currentRender = attachment;
+    exports.html.currentRender = {attachment: attachment};
     exports.html.currentRender.finished = simplePromise();
     exports.html.refresh = function (component) {
       if (isComponent(component)) {
@@ -142,8 +142,8 @@ function refreshify(fn, options) {
     return fn;
   }
 
-  var attachment = exports.html.currentRender;
-  var r = exports.html.currentRender.refresh;
+  var attachment = exports.html.currentRender.attachment;
+  var r = exports.html.currentRender.attachment.refresh;
 
   return function () {
     var result = fn.apply(this, arguments);
