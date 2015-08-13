@@ -18,7 +18,16 @@ function ComponentWidget(state, vdom) {
   }
   this.cacheKey = state.cacheKey;
   this.component = domComponent();
-  this.renderFinished = h.currentRender.finished;
+
+  var renderFinished = h.currentRender && h.currentRender.finished;
+  if (renderFinished) {
+    var self = this;
+    this.afterRender = function (fn) {
+      renderFinished.then(fn);
+    };
+  } else {
+    this.afterRender = function () {};
+  }
 }
 
 ComponentWidget.prototype.type = 'Widget';
@@ -38,7 +47,7 @@ ComponentWidget.prototype.init = function () {
   var element = this.component.create(vdom);
 
   if (self.state.onadd) {
-    this.renderFinished.then(function () {
+    this.afterRender(function () {
       self.state.onadd(element);
     });
   }
@@ -57,7 +66,7 @@ ComponentWidget.prototype.update = function (previous) {
 
   if (refresh) {
     if (self.state.onupdate) {
-      this.renderFinished.then(function () {
+      this.afterRender(function () {
         self.state.onupdate(self.component.element);
       });
     }
@@ -101,7 +110,7 @@ ComponentWidget.prototype.destroy = function (element) {
   var self = this;
 
   if (self.state.onremove) {
-    this.renderFinished.then(function () {
+    this.afterRender(function () {
       self.state.onremove(element);
     });
   }

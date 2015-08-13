@@ -1309,13 +1309,15 @@ describe('plastiq', function () {
     beforeEach(function () {
       refreshCalled = false;
       h.currentRender = {
-        refresh: function (component) {
-          refreshCalled = true;
-          componentRefreshed = component;
-        },
+        attachment: {
+          refresh: function (component) {
+            refreshCalled = true;
+            componentRefreshed = component;
+          },
 
-        requestRender: function (fn) {
-          fn();
+          requestRender: function (fn) {
+            fn();
+          }
         }
       };
     });

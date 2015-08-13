@@ -14,5 +14,4 @@ exports.html.window = function (attributes, vdom) {
   return windowEvents(attributes, vdom, rendering.html.refreshify);
 };
 
-exports.html.rawHtml = require('./rawHtml');
 exports.html.component = require('./component');

@@ -16,10 +16,14 @@ describe('plastiq', function() {
           onclick: function() {
             model.counter++;
           }
-        })
+        }),
+        h.component(function () {
+          return h('.component');
+        }),
+        h.rawHtml('div', '<span>some raw HTML</span>')
       );
       var html = vdomToHtml(vdom);
-      expect(html).to.equal('<div class="outer"><div class="inner"></div></div>');
+      expect(html).to.equal('<div class="outer"><div class="inner"></div><div class="component"></div><div><span>some raw HTML</span></div></div>');
       vdom.children[0].properties.onclick();
       expect(model.counter).to.equal(1);
       vdom.children[0].properties.onclick();

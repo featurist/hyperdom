@@ -132,7 +132,11 @@ var norefresh = {};
 
 function refreshify(fn, options) {
   if (!exports.html.currentRender) {
-    throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/plastiq#outside-render-cycle');
+    if (typeof global === 'object') {
+      return fn;
+    } else {
+      throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/plastiq#outside-render-cycle');
+    }
   }
 
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
@@ -143,7 +147,7 @@ function refreshify(fn, options) {
   }
 
   var attachment = exports.html.currentRender.attachment;
-  var r = exports.html.currentRender.attachment.refresh;
+  var r = attachment.refresh;
 
   return function () {
     var result = fn.apply(this, arguments);
@@ -547,6 +551,23 @@ function bindingObject(model, property, options) {
 exports.binding = makeBinding;
 exports.html.binding = makeBinding;
 exports.html.meta = bindingMeta;
+
+function rawHtml() {
+  if (arguments.length == 2) {
+    var selector = arguments[0];
+    var html = arguments[1];
+    var options = {innerHTML: html};
+    return exports.html(selector, options);
+  } else {
+    var selector = arguments[0];
+    var options = arguments[1];
+    var html = arguments[2];
+    options.innerHTML = html;
+    return exports.html(selector, options);
+  }
+}
+
+exports.html.rawHtml = rawHtml;
 
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
