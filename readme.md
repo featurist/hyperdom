@@ -668,7 +668,7 @@ var binding = plastiq.html.binding(binding, options);
 * `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
 * `options` - options that are passed directly to [refreshify](#refreshify).
 
-### Performance
+## Performance
 
 Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
 
@@ -677,6 +677,38 @@ Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Mat
 * For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
 * Consider using a component with a `cacheKey`, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `cacheKey` is changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
 * Consider explicitly rendering a component when the model changes. You can set the `cacheKey` to something that never changes, such as just `true`, then use `plastiq.html.refresh(component)` to render it.
+
+## Server-side Rendering
+
+You can render plastiq components on the server-side using [vdom-to-html](https://github.com/nthtran/vdom-to-html):
+
+```js
+var h = require('plastiq').html;
+var vdomToHtml = require('vdom-to-html');
+
+var vdom = h('html',
+  h('head',
+    h('link', {rel: 'stylesheet', href: '/style.css'})
+  ),
+  h('body',
+    h('h1', 'plastiq!')
+  )
+);
+
+var html = vdomToHtml(vdom);
+console.log(html);
+```
+
+Rendering will work with event handlers, components, etc.
+
+The result, however, is plain static HTML without any event handlers or jQuery plugins attached. If you want to render plastiq views on the server and have them fully interactive in the browser, you'll need to re-attach the client-side plastiq view with the server-side rendered view. These rough steps should guide you:
+
+1. Have the server render the HTML from a model with plastiq.
+2. Have the server embed the model in the page, placing it into a global variable inside a `<script>` tag.
+3. Have the client-side JS load that model and re-render the vdom _without_ event handlers, this should then be identical to the vdom produced by the server.
+4. Have the client-side JS render the same model, but this time _with_ event handlers.
+5. Compare the two DOMs, without and with event handlers, producing the changes necessary to insert the event handlers into the existing DOM.
+6. Have hope.
 
 # Common Errors
 
