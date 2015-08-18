@@ -437,11 +437,11 @@ function makeBinding(b, options) {
 function makeConverter(converter) {
   if (typeof converter == 'function') {
     return {
-      text: function (value) {
-        return value;
+      view: function (model) {
+        return model;
       },
-      value: function (text) {
-        return converter(text);
+      model: function (view) {
+        return converter(view);
       }
     };
   } else {
@@ -465,20 +465,20 @@ function chainConverters(startIndex, converters) {
     }
 
     return {
-      text: function (value) {
+      view: function (model) {
         makeConverters();
-        var intermediateValue = value;
+        var intermediateValue = model;
         for(var n = 0; n < _converters.length; n++) {
-          intermediateValue = _converters[n].text(intermediateValue);
+          intermediateValue = _converters[n].view(intermediateValue);
         }
         return intermediateValue;
       },
 
-      value: function (text) {
+      model: function (view) {
         makeConverters();
-        var intermediateValue = text;
+        var intermediateValue = view;
         for(var n = _converters.length - 1; n >= 0; n--) {
-          intermediateValue = _converters[n].value(intermediateValue);
+          intermediateValue = _converters[n].model(intermediateValue);
         }
         return intermediateValue;
       }
@@ -488,47 +488,39 @@ function chainConverters(startIndex, converters) {
 
 function bindingObject(model, property, options) {
   if (arguments.length > 2) {
-    var _converter;
-    var bindingArguments = arguments;
-    function buildConverter() {
-      if (!_converter) {
-        _converter = chainConverters(2, bindingArguments);
-      }
-    }
+    var converter = chainConverters(2, arguments);
 
     return {
       get: function() {
-        buildConverter();
         var meta = bindingMeta(model, property);
 
         var modelValue = model[property];
         if (meta.error) {
-          return meta.text;
-        } else if (meta.text === undefined) {
-          var modelText = _converter.text(modelValue);
-          meta.text = modelText;
+          return meta.view;
+        } else if (meta.view === undefined) {
+          var modelText = converter.view(modelValue);
+          meta.view = modelText;
           return modelText;
         } else {
-          var previousValue = _converter.value(meta.text);
-          var modelText = _converter.text(modelValue);
-          var normalisedPreviousText = _converter.text(previousValue);
+          var previousValue = converter.model(meta.view);
+          var modelText = converter.view(modelValue);
+          var normalisedPreviousText = converter.view(previousValue);
 
           if (modelText === normalisedPreviousText) {
-            return meta.text;
+            return meta.view;
           } else {
-            meta.text = modelText;
+            meta.view = modelText;
             return modelText;
           }
         }
       },
 
-      set: function(text) {
-        buildConverter();
+      set: function(view) {
         var meta = bindingMeta(model, property);
-        meta.text = text;
+        meta.view = view;
 
         try {
-          model[property] = _converter.value(text, model[property]);
+          model[property] = converter.model(view, model[property]);
           delete meta.error;
         } catch (e) {
           meta.error = e;

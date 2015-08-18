@@ -460,12 +460,12 @@ describe('plastiq', function () {
     describe('binding options', function () {
       it('can bind with set conversion', function () {
         var numberConversion = {
-          value: function (text) {
-            return Number(text);
+          model: function (view) {
+            return Number(view);
           },
 
-          text: function (value) {
-            return String(value);
+          view: function (model) {
+            return String(model);
           }
         };
 
