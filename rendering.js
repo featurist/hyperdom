@@ -131,6 +131,10 @@ function refreshComponent(component, attachment) {
 var norefresh = {};
 
 function refreshify(fn, options) {
+  if (!fn) {
+    return fn;
+  }
+
   if (!exports.html.currentRender) {
     if (typeof global === 'object') {
       return fn;
