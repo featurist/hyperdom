@@ -893,6 +893,61 @@ describe('plastiq', function () {
       });
     });
 
+    it('only refreshes array of the components when returned from an event', function () {
+      var events = [];
+
+      function render(model) {
+        var component1 = h.component(function (component) {
+            return h('div',
+              h('span.inner-counter', model.counter),
+              h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
+            );
+          });
+
+        return h('div',
+          component1,
+          h.component(function (component) {
+            return h('div',
+              h('span.inner-counter2', model.counter),
+              h('button.add-inner2', {onclick: function () { model.counter++; return [component, component1]; }},  'add inner 2')
+            );
+          }),
+          h('span.outer-counter', model.counter),
+          h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
+        );
+      }
+
+      attach(render, {counter: 0});
+
+      expect(find('span.inner-counter').text()).to.equal('0');
+      expect(find('span.inner-counter2').text()).to.equal('0');
+      expect(find('span.outer-counter').text()).to.equal('0');
+
+      return click('button.add-inner').then(function () {
+        return retry(function () {
+          expect(find('span.inner-counter').text()).to.equal('1');
+          expect(find('span.inner-counter2').text()).to.equal('0');
+          expect(find('span.outer-counter').text()).to.equal('0');
+        });
+      }).then(function () {
+        return click('button.add-inner2');
+      }).then(function () {
+        return retry(function () {
+          expect(find('span.inner-counter').text()).to.equal('2');
+          expect(find('span.inner-counter2').text()).to.equal('2');
+          expect(find('span.outer-counter').text()).to.equal('0');
+        });
+      }).then(function () {
+        return click('button.add-outer').then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('3');
+            expect(find('span.inner-counter2').text()).to.equal('3');
+            expect(find('span.outer-counter').text()).to.equal('3');
+          });
+        });
+      });
+    });
+
     it('throws exception when component is returned from event but does not have a render function', function () {
       function render(model) {
         var component = h.component(h('span.inner-counter', model.counter));
