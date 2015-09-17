@@ -173,6 +173,18 @@ function refreshify(fn, options) {
           && typeof result.update === 'function'
           && typeof result.destroy === 'function') {
         refreshComponent(result, attachment);
+      } else if (Object.prototype.toString.call(result) === '[object Array]'
+          && result.length > 0
+          && typeof result[0].init === 'function'
+          && typeof result[0].update === 'function'
+          && typeof result[0].destroy === 'function') {
+        for (var i = 0; i < result.length; i++) {
+          if(typeof result[i].init === 'function'
+              && typeof result[i].update === 'function'
+              && typeof result[i].destroy === 'function') {
+            refreshComponent(result[i], attachment);
+          }
+        }
       } else if (componentToRefresh) {
         refreshComponent(componentToRefresh, attachment);
       } else if (result === norefresh) {
