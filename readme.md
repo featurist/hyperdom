@@ -891,13 +891,15 @@ cd plastiq
 npm install
 ```
 
+In HTML script tag use the browserify-built `plastiq.js`. After modifications run `npm install` to rerun browserify.
+
 ## Automated Testing
 
 Plastiq is almost 100% tested with karma and mocha. If you're planning to submit a pull request, we kindly ask that you write a test that demonstrates that it works. Without tests, we can't guarantee that your feature will continue to work as we refactor the codebase.
 
 Tests can be found in [test/browser/plastiqSpec.js](https://github.com/featurist/plastiq/blob/master/test/browser/plastiqSpec.js).
 
-You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change.
+You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change. You need npm packages: karma, mocha, karma-mocha. To run the tests manually run `./node_modules/karma/bin/karma run karma.conf.js`.
 
 Server-side tests can be found in [test/server](https://github.com/featurist/plastiq/tree/master/test/server). You can use `mocha test/server` to run these.
 
