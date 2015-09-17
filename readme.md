@@ -891,7 +891,11 @@ cd plastiq
 npm install
 ```
 
-In HTML script tag use the browserify-built `plastiq.js`. After modifications run `npm install` to rerun browserify.
+Some of the scripts below assume that you have `node_modules/.bin` in your `$PATH`.
+
+## Building
+
+`plastiq.js` and `plastiq.min.js` can be build using `npm run build`, these can then be used in a `<script src="..."></script>` tag.
 
 ## Automated Testing
 
@@ -899,7 +903,7 @@ Plastiq is almost 100% tested with karma and mocha. If you're planning to submit
 
 Tests can be found in [test/browser/plastiqSpec.js](https://github.com/featurist/plastiq/blob/master/test/browser/plastiqSpec.js).
 
-You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change. You need npm packages: karma, mocha, karma-mocha. To run the tests manually run `./node_modules/karma/bin/karma run karma.conf.js`.
+You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change.
 
 Server-side tests can be found in [test/server](https://github.com/featurist/plastiq/tree/master/test/server). You can use `mocha test/server` to run these.
 
@@ -915,4 +919,4 @@ Then inside your other project run `npm link plastiq`. When your project has `re
 
 You can then use [browserify](https://github.com/substack/node-browserify): `browserify myapp.js > myappbundle.js` or [watchify](https://github.com/substack/watchify): `watchify myapp.js -dvo myappbundle.js`, or [amok](https://github.com/caspervonb/amok): `amok --compiler babel --browser chrome myapp.js`, or [beefy](https://github.com/chrisdickinson/beefy): `beefy myapp.js`. [browserify-middleware](https://github.com/ForbesLindesay/browserify-middleware) is worth a look too.
 
-Alternatively, if you just want to compile `plastiq.js` and reference it in a `<script src="...">`, you can by running `npm run prepublish` in the plastiq directory.
+Alternatively, if you just want to compile `plastiq.js` and reference it in a `<script src="..."></script>`, you can by running `npm run prepublish` in the plastiq directory.
