@@ -425,7 +425,7 @@ plastiq.append(document.body, render, {});
 
 Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 
-Components can also be used to render just parts of the page, usually for performance reasons.
+Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
 
 ```JavaScript
 function render(model) {
@@ -672,7 +672,7 @@ var binding = plastiq.html.binding(binding, options);
 
 Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
 
-* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return that component from the event handler.
+* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
 * Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
 * For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `plastiq.html.binding()` to not refresh, or only refresh a component.
 * Consider using a component with a `cacheKey`, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `cacheKey` is changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
