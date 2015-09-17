@@ -880,3 +880,29 @@ attachment.remove();
 ```
 
 Destroys the DOM, running any `onremove` handlers found in components. This will remove the DOM element.
+
+# Development
+
+## Automated Testing
+
+Plastiq is almost 100% tested with karma and mocha. If you're planning to submit a pull request, we kindly ask that you write a test that demonstrates that it works. Without tests, we can't guarantee that your feature will continue to work as we refactor the codebase.
+
+Tests can be found in [test/browser/plastiqSpec.js](https://github.com/featurist/plastiq/blob/master/test/browser/plastiqSpec.js).
+
+You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change.
+
+Server-side tests can be found in [test/server](https://github.com/featurist/plastiq/tree/master/test/server). You can use `mocha test/server` to run these.
+
+To run all tests use `npm test`.
+
+## Manual Testing
+
+As much as automated testing is amazing, it can never really replace manual or exploratory testing. You may want to experiment with an API or see how plastiq performs in a real project, while making changes to plastiq as you go.
+
+To do this, first go to the `plastiq` directory and run `npm link`. This will make plastiq available to other projects.
+
+Then inside your other project run `npm link plastiq`. When your project has `require('plastiq')` it will be referring to your local version.
+
+You can then use [browserify](https://github.com/substack/node-browserify): `browserify myapp.js > myappbundle.js` or [watchify](https://github.com/substack/watchify): `watchify myapp.js -dvo myappbundle.js`, or [amok](https://github.com/caspervonb/amok): `amok --compiler babel --browser chrome myapp.js`, or [beefy](https://github.com/chrisdickinson/beefy): `beefy myapp.js`. [browserify-middleware](https://github.com/ForbesLindesay/browserify-middleware) is worth a look too.
+
+Alternatively, if you just want to compile `plastiq.js` and reference it in a `<script src="...">`, you can by running `npm run prepublish` in the plastiq directory.
