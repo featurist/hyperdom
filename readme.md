@@ -883,6 +883,14 @@ Destroys the DOM, running any `onremove` handlers found in components. This will
 
 # Development
 
+To get started:
+
+```js
+git clone https://github.com/featurist/plastiq.git
+cd plastiq
+npm install
+```
+
 ## Automated Testing
 
 Plastiq is almost 100% tested with karma and mocha. If you're planning to submit a pull request, we kindly ask that you write a test that demonstrates that it works. Without tests, we can't guarantee that your feature will continue to work as we refactor the codebase.
