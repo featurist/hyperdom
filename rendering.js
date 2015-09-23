@@ -353,12 +353,18 @@ var dataAttributeRegex = /^data-/;
 function prepareAttributes(selector, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
+  var eventHandlerWrapper = exports.html.currentRender.eventHandlerWrapper;
+
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
     var attribute = attributes[key];
 
     if (typeof(attribute) == 'function') {
-      attributes[key] = refreshify(attribute);
+      if (eventHandlerWrapper) {
+        attributes[key] = refreshify(exports.html.currentRender.eventHandlerWrapper.call(undefined, key.replace(/^on/, ''), attribute));
+      } else {
+        attributes[key] = refreshify(attribute);
+      }
     }
 
     var rename = renames[key];

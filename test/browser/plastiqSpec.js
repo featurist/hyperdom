@@ -1117,6 +1117,58 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('can wrap event handlers inside the component', function () {
+      var events = [];
+
+      function render() {
+        return h('div',
+          h.component(
+            {
+              on: function (type, handler) {
+                return function(evt) {
+                  events.push('component ' + type);
+                  return handler.apply(this, arguments);
+                }
+              }
+            },
+            function () {
+              return h('div',
+                h.component(
+                  {
+                    on: function (type, handler) {
+                      return function(evt) {
+                        events.push('inner component ' + type);
+                        return handler.apply(this, arguments);
+                      }
+                    }
+                  },
+                  function () {
+                    return h('button.inner-inner-component', {onclick: function () { events.push('inner inner click'); }}, 'click me');
+                  }
+                ),
+                h('button.inner-component', {onclick: function () { events.push('inner click'); }}, 'click me')
+              );
+            }
+          ),
+          h('button.outer-component', {onclick: function () { events.push('outer click'); }}, 'click me')
+        );
+      }
+
+      attach(render);
+
+      return click('button.inner-component').then(function () {
+        expect(events).to.eql(['component click', 'inner click']);
+      }).then(function () {
+        return click('button.inner-inner-component').then(function () {
+          expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click']);
+        });
+      }).then(function () {
+        return click('button.outer-component').then(function () {
+          expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click', 'outer click']);
+        });
+      });
+    });
   });
 
   describe('plastiq.html.refresh', function () {
