@@ -7,7 +7,9 @@ function ComponentWidget(state, vdom) {
   this.key = state.key;
   if (typeof vdom === 'function') {
     this.render = function () {
-      h.currentRender.eventHandlerWrapper = state.on;
+      if (h.currentRender) {
+        h.currentRender.eventHandlerWrapper = state.on;
+      }
       return vdom.apply(this.state, arguments);
     };
     this.canRefresh = true;

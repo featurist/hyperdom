@@ -353,7 +353,7 @@ var dataAttributeRegex = /^data-/;
 function prepareAttributes(selector, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
-  var eventHandlerWrapper = exports.html.currentRender.eventHandlerWrapper;
+  var eventHandlerWrapper = exports.html.currentRender && exports.html.currentRender.eventHandlerWrapper;
 
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
