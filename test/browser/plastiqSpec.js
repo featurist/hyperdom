@@ -1357,6 +1357,25 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('must not be called during the render cycle, or an exception is thrown', function () {
+      function render(model) {
+        var refresh = h.refresh;
+
+        try {
+          refresh();
+          return h('div', 'good');
+        } catch (e) {
+          return h('div', 'error');
+        }
+      }
+
+      attach(render, {text: 'before timeout'});
+
+      return wait(10).then(function () {
+        expect(find('div').text()).to.equal('error');
+      });
+    });
   });
 
   describe('plastiq.html.window', function () {
