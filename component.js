@@ -97,11 +97,6 @@ ComponentWidget.prototype.update = function (previous) {
   }
 };
 
-ComponentWidget.prototype.asdfasd = 4;
-
-ComponentWidget.prototype.asdfasd = function () {
-};
-
 ComponentWidget.prototype.refresh = function () {
   this.component.update(this.render(this));
   if (this.state.onupdate) {
