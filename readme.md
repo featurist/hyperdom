@@ -11,6 +11,25 @@ Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) an
 
 # An Example
 
+in JSX
+
+```jsx
+var plastiq = require('plastiq');
+var h = plastiq.html;
+
+function render(model) {
+  return <div>
+    <label>what's your name?</label>
+    <input type="text" binding={[model, 'name']} />
+    <div>hi {model.name}</div>
+  </div>;
+}
+
+plastiq.append(document.body, render, {name: ''});
+```
+
+in JS
+
 ```JavaScript
 var plastiq = require('plastiq');
 var h = plastiq.html;
