@@ -17,15 +17,17 @@ in JSX, using [babel](https://babeljs.io/)
 /** @jsx plastiq.html */
 var plastiq = require('plastiq');
 
-function render(model) {
-  return <div>
-    <label>what's your name?</label>
-    <input type="text" binding={[model, 'name']} />
-    <div>hi {model.name}</div>
-  </div>;
+class App {
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding={[this, 'name']} />
+      <div>hi {this.name}</div>
+    </div>;
+  }
 }
 
-plastiq.append(document.body, render, {name: ''});
+plastiq.append(document.body, new App());
 ```
 
 in JS
