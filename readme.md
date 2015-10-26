@@ -11,11 +11,11 @@ Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) an
 
 # An Example
 
-in JSX
+in JSX, using [babel](https://babeljs.io/)
 
 ```jsx
+/** @jsx plastiq.html */
 var plastiq = require('plastiq');
-var h = plastiq.html;
 
 function render(model) {
   return <div>
