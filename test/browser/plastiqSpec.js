@@ -457,6 +457,59 @@ describe('plastiq', function () {
       });
     });
 
+    describe('setting input values on reused DOM elements', function () {
+      it('checkbox', function () {
+        function render(model) {
+          return h('div',
+            !model.hide1
+              ? h('label', h('input.one', {type: 'checkbox', binding: [model, 'hide1']}), 'hide one')
+              : undefined,
+            !model.hide2
+              ? h('label', h('input.two', {type: 'checkbox', binding: [model, 'hide2']}), 'hide two')
+              : undefined
+          );
+        }
+
+        attach(render, {});
+
+        return click('.one').then(function () {
+          return retry(function () {
+            expect(find('input.one').length).to.equal(0);
+            expect(find('input.two').prop('checked')).to.equal(false);
+          });
+        });
+      });
+
+      it('radio', function () {
+        function render(model) {
+          return h('div',
+            !model.hide1
+              ? h('div',
+                  h('label', h('input.show-one', {type: 'radio', binding: [model, 'hide1'], value: false}), 'show one'),
+                  h('label', h('input.hide-one', {type: 'radio', binding: [model, 'hide1'], value: true}), 'hide one')
+                )
+              : undefined,
+            !model.hide2
+              ? h('div',
+                  h('label', h('input.show-two', {type: 'radio', binding: [model, 'hide2'], value: false}), 'show two'),
+                  h('label', h('input.hide-two', {type: 'radio', binding: [model, 'hide2'], value: true}), 'hide two')
+                )
+              : undefined
+          );
+        }
+
+        attach(render, {});
+
+        return click('.hide-one').then(function () {
+          return retry(function () {
+            expect(find('input.show-one').length).to.equal(0);
+            expect(find('input.hide-one').length).to.equal(0);
+            expect(find('input.hide-two').prop('checked')).to.equal(false);
+          });
+        });
+      });
+    });
+
     describe('binding options', function () {
       it('can bind with set conversion', function () {
         var numberConversion = {

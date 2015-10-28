@@ -250,22 +250,28 @@ function attachEventHandler(attributes, eventNames, handler) {
 
 var inputTypeBindings = {
   text: bindTextInput,
+
   textarea: bindTextInput,
+
   checkbox: function (attributes, children, get, set) {
     attributes.checked = get();
 
     attachEventHandler(attributes, 'onclick', function (ev) {
+      attributes.checked = ev.target.checked;
       set(ev.target.checked);
     });
   },
+
   radio: function (attributes, children, get, set) {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
 
     attachEventHandler(attributes, 'onclick', function (ev) {
+      attributes.checked = true;
       set(value);
     });
   },
+
   select: function (attributes, children, get, set) {
     var currentValue = get();
 
@@ -291,6 +297,7 @@ var inputTypeBindings = {
       set(values[ev.target.value]);
     });
   },
+
   file: function (attributes, children, get, set) {
     var multiple = attributes.multiple;
 
