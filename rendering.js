@@ -9,12 +9,6 @@ function doThenFireAfterRender(attachment, fn) {
     exports.html.currentRender = {attachment: attachment};
     exports.html.currentRender.finished = simplePromise();
     exports.html.refresh = function (component) {
-      if (this == exports.html) {
-        throw new Error("Don't call refresh.html.refresh during a render cycle. See https://github.com/featurist/plastiq#refresh-outside-render-cycle");
-      } else if (exports.html.currentRender) {
-        return;
-      }
-
       if (isComponent(component)) {
         refreshComponent(component, attachment);
       } else {
