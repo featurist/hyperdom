@@ -3,6 +3,10 @@ var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
 
 function ComponentWidget(state, vdom) {
+  if (!vdom) {
+    throw new Error('plastiq.html.component([options], vdom) expects a vdom argument');
+  }
+
   this.state = state;
   this.key = state.key;
   if (typeof vdom === 'function') {

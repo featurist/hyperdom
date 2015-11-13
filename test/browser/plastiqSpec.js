@@ -784,7 +784,7 @@ describe('plastiq', function () {
                     state: this
                   });
                 }
-              })
+              }, 'component')
             : undefined,
           h('button.refresh', {onclick: function () {}},  'refresh'),
           h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')
@@ -830,6 +830,20 @@ describe('plastiq', function () {
           });
         });
       });
+    });
+
+    it('throws error if not given vdom', function () {
+      function render() {
+        return h.component(
+          {
+            onadd: function (el) {
+
+            }
+          }
+        )
+      }
+
+      expect(function () {attach(render);}).to.throw('expects a vdom argument');
     });
 
     it('can expose long-running state for components', function () {
