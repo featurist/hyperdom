@@ -29,6 +29,16 @@ function refreshOutOfRender() {
   throw new Error('Please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/plastiq#refresh-outside-render-cycle');
 }
 
+function areAllComponents(components) {
+  for (var i = 0; i < components.length; i++) {
+    if(!isComponent(components[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function isComponent(component) {
   return component
     && typeof component.init === 'function'
@@ -173,11 +183,9 @@ function refreshify(fn, options) {
           && typeof result.update === 'function'
           && typeof result.destroy === 'function') {
         refreshComponent(result, attachment);
-      } else if (result instanceof Array) {
+      } else if (result instanceof Array && areAllComponents(result)) {
         for (var i = 0; i < result.length; i++) {
-          if(isComponent(result[i])) {
-            refreshComponent(result[i], attachment);
-          }
+          refreshComponent(result[i], attachment);
         }
       } else if (componentToRefresh) {
         refreshComponent(componentToRefresh, attachment);
