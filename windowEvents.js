@@ -1,15 +1,16 @@
 var domComponent = require('./domComponent');
+var rendering = require('./rendering');
 var VText = require("virtual-dom/vnode/vtext.js")
 
-function WindowWidget(attributes, vdom, refreshFunction) {
+function WindowWidget(attributes) {
   this.attributes = attributes;
-  this.vdom = vdom || new VText('');
+  this.vdom = new VText('');
   this.component = domComponent();
 
   var self = this;
   this.cache = {};
   Object.keys(this.attributes).forEach(function (key) {
-    self.cache[key] = refreshFunction(self.attributes[key]);
+    self.cache[key] = rendering.html.refreshify(self.attributes[key]);
   });
 }
 
@@ -23,7 +24,7 @@ WindowWidget.prototype.type = 'Widget';
 
 WindowWidget.prototype.init = function () {
   applyPropertyDiffs(window, {}, this.attributes, {}, this.cache);
-  return this.component.create(this.vdom);
+  return this.element = document.createTextNode('');
 };
 
 function uniq(array) {
@@ -72,14 +73,13 @@ WindowWidget.prototype.update = function (previous) {
   var self = this;
   applyPropertyDiffs(window, previous.attributes, this.attributes, previous.cache, this.cache);
   this.component = previous.component;
-  return this.component.update(this.vdom);
+  return this.element;
 };
 
 WindowWidget.prototype.destroy = function () {
   applyPropertyDiffs(window, this.attributes, {}, this.cache, {});
-  this.component.destroy();
 };
 
-module.exports = function (attributes, vdom, refreshFunction) {
-  return new WindowWidget(attributes, vdom, refreshFunction);
+module.exports = function (attributes) {
+  return new WindowWidget(attributes);
 };

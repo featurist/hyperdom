@@ -340,6 +340,14 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it("throws exception if render doesn't return vdom", function () {
+      function render() {
+        return {};
+      }
+
+      expect(function () {attach(render);}).to.throw('expected render to return vdom');
+    });
   });
 
   it('can respond to button clicks', function () {
@@ -784,7 +792,7 @@ describe('plastiq', function () {
                     state: this
                   });
                 }
-              }, 'component')
+              }, h('h1', 'component'))
             : undefined,
           h('button.refresh', {onclick: function () {}},  'refresh'),
           h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')

@@ -10,8 +10,8 @@ exports.binding = rendering.binding;
 
 var windowEvents = require('./windowEvents');
 
-exports.html.window = function (attributes, vdom) {
-  return windowEvents(attributes, vdom, rendering.html.refreshify);
+exports.html.window = function (attributes) {
+  return windowEvents(attributes);
 };
 
 exports.html.component = require('./component');
