@@ -1434,6 +1434,28 @@ describe('plastiq', function () {
     });
   });
 
+  describe('plastiq.html.refreshAfter', function () {
+    it('refreshes after the promise is complete', function () {
+      function load(model) {
+        return wait(20).then(function () {
+          model.text = 'loaded';
+        });
+      }
+
+      function render(model) {
+        plastiq.html.refreshAfter(load(model));
+
+        return h('div', model.text);
+      }
+
+      attach(render, {text: 'loading'});
+
+      return retry(function () {
+        expect(find('div').text()).to.equal('loaded');
+      });
+    });
+  });
+
   describe('plastiq.html.window', function () {
     it('can add and remove event handlers on window', function () {
       function render(model) {

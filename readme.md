@@ -615,6 +615,16 @@ By default the view will refresh after an event handler has run, however you can
 
 Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this plastiq views can subscribe to events produced by the model.
 
+### Refreshing After a Promise
+
+If `load()` returns a promise, then you can pass it to `refreshAfter` and have the page refresh when the promise is complete.
+
+```js
+plastiq.html.refreshAfter(load());
+```
+
+If the promise returns a component, or an array of components, then those only components will be refreshed.
+
 ### Refresh Function
 
 You can refresh the view at any time by getting a **refresh** function. You can get this function from `plastiq.html.refresh`, and call it after the view has rendered, i.e. after an AJAX response.

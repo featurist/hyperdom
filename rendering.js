@@ -201,6 +201,12 @@ function refreshify(fn, options) {
   };
 }
 
+function refreshAfter(promise) {
+  var refresh = exports.html.refresh;
+
+  promise.then(refresh);
+}
+
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
 
@@ -453,6 +459,7 @@ exports.html = function (hierarchySelector) {
 
 exports.html.refreshify = refreshify;
 exports.html.refresh = refreshOutOfRender;
+exports.html.refreshAfter = refreshAfter;
 exports.html.norefresh = norefresh;
 
 function makeBinding(b, options) {
