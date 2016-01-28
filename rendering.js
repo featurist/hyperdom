@@ -599,14 +599,22 @@ function rawHtml() {
 
 exports.html.rawHtml = rawHtml;
 
+
+function generateConditionalClassNames(obj) {
+  return Object.keys(obj).filter(function (key) {
+    return obj[key];
+  }).join(' ') || undefined;
+}
+
 function generateClassName(obj) {
   if (typeof(obj) == 'object') {
     if (obj instanceof Array) {
-      return obj.join(' ') || undefined;
+      var names = obj.map(function(item) {
+        return generateClassName(item);
+      });
+      return names.join(' ') || undefined;
     } else {
-      return Object.keys(obj).filter(function (key) {
-        return obj[key];
-      }).join(' ') || undefined;
+      return generateConditionalClassNames(obj);
     }
   } else {
     return obj;
