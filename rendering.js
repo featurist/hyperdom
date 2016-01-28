@@ -610,7 +610,7 @@ function generateClassName(obj) {
   if (typeof(obj) == 'object') {
     if (obj instanceof Array) {
       var names = obj.map(function(item) {
-        return (typeof(item) == 'object')? generateConditionalClassNames(item) :item;
+        return generateClassName(item);
       });
       return names.join(' ') || undefined;
     } else {
