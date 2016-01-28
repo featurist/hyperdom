@@ -152,12 +152,12 @@ describe('plastiq', function () {
 
       it('accepts an array with a mix of strings and objects', function () {
         function render(model) {
-          return h('div.one', {class: ['two', 'three', {four: true, five: false, six: true}]});
+          return h('div.one', {class: ['two', ['three', {four: true, five: false}], {six: true, seven: false, eight: true}]});
         }
 
         attach(render, {});
 
-        expect(find('div').attr('class')).to.eql('one two three four six');
+        expect(find('div').attr('class')).to.eql('one two three four six eight');
       });
     });
 
