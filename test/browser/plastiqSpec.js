@@ -769,6 +769,46 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('can bind to select with no value attributes on some of its options', function () {
+
+      function render(model) {
+        return h('div',
+          h('select',
+            {binding: [model, 'colour']},
+            h('option.red', 'red'),
+            h('option.orange'),
+            h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
+            h('option.blue', 'blue')
+          ),
+          h('span', JSON.stringify(model.colour))
+        );
+      }
+
+      attach(render, { colour: 'blue' });
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('"blue"');
+        expect(find('option.red').prop('selected')).to.equal(false);
+        expect(find('option.blue').prop('selected')).to.equal(true);
+      }).then(function () {
+        find('select')[0].selectedIndex = 0;
+        find('select').change();
+
+        return retry(function() {
+          expect(find('span').text()).to.equal('"red"');
+          expect(find('option.red').prop('selected')).to.equal(true);
+        }).then(function () {
+          find('select')[0].selectedIndex = 3;
+          find('select').change();
+
+          return retry(function() {
+            expect(find('span').text()).to.equal('"blue"');
+            expect(find('option.blue').prop('selected')).to.equal(true);
+          });
+        });
+      });
+    });
   });
 
   describe('plastiq.html.component', function () {

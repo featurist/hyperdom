@@ -284,11 +284,12 @@ var inputTypeBindings = {
     });
 
     var selectedOption = options.filter(function (child) {
-      return child.properties.value == currentValue;
+      return child.properties.value == currentValue ||
+             (child.properties.value === undefined && (child.children[0] && child.children[0].text == currentValue));
     })[0];
 
     var values = options.map(function (option) {
-      return option.properties.value;
+      return option.properties.value || (option.children[0] && option.children[0].text);
     });
 
     for(var n = 0; n < options.length; n++) {
