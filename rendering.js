@@ -283,18 +283,16 @@ var inputTypeBindings = {
       return child.tagName.toLowerCase() == 'option';
     });
 
-    var selectedOption = options.filter(function (child) {
-      return child.properties.value == currentValue ||
-             (child.properties.value === undefined && (child.children[0] && child.children[0].text == currentValue));
-    })[0];
-
-    var values = options.map(function (option) {
-      return option.properties.value || (option.children[0] && option.children[0].text);
-    });
+    var values = [];
 
     for(var n = 0; n < options.length; n++) {
       var option = options[n];
-      option.properties.selected = option == selectedOption;
+      var value = option.properties.value;
+      var text = option.children.map(function (x) { return x.text; }).join('');
+
+      values.push(value != undefined? value: text);
+
+      option.properties.selected = value == currentValue || text == currentValue;
       option.properties.value = n;
     }
 

@@ -776,10 +776,10 @@ describe('plastiq', function () {
         return h('div',
           h('select',
             {binding: [model, 'colour']},
-            h('option.red', 'red'),
+            h('option.red', 're', 'd'),
             h('option.orange'),
             h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
-            h('option.blue', 'blue')
+            h('option.blue', 'bl', 'ue')
           ),
           h('span', JSON.stringify(model.colour))
         );
