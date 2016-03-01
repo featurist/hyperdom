@@ -28,7 +28,6 @@ function ComponentWidget(state, vdom) {
 
   var renderFinished = h.currentRender && h.currentRender.finished;
   if (renderFinished) {
-    var self = this;
     this.afterRender = function (fn) {
       renderFinished.then(fn);
     };
@@ -80,7 +79,7 @@ ComponentWidget.prototype.update = function (previous) {
   }
 
   this.component = previous.component;
-  
+
   if (previous.state && this.state) {
     var keys = Object.keys(this.state);
     for(var n = 0; n < keys.length; n++) {

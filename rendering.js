@@ -54,7 +54,6 @@ exports.append = function (element, render, model, options) {
 
 exports.replace = function (element, render, model, options) {
   return startAttachment(render, model, options, function(createdElement) {
-    var parent = element.parentNode;
     element.parentNode.replaceChild(createdElement, element);
   });
 };
@@ -113,7 +112,7 @@ function start(render, options, attachToDom) {
       attachment.attached = false;
     }
   };
-};
+}
 
 exports.attach = function () {
   console.warn('plastiq.attach has been renamed to plastiq.append, plastiq.attach will be deprecated in a future version');
@@ -270,7 +269,7 @@ var inputTypeBindings = {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
 
-    attachEventHandler(attributes, 'onclick', function (ev) {
+    attachEventHandler(attributes, 'onclick', function () {
       attributes.checked = true;
       set(value);
     });
@@ -469,7 +468,7 @@ function makeBinding(b, options) {
   binding.set = refreshify(binding.set, options);
 
   return binding;
-};
+}
 
 function makeConverter(converter) {
   if (typeof converter == 'function') {
@@ -487,20 +486,20 @@ function makeConverter(converter) {
 }
 
 function chainConverters(startIndex, converters) {
+  function makeConverters() {
+    if (!_converters) {
+      _converters = new Array(converters.length - startIndex);
+
+      for(var n = startIndex; n < converters.length; n++) {
+        _converters[n - startIndex] = makeConverter(converters[n]);
+      }
+    }
+  }
+
   if ((converters.length - startIndex) == 1) {
     return makeConverter(converters[startIndex]);
   } else {
     var _converters;
-    function makeConverters() {
-      if (!_converters) {
-        _converters = new Array(converters.length - startIndex);
-
-        for(var n = startIndex; n < converters.length; n++) {
-          _converters[n - startIndex] = makeConverter(converters[n]);
-        }
-      }
-    }
-
     return {
       view: function (model) {
         makeConverters();
@@ -523,24 +522,25 @@ function chainConverters(startIndex, converters) {
   }
 }
 
-function bindingObject(model, property, options) {
+function bindingObject(model, property) {
   if (arguments.length > 2) {
     var converter = chainConverters(2, arguments);
 
     return {
       get: function() {
         var meta = bindingMeta(model, property);
-
         var modelValue = model[property];
+        var modelText;
+
         if (meta.error) {
           return meta.view;
         } else if (meta.view === undefined) {
-          var modelText = converter.view(modelValue);
+          modelText = converter.view(modelValue);
           meta.view = modelText;
           return modelText;
         } else {
           var previousValue = converter.model(meta.view);
-          var modelText = converter.view(modelValue);
+          modelText = converter.view(modelValue);
           var normalisedPreviousText = converter.view(previousValue);
 
           if (modelText === normalisedPreviousText) {
@@ -575,22 +575,26 @@ function bindingObject(model, property, options) {
       }
     };
   }
-};
+}
 
 exports.binding = makeBinding;
 exports.html.binding = makeBinding;
 exports.html.meta = bindingMeta;
 
 function rawHtml() {
+  var selector;
+  var html;
+  var options;
+
   if (arguments.length == 2) {
-    var selector = arguments[0];
-    var html = arguments[1];
-    var options = {innerHTML: html};
+    selector = arguments[0];
+    html = arguments[1];
+    options = {innerHTML: html};
     return exports.html(selector, options);
   } else {
-    var selector = arguments[0];
-    var options = arguments[1];
-    var html = arguments[2];
+    selector = arguments[0];
+    options = arguments[1];
+    html = arguments[2];
     options.innerHTML = html;
     return exports.html(selector, options);
   }
@@ -618,4 +622,4 @@ function generateClassName(obj) {
   } else {
     return obj;
   }
-};
+}

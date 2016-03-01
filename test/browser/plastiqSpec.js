@@ -4,7 +4,6 @@ var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
-var rendering = require('../../rendering');
 
 describe('plastiq', function () {
   var div;
@@ -83,7 +82,7 @@ describe('plastiq', function () {
 
   describe('rendering', function () {
     it('can render a div', function () {
-      function render(model) {
+      function render() {
         return h('div.haha');
       }
 
@@ -93,7 +92,7 @@ describe('plastiq', function () {
     });
 
     it('can render pound sign', function () {
-      function render(model) {
+      function render() {
         return h('div','£');
       }
 
@@ -104,7 +103,7 @@ describe('plastiq', function () {
 
     function itCanRenderA(type, value, expectedValue) {
       it('can render a ' + type, function () {
-        function render(model) {
+        function render() {
           return h('div.haha', value);
         }
 
@@ -121,7 +120,7 @@ describe('plastiq', function () {
 
     describe('class', function () {
       it('accepts a string', function () {
-        function render(model) {
+        function render() {
           return h('div.one', {class: 'two three'});
         }
 
@@ -131,7 +130,7 @@ describe('plastiq', function () {
       });
 
       it('accepts an array of strings', function () {
-        function render(model) {
+        function render() {
           return h('div.one', {class: ['two', 'three']});
         }
 
@@ -141,7 +140,7 @@ describe('plastiq', function () {
       });
 
       it('accepts an object', function () {
-        function render(model) {
+        function render() {
           return h('div.one', {class: {two: true, three: true, four: false}});
         }
 
@@ -151,7 +150,7 @@ describe('plastiq', function () {
       });
 
       it('accepts an array with a mix of strings and objects', function () {
-        function render(model) {
+        function render() {
           return h('div.one', {class: ['two', ['three', {four: true, five: false}], {six: true, seven: false, eight: true}]});
         }
 
@@ -182,7 +181,7 @@ describe('plastiq', function () {
 
     describe('attribute naming exceptions', function () {
       it('can render a for attribute', function () {
-          function render(model) {
+          function render() {
             return h('div',
               h('label', {for: 'blah'})
             );
@@ -194,7 +193,7 @@ describe('plastiq', function () {
       });
 
       it('can render a contenteditable attribute', function () {
-          function render(model) {
+          function render() {
             return h('div', {contenteditable: true});
           }
 
@@ -204,7 +203,7 @@ describe('plastiq', function () {
       });
 
       it('can render a tabindex attribute', function () {
-          function render(model) {
+          function render() {
             return h('div', {tabindex: 3});
           }
 
@@ -214,7 +213,7 @@ describe('plastiq', function () {
       });
 
       it('can render a colspan attribute', function () {
-          function render(model) {
+          function render() {
             return h('table tbody tr td', {colspan: 3});
           }
 
@@ -224,7 +223,7 @@ describe('plastiq', function () {
       });
 
       it('can render data- attributes', function () {
-          function render(model) {
+          function render() {
             return h('div', {'data-one': 'one', 'data-two': 'two'});
           }
 
@@ -235,7 +234,7 @@ describe('plastiq', function () {
       });
 
       it('can render data- and dataset attributes', function () {
-          function render(model) {
+          function render() {
             return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
           }
 
@@ -249,7 +248,7 @@ describe('plastiq', function () {
 
     describe('non-standard HTML attributes', function () {
       it('can be rendered by passing an attributes object', function () {
-          function render(model) {
+          function render() {
             return h('div',
               h('input', {
                 type: 'text',
@@ -296,7 +295,7 @@ describe('plastiq', function () {
       });
 
       it('renders undefined as empty string', function () {
-        function render(model) {
+        function render() {
           return h.rawHtml('.raw', undefined);
         }
 
@@ -306,7 +305,7 @@ describe('plastiq', function () {
       });
 
       it('can render raw HTML with attributes', function () {
-        function render(model) {
+        function render() {
           return h('div',
             h.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
           );
@@ -415,7 +414,7 @@ describe('plastiq', function () {
   describe('norefresh', function () {
     it("when returned the view doesn't refresh after the handler has run", function () {
       var refreshes = 0;
-      function render(model) {
+      function render() {
         refreshes++;
 
         return h('div',
@@ -628,7 +627,7 @@ describe('plastiq', function () {
           h('input', {
             type: 'text',
             binding: [model, 'tempText'],
-            oninput: function (ev) {
+            oninput: function () {
               model.text = model.tempText;
             }
           }),
@@ -770,8 +769,7 @@ describe('plastiq', function () {
       });
     });
 
-    it('can bind to select with no value attributes on some of its options', function () {
-
+    it('can bind to select with no values on its options', function () {
       function render(model) {
         return h('div',
           h('select',
@@ -894,7 +892,7 @@ describe('plastiq', function () {
       function render() {
         return h.component(
           {
-            onadd: function (el) {
+            onadd: function () {
 
             }
           }
@@ -905,9 +903,7 @@ describe('plastiq', function () {
     });
 
     it('can expose long-running state for components', function () {
-      var events = [];
-
-      function render(model) {
+      function render() {
         return h.component(
           {
             onbeforeadd: function () {
@@ -945,8 +941,6 @@ describe('plastiq', function () {
     });
 
     it('renders and updates the vdom inside the component', function () {
-      var events = [];
-
       function render(model) {
         return h('div',
           h.component({
@@ -975,8 +969,6 @@ describe('plastiq', function () {
     });
 
     it('only refreshes the component when returned from an event', function () {
-      var events = [];
-
       function render(model) {
 
         return h('div',
@@ -1019,8 +1011,6 @@ describe('plastiq', function () {
     });
 
     it('only refreshes array of the components when returned from an event', function () {
-      var events = [];
-
       function render(model) {
         var component1 = h.component(function (component) {
             return h('div',
@@ -1101,13 +1091,13 @@ describe('plastiq', function () {
             ? h.component(
                 h.component(
                   {
-                    onadd: function (element) {
+                    onadd: function () {
                       events.push('add');
                     },
-                    onupdate: function (previous, element) {
+                    onupdate: function () {
                       events.push('update');
                     },
-                    onremove: function (element) {
+                    onremove: function () {
                       events.push('remove');
                     }
                   },
@@ -1251,7 +1241,7 @@ describe('plastiq', function () {
           h.component(
             {
               on: function (type, handler) {
-                return function(evt) {
+                return function() {
                   events.push('component ' + type);
                   return handler.apply(this, arguments);
                 }
@@ -1262,7 +1252,7 @@ describe('plastiq', function () {
                 h.component(
                   {
                     on: function (type, handler) {
-                      return function(evt) {
+                      return function() {
                         events.push('inner component ' + type);
                         return handler.apply(this, arguments);
                       }
@@ -1564,9 +1554,8 @@ describe('plastiq', function () {
       refreshCalled = false;
       h.currentRender = {
         attachment: {
-          refresh: function (component) {
+          refresh: function () {
             refreshCalled = true;
-            componentRefreshed = component;
           },
 
           requestRender: function (fn) {
@@ -1584,8 +1573,6 @@ describe('plastiq', function () {
     }
 
     function expectPromiseToRefresh(options, before, after) {
-      var model = {};
-
       h.binding({
         set: function () {
           return wait(10);

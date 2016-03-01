@@ -14,12 +14,6 @@ function WindowWidget(attributes) {
   });
 }
 
-function applyAttribute(attributes, name, element) {
-  if (/^on/.test(name)) {
-    element.addEventListener(name.substr(2), this[name]);
-  }
-}
-
 WindowWidget.prototype.type = 'Widget';
 
 WindowWidget.prototype.init = function () {
@@ -70,7 +64,6 @@ function applyPropertyDiffs(element, previous, current, previousCache, currentCa
 }
 
 WindowWidget.prototype.update = function (previous) {
-  var self = this;
   applyPropertyDiffs(window, previous.attributes, this.attributes, previous.cache, this.cache);
   this.component = previous.component;
   return this.element;
