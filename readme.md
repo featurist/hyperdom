@@ -75,9 +75,9 @@ Then
 
 # size
 
-* plastiq.js: 68K
-* plastiq.min.js: 27K
-* plastiq.min.js.gz: 9K
+* plastiq.js: 65K
+* plastiq.min.js: 26K
+* plastiq.min.js.gz: 8.7K
 
 # sister projects
 
