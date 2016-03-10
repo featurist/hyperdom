@@ -118,6 +118,16 @@ describe('plastiq', function () {
     itCanRenderA('date', new Date());
     itCanRenderA('undefined', undefined, '');
 
+    it('can render an object', function () {
+      function render() {
+        return h('div.haha', 'object ', { name: 'asdf' });
+      }
+
+      attach(render, {});
+
+      expect(find('.haha').text()).to.equal('object {"name":"asdf"}');
+    });
+
     describe('class', function () {
       it('accepts a string', function () {
         function render() {

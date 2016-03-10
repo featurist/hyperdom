@@ -1,8 +1,8 @@
-var h = require('virtual-dom/h');
+var h = require('./vhtml');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
-var coerceToVdom = require('./coerceToVdom');
+var coerceChildren = require('./coerceChildren');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
@@ -330,29 +330,6 @@ function inputType(selector, attributes) {
   }
 }
 
-function flatten(startIndex, array) {
-  var flatArray = [];
-
-  function append(startIndex, array) {
-    for(var n = startIndex; n < array.length; n++) {
-      var item = array[n];
-      if (item instanceof Array) {
-        append(0, item);
-      } else {
-        flatArray.push(item);
-      }
-    }
-  }
-
-  append(startIndex, array);
-
-  return flatArray;
-}
-
-function coerceChildren(children) {
-  return children.map(coerceToVdom);
-}
-
 var renames = {
   for: 'htmlFor',
   class: 'className',
@@ -436,19 +413,19 @@ exports.html = function (hierarchySelector) {
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
-    childElements = coerceChildren(flatten(2, arguments));
+    childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
 
     prepareAttributes(selector, attributes, childElements);
 
     vdom = h(selector, attributes, childElements);
   } else {
-    childElements = coerceChildren(flatten(1, arguments));
-    vdom = h(selector, childElements);
+    childElements = coerceChildren(Array.prototype.slice.call(arguments, 1));
+    vdom = h(selector, {}, childElements);
   }
 
   if (hasHierarchy) {
     for(var n = selectorElements.length - 2; n >= 0; n--) {
-      vdom = h(selectorElements[n], vdom);
+      vdom = h(selectorElements[n], {}, [vdom]);
     }
   }
 

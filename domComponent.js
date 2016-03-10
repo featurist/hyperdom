@@ -1,7 +1,6 @@
 var createElement = require('virtual-dom/create-element');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
-var coerceToVdom = require('./coerceToVdom');
 var isVnode = require('virtual-dom/vnode/is-vnode');
 var isWidget = require('virtual-dom/vnode/is-widget');
 
@@ -12,7 +11,7 @@ DomComponent.prototype.create = function (vdom) {
   if (!isVnode(vdom) && !isWidget(vdom)) {
     throw new Error('expected render to return vdom');
   }
-  this.vdom = coerceToVdom(vdom);
+  this.vdom = vdom;
   this.element = createElement(this.vdom);
   return this.element;
 };

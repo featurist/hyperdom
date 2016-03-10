@@ -35,7 +35,8 @@
     "ci": "karma start karma.conf-ci.js --single-run",
     "mocha": "mocha test/server/*Spec.js",
     "build": "browserify browser.js > plastiq.js && uglifyjs --compress warnings=false --mangle -- plastiq.js > plastiq.min.js",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "size": "npm run build && gzip < plastiq.min.js > plastiq.min.js.gz && ls -lh plastiq.*"
   },
   "keywords": [
     "virtual-dom",
