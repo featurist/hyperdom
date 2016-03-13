@@ -539,6 +539,10 @@ function bindingObject(model, property) {
         } catch (e) {
           meta.error = e;
         }
+      },
+
+      meta: function() {
+        return bindingMeta(model, property);
       }
     };
   } else {
@@ -549,6 +553,10 @@ function bindingObject(model, property) {
 
       set: function (value) {
         model[property] = value;
+      },
+
+      meta: function() {
+        return bindingMeta(model, property);
       }
     };
   }
