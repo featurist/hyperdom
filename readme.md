@@ -259,7 +259,7 @@ class App {
         return <li>person.name</li>;
       })}</ul>
       <button onclick="function () {
-        model.people.push({name: 'Person ' + (this.people.length + 1)});
+        this.people.push({name: 'Person ' + (this.people.length + 1)});
       }">
         Add Person
        </button>
@@ -470,8 +470,8 @@ class App {
           reader.readAsText(file);
 
           reader.onloadend = function () {
-            model.filename = file.name;
-            model.contents = reader.result;
+            this.filename = file.name;
+            this.contents = reader.result;
             result();
           };
         });
@@ -538,7 +538,7 @@ var blue = { name: 'blue' };
 class App {
   render() {
     return <div>
-    model.show
+    this.show
       ? h.component(
           {
             onbeforeadd: function () {
@@ -720,12 +720,12 @@ class App {
     return <div>
     <h3>People</h3>
     <ol>
-      {model.people.map(function (person) {
+      {this.people.map(function (person) {
         return renderPerson(person);
       })}
     </ol>
     <button onclick="function () {
-      model.counter++;
+      this.counter++;
     }">
       refresh page
     </button>
@@ -891,11 +891,11 @@ class App {
   render() {
     return <div>
     <ul>
-      {model.animals.map(function (animal) {
+      {this.animals.map(function (animal) {
         return h('li', animal.render(model));
       })}
     </ul>
-    <h1 style="color:red"> {model.sound? model.sound} ! </h1>
+    <h1 style="color:red"> {this.sound? this.sound} ! </h1>
     </div>;
 }
 plastiq.append(document.body, new App({
