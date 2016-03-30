@@ -1652,6 +1652,35 @@ describe('plastiq', function () {
       });
     });
   });
+
+  describe('html.meta()', function() {
+    it('stores temporary state without updating the model', function() {
+      var integer = {
+        view: function(model) {
+          return (model || '').toString();
+        },
+        model: function(view) {
+          if (!/^\d+$/.test(view)) { throw new Error('Must be an integer'); }
+          return Number(view);
+        }
+      }
+      function render(model) {
+        return h('input.x', {binding: [model, 'x', integer]});
+      }
+      var model = {};
+      attach(render, model);
+      find('input.x').sendkeys('1');
+      return retry(function() {
+        expect(model.x).to.equal(1);
+      }).then(function() {
+        find('input.x').sendkeys('z');
+        return retry(function() {
+          expect(plastiq.html.meta(model, 'x').error.message).to.equal('Must be an integer');
+          expect(model.x).to.equal(1);
+        });
+      });
+    });
+  });
 });
 
 function wait(n) {
