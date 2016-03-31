@@ -46,15 +46,37 @@ function isComponent(component) {
     && typeof component.destroy === 'function';
 }
 
+exports.merge = function (element, render, model, options) {
+  var attachment = startAttachment(render, model, options, function(render) {
+    var component = domComponent();
+    exports.html.currentRender.eventHandlerWrapper = function() {
+      return null;
+    };
+    var vdom = render();
+    component.merge(vdom, element);
+    return component;
+  });
+
+  attachment.refresh();
+
+  return attachment;
+};
+
 exports.append = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(createdElement) {
-    element.appendChild(createdElement);
+  return startAttachment(render, model, options, function(render) {
+    var component = domComponent();
+    var vdom = render();
+    element.appendChild(component.create(vdom));
+    return component;
   });
 };
 
 exports.replace = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(createdElement) {
-    element.parentNode.replaceChild(createdElement, element);
+  return startAttachment(render, model, options, function(render) {
+    var component = domComponent();
+    var vdom = render();
+    element.parentNode.replaceChild(component.create(vdom), element);
+    return component;
   });
 };
 
@@ -96,11 +118,10 @@ function start(render, options, attachToDom) {
     attached: true
   }
 
-  var component = domComponent();
+  var component;
 
   doThenFireAfterRender(attachment, function () {
-    var vdom = render();
-    attachToDom(component.create(vdom));
+    component = attachToDom(render);
   });
 
   return {
@@ -110,7 +131,8 @@ function start(render, options, attachToDom) {
     remove: function () {
       component.destroy({removeElement: true});
       attachment.attached = false;
-    }
+    },
+    refresh: refresh
   };
 }
 
@@ -351,7 +373,8 @@ function prepareAttributes(selector, attributes, childElements) {
 
     if (typeof(attribute) == 'function') {
       if (eventHandlerWrapper) {
-        attributes[key] = refreshify(exports.html.currentRender.eventHandlerWrapper.call(undefined, key.replace(/^on/, ''), attribute));
+        var fn = eventHandlerWrapper.call(undefined, key.replace(/^on/, ''), attribute);
+        attributes[key] = typeof fn === 'function'? refreshify(fn): fn;
       } else {
         attributes[key] = refreshify(attribute);
       }
