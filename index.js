@@ -4,6 +4,7 @@ exports.html = rendering.html;
 exports.attach = rendering.attach;
 exports.replace = rendering.replace;
 exports.append = rendering.append;
+exports.merge = rendering.merge;
 
 exports.bind = require('./oldbind');
 exports.binding = rendering.binding;
