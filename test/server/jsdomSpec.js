@@ -20,6 +20,7 @@ describe('plastiq', function() {
 
           plastiq.append(window.document.body, render, {}, {
             window: window,
+            document: window.document,
             requestRender: requestRender
           });
           expect(window.document.body.childNodes[0].tagName).to.equal('P');

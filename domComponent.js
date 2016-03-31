@@ -4,7 +4,8 @@ var patch = require('virtual-dom/patch');
 var isVnode = require('virtual-dom/vnode/is-vnode');
 var isWidget = require('virtual-dom/vnode/is-widget');
 
-function DomComponent() {
+function DomComponent(options) {
+  this.document = options && options.document;
 }
 
 DomComponent.prototype.create = function (vdom) {
@@ -12,7 +13,7 @@ DomComponent.prototype.create = function (vdom) {
     throw new Error('expected render to return vdom');
   }
   this.vdom = vdom;
-  return this.element = createElement(this.vdom);
+  return this.element = createElement(this.vdom, {document: this.document});
 };
 
 DomComponent.prototype.merge = function (vdom, element) {
@@ -46,8 +47,8 @@ DomComponent.prototype.destroy = function (options) {
   }
 };
 
-function domComponent() {
-  return new DomComponent();
+function domComponent(options) {
+  return new DomComponent(options);
 }
 
 module.exports = domComponent;

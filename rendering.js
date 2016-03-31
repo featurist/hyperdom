@@ -47,8 +47,8 @@ function isComponent(component) {
 }
 
 exports.merge = function (element, render, model, options) {
-  var attachment = startAttachment(render, model, options, function(render) {
-    var component = domComponent();
+  var attachment = startAttachment(render, model, options, function(render, domComponentOptions) {
+    var component = domComponent(domComponentOptions);
     exports.html.currentRender.eventHandlerWrapper = function() {
       return null;
     };
@@ -63,8 +63,8 @@ exports.merge = function (element, render, model, options) {
 };
 
 exports.append = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(render) {
-    var component = domComponent();
+  return startAttachment(render, model, options, function(render, domComponentOptions) {
+    var component = domComponent(domComponentOptions);
     var vdom = render();
     element.appendChild(component.create(vdom));
     return component;
@@ -72,8 +72,8 @@ exports.append = function (element, render, model, options) {
 };
 
 exports.replace = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(render) {
-    var component = domComponent();
+  return startAttachment(render, model, options, function(render, domComponentOptions) {
+    var component = domComponent(domComponentOptions);
     var vdom = render();
     element.parentNode.replaceChild(component.create(vdom), element);
     return component;
@@ -121,7 +121,10 @@ function start(render, options, attachToDom) {
   var component;
 
   doThenFireAfterRender(attachment, function () {
-    component = attachToDom(render);
+    if (options) {
+      var domComponentOptions = {document: options.document};
+    }
+    component = attachToDom(render, domComponentOptions);
   });
 
   return {
