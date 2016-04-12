@@ -9,6 +9,7 @@
   "devDependencies": {
     "benchmark": "1.0.0",
     "bluebird": "^2.9.12",
+    "browser-monkey": "1.28.2",
     "browserify": "9.0.3",
     "chai": "2.0.0",
     "jquery": "^2.1.3",

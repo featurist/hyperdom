@@ -4,6 +4,7 @@ var h = plastiq.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
+var browser = require('browser-monkey').find('.test');
 
 describe('plastiq', function () {
   var div;
@@ -1665,15 +1666,20 @@ describe('plastiq', function () {
         }
       }
       function render(model) {
-        return h('input.x', {binding: [model, 'x', integer]});
+        return h('div',
+          h('input.x', {binding: [model, 'x', integer]})
+        );
       }
       var model = {};
       attach(render, model);
-      find('input.x').sendkeys('1');
-      return retry(function() {
-        expect(model.x).to.equal(1);
-      }).then(function() {
-        find('input.x').sendkeys('z');
+
+      return browser.find('input.x').typeIn('1').then(function () {
+        return retry(function () {
+          expect(model.x).to.equal(1);
+        });
+      }).then(function () {
+        return browser.find('input.x').typeIn('x');
+      }).then(function () {
         return retry(function() {
           expect(plastiq.html.meta(model, 'x').error.message).to.equal('Must be an integer');
           expect(model.x).to.equal(1);
