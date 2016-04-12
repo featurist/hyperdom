@@ -391,6 +391,34 @@ plastiq.append(document.body, render, {
 
 Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
 
+## Storing temporary state to prevent immediate model binding
+
+When the user input represents an invalid model value, you may not want to bind that value on to the model immediately. For example, when converting the input value to the model type would discard the user's temporary input value. In these cases, you can use a custom transformer, like this:
+
+```JavaScript
+var mustBeAnInteger = {
+  view: function(model) {
+    // convert the model value into the user input value
+    return model.toString();
+  },
+  model: function(view) {
+    // convert the user input value into the model value, or throw an error
+    if (!/^\d+$/.test(view)) {
+      throw new Error('Must be an integer');
+    } else {
+      return Number(view);
+    }
+  }
+}
+function render(model) {
+  return h('div',
+    h('input', {binding: [model, 'age', mustBeAnInteger]})
+  );
+}
+```
+
+plastiq stores the temporary state in an object called `_plastiqMeta` on your model object, until the converter's `model(view)` function stops throwing errors.
+
 ## Components
 
 Components can be used to track the life-time of some HTML. This is usually helpful if you want to
