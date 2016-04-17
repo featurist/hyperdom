@@ -80,6 +80,27 @@ exports.replace = function (element, render, model, options) {
   });
 };
 
+exports.appendVDom = function (vdom, render, model, options) {
+  return startAttachment(render, model, options, function(render) {
+    var component = {
+      create: function(newVDom) {
+        vdom.children = [];
+        if (newVDom) {
+          vdom.children.push(newVDom);
+        }
+      },
+      update: function(newVDom) {
+        vdom.children = [];
+        if (newVDom) {
+          vdom.children.push(newVDom);
+        }
+      }
+    };
+    component.create(render());
+    return component;
+  });
+};
+
 var attachmentId = 1;
 
 function startAttachment(render, model, options, attachToDom) {

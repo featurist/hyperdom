@@ -81,6 +81,18 @@ describe('plastiq', function () {
       expect(div.innerHTML).to.equal('<div class="rendered"></div>');
     });
 
+    it('can append to a vdom node', function () {
+      function render() {
+        return h('div.rendered');
+      }
+
+      var targetVDom = h('body');
+
+      plastiq.appendVDom(targetVDom, render);
+
+      expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
+    });
+
     it('can merge onto an existing DOM', function () {
       function render(model) {
         return h('div.static',
