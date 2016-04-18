@@ -5,6 +5,7 @@ var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
 var browser = require('browser-monkey').find('.test');
+var vdomToHtml = require('vdom-to-html');
 
 describe('plastiq', function () {
   var div;
@@ -78,6 +79,53 @@ describe('plastiq', function () {
       plastiq.replace(targetDiv, render);
 
       expect(div.innerHTML).to.equal('<div class="rendered"></div>');
+    });
+
+    it('can append to a vdom node', function () {
+      function render() {
+        return h('div.rendered');
+      }
+
+      var targetVDom = h('body');
+
+      plastiq.appendVDom(targetVDom, render);
+
+      expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
+    });
+
+    it('can merge onto an existing DOM', function () {
+      function render(model) {
+        return h('div.static',
+          h('h1', model.name),
+          h('button.update',
+            {
+              onclick: function () {
+                model.name = 'plastiq render';
+              }
+            },
+            'update'
+          )
+        );
+      }
+
+      var model = {name: 'static render'};
+
+      $(targetDiv).replaceWith(vdomToHtml(render(model)));
+
+      var mergeDiv = div.children[0];
+
+      plastiq.merge(mergeDiv, render, model);
+
+      return retry(function () {
+        expect(find('button.update')[0].onclick).to.exist;
+      }).then(function () {
+        return click('button.update').then(function () {
+        }).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('plastiq render');
+          });
+        });
+      });
     });
   });
 
