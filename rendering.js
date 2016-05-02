@@ -329,6 +329,7 @@ var inputTypeBindings = {
     });
 
     var values = [];
+    var selectedIndex;
 
     for(var n = 0; n < options.length; n++) {
       var option = options[n];
@@ -337,11 +338,22 @@ var inputTypeBindings = {
 
       values.push(value != undefined? value: text);
 
-      option.properties.selected = value == currentValue || text == currentValue;
+      var selected = value == currentValue || text == currentValue;
+
+      if (selected) {
+        selectedIndex = n;
+      }
+
+      option.properties.selected = selected;
       option.properties.value = n;
     }
 
+    if (selectedIndex !== undefined) {
+      attributes.selectedIndex = selectedIndex;
+    }
+
     attachEventHandler(attributes, 'onchange', function (ev) {
+      attributes.selectedIndex = ev.target.selectedIndex;
       set(values[ev.target.value]);
     });
   },
