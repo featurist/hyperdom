@@ -14,7 +14,7 @@ Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) an
 in JSX, using [babel](https://babeljs.io/)
 
 ```jsx
-/** @jsx plastiq.html */
+/** @jsx plastiq.jsx */
 var plastiq = require('plastiq');
 
 class App {
@@ -92,6 +92,17 @@ Then
 * [plastiq-sortable](https://github.com/featurist/plastiq-sortable)
 * [plastiq-throttle](https://github.com/featurist/plastiq-throttle)
 * [plastiq-zeroclipboard](https://github.com/featurist/plastiq-zeroclipboard)
+
+# JSX
+
+JSX is well supported, and can perform faster than using non-JSX `plastiq.html()` as JSX is slightly less flexible expression of VDOM, (you can't specify selectors as you can using `plastiq.html()`.)
+
+Insert the following lines at the top of your `.jsx` file:
+
+```jsx
+/** @jsx plastiq.jsx */
+var plastiq = require('plastiq');
+```
 
 # Features
 

@@ -3,6 +3,7 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
 var coerceChildren = require('./coerceChildren');
+var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag.js');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
@@ -398,7 +399,7 @@ var renames = {
 
 var dataAttributeRegex = /^data-/;
 
-function prepareAttributes(selector, attributes, childElements) {
+function prepareAttributes(tag, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
   var eventHandlerWrapper = exports.html.currentRender && exports.html.currentRender.eventHandlerWrapper;
@@ -444,7 +445,7 @@ function prepareAttributes(selector, attributes, childElements) {
   }
 
   if (attributes.binding) {
-    bindModel(attributes, childElements, inputType(selector, attributes));
+    bindModel(attributes, childElements, inputType(tag, attributes));
     delete attributes.binding;
   }
 }
@@ -469,17 +470,19 @@ exports.html = function (hierarchySelector) {
   var attributes;
   var childElements;
   var vdom;
+  var tag;
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
     childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
-
     prepareAttributes(selector, attributes, childElements);
-
-    vdom = h(selector, attributes, childElements);
+    tag = parseTag(selector, attributes);
+    vdom = h(tag, attributes, childElements);
   } else {
+    attributes = {};
     childElements = coerceChildren(Array.prototype.slice.call(arguments, 1));
-    vdom = h(selector, {}, childElements);
+    tag = parseTag(selector, attributes);
+    vdom = h(tag, attributes, childElements);
   }
 
   if (hasHierarchy) {
@@ -489,6 +492,14 @@ exports.html = function (hierarchySelector) {
   }
 
   return vdom;
+};
+
+exports.jsx = function (tag, attributes) {
+  var childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
+  if (attributes) {
+    prepareAttributes(tag, attributes, childElements);
+  }
+  return h(tag, attributes || {}, childElements);
 };
 
 exports.html.refreshify = refreshify;
@@ -559,12 +570,17 @@ function chainConverters(startIndex, converters) {
 }
 
 function bindingObject(model, property) {
+  var _meta;
+  function plastiqMeta() {
+    return _meta || (_meta = bindingMeta(model, property));
+  }
+
   if (arguments.length > 2) {
     var converter = chainConverters(2, arguments);
 
     return {
       get: function() {
-        var meta = bindingMeta(model, property);
+        var meta = plastiqMeta();
         var modelValue = model[property];
         var modelText;
 
@@ -589,7 +605,7 @@ function bindingObject(model, property) {
       },
 
       set: function(view) {
-        var meta = bindingMeta(model, property);
+        var meta = plastiqMeta();
         meta.view = view;
 
         try {
@@ -601,7 +617,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return bindingMeta(model, property);
+        return plastiqMeta();
       }
     };
   } else {
@@ -615,7 +631,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return bindingMeta(model, property);
+        return plastiqMeta();
       }
     };
   }

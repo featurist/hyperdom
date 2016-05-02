@@ -1,8 +1,5 @@
 var vtext = require("virtual-dom/vnode/vtext.js")
-var isVNode = require('virtual-dom/vnode/is-vnode');
-var isVText = require('virtual-dom/vnode/is-vtext');
-var isWidget = require('virtual-dom/vnode/is-widget');
-var isVThunk = require('virtual-dom/vnode/is-thunk');
+var version = require("virtual-dom/vnode/version")
 
 function addChild(children, child) {
   if (child instanceof Array) {
@@ -31,5 +28,10 @@ module.exports = function (child) {
 };
 
 function isChild(x) {
-    return isVNode(x) || isVText(x) || isWidget(x) || isVThunk(x);
+  var type = x.type;
+  if (type == 'VirtualNode' || type == 'VirtualText') {
+    return x.version == version;
+  } else if (type == 'Widget' || type == 'Thunk') {
+    return true;
+  }
 }

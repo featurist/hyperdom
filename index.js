@@ -1,6 +1,7 @@
 var rendering = require('./rendering');
 
 exports.html = rendering.html;
+exports.jsx = rendering.jsx;
 exports.attach = rendering.attach;
 exports.replace = rendering.replace;
 exports.append = rendering.append;
