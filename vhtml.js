@@ -23,7 +23,7 @@ function h(tagName, props, children) {
   }
 
   // fix cursor bug
-  if (tag === 'INPUT' &&
+  if (tag.toLowerCase() === 'input' &&
     !namespace &&
     props.hasOwnProperty('value') &&
     props.value !== undefined &&
