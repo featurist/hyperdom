@@ -298,6 +298,18 @@ function attachEventHandler(attributes, eventNames, handler) {
   }
 }
 
+function ListenerHook(listener) {
+  this.listener = exports.html.refreshify(listener);
+}
+
+ListenerHook.prototype.hook = function (element, propertyName, previous) {
+  element.addEventListener(propertyName.substring(2), this.listener, false);
+};
+
+ListenerHook.prototype.unhook = function (element, propertyName) {
+  element.removeEventListener(propertyName.substring(2), this.listener);
+};
+
 var inputTypeBindings = {
   text: bindTextInput,
 
@@ -315,9 +327,19 @@ var inputTypeBindings = {
   radio: function (attributes, children, get, set) {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
+    attributes.on_plastiqsyncchecked = new ListenerHook(function (event) {
+      attributes.checked = event.target.checked;
+    });
 
-    attachEventHandler(attributes, 'onclick', function () {
-      attributes.checked = true;
+    attachEventHandler(attributes, 'onclick', function (event) {
+      var name = event.target.name;
+      if (name) {
+        var inputs = document.getElementsByName(name);
+        for (var i = 0, l = inputs.length; i < l; i++) {
+          var radio = inputs[i];
+          radio.dispatchEvent(new Event('_plastiqsyncchecked'));
+        }
+      }
       set(value);
     });
   },

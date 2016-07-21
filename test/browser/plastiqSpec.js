@@ -31,6 +31,15 @@ describe('plastiq', function () {
     });
   }
 
+  function check(selector) {
+    return retry(function () {
+      expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'");
+    }).then(function () {
+      find(selector).prop('checked', true);
+      find(selector).click();
+    });
+  }
+
   describe('attaching', function () {
     var targetDiv;
 
@@ -559,28 +568,19 @@ describe('plastiq', function () {
       it('radio', function () {
         function render(model) {
           return h('div',
-            !model.hide1
-              ? h('div',
-                  h('label', h('input.show-one', {type: 'radio', binding: [model, 'hide1'], value: false}), 'show one'),
-                  h('label', h('input.hide-one', {type: 'radio', binding: [model, 'hide1'], value: true}), 'hide one')
-                )
-              : undefined,
-            !model.hide2
-              ? h('div',
-                  h('label', h('input.show-two', {type: 'radio', binding: [model, 'hide2'], value: false}), 'show two'),
-                  h('label', h('input.hide-two', {type: 'radio', binding: [model, 'hide2'], value: true}), 'hide two')
-                )
-              : undefined
+            model.value == 1? h('h1', 'selected one'): undefined,
+            h('label', h('input.one', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 1, id: 'one'}), 'one'),
+            h('label', h('input.two', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 2, id: 'two'}), 'two')
           );
         }
 
-        attach(render, {});
+        attach(render, {value: 1});
 
-        return click('.hide-one').then(function () {
+        return check('.two').then(function () {
           return retry(function () {
-            expect(find('input.show-one').length).to.equal(0);
-            expect(find('input.hide-one').length).to.equal(0);
-            expect(find('input.hide-two').prop('checked')).to.equal(false);
+            expect(find('h1').length).to.equal(0);
+            expect(find('input.one')[0].checked).to.equal(false);
+            expect(find('input.two')[0].checked).to.equal(true);
           });
         });
       });
