@@ -16,6 +16,18 @@ var browsers = {
     platform: 'OS X 10.9',
     version: '7.1'
   },
+  sl_ie_9: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 8.1',
+    version: '9'
+  },
+  sl_ie_10: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 8.1',
+    version: '10'
+  },
   sl_ie_11: {
     base: 'SauceLabs',
     browserName: 'internet explorer',
