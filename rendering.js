@@ -310,6 +310,16 @@ ListenerHook.prototype.unhook = function (element, propertyName) {
   element.removeEventListener(propertyName.substring(2), this.listener);
 };
 
+function customEvent(name) {
+  if (typeof window.Event == 'function') {
+    return new Event('_plastiqsyncchecked');
+  } else {
+    var customEvent = document.createEvent('Event');
+    customEvent.initEvent('_plastiqsyncchecked', false, false);
+    return customEvent;
+  }
+}
+
 var inputTypeBindings = {
   text: bindTextInput,
 
@@ -337,7 +347,7 @@ var inputTypeBindings = {
         var inputs = document.getElementsByName(name);
         for (var i = 0, l = inputs.length; i < l; i++) {
           var radio = inputs[i];
-          radio.dispatchEvent(new Event('_plastiqsyncchecked'));
+          radio.dispatchEvent(customEvent('_plastiqsyncchecked'));
         }
       }
       set(value);
