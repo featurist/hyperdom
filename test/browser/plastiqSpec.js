@@ -290,28 +290,32 @@ describe('plastiq', function () {
           expect(find('table tbody tr td').attr('colspan')).to.eql('3');
       });
 
-      it('can render data- attributes', function () {
-          function render() {
-            return h('div', {'data-one': 'one', 'data-two': 'two'});
-          }
+      if (typeof document.body.dataset == 'object') {
+        describe('data- attributes', function () {
+          it('can render data- attributes', function () {
+            function render() {
+              return h('div', {'id': 'bals', 'data-one': 'one', 'data-two': 'two'});
+            }
 
-          attach(render);
+            attach(render);
 
-          expect(find('div').data('one')).to.eql('one');
-          expect(find('div').data('two')).to.eql('two');
-      });
+            expect(find('div').data('one')).to.eql('one');
+            expect(find('div').data('two')).to.eql('two');
+          });
 
-      it('can render data- and dataset attributes', function () {
-          function render() {
-            return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
-          }
+          it('can render data- and dataset attributes', function () {
+            function render() {
+              return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
+            }
 
-          attach(render);
+            attach(render);
 
-          expect(find('div').data('one')).to.eql('one');
-          expect(find('div').data('two')).to.eql('two');
-          expect(find('div').data('three')).to.eql('three');
-      });
+            expect(find('div').data('one')).to.eql('one');
+            expect(find('div').data('two')).to.eql('two');
+            expect(find('div').data('three')).to.eql('three');
+          });
+        });
+      }
     });
 
     describe('non-standard HTML attributes', function () {
