@@ -77,9 +77,9 @@ Then
 
 # size
 
-* plastiq.js: 65K
-* plastiq.min.js: 26K
-* plastiq.min.js.gz: 8.7K
+* plastiq.js: 69K
+* plastiq.min.js: 28K
+* plastiq.min.js.gz: 9.1K
 
 # browser support
 
