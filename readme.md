@@ -9,6 +9,8 @@ Of course, the **model** can be as simple or sophisticated as you need, and you 
 
 Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
+Sponsored by [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo@2x.png)](https://www.Browserstack.com/).
+
 # An Example
 
 in JSX, using [babel](https://babeljs.io/)
@@ -78,6 +80,17 @@ Then
 * plastiq.js: 65K
 * plastiq.min.js: 26K
 * plastiq.min.js.gz: 8.7K
+
+# browser support
+
+* IE 9, 10, 11
+* Edge
+* Safari
+* Safari iOS
+* Firefox
+* Chrome
+
+Other browsers are likely to work but aren't routinely tested.
 
 # sister projects
 
