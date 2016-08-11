@@ -703,8 +703,8 @@ describe('plastiq', function () {
       find('input').sendkeys('haha{newline}');
 
       return retry(function() {
-        expect(find('span').text()).to.equal('haha');
-        expect(find('input').val()).to.equal('haha');
+        expect(find('span').text()).to.contain('haha');
+        expect(find('input').val()).to.contain('haha');
       });
     });
 
