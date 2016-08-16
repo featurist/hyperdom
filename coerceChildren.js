@@ -1,5 +1,6 @@
 var vtext = require("virtual-dom/vnode/vtext.js")
 var version = require("virtual-dom/vnode/version")
+var ViewModel = require('./viewModel');
 
 function addChild(children, child) {
   if (child instanceof Array) {
@@ -16,6 +17,8 @@ function addChild(children, child) {
     children.push(new vtext(child.toString()));
   } else if (isChild(child)) {
     children.push(child);
+  } else if (typeof child.render === 'function') {
+    children.push(new ViewModel(child));
   } else {
     children.push(new vtext(JSON.stringify(child)));
   }

@@ -1537,6 +1537,90 @@ describe('plastiq', function () {
     });
   });
 
+  describe('models', function () {
+    it('calls onload once when HTML appears on page', function () {
+      var model = {
+        loaded: 0,
+        refreshed: 0,
+
+        onload: function () {
+          var self = this;
+          return wait(20).then(function () {
+            self.loaded++;
+          });
+        },
+
+        render: function() {
+          this.refreshed++;
+          return h('div',
+            h('h1.loaded', 'loaded ' + this.loaded + ' times'),
+            h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
+            h('button.refresh', {onclick: function () {}}, 'refresh')
+          );
+        }
+      };
+
+      attach(model);
+
+      return retry(function () {
+        expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+        expect(find('h1.refreshed').text()).to.equal('refreshed 2 times');
+      }).then(function () {
+        return click('button.refresh');
+      }).then(function () {
+        return retry(function () {
+          expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+          expect(find('h1.refreshed').text()).to.equal('refreshed 3 times');
+        });
+      });
+    });
+
+    describe('inner models', function () {
+      it('calls onload once when HTML appears on page', function () {
+        var model = {
+          innerModel: {
+            loaded: 0,
+            refreshed: 0,
+
+            onload: function () {
+              var self = this;
+              return wait(20).then(function () {
+                self.loaded++;
+              });
+            },
+
+            render: function() {
+              this.refreshed++;
+              return h('div',
+                h('h1.loaded', 'loaded ' + this.loaded + ' times'),
+                h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
+                h('button.refresh', {onclick: function () {}}, 'refresh')
+              );
+            }
+          },
+
+          render: function () {
+            return h('div.outer', this.innerModel);
+          }
+        };
+
+        attach(model);
+
+        return retry(function () {
+          expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+          expect(find('h1.refreshed').text()).to.equal('refreshed 2 times');
+        }).then(function () {
+          return click('button.refresh');
+        }).then(function () {
+          return retry(function () {
+            expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+            expect(find('h1.refreshed').text()).to.equal('refreshed 3 times');
+          });
+        });
+      });
+    });
+  });
+
   describe('plastiq.html.refreshAfter', function () {
     it('refreshes after the promise is complete', function () {
       function load(model) {

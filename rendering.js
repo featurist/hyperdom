@@ -3,7 +3,8 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
 var coerceChildren = require('./coerceChildren');
-var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag.js');
+var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag');
+var ViewModel = require('./viewModel');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
@@ -48,12 +49,12 @@ function isComponent(component) {
 }
 
 exports.merge = function (element, render, model, options) {
-  var attachment = startAttachment(render, model, options, function(render, domComponentOptions) {
+  var attachment = startAttachment(render, model, options, function(model, domComponentOptions) {
     var component = domComponent(domComponentOptions);
     exports.html.currentRender.eventHandlerWrapper = function() {
       return null;
     };
-    var vdom = render();
+    var vdom = model.render();
     component.merge(vdom, element);
     return component;
   });
@@ -64,25 +65,25 @@ exports.merge = function (element, render, model, options) {
 };
 
 exports.append = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(render, domComponentOptions) {
+  return startAttachment(render, model, options, function(model, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    var vdom = render();
+    var vdom = model.render();
     element.appendChild(component.create(vdom));
     return component;
   });
 };
 
 exports.replace = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(render, domComponentOptions) {
+  return startAttachment(render, model, options, function(model, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    var vdom = render();
+    var vdom = model.render();
     element.parentNode.replaceChild(component.create(vdom), element);
     return component;
   });
 };
 
 exports.appendVDom = function (vdom, render, model, options) {
-  return startAttachment(render, model, options, function(render) {
+  return startAttachment(render, model, options, function(model) {
     var component = {
       create: function(newVDom) {
         vdom.children = [];
@@ -97,7 +98,7 @@ exports.appendVDom = function (vdom, render, model, options) {
         }
       }
     };
-    component.create(render());
+    component.create(model.render());
     return component;
   });
 };
@@ -106,13 +107,13 @@ var attachmentId = 1;
 
 function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object' && typeof render.render == 'function') {
-    return start(function () { return render.render(); }, model, attachToDom);
+    return start(render, model, attachToDom);
   } else {
-    return start(function () { return render(model); }, options, attachToDom);
+    return start({render: function () { return render(model); }}, options, attachToDom);
   }
 }
 
-function start(render, options, attachToDom) {
+function start(model, options, attachToDom) {
   var win = (options && options.window) || window;
   var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
   var requested = false;
@@ -124,7 +125,7 @@ function start(render, options, attachToDom) {
 
         if (attachment.attached) {
           doThenFireAfterRender(attachment, function () {
-            var vdom = render();
+            var vdom = model.render();
             component.update(vdom);
           });
         }
@@ -146,7 +147,7 @@ function start(render, options, attachToDom) {
     if (options) {
       var domComponentOptions = {document: options.document};
     }
-    component = attachToDom(render, domComponentOptions);
+    component = attachToDom(new ViewModel(model), domComponentOptions);
   });
 
   return {
@@ -499,13 +500,12 @@ exports.html = function (hierarchySelector) {
     selector = hierarchySelector;
   }
 
-  var attributes;
   var childElements;
   var vdom;
   var tag;
+  var attributes = arguments[1];
 
-  if (arguments[1] && arguments[1].constructor == Object) {
-    attributes = arguments[1];
+  if (attributes && attributes.constructor == Object && typeof attributes.render !== 'function') {
     childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
     prepareAttributes(selector, attributes, childElements);
     tag = parseTag(selector, attributes);
