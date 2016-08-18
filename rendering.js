@@ -255,7 +255,7 @@ function refreshAfter(promise) {
 }
 
 function bindTextInput(attributes, children, get, set) {
-  var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
+  var textEventNames = ['onkeyup', 'oninput', 'onpaste', 'textInput'];
 
   var bindingValue = get();
   if (!(bindingValue instanceof Error)) {
