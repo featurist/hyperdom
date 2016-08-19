@@ -145,7 +145,6 @@ ViewModel.prototype.destroy = function (element) {
   var meta = plastiqMeta(this.model);
   meta.widgets.delete(this);
 
-
   if (self.model.onremove) {
     this.afterRender(function () {
       self.model.onremove(element);
