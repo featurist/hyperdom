@@ -1,6 +1,6 @@
 var vtext = require("virtual-dom/vnode/vtext.js")
 var version = require("virtual-dom/vnode/version")
-var ViewModel = require('./viewModel');
+var rendering = require('./rendering');
 
 function addChild(children, child) {
   if (child instanceof Array) {
@@ -9,18 +9,8 @@ function addChild(children, child) {
     }
   } else if (child === undefined || child === null) {
     // remove child
-  } else if (typeof(child) != 'object') {
-    children.push(new vtext(String(child)));
-  } else if (child instanceof Date) {
-    children.push(new vtext(String(child)));
-  } else if (child instanceof Error) {
-    children.push(new vtext(child.toString()));
-  } else if (isChild(child)) {
-    children.push(child);
-  } else if (typeof child.render === 'function') {
-    children.push(new ViewModel(child));
   } else {
-    children.push(new vtext(JSON.stringify(child)));
+    children.push(toVdom(child));
   }
 }
 
@@ -29,6 +19,24 @@ module.exports = function (child) {
   addChild(children, child);
   return children;
 };
+
+function toVdom(object) {
+  if (typeof(object) != 'object') {
+    return new vtext(String(object));
+  } else if (object instanceof Date) {
+    return new vtext(String(object));
+  } else if (object instanceof Error) {
+    return new vtext(object.toString());
+  } else if (isChild(object)) {
+    return object;
+  } else if (typeof object.render === 'function') {
+    return new rendering.ViewModel(object);
+  } else {
+    return new vtext(JSON.stringify(object));
+  }
+}
+
+module.exports.toVdom = toVdom;
 
 function isChild(x) {
   var type = x.type;

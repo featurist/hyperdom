@@ -1,14 +1,52 @@
 var domComponent = require('./domComponent');
 var rendering = require('./rendering');
+var plastiqMeta = require('./meta');
+
+var Widgets;
+if (typeof window.Set === 'function') {
+  Widgets = window.Set;
+} else {
+  Widgets = function() {
+    this.widgets = [];
+  };
+
+  Widgets.prototype.add = function(widget) {
+    if (this.widgets.indexOf(widget) == -1) {
+      this.widgets.push(widget);
+    }
+  };
+
+  Widgets.prototype.delete = function(widget) {
+    var i = this.widgets.indexOf(widget);
+    if (i !== -1) {
+      this.widgets.splice(i, 1);
+    }
+  };
+
+  Widgets.prototype.forEach = function(fn) {
+    for(var n = 0; n < this.widgets.length; n++) {
+      fn(this.widgets[n]);
+    }
+  };
+}
+
+function rerenderViewModel() {
+  var meta = plastiqMeta(this);
+  meta.widgets.forEach(function (w) {
+    w.refresh();
+  });
+}
 
 function ViewModel(model) {
   this.model = model;
-  this.key = model.key;
+  this.key = model.renderKey;
   this.component = domComponent();
-  this.canRefresh = true;
+
+  this.model.rerender = rendering.html.refresh;
+  this.model.rerenderViewModel = rerenderViewModel;
 
   if (typeof this.model.onload == 'function') {
-    var meta = this.model._plastiqMeta || (this.model._plastiqMeta = {});
+    var meta = plastiqMeta(this.model);
     if (!meta.loaded) {
       meta.loaded = true;
       rendering.html.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
@@ -27,14 +65,30 @@ function ViewModel(model) {
 
 ViewModel.prototype.type = 'Widget';
 
+function render(model) {
+  if (typeof model.renderCacheKey === 'function') {
+    var meta = plastiqMeta(model);
+    var key = model.renderCacheKey();
+    if (meta.cacheKey === key && meta.cachedVdom) {
+      return meta.cachedVdom;
+    } else {
+      meta.cacheKey = key;
+      return meta.cachedVdom = model.render();
+    }
+  } else {
+    return model.render();
+  }
+}
+
 ViewModel.prototype.init = function () {
   var self = this;
 
-  if (self.model.onbeforeadd) {
-    self.model.onbeforeadd();
-  }
+  var vdom = render(this.model);
 
-  var vdom = this.render();
+  var meta = plastiqMeta(this.model);
+  meta.widgets = meta.widgets || new Widgets();
+  meta.widgets.add(this);
+
   if (vdom instanceof Array) {
     throw new Error('vdom returned from component cannot be an array');
   }
@@ -57,42 +111,40 @@ ViewModel.prototype.init = function () {
 ViewModel.prototype.update = function (previous) {
   var self = this;
 
-  var refresh = !this.cacheKey || this.cacheKey !== previous.cacheKey;
-
-  if (refresh) {
-    if (self.model.onupdate) {
-      this.afterRender(function () {
-        self.model.onupdate(self.component.element);
-      });
-    }
+  if (self.model.onupdate) {
+    this.afterRender(function () {
+      self.model.onupdate(self.component.element);
+    });
   }
 
   this.component = previous.component;
 
-  if (refresh) {
-    var element = this.component.update(this.render());
+  var element = this.component.update(render(this.model));
 
-    if (self.model.detached) {
-      return document.createTextNode('');
-    } else {
-      return element;
-    }
+  if (self.model.detached) {
+    return document.createTextNode('');
+  } else {
+    return element;
   }
 };
 
 ViewModel.prototype.render = function () {
-  return this.model.render();
+  return render(this.model);
 };
 
 ViewModel.prototype.refresh = function () {
-  this.component.update(this.render());
-  if (this.state.onupdate) {
-    this.state.onupdate(this.component.element);
+  this.component.update(render(this.model));
+  if (this.model.onupdate) {
+    this.model.onupdate(this.component.element);
   }
 };
 
 ViewModel.prototype.destroy = function (element) {
   var self = this;
+
+  var meta = plastiqMeta(this.model);
+  meta.widgets.delete(this);
+
 
   if (self.model.onremove) {
     this.afterRender(function () {

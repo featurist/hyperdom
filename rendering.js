@@ -103,6 +103,8 @@ exports.appendVDom = function (vdom, render, model, options) {
   });
 };
 
+exports.ViewModel = ViewModel;
+
 var attachmentId = 1;
 
 function startAttachment(render, model, options, attachToDom) {
