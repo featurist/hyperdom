@@ -2,7 +2,7 @@ var h = require('./vhtml');
 var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
-var coerceChildren = require('./coerceChildren');
+var toVdom = require('./toVdom');
 var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag');
 var ViewModel = require('./viewModel');
 
@@ -503,13 +503,13 @@ exports.html = function (hierarchySelector) {
   var attributes = arguments[1];
 
   if (attributes && attributes.constructor == Object && typeof attributes.render !== 'function') {
-    childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
+    childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 2));
     prepareAttributes(selector, attributes, childElements);
     tag = parseTag(selector, attributes);
     vdom = h(tag, attributes, childElements);
   } else {
     attributes = {};
-    childElements = coerceChildren(Array.prototype.slice.call(arguments, 1));
+    childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 1));
     tag = parseTag(selector, attributes);
     vdom = h(tag, attributes, childElements);
   }
@@ -524,7 +524,7 @@ exports.html = function (hierarchySelector) {
 };
 
 exports.jsx = function (tag, attributes) {
-  var childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
+  var childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 2));
   if (attributes) {
     prepareAttributes(tag, attributes, childElements);
   }
