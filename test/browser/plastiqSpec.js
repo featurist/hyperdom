@@ -295,13 +295,13 @@ describe('plastiq', function () {
         describe('data- attributes', function () {
           it('can render data- attributes', function () {
             function render() {
-              return h('div', {'id': 'bals', 'data-one': 'one', 'data-two': 'two'});
+              return h('div', {'id': 'bals', 'data-one': 'one', 'data-two-two': 'two'});
             }
 
             attach(render);
 
             expect(find('div').data('one')).to.eql('one');
-            expect(find('div').data('two')).to.eql('two');
+            expect(find('div').data('two-two')).to.eql('two');
           });
 
           it('can render data- and dataset attributes', function () {

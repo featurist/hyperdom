@@ -463,7 +463,10 @@ function prepareAttributes(tag, attributes, childElements) {
         }
       }
 
-      var datakey = key.replace(dataAttributeRegex, '');
+      var datakey = key
+        .replace(dataAttributeRegex, '')
+        .replace(/-([a-z])/ig, function(_, x) { return x.toUpperCase(); });
+
       dataset[datakey] = attribute;
       delete attributes[key];
       continue;
