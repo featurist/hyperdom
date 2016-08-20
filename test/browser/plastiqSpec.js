@@ -7,6 +7,10 @@ require('jquery-sendkeys');
 var browser = require('browser-monkey').find('.test');
 var vdomToHtml = require('vdom-to-html');
 
+var detect = {
+  dataset: typeof document.body.dataset == 'object'
+}
+
 describe('plastiq', function () {
   var div;
 
@@ -290,7 +294,7 @@ describe('plastiq', function () {
           expect(find('table tbody tr td').attr('colspan')).to.eql('3');
       });
 
-      if (typeof document.body.dataset == 'object') {
+      if (detect.dataset) {
         describe('data- attributes', function () {
           it('can render data- attributes', function () {
             function render() {
@@ -429,6 +433,19 @@ describe('plastiq', function () {
 
       expect(function () {attach(render);}).to.throw('expected render to return vdom');
     });
+
+    if (detect.dataset) {
+      it('generates filename and line number from __source attribute', function () {
+        function render() {
+          return h('div', {__source: {fileName: '/full/path/to/file.jsx', lineNumber: 80}});
+        }
+
+        attach(render, {});
+
+        expect(find('div').data('file-name')).to.eql('/full/path/to/file.jsx');
+        expect(find('div').data('line-number')).to.eql(80);
+      });
+    }
   });
 
   it('can respond to button clicks', function () {
