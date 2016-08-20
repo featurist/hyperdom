@@ -39,7 +39,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['mocha'],
+    reporters: process.env.BROWSERS? ['dots']: ['mocha'],
 
 
     // web server port
@@ -61,11 +61,84 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome', 'Safari', 'Firefox'],
+    browsers: process.env.BROWSERS == 'all'? Object.keys(browsers): ['Chrome'],
 
+    browserStack: {
+      username: process.env.BROWSERSTACK_USER,
+      accessKey: process.env.BROWSERSTACK_PASSWORD
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: false,
+
+    customLaunchers: browsers,
+
+    browserNoActivityTimeout: 60000
   });
+};
+
+var browsers = {
+  'browserstack-ie9': {
+    base: 'BrowserStack',
+    browser : 'IE',
+    browser_version : '9.0',
+    os : 'Windows',
+    os_version : '7',
+    resolution : '1024x768'
+  },
+  'browserstack-ie10': {
+    base: 'BrowserStack',
+    browser : 'IE',
+    browser_version : '10.0',
+    os : 'Windows',
+    os_version : '8',
+    resolution : '1024x768'
+  },
+  'browserstack-ie11': {
+    base: 'BrowserStack',
+    browser : 'IE',
+    browser_version : '11.0',
+    os : 'Windows',
+    os_version : '10',
+    resolution : '1024x768'
+  },
+  'browserstack-edge': {
+    base: 'BrowserStack',
+    browser : 'Edge',
+    browser_version : '13.0',
+    os : 'Windows',
+    os_version : '10',
+    resolution : '1024x768'
+  },
+  'browserstack-firefox': {
+    base: 'BrowserStack',
+    browser : 'Firefox',
+    browser_version : '47.0',
+    os : 'Windows',
+    os_version : '10',
+    resolution : '1024x768'
+  },
+  'browserstack-safari': {
+    base: 'BrowserStack',
+    browser : 'Safari',
+    browser_version : '9.1',
+    os : 'OS X',
+    os_version : 'El Capitan',
+    resolution : '1024x768'
+  },
+  'browserstack-safari-ios': {
+    base: 'BrowserStack',
+    device : 'iPhone 6S',
+    os : 'ios',
+    os_version : '9.1',
+  },
+  'browserstack-chrome': {
+    base: 'BrowserStack',
+    browser : 'Chrome',
+    browser_version : '52.0',
+    os : 'Windows',
+    os_version : '10',
+    resolution : '1024x768'
+  }
 };

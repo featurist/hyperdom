@@ -3,6 +3,7 @@ var domComponent = require('./domComponent');
 var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
 var coerceChildren = require('./coerceChildren');
+var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag.js');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
@@ -76,6 +77,27 @@ exports.replace = function (element, render, model, options) {
     var component = domComponent(domComponentOptions);
     var vdom = render();
     element.parentNode.replaceChild(component.create(vdom), element);
+    return component;
+  });
+};
+
+exports.appendVDom = function (vdom, render, model, options) {
+  return startAttachment(render, model, options, function(render) {
+    var component = {
+      create: function(newVDom) {
+        vdom.children = [];
+        if (newVDom) {
+          vdom.children.push(newVDom);
+        }
+      },
+      update: function(newVDom) {
+        vdom.children = [];
+        if (newVDom) {
+          vdom.children.push(newVDom);
+        }
+      }
+    };
+    component.create(render());
     return component;
   });
 };
@@ -232,7 +254,7 @@ function refreshAfter(promise) {
 }
 
 function bindTextInput(attributes, children, get, set) {
-  var textEventNames = ['onkeydown', 'oninput', 'onpaste', 'textInput'];
+  var textEventNames = ['onkeyup', 'oninput', 'onpaste', 'textInput'];
 
   var bindingValue = get();
   if (!(bindingValue instanceof Error)) {
@@ -276,6 +298,28 @@ function attachEventHandler(attributes, eventNames, handler) {
   }
 }
 
+function ListenerHook(listener) {
+  this.listener = exports.html.refreshify(listener);
+}
+
+ListenerHook.prototype.hook = function (element, propertyName, previous) {
+  element.addEventListener(propertyName.substring(2), this.listener, false);
+};
+
+ListenerHook.prototype.unhook = function (element, propertyName) {
+  element.removeEventListener(propertyName.substring(2), this.listener);
+};
+
+function customEvent(name) {
+  if (typeof window.Event == 'function') {
+    return new Event('_plastiqsyncchecked');
+  } else {
+    var customEvent = document.createEvent('Event');
+    customEvent.initEvent('_plastiqsyncchecked', false, false);
+    return customEvent;
+  }
+}
+
 var inputTypeBindings = {
   text: bindTextInput,
 
@@ -293,9 +337,19 @@ var inputTypeBindings = {
   radio: function (attributes, children, get, set) {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
+    attributes.on_plastiqsyncchecked = new ListenerHook(function (event) {
+      attributes.checked = event.target.checked;
+    });
 
-    attachEventHandler(attributes, 'onclick', function () {
-      attributes.checked = true;
+    attachEventHandler(attributes, 'onclick', function (event) {
+      var name = event.target.name;
+      if (name) {
+        var inputs = document.getElementsByName(name);
+        for (var i = 0, l = inputs.length; i < l; i++) {
+          var radio = inputs[i];
+          radio.dispatchEvent(customEvent('_plastiqsyncchecked'));
+        }
+      }
       set(value);
     });
   },
@@ -308,6 +362,7 @@ var inputTypeBindings = {
     });
 
     var values = [];
+    var selectedIndex;
 
     for(var n = 0; n < options.length; n++) {
       var option = options[n];
@@ -316,11 +371,22 @@ var inputTypeBindings = {
 
       values.push(value != undefined? value: text);
 
-      option.properties.selected = value == currentValue || text == currentValue;
+      var selected = value == currentValue || text == currentValue;
+
+      if (selected) {
+        selectedIndex = n;
+      }
+
+      option.properties.selected = selected;
       option.properties.value = n;
     }
 
+    if (selectedIndex !== undefined) {
+      attributes.selectedIndex = selectedIndex;
+    }
+
     attachEventHandler(attributes, 'onchange', function (ev) {
+      attributes.selectedIndex = ev.target.selectedIndex;
       set(values[ev.target.value]);
     });
   },
@@ -365,7 +431,7 @@ var renames = {
 
 var dataAttributeRegex = /^data-/;
 
-function prepareAttributes(selector, attributes, childElements) {
+function prepareAttributes(tag, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
   var eventHandlerWrapper = exports.html.currentRender && exports.html.currentRender.eventHandlerWrapper;
@@ -411,7 +477,7 @@ function prepareAttributes(selector, attributes, childElements) {
   }
 
   if (attributes.binding) {
-    bindModel(attributes, childElements, inputType(selector, attributes));
+    bindModel(attributes, childElements, inputType(tag, attributes));
     delete attributes.binding;
   }
 }
@@ -436,17 +502,19 @@ exports.html = function (hierarchySelector) {
   var attributes;
   var childElements;
   var vdom;
+  var tag;
 
   if (arguments[1] && arguments[1].constructor == Object) {
     attributes = arguments[1];
     childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
-
     prepareAttributes(selector, attributes, childElements);
-
-    vdom = h(selector, attributes, childElements);
+    tag = parseTag(selector, attributes);
+    vdom = h(tag, attributes, childElements);
   } else {
+    attributes = {};
     childElements = coerceChildren(Array.prototype.slice.call(arguments, 1));
-    vdom = h(selector, {}, childElements);
+    tag = parseTag(selector, attributes);
+    vdom = h(tag, attributes, childElements);
   }
 
   if (hasHierarchy) {
@@ -456,6 +524,14 @@ exports.html = function (hierarchySelector) {
   }
 
   return vdom;
+};
+
+exports.jsx = function (tag, attributes) {
+  var childElements = coerceChildren(Array.prototype.slice.call(arguments, 2));
+  if (attributes) {
+    prepareAttributes(tag, attributes, childElements);
+  }
+  return h(tag, attributes || {}, childElements);
 };
 
 exports.html.refreshify = refreshify;
@@ -526,12 +602,17 @@ function chainConverters(startIndex, converters) {
 }
 
 function bindingObject(model, property) {
+  var _meta;
+  function plastiqMeta() {
+    return _meta || (_meta = bindingMeta(model, property));
+  }
+
   if (arguments.length > 2) {
     var converter = chainConverters(2, arguments);
 
     return {
       get: function() {
-        var meta = bindingMeta(model, property);
+        var meta = plastiqMeta();
         var modelValue = model[property];
         var modelText;
 
@@ -556,7 +637,7 @@ function bindingObject(model, property) {
       },
 
       set: function(view) {
-        var meta = bindingMeta(model, property);
+        var meta = plastiqMeta();
         meta.view = view;
 
         try {
@@ -568,7 +649,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return bindingMeta(model, property);
+        return plastiqMeta();
       }
     };
   } else {
@@ -582,7 +663,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return bindingMeta(model, property);
+        return plastiqMeta();
       }
     };
   }

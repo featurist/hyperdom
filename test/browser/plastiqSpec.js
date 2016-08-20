@@ -6,6 +6,7 @@ var retry = require('trytryagain');
 require('jquery-sendkeys');
 var vdomToHtml = require('vdom-to-html');
 var browser = require('browser-monkey').find('.test');
+var vdomToHtml = require('vdom-to-html');
 
 describe('plastiq', function () {
   var div;
@@ -27,6 +28,15 @@ describe('plastiq', function () {
     return retry(function () {
       expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'");
     }).then(function () {
+      find(selector).click();
+    });
+  }
+
+  function check(selector) {
+    return retry(function () {
+      expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'");
+    }).then(function () {
+      find(selector).prop('checked', true);
       find(selector).click();
     });
   }
@@ -115,6 +125,54 @@ describe('plastiq', function () {
         });
       });
     });
+
+    it('can append to a vdom node', function () {
+      function render() {
+        return h('div.rendered');
+      }
+
+      var targetVDom = h('body');
+
+      plastiq.appendVDom(targetVDom, render);
+
+      expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
+    });
+
+    it('can merge onto an existing DOM', function () {
+      function render(model) {
+        return h('div.static',
+          h('h1', model.name),
+          h('button.update',
+            {
+              onclick: function () {
+                model.name = 'plastiq render';
+              }
+            },
+            'update'
+          )
+        );
+      }
+
+      var model = {name: 'static render'};
+
+      $(targetDiv).replaceWith(vdomToHtml(render(model)));
+
+      var mergeDiv = div.children[0];
+
+      plastiq.merge(mergeDiv, render, model);
+
+      return retry(function () {
+        expect(find('button.update')[0].onclick).to.exist;
+      }).then(function () {
+        return click('button.update').then(function () {
+        }).then(function () {
+          return retry(function () {
+            expect(find('h1').text()).to.equal('plastiq render');
+          });
+        });
+      });
+    });
+>>>>>>> origin/master
   });
 
   describe('rendering', function () {
@@ -269,28 +327,32 @@ describe('plastiq', function () {
           expect(find('table tbody tr td').attr('colspan')).to.eql('3');
       });
 
-      it('can render data- attributes', function () {
-          function render() {
-            return h('div', {'data-one': 'one', 'data-two': 'two'});
-          }
+      if (typeof document.body.dataset == 'object') {
+        describe('data- attributes', function () {
+          it('can render data- attributes', function () {
+            function render() {
+              return h('div', {'id': 'bals', 'data-one': 'one', 'data-two': 'two'});
+            }
 
-          attach(render);
+            attach(render);
 
-          expect(find('div').data('one')).to.eql('one');
-          expect(find('div').data('two')).to.eql('two');
-      });
+            expect(find('div').data('one')).to.eql('one');
+            expect(find('div').data('two')).to.eql('two');
+          });
 
-      it('can render data- and dataset attributes', function () {
-          function render() {
-            return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
-          }
+          it('can render data- and dataset attributes', function () {
+            function render() {
+              return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}});
+            }
 
-          attach(render);
+            attach(render);
 
-          expect(find('div').data('one')).to.eql('one');
-          expect(find('div').data('two')).to.eql('two');
-          expect(find('div').data('three')).to.eql('three');
-      });
+            expect(find('div').data('one')).to.eql('one');
+            expect(find('div').data('two')).to.eql('two');
+            expect(find('div').data('three')).to.eql('three');
+          });
+        });
+      }
     });
 
     describe('non-standard HTML attributes', function () {
@@ -547,28 +609,19 @@ describe('plastiq', function () {
       it('radio', function () {
         function render(model) {
           return h('div',
-            !model.hide1
-              ? h('div',
-                  h('label', h('input.show-one', {type: 'radio', binding: [model, 'hide1'], value: false}), 'show one'),
-                  h('label', h('input.hide-one', {type: 'radio', binding: [model, 'hide1'], value: true}), 'hide one')
-                )
-              : undefined,
-            !model.hide2
-              ? h('div',
-                  h('label', h('input.show-two', {type: 'radio', binding: [model, 'hide2'], value: false}), 'show two'),
-                  h('label', h('input.hide-two', {type: 'radio', binding: [model, 'hide2'], value: true}), 'hide two')
-                )
-              : undefined
+            model.value == 1? h('h1', 'selected one'): undefined,
+            h('label', h('input.one', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 1, id: 'one'}), 'one'),
+            h('label', h('input.two', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 2, id: 'two'}), 'two')
           );
         }
 
-        attach(render, {});
+        attach(render, {value: 1});
 
-        return click('.hide-one').then(function () {
+        return check('.two').then(function () {
           return retry(function () {
-            expect(find('input.show-one').length).to.equal(0);
-            expect(find('input.hide-one').length).to.equal(0);
-            expect(find('input.hide-two').prop('checked')).to.equal(false);
+            expect(find('h1').length).to.equal(0);
+            expect(find('input.one')[0].checked).to.equal(false);
+            expect(find('input.two')[0].checked).to.equal(true);
           });
         });
       });
@@ -687,8 +740,8 @@ describe('plastiq', function () {
       find('input').sendkeys('haha{newline}');
 
       return retry(function() {
-        expect(find('span').text()).to.equal('haha');
-        expect(find('input').val()).to.equal('haha');
+        expect(find('span').text()).to.contain('haha');
+        expect(find('input').val()).to.contain('haha');
       });
     });
 

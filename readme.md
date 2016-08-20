@@ -9,12 +9,14 @@ Of course, the **model** can be as simple or sophisticated as you need, and you 
 
 Plastiq is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
+Sponsored by [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo@2x.png)](https://www.Browserstack.com/).
+
 # An Example
 
 in JSX, using [babel](https://babeljs.io/)
 
 ```jsx
-/** @jsx plastiq.html */
+/** @jsx plastiq.jsx */
 var plastiq = require('plastiq');
 
 class App {
@@ -75,9 +77,20 @@ Then
 
 # size
 
-* plastiq.js: 65K
-* plastiq.min.js: 26K
-* plastiq.min.js.gz: 8.7K
+* plastiq.js: 69K
+* plastiq.min.js: 28K
+* plastiq.min.js.gz: 9.1K
+
+# browser support
+
+* IE 9, 10, 11
+* Edge
+* Safari
+* Safari iOS
+* Firefox
+* Chrome
+
+Other browsers are likely to work but aren't routinely tested.
 
 # sister projects
 
@@ -92,6 +105,17 @@ Then
 * [plastiq-sortable](https://github.com/featurist/plastiq-sortable)
 * [plastiq-throttle](https://github.com/featurist/plastiq-throttle)
 * [plastiq-zeroclipboard](https://github.com/featurist/plastiq-zeroclipboard)
+
+# JSX
+
+JSX is well supported, and can perform faster than using non-JSX `plastiq.html()` as JSX is slightly less flexible expression of VDOM, (you can't specify selectors as you can using `plastiq.html()`.)
+
+Insert the following lines at the top of your `.jsx` file:
+
+```jsx
+/** @jsx plastiq.jsx */
+var plastiq = require('plastiq');
+```
 
 # Features
 

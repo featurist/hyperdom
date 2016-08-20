@@ -3,13 +3,12 @@
 var VNode = require('virtual-dom/vnode/vnode.js');
 var isHook = require('virtual-dom/vnode/is-vhook');
 
-var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag.js');
 var softSetHook = require('virtual-dom/virtual-hyperscript/hooks/soft-set-hook.js');
 
 module.exports = h;
 
 function h(tagName, props, children) {
-  var tag = parseTag(tagName, props);
+  var tag = tagName;
 
   // support keys
   if (props.hasOwnProperty('key')) {
@@ -24,7 +23,7 @@ function h(tagName, props, children) {
   }
 
   // fix cursor bug
-  if (tag === 'INPUT' &&
+  if (tag.toLowerCase() === 'input' &&
     !namespace &&
     props.hasOwnProperty('value') &&
     props.value !== undefined &&
