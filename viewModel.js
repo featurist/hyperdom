@@ -42,7 +42,7 @@ function render(model) {
   if (typeof model.renderCacheKey === 'function') {
     var meta = plastiqMeta(model);
     var key = model.renderCacheKey();
-    if (meta.cacheKey === key && meta.cachedVdom) {
+    if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
       return meta.cachedVdom;
     } else {
       meta.cacheKey = key;

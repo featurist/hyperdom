@@ -1097,48 +1097,89 @@ describe('plastiq', function () {
       });
     });
 
-    it('can update the component only when the renderKey changes', function () {
-      var innerRenders = 0;
-      var renders = 0;
+    describe('caching', function () {
+      it('can update the component only when the renderKey changes', function () {
+        var innerRenders = 0;
+        var renders = 0;
 
-      var model = {
+        var model = {
+          innerModel: {
+            cacheKey: 1,
 
-        innerModel: {
-          cacheKey: 1,
+            renderCacheKey: function () {
+              return this.cacheKey;
+            },
 
-          renderCacheKey: function () {
-            return this.cacheKey;
+            render: function () {
+              innerRenders++;
+              return h('button', {onclick: function () {}}, 'refresh');
+            }
           },
 
-          render: function () {
-            innerRenders++;
-            return h('button', {onclick: function () {}}, 'refresh');
+          render: function() {
+            renders++;
+            return this.innerModel;
           }
-        },
+        };
 
-        render: function() {
-          renders++;
-          return this.innerModel;
-        }
-      };
+        attach(model);
 
-      attach(model);
+        expect(renders).to.equal(1);
+        expect(innerRenders).to.equal(1);
 
-      expect(renders).to.equal(1);
-      expect(innerRenders).to.equal(1);
-
-      return click('button').then(function () {
-        return retry(function () {
-          expect(renders, 'renders').to.equal(2);
-          expect(innerRenders, 'innerRenders').to.equal(1);
+        return click('button').then(function () {
+          return retry(function () {
+            expect(renders, 'renders').to.equal(2);
+            expect(innerRenders, 'innerRenders').to.equal(1);
+          });
+        }).then(function () {
+          model.innerModel.cacheKey++;
+          return click('button');
+        }).then(function () {
+          return retry(function () {
+            expect(renders, 'renders').to.equal(3);
+            expect(innerRenders, 'innerRenders').to.equal(2);
+          });
         });
-      }).then(function () {
-        model.innerModel.cacheKey++;
-        return click('button');
-      }).then(function () {
-        return retry(function () {
-          expect(renders, 'renders').to.equal(3);
-          expect(innerRenders, 'innerRenders').to.equal(2);
+      });
+
+      it("doesn't cache when renderCacheKey returns undefined", function () {
+        var innerRenders = 0;
+        var renders = 0;
+
+        var model = {
+          innerModel: {
+            renderCacheKey: function () {},
+
+            render: function () {
+              innerRenders++;
+              return h('button', {onclick: function () {}}, 'refresh');
+            }
+          },
+
+          render: function() {
+            renders++;
+            return this.innerModel;
+          }
+        };
+
+        attach(model);
+
+        expect(renders).to.equal(1);
+        expect(innerRenders).to.equal(1);
+
+        return click('button').then(function () {
+          return retry(function () {
+            expect(renders, 'renders').to.equal(2);
+            expect(innerRenders, 'innerRenders').to.equal(2);
+          });
+        }).then(function () {
+          return click('button');
+        }).then(function () {
+          return retry(function () {
+            expect(renders, 'renders').to.equal(3);
+            expect(innerRenders, 'innerRenders').to.equal(3);
+          });
         });
       });
     });
