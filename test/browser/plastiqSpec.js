@@ -422,14 +422,6 @@ describe('plastiq', function () {
         });
       });
     });
-
-    it("throws exception if render doesn't return vdom", function () {
-      function render() {
-        return {};
-      }
-
-      expect(function () {attach(render);}).to.throw('expected render to return vdom');
-    });
   });
 
   it('can respond to button clicks', function () {
@@ -1038,15 +1030,6 @@ describe('plastiq', function () {
       });
     });
 
-    it('throws error if not given vdom', function () {
-      var model = {
-        render: function() {
-        }
-      };
-
-      expect(function () {attach(model);}).to.throw('expected render to return vdom');
-    });
-
     it('calls onadd when adding the HTML, onupdate when updating the HTML, onremove when removing the HTML', function () {
       var events = [];
       var refreshCount = 0;
@@ -1115,7 +1098,6 @@ describe('plastiq', function () {
     });
 
     it('can update the component only when the renderKey changes', function () {
-      var updates = 0;
       var innerRenders = 0;
       var renders = 0;
 
@@ -1126,10 +1108,6 @@ describe('plastiq', function () {
 
           renderCacheKey: function () {
             return this.cacheKey;
-          },
-
-          onupdate: function () {
-            updates++;
           },
 
           render: function () {
@@ -1148,13 +1126,11 @@ describe('plastiq', function () {
 
       expect(renders).to.equal(1);
       expect(innerRenders).to.equal(1);
-      expect(updates).to.equal(0);
 
       return click('button').then(function () {
         return retry(function () {
           expect(renders, 'renders').to.equal(2);
           expect(innerRenders, 'innerRenders').to.equal(1);
-          expect(updates, 'update').to.equal(1);
         });
       }).then(function () {
         model.innerModel.cacheKey++;
@@ -1163,7 +1139,6 @@ describe('plastiq', function () {
         return retry(function () {
           expect(renders, 'renders').to.equal(3);
           expect(innerRenders, 'innerRenders').to.equal(2);
-          expect(updates, 'updates').to.equal(1);
         });
       });
     });
