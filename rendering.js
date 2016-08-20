@@ -278,14 +278,10 @@ function sequenceFunctions(handler1, handler2) {
   };
 }
 
-function insertEventHandler(attributes, eventName, handler, after) {
+function insertEventHandler(attributes, eventName, handler) {
   var previousHandler = attributes[eventName];
   if (previousHandler) {
-    if (after) {
-      attributes[eventName] = sequenceFunctions(previousHandler, handler);
-    } else {
-      attributes[eventName] = sequenceFunctions(handler, previousHandler);
-    }
+    attributes[eventName] = sequenceFunctions(handler, previousHandler);
   } else {
     attributes[eventName] = handler;
   }
