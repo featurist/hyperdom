@@ -301,7 +301,7 @@ function ListenerHook(listener) {
   this.listener = exports.html.refreshify(listener);
 }
 
-ListenerHook.prototype.hook = function (element, propertyName, previous) {
+ListenerHook.prototype.hook = function (element, propertyName) {
   element.addEventListener(propertyName.substring(2), this.listener, false);
 };
 
@@ -310,12 +310,12 @@ ListenerHook.prototype.unhook = function (element, propertyName) {
 };
 
 function customEvent(name) {
-  if (typeof window.Event == 'function') {
-    return new Event('_plastiqsyncchecked');
+  if (typeof Event == 'function') {
+    return new Event(name);
   } else {
-    var customEvent = document.createEvent('Event');
-    customEvent.initEvent('_plastiqsyncchecked', false, false);
-    return customEvent;
+    var event = document.createEvent('Event');
+    event.initEvent(name, false, false);
+    return event;
   }
 }
 
@@ -345,8 +345,7 @@ var inputTypeBindings = {
       if (name) {
         var inputs = document.getElementsByName(name);
         for (var i = 0, l = inputs.length; i < l; i++) {
-          var radio = inputs[i];
-          radio.dispatchEvent(customEvent('_plastiqsyncchecked'));
+          inputs[i].dispatchEvent(customEvent('_plastiqsyncchecked'));
         }
       }
       set(value);
