@@ -1,6 +1,7 @@
 var createElement = require('virtual-dom/create-element');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
+var coerceChildren = require('./coerceChildren');
 var isVnode = require('virtual-dom/vnode/is-vnode');
 var isWidget = require('virtual-dom/vnode/is-widget');
 
@@ -8,24 +9,26 @@ function DomComponent(options) {
   this.document = options && options.document;
 }
 
-DomComponent.prototype.create = function (vdom) {
+function checkVdom(vdom) {
   if (!isVnode(vdom) && !isWidget(vdom)) {
     throw new Error('expected render to return vdom');
   }
-  this.vdom = vdom;
+}
+
+DomComponent.prototype.create = function (vdom) {
+  this.vdom = coerceChildren.toVdom(vdom);
+  checkVdom(this.vdom);
   return this.element = createElement(this.vdom, {document: this.document});
 };
 
 DomComponent.prototype.merge = function (vdom, element) {
-  if (!isVnode(vdom) && !isWidget(vdom)) {
-    throw new Error('expected render to return vdom');
-  }
-  this.vdom = vdom;
+  this.vdom = coerceChildren.toVdom(vdom);
+  checkVdom(this.vdom);
   return this.element = element;
 };
 
 DomComponent.prototype.update = function (vdom) {
-  var patches = diff(this.vdom, vdom);
+  var patches = diff(this.vdom, coerceChildren.toVdom(vdom));
   this.element = patch(this.element, patches);
   this.vdom = vdom;
   return this.element;

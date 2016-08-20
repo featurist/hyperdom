@@ -7,6 +7,7 @@ require('jquery-sendkeys');
 var vdomToHtml = require('vdom-to-html');
 var browser = require('browser-monkey').find('.test');
 var vdomToHtml = require('vdom-to-html');
+var times = require('lowscore/times');
 
 describe('plastiq', function () {
   var div;
@@ -172,7 +173,6 @@ describe('plastiq', function () {
         });
       });
     });
->>>>>>> origin/master
   });
 
   describe('rendering', function () {
@@ -909,45 +909,134 @@ describe('plastiq', function () {
     });
   });
 
-  describe('plastiq.html.component', function () {
+  describe('view models', function () {
+    it('calls onload once when HTML appears on page', function () {
+      var model = {
+        loaded: 0,
+        refreshed: 0,
+
+        onload: function () {
+          var self = this;
+          return wait(20).then(function () {
+            self.loaded++;
+          });
+        },
+
+        render: function() {
+          this.refreshed++;
+          return h('div',
+            h('h1.loaded', 'loaded ' + this.loaded + ' times'),
+            h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
+            h('button.refresh', {onclick: function () {}}, 'refresh')
+          );
+        }
+      };
+
+      attach(model);
+
+      return retry(function () {
+        expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+        expect(find('h1.refreshed').text()).to.equal('refreshed 2 times');
+      }).then(function () {
+        return click('button.refresh');
+      }).then(function () {
+        return retry(function () {
+          expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+          expect(find('h1.refreshed').text()).to.equal('refreshed 3 times');
+        });
+      });
+    });
+
+    describe('inner view models', function () {
+      it('calls onload once when HTML appears on page', function () {
+        var model = {
+          innerModel: {
+            loaded: 0,
+            refreshed: 0,
+
+            onload: function () {
+              var self = this;
+              return wait(20).then(function () {
+                self.loaded++;
+              });
+            },
+
+            render: function() {
+              this.refreshed++;
+              return h('div',
+                h('h1.loaded', 'loaded ' + this.loaded + ' times'),
+                h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
+                h('button.refresh', {onclick: function () {}}, 'refresh')
+              );
+            }
+          },
+
+          render: function () {
+            return h('div.outer', this.innerModel);
+          }
+        };
+
+        attach(model);
+
+        return retry(function () {
+          expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+          expect(find('h1.refreshed').text()).to.equal('refreshed 2 times');
+        }).then(function () {
+          return click('button.refresh');
+        }).then(function () {
+          return retry(function () {
+            expect(find('h1.loaded').text()).to.equal('loaded 1 times');
+            expect(find('h1.refreshed').text()).to.equal('refreshed 3 times');
+          });
+        });
+      });
+    });
+
     it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
       var events = [];
-      var componentState;
 
-      function render(model) {
-        return h('div',
-          model.showComponent
-            ? h.component({
-                onadd: function (element) {
-                  events.push({
-                    type: 'onadd',
-                    parent: element.parentNode,
-                    element: element
-                  });
-                  componentState = this;
-                },
-                onupdate: function (element) {
-                  events.push({
-                    type: 'onupdate',
-                    element: element,
-                    state: this
-                  });
-                },
-                onremove: function (element) {
-                  events.push({
-                    type: 'onremove',
-                    element: element,
-                    state: this
-                  });
-                }
-              }, h('h1', 'component'))
-            : undefined,
-          h('button.refresh', {onclick: function () {}},  'refresh'),
-          h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')
-        );
-      }
+      var model = {
+        showComponent: true,
 
-      attach(render, {showComponent: true});
+        innerModel: {
+          onadd: function (element) {
+            events.push({
+              type: 'onadd',
+              parent: element.parentNode,
+              element: element
+            });
+          },
+
+          onupdate: function (element) {
+            events.push({
+              type: 'onupdate',
+              element: element,
+            });
+          },
+
+          onremove: function (element) {
+            events.push({
+              type: 'onremove',
+              element: element,
+            });
+          },
+
+          render: function () {
+            return h('h1', 'component');
+          }
+        },
+
+        render: function() {
+          return h('div',
+            this.showComponent? this.innerModel: undefined,
+            h('button.refresh', {onclick: function () {}},  'refresh'),
+            h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')
+          );
+        }
+      };
+
+
+      attach(model);
 
       var expectedParent = div.firstChild;
       var expectedElement = div.firstChild.firstChild;
@@ -966,18 +1055,15 @@ describe('plastiq', function () {
                     },
                     {
                       type: 'onupdate',
-                      element: expectedElement,
-                      state: componentState
+                      element: expectedElement
                     },
                     {
                       type: 'onupdate',
-                      element: expectedElement,
-                      state: componentState
+                      element: expectedElement
                     },
                     {
                       type: 'onremove',
-                      element: expectedElement,
-                      state: componentState
+                      element: expectedElement
                     }
                   ]);
                 });
@@ -989,228 +1075,43 @@ describe('plastiq', function () {
     });
 
     it('throws error if not given vdom', function () {
-      function render() {
-        return h.component(
-          {
-            onadd: function () {
+      var model = {
+        render: function() {
+        }
+      };
 
-            }
-          }
-        )
-      }
-
-      expect(function () {attach(render);}).to.throw('expects a vdom argument');
+      expect(function () {attach(model);}).to.throw('expected render to return vdom');
     });
 
-    it('can expose long-running state for components', function () {
-      function render() {
-        return h.component(
-          {
-            onbeforeadd: function () {
-              this.counter = 2;
-            }
-          },
-          function () {
-            var self = this;
-
-            return h('div',
-              h('span.counter', this.counter),
-              h('button.add', {onclick: function () { self.counter++; }}, 'add')
-            );
-          }
-        );
-      }
-
-      attach(render, {counter: 0});
-
-      return retry(function () {
-        expect(find('span.counter').text()).to.equal('2');
-      }).then(function () {
-        return click('button.add');
-      }).then(function () {
-        return retry(function () {
-          expect(find('span.counter').text()).to.equal('3');
-        });
-      }).then(function () {
-        return click('button.add');
-      }).then(function () {
-        return retry(function () {
-          expect(find('span.counter').text()).to.equal('4');
-        });
-      });
-    });
-
-    it('renders and updates the vdom inside the component', function () {
-      function render(model) {
-        return h('div',
-          h.component({
-            },
-            h('span.counter', model.counter)
-          ),
-          h('button.add', {onclick: function () { model.counter++; }},  'add')
-        );
-      }
-
-      attach(render, {counter: 0});
-
-      return click('button.add').then(function () {
-        return wait(30).then(function () {
-          return retry(function () {
-            expect(find('span.counter').text()).to.equal('1');
-          }).then(function () {
-            return click('button.add').then(function () {
-              return retry(function () {
-                expect(find('span.counter').text()).to.equal('2');
-              });
-            });
-          });
-        });
-      });
-    });
-
-    it('only refreshes the component when returned from an event', function () {
-      function render(model) {
-
-        return h('div',
-          h.component(function (component) {
-            return h('div',
-              h('span.inner-counter', model.counter),
-              h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
-            );
-          }),
-          h('span.outer-counter', model.counter),
-          h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
-        );
-      }
-
-      attach(render, {counter: 0});
-
-      expect(find('span.inner-counter').text()).to.equal('0');
-      expect(find('span.outer-counter').text()).to.equal('0');
-
-      return click('button.add-inner').then(function () {
-        return retry(function () {
-          expect(find('span.inner-counter').text()).to.equal('1');
-          expect(find('span.outer-counter').text()).to.equal('0');
-        });
-      }).then(function () {
-        return click('button.add-inner');
-      }).then(function () {
-        return retry(function () {
-          expect(find('span.inner-counter').text()).to.equal('2');
-          expect(find('span.outer-counter').text()).to.equal('0');
-        });
-      }).then(function () {
-        return click('button.add-outer').then(function () {
-          return retry(function () {
-            expect(find('span.inner-counter').text()).to.equal('3');
-            expect(find('span.outer-counter').text()).to.equal('3');
-          });
-        });
-      });
-    });
-
-    it('only refreshes array of the components when returned from an event', function () {
-      function render(model) {
-        var component1 = h.component(function (component) {
-            return h('div',
-              h('span.inner-counter', model.counter),
-              h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
-            );
-          });
-
-        return h('div',
-          component1,
-          h.component(function (component) {
-            return h('div',
-              h('span.inner-counter2', model.counter),
-              h('button.add-inner2', {onclick: function () { model.counter++; return [component, component1]; }},  'add inner 2')
-            );
-          }),
-          h('span.outer-counter', model.counter),
-          h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
-        );
-      }
-
-      attach(render, {counter: 0});
-
-      expect(find('span.inner-counter').text()).to.equal('0');
-      expect(find('span.inner-counter2').text()).to.equal('0');
-      expect(find('span.outer-counter').text()).to.equal('0');
-
-      return click('button.add-inner').then(function () {
-        return retry(function () {
-          expect(find('span.inner-counter').text()).to.equal('1');
-          expect(find('span.inner-counter2').text()).to.equal('0');
-          expect(find('span.outer-counter').text()).to.equal('0');
-        });
-      }).then(function () {
-        return click('button.add-inner2');
-      }).then(function () {
-        return retry(function () {
-          expect(find('span.inner-counter').text()).to.equal('2');
-          expect(find('span.inner-counter2').text()).to.equal('2');
-          expect(find('span.outer-counter').text()).to.equal('0');
-        });
-      }).then(function () {
-        return click('button.add-outer').then(function () {
-          return retry(function () {
-            expect(find('span.inner-counter').text()).to.equal('3');
-            expect(find('span.inner-counter2').text()).to.equal('3');
-            expect(find('span.outer-counter').text()).to.equal('3');
-          });
-        });
-      });
-    });
-
-    it('throws exception when component is returned from event but does not have a render function', function () {
-      function render(model) {
-        var component = h.component(h('span.inner-counter', model.counter));
-
-        return h('div',
-          component,
-          h('button', { onclick: function () { return component; } }, 'refresh component')
-        );
-      }
-
-      attach(render, {});
-
-      return click('button').then(undefined, function(error) {
-        expect(error.message).to.contain('refresh');
-      });
-    });
-
-    it('can refresh the component when returned from an event, and handle lifetime events', function () {
+    it('calls onadd when adding the HTML, onupdate when updating the HTML, onremove when removing the HTML', function () {
       var events = [];
       var refreshCount = 0;
 
-      function render(model) {
-        refreshCount++;
-        return h('div',
-          model.show
-            ? h.component(
-                h.component(
-                  {
-                    onadd: function () {
-                      events.push('add');
-                    },
-                    onupdate: function () {
-                      events.push('update');
-                    },
-                    onremove: function () {
-                      events.push('remove');
-                    }
-                  },
-                  function () {
-                    return h('div', 'rest of the content')
-                  }
-                )
-              )
-            : undefined,
-          h('button.refresh', {onclick: function () {}}, 'refresh'),
-          h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
-        );
-      }
+      var model = {
+        innerModel: {
+          onadd: function () {
+            events.push('add');
+          },
+          onupdate: function () {
+            events.push('update');
+          },
+          onremove: function () {
+            events.push('remove');
+          },
+          render: function () {
+            return h('div', 'rest of the content')
+          }
+        },
+
+        render: function () {
+          refreshCount++;
+          return h('div',
+            model.show? this.innerModel: undefined,
+            h('button.refresh', {onclick: function () {}}, 'refresh'),
+            h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
+          );
+        }
+      };
 
       var waitForRefresh = (function () {
         var oldRefreshCount = 1;
@@ -1223,7 +1124,7 @@ describe('plastiq', function () {
         };
       })();
 
-      attach(render, {});
+      attach(model);
 
       return click('input.show').then(function () {
         return waitForRefresh().then(function () {
@@ -1249,349 +1150,192 @@ describe('plastiq', function () {
       });
     });
 
-    it('can capture fields from each refresh', function () {
-      var events = [];
-
-      function render(model) {
-        model.value++;
-        var refresh = h.refresh;
-
-        return h('div',
-          h.component(
-            {
-              value: model.value,
-
-              onadd: function (element) {
-                var self = this;
-                element.addEventListener('click', function () {
-                  events.push(self.value);
-                  refresh();
-                });
-              }
-            },
-            h('.button-' + model.value, 'click me')
-          )
-        );
-      }
-
-      attach(render, {value: 0});
-      return click('.button-1').then(function () {
-        expect(events).to.eql([1]);
-      }).then(function () {
-        return click('.button-2').then(function () {
-          expect(events).to.eql([1, 2]);
-        });
-      });
-    });
-
-    it('can update the component only when the cacheKey changes', function () {
+    it('can update the component only when the renderKey changes', function () {
       var updates = 0;
-      var componentRenders = 0;
+      var innerRenders = 0;
       var renders = 0;
 
-      function render() {
-        renders++;
-        return h.component(
-          {
-            cacheKey: model.cacheKey,
-            onupdate: function () {
-              updates++;
-            }
+      var model = {
+
+        innerModel: {
+          cacheKey: 1,
+
+          renderCacheKey: function () {
+            return this.cacheKey;
           },
-          function () {
-            componentRenders++;
+
+          onupdate: function () {
+            updates++;
+          },
+
+          render: function () {
+            innerRenders++;
             return h('button', {onclick: function () {}}, 'refresh');
           }
-        );
-      }
+        },
 
-      var model = {
-        cacheKey: 1
+        render: function() {
+          renders++;
+          return this.innerModel;
+        }
       };
 
-      attach(render, model);
+      attach(model);
 
       expect(renders).to.equal(1);
-      expect(componentRenders).to.equal(1);
+      expect(innerRenders).to.equal(1);
       expect(updates).to.equal(0);
 
       return click('button').then(function () {
         return retry(function () {
-          expect(renders).to.equal(2);
-          expect(componentRenders).to.equal(1);
-          expect(updates).to.equal(0);
+          expect(renders, 'renders').to.equal(2);
+          expect(innerRenders, 'innerRenders').to.equal(1);
+          expect(updates, 'update').to.equal(1);
         });
       }).then(function () {
-        model.cacheKey++;
+        model.innerModel.cacheKey++;
         return click('button');
       }).then(function () {
         return retry(function () {
-          expect(renders).to.equal(3);
-          expect(componentRenders).to.equal(2);
-          expect(updates).to.equal(1);
+          expect(renders, 'renders').to.equal(3);
+          expect(innerRenders, 'innerRenders').to.equal(2);
+          expect(updates, 'updates').to.equal(1);
         });
       });
     });
 
-    it('can wrap event handlers inside the component', function () {
-      var events = [];
+    it('the view model can rerender the view', function () {
+      var model = {
+        name: 'Njord',
 
-      function render() {
-        return h('div',
-          h.component(
-            {
-              on: function (type, handler) {
-                return function() {
-                  events.push('component ' + type);
-                  return handler.apply(this, arguments);
-                }
-              }
-            },
-            function () {
-              return h('div',
-                h.component(
-                  {
-                    on: function (type, handler) {
-                      return function() {
-                        events.push('inner component ' + type);
-                        return handler.apply(this, arguments);
-                      }
-                    }
-                  },
-                  function () {
-                    return h('button.inner-inner-component', {onclick: function () { events.push('inner inner click'); }}, 'click me');
-                  }
-                ),
-                h('button.inner-component', {onclick: function () { events.push('inner click'); }}, 'click me')
-              );
-            }
-          ),
-          h('button.outer-component', {onclick: function () { events.push('outer click'); }}, 'click me')
-        );
-      }
+        render: function () {
+          return h('h1', 'hi ' + this.name);
+        }
+      };
 
-      attach(render);
+      attach(model);
 
-      return click('button.inner-component').then(function () {
-        expect(events).to.eql(['component click', 'inner click']);
-      }).then(function () {
-        return click('button.inner-inner-component').then(function () {
-          expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click']);
-        });
-      }).then(function () {
-        return click('button.outer-component').then(function () {
-          expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click', 'outer click']);
-        });
-      });
-    });
-  });
+      expect(find('h1').text()).to.equal('hi Njord');
 
-  describe('plastiq.html.refresh', function () {
-    it('refreshes the UI when called', function () {
-      function render(model) {
-        var refresh = h.refresh;
-
-        return h('div',
-          h('h1', model.text),
-          h('button.refresh', {
-            onclick: function () {
-              setTimeout(function () {
-                model.text = 'after timeout';
-                refresh();
-              }, 50);
-            }
-          },
-          'refresh')
-        );
-      }
-
-      attach(render, {text: 'before timeout'});
-
-      return click('button.refresh').then(function () {
-        return wait(20).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('before timeout');
-          }).then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('after timeout');
-            });
-          });
-        });
-      });
-    });
-
-    it('refreshes a component when called with that component', function () {
-      function render(model) {
-        var refresh = h.refresh;
-        var component = h.component(function () { return h('h2', model.text); });
-
-        return h('div',
-          h('h1', model.text),
-          component,
-          h('button.refresh', {
-            onclick: function () {
-              setTimeout(function () {
-                model.text = 'after timeout';
-                refresh(component);
-              }, 50);
-            }
-          },
-          'refresh')
-        );
-      }
-
-      attach(render, {text: 'before timeout'});
-
-      return click('button.refresh').then(function () {
-        return wait(20).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('before timeout');
-            expect(find('h2').text()).to.equal('before timeout');
-          }).then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('before timeout');
-              expect(find('h2').text()).to.equal('after timeout');
-            });
-          });
-        });
-      });
-    });
-
-    it('updates the component when refreshed', function () {
-      var updated = 0, rendered = 0;
-
-      function render(model) {
-        var refresh = h.refresh;
-
-        var component = h.component(
-          {
-            cacheKey: true,
-            onupdate: function () {
-              updated++;
-            }
-          },
-          function () {
-            rendered++;
-            return h('h2', model.text);
-          }
-        );
-
-        return h('div',
-          component,
-          h('button.refresh', {
-            onclick: function () {
-              setTimeout(function () {
-                refresh(component);
-              }, 1);
-            }
-          },
-          'refresh')
-        );
-      }
-
-      attach(render, {text: 'before timeout'});
-
-      expect(updated).to.equal(0);
-      expect(rendered).to.equal(1);
-
-      return click('button.refresh').then(function () {
-        return retry(function () {
-          expect(updated).to.equal(1);
-          expect(rendered).to.equal(2);
-        });
-      });
-    });
-
-    it('refreshes whole page if passed a non-component', function () {
-      function render(model) {
-        var refresh = h.refresh;
-
-        return h('div',
-          h('h1', model.text),
-          h('button.refresh', {
-            onclick: function () {
-              setTimeout(function () {
-                model.text = 'after timeout';
-                refresh({});
-              }, 50);
-            }
-          },
-          'refresh')
-        );
-      }
-
-      attach(render, {text: 'before timeout'});
-
-      return click('button.refresh').then(function () {
-        return wait(20).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('before timeout');
-          }).then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('after timeout');
-            });
-          });
-        });
-      });
-    });
-
-    it('must be taken during render cycle, or exception is thrown', function () {
-      function render(model) {
-        var refresh = h.refresh;
-
-        return h('div',
-          h('h1', model.text),
-          h('button.refresh', {
-            onclick: function () {
-              setTimeout(function () {
-                try {
-                  model.text = 'after timeout';
-                  h.refresh();
-                } catch (e) {
-                  model.text = e.message;
-                  refresh();
-                }
-              }, 50);
-            }
-          },
-          'refresh')
-        );
-      }
-
-      attach(render, {text: 'before timeout'});
-
-      return click('button.refresh').then(function () {
-        return wait(20).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('before timeout');
-          }).then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.include("plastiq.html.refresh");
-            });
-          });
-        });
-      });
-    });
-  });
-
-  describe('plastiq.html.refreshAfter', function () {
-    it('refreshes after the promise is complete', function () {
-      function load(model) {
-        return wait(20).then(function () {
-          model.text = 'loaded';
-        });
-      }
-
-      function render(model) {
-        plastiq.html.refreshAfter(load(model));
-
-        return h('div', model.text);
-      }
-
-      attach(render, {text: 'loading'});
+      model.name = 'Hayfa';
+      model.rerender();
 
       return retry(function () {
-        expect(find('div').text()).to.equal('loaded');
+        expect(find('h1').text()).to.equal('hi Hayfa');
+      });
+    });
+
+    it('can rerender several view models without rerendering the whole page', function () {
+      var model = {
+        model1: innerModel('model1', 'one'),
+        model2: innerModel('model2', 'xxx'),
+
+        render: function () {
+          return h('div', this.model1, this.model2);
+        }
+      };
+
+      function innerModel(class_, name) {
+        return {
+          name: name,
+
+          render: function () {
+            return h('h1' + '.' + class_, 'hi ' + this.name);
+          }
+        };
+      }
+
+      attach(model);
+
+      expect(find('h1.model1').text()).to.equal('hi one');
+      expect(find('h1.model2').text()).to.equal('hi xxx');
+
+      model.model1.name = 'two';
+      model.model2.name = 'yyy';
+      model.model1.rerenderViewModel();
+
+      return retry(function () {
+        expect(find('h1.model1').text()).to.equal('hi two');
+        expect(find('h1.model2').text()).to.equal('hi xxx');
+      }).then(function () {
+        model.model2.rerenderViewModel();
+      }).then(function () {
+        return retry(function () {
+          expect(find('h1.model1').text()).to.equal('hi two');
+          expect(find('h1.model2').text()).to.equal('hi yyy');
+        });
+      }).then(function () {
+        model.model1.name = 'three';
+        model.model2.name = 'zzz';
+
+        model.model1.rerenderViewModel();
+        model.model2.rerenderViewModel();
+
+        return retry(function () {
+          expect(find('h1.model1').text()).to.equal('hi three');
+          expect(find('h1.model2').text()).to.equal('hi zzz');
+        });
+      });
+    });
+
+    it('a view model can be represented several times and be rerendered', function () {
+      var model = {
+        models: 1,
+
+        innerModel: {
+          name: 'Jack',
+
+          render: function () {
+            return h('li', this.name);
+          }
+        },
+
+        render: function () {
+          var self = this;
+
+          return h('ul', times(this.models, function () {
+            return self.innerModel;
+          }));
+        }
+      };
+
+      attach(model);
+
+      expect(find('ul').text()).to.equal('Jack');
+
+      model.innerModel.name = 'Jill';
+      model.innerModel.rerenderViewModel();
+
+      return retry(function () {
+        expect(find('ul').text()).to.equal('Jill');
+      }).then(function () {
+        model.models = 3;
+        model.rerender();
+      }).then(function () {
+        return retry(function () {
+          expect(find('ul').text()).to.equal('JillJillJill');
+        });
+      }).then(function () {
+        model.innerModel.name = 'Jacky';
+        model.innerModel.rerenderViewModel();
+
+        return retry(function () {
+          expect(find('ul').text()).to.equal('JackyJackyJacky');
+        });
+      }).then(function () {
+        model.models = 2;
+        model.rerender();
+      }).then(function () {
+        return retry(function () {
+          expect(find('ul').text()).to.equal('JackyJacky');
+        });
+      }).then(function () {
+        model.innerModel.name = 'Joel';
+        model.innerModel.rerenderViewModel();
+
+        return retry(function () {
+          expect(find('ul').text()).to.equal('JoelJoel');
+        });
       });
     });
   });
@@ -1772,6 +1516,695 @@ describe('plastiq', function () {
         return retry(function() {
           expect(plastiq.html.meta(model, 'x').error.message).to.equal('Must be an integer');
           expect(model.x).to.equal(1);
+        });
+      });
+    });
+  });
+
+  describe('v1 compatibility', function () {
+    describe('plastiq.html.refresh', function () {
+      it('refreshes the UI when called', function () {
+        function render(model) {
+          var refresh = h.refresh;
+
+          return h('div',
+            h('h1', model.text),
+            h('button.refresh', {
+              onclick: function () {
+                setTimeout(function () {
+                  model.text = 'after timeout';
+                  refresh();
+                }, 50);
+              }
+            },
+            'refresh')
+          );
+        }
+
+        attach(render, {text: 'before timeout'});
+
+        return click('button.refresh').then(function () {
+          return wait(20).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('before timeout');
+            }).then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('after timeout');
+              });
+            });
+          });
+        });
+      });
+
+      it('refreshes a component when called with that component', function () {
+        function render(model) {
+          var refresh = h.refresh;
+          var component = h.component(function () { return h('h2', model.text); });
+
+          return h('div',
+            h('h1', model.text),
+            component,
+            h('button.refresh', {
+              onclick: function () {
+                setTimeout(function () {
+                  model.text = 'after timeout';
+                  refresh(component);
+                }, 50);
+              }
+            },
+            'refresh')
+          );
+        }
+
+        attach(render, {text: 'before timeout'});
+
+        return click('button.refresh').then(function () {
+          return wait(20).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('before timeout');
+              expect(find('h2').text()).to.equal('before timeout');
+            }).then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('before timeout');
+                expect(find('h2').text()).to.equal('after timeout');
+              });
+            });
+          });
+        });
+      });
+
+      it('updates the component when refreshed', function () {
+        var updated = 0, rendered = 0;
+
+        function render(model) {
+          var refresh = h.refresh;
+
+          var component = h.component(
+            {
+              cacheKey: true,
+              onupdate: function () {
+                updated++;
+              }
+            },
+            function () {
+              rendered++;
+              return h('h2', model.text);
+            }
+          );
+
+          return h('div',
+            component,
+            h('button.refresh', {
+              onclick: function () {
+                setTimeout(function () {
+                  refresh(component);
+                }, 1);
+              }
+            },
+            'refresh')
+          );
+        }
+
+        attach(render, {text: 'before timeout'});
+
+        expect(updated).to.equal(0);
+        expect(rendered).to.equal(1);
+
+        return click('button.refresh').then(function () {
+          return retry(function () {
+            expect(updated).to.equal(1);
+            expect(rendered).to.equal(2);
+          });
+        });
+      });
+
+      it('refreshes whole page if passed a non-component', function () {
+        function render(model) {
+          var refresh = h.refresh;
+
+          return h('div',
+            h('h1', model.text),
+            h('button.refresh', {
+              onclick: function () {
+                setTimeout(function () {
+                  model.text = 'after timeout';
+                  refresh({});
+                }, 50);
+              }
+            },
+            'refresh')
+          );
+        }
+
+        attach(render, {text: 'before timeout'});
+
+        return click('button.refresh').then(function () {
+          return wait(20).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('before timeout');
+            }).then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.equal('after timeout');
+              });
+            });
+          });
+        });
+      });
+
+      it('must be taken during render cycle, or exception is thrown', function () {
+        function render(model) {
+          var refresh = h.refresh;
+
+          return h('div',
+            h('h1', model.text),
+            h('button.refresh', {
+              onclick: function () {
+                setTimeout(function () {
+                  try {
+                    model.text = 'after timeout';
+                    h.refresh();
+                  } catch (e) {
+                    model.text = e.message;
+                    refresh();
+                  }
+                }, 50);
+              }
+            },
+            'refresh')
+          );
+        }
+
+        attach(render, {text: 'before timeout'});
+
+        return click('button.refresh').then(function () {
+          return wait(20).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('before timeout');
+            }).then(function () {
+              return retry(function () {
+                expect(find('h1').text()).to.include("plastiq.html.refresh");
+              });
+            });
+          });
+        });
+      });
+    });
+
+    describe('plastiq.html.component', function () {
+      it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
+        var events = [];
+        var componentState;
+
+        function render(model) {
+          return h('div',
+            model.showComponent
+              ? h.component({
+                  onadd: function (element) {
+                    events.push({
+                      type: 'onadd',
+                      parent: element.parentNode,
+                      element: element
+                    });
+                    componentState = this;
+                  },
+                  onupdate: function (element) {
+                    events.push({
+                      type: 'onupdate',
+                      element: element,
+                      state: this
+                    });
+                  },
+                  onremove: function (element) {
+                    events.push({
+                      type: 'onremove',
+                      element: element,
+                      state: this
+                    });
+                  }
+                }, h('h1', 'component'))
+              : undefined,
+            h('button.refresh', {onclick: function () {}},  'refresh'),
+            h('button.remove', {onclick: function () { model.showComponent = false; }}, 'remove')
+          );
+        }
+
+        attach(render, {showComponent: true});
+
+        var expectedParent = div.firstChild;
+        var expectedElement = div.firstChild.firstChild;
+
+        return click('button.refresh').then(function () {
+          return wait(30).then(function () {
+            return click('button.refresh').then(function () {
+              return wait(30).then(function () {
+                return click('button.remove').then(function () {
+                  return wait(30).then(function () {
+                    expect(events).to.eql([
+                      {
+                        type: 'onadd',
+                        parent: expectedParent,
+                        element: expectedElement
+                      },
+                      {
+                        type: 'onupdate',
+                        element: expectedElement,
+                        state: componentState
+                      },
+                      {
+                        type: 'onupdate',
+                        element: expectedElement,
+                        state: componentState
+                      },
+                      {
+                        type: 'onremove',
+                        element: expectedElement,
+                        state: componentState
+                      }
+                    ]);
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('throws error if not given vdom', function () {
+        function render() {
+          return h.component(
+            {
+              onadd: function () {
+
+              }
+            }
+          )
+        }
+
+        expect(function () {attach(render);}).to.throw('expects a vdom argument');
+      });
+
+      it('can expose long-running state for components', function () {
+        function render() {
+          return h.component(
+            {
+              onbeforeadd: function () {
+                this.counter = 2;
+              }
+            },
+            function () {
+              var self = this;
+
+              return h('div',
+                h('span.counter', this.counter),
+                h('button.add', {onclick: function () { self.counter++; }}, 'add')
+              );
+            }
+          );
+        }
+
+        attach(render, {counter: 0});
+
+        return retry(function () {
+          expect(find('span.counter').text()).to.equal('2');
+        }).then(function () {
+          return click('button.add');
+        }).then(function () {
+          return retry(function () {
+            expect(find('span.counter').text()).to.equal('3');
+          });
+        }).then(function () {
+          return click('button.add');
+        }).then(function () {
+          return retry(function () {
+            expect(find('span.counter').text()).to.equal('4');
+          });
+        });
+      });
+
+      it('renders and updates the vdom inside the component', function () {
+        function render(model) {
+          return h('div',
+            h.component({
+              },
+              h('span.counter', model.counter)
+            ),
+            h('button.add', {onclick: function () { model.counter++; }},  'add')
+          );
+        }
+
+        attach(render, {counter: 0});
+
+        return click('button.add').then(function () {
+          return wait(30).then(function () {
+            return retry(function () {
+              expect(find('span.counter').text()).to.equal('1');
+            }).then(function () {
+              return click('button.add').then(function () {
+                return retry(function () {
+                  expect(find('span.counter').text()).to.equal('2');
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('only refreshes the component when returned from an event', function () {
+        function render(model) {
+
+          return h('div',
+            h.component(function (component) {
+              return h('div',
+                h('span.inner-counter', model.counter),
+                h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
+              );
+            }),
+            h('span.outer-counter', model.counter),
+            h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
+          );
+        }
+
+        attach(render, {counter: 0});
+
+        expect(find('span.inner-counter').text()).to.equal('0');
+        expect(find('span.outer-counter').text()).to.equal('0');
+
+        return click('button.add-inner').then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('1');
+            expect(find('span.outer-counter').text()).to.equal('0');
+          });
+        }).then(function () {
+          return click('button.add-inner');
+        }).then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('2');
+            expect(find('span.outer-counter').text()).to.equal('0');
+          });
+        }).then(function () {
+          return click('button.add-outer').then(function () {
+            return retry(function () {
+              expect(find('span.inner-counter').text()).to.equal('3');
+              expect(find('span.outer-counter').text()).to.equal('3');
+            });
+          });
+        });
+      });
+
+      it('only refreshes array of the components when returned from an event', function () {
+        function render(model) {
+          var component1 = h.component(function (component) {
+              return h('div',
+                h('span.inner-counter', model.counter),
+                h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
+              );
+            });
+
+          return h('div',
+            component1,
+            h.component(function (component) {
+              return h('div',
+                h('span.inner-counter2', model.counter),
+                h('button.add-inner2', {onclick: function () { model.counter++; return [component, component1]; }},  'add inner 2')
+              );
+            }),
+            h('span.outer-counter', model.counter),
+            h('button.add-outer', {onclick: function () { model.counter++; }},  'add outer')
+          );
+        }
+
+        attach(render, {counter: 0});
+
+        expect(find('span.inner-counter').text()).to.equal('0');
+        expect(find('span.inner-counter2').text()).to.equal('0');
+        expect(find('span.outer-counter').text()).to.equal('0');
+
+        return click('button.add-inner').then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('1');
+            expect(find('span.inner-counter2').text()).to.equal('0');
+            expect(find('span.outer-counter').text()).to.equal('0');
+          });
+        }).then(function () {
+          return click('button.add-inner2');
+        }).then(function () {
+          return retry(function () {
+            expect(find('span.inner-counter').text()).to.equal('2');
+            expect(find('span.inner-counter2').text()).to.equal('2');
+            expect(find('span.outer-counter').text()).to.equal('0');
+          });
+        }).then(function () {
+          return click('button.add-outer').then(function () {
+            return retry(function () {
+              expect(find('span.inner-counter').text()).to.equal('3');
+              expect(find('span.inner-counter2').text()).to.equal('3');
+              expect(find('span.outer-counter').text()).to.equal('3');
+            });
+          });
+        });
+      });
+
+      it('throws exception when component is returned from event but does not have a render function', function () {
+        function render(model) {
+          var component = h.component(h('span.inner-counter', model.counter));
+
+          return h('div',
+            component,
+            h('button', { onclick: function () { return component; } }, 'refresh component')
+          );
+        }
+
+        attach(render, {});
+
+        return click('button').then(undefined, function(error) {
+          expect(error.message).to.contain('refresh');
+        });
+      });
+
+      it('can refresh the component when returned from an event, and handle lifetime events', function () {
+        var events = [];
+        var refreshCount = 0;
+
+        function render(model) {
+          refreshCount++;
+          return h('div',
+            model.show
+              ? h.component(
+                  h.component(
+                    {
+                      onadd: function () {
+                        events.push('add');
+                      },
+                      onupdate: function () {
+                        events.push('update');
+                      },
+                      onremove: function () {
+                        events.push('remove');
+                      }
+                    },
+                    function () {
+                      return h('div', 'rest of the content')
+                    }
+                  )
+                )
+              : undefined,
+            h('button.refresh', {onclick: function () {}}, 'refresh'),
+            h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
+          );
+        }
+
+        var waitForRefresh = (function () {
+          var oldRefreshCount = 1;
+          return function () {
+            return retry(function () {
+              expect(refreshCount).to.equal(oldRefreshCount + 1);
+            }).then(function () {
+              oldRefreshCount = refreshCount;
+            });
+          };
+        })();
+
+        attach(render, {});
+
+        return click('input.show').then(function () {
+          return waitForRefresh().then(function () {
+            return click('button.refresh').then(function () {
+              return waitForRefresh().then(function () {
+                return click('button.refresh').then(function () {
+                  return waitForRefresh().then(function () {
+                    return click('input.show').then(function () {
+                      return retry(function () {
+                        expect(events).to.eql([
+                          'add',
+                          'update',
+                          'update',
+                          'remove'
+                        ]);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+
+      it('can capture fields from each refresh', function () {
+        var events = [];
+
+        function render(model) {
+          model.value++;
+          var refresh = h.refresh;
+
+          return h('div',
+            h.component(
+              {
+                value: model.value,
+
+                onadd: function (element) {
+                  var self = this;
+                  element.addEventListener('click', function () {
+                    events.push(self.value);
+                    refresh();
+                  });
+                }
+              },
+              h('.button-' + model.value, 'click me')
+            )
+          );
+        }
+
+        attach(render, {value: 0});
+        return click('.button-1').then(function () {
+          expect(events).to.eql([1]);
+        }).then(function () {
+          return click('.button-2').then(function () {
+            expect(events).to.eql([1, 2]);
+          });
+        });
+      });
+
+      it('can update the component only when the cacheKey changes', function () {
+        var updates = 0;
+        var componentRenders = 0;
+        var renders = 0;
+
+        function render() {
+          renders++;
+          return h.component(
+            {
+              cacheKey: model.cacheKey,
+              onupdate: function () {
+                updates++;
+              }
+            },
+            function () {
+              componentRenders++;
+              return h('button', {onclick: function () {}}, 'refresh');
+            }
+          );
+        }
+
+        var model = {
+          cacheKey: 1
+        };
+
+        attach(render, model);
+
+        expect(renders).to.equal(1);
+        expect(componentRenders).to.equal(1);
+        expect(updates).to.equal(0);
+
+        return click('button').then(function () {
+          return retry(function () {
+            expect(renders).to.equal(2);
+            expect(componentRenders).to.equal(1);
+            expect(updates).to.equal(0);
+          });
+        }).then(function () {
+          model.cacheKey++;
+          return click('button');
+        }).then(function () {
+          return retry(function () {
+            expect(renders).to.equal(3);
+            expect(componentRenders).to.equal(2);
+            expect(updates).to.equal(1);
+          });
+        });
+      });
+
+      it('can wrap event handlers inside the component', function () {
+        var events = [];
+
+        function render() {
+          return h('div',
+            h.component(
+              {
+                on: function (type, handler) {
+                  return function() {
+                    events.push('component ' + type);
+                    return handler.apply(this, arguments);
+                  }
+                }
+              },
+              function () {
+                return h('div',
+                  h.component(
+                    {
+                      on: function (type, handler) {
+                        return function() {
+                          events.push('inner component ' + type);
+                          return handler.apply(this, arguments);
+                        }
+                      }
+                    },
+                    function () {
+                      return h('button.inner-inner-component', {onclick: function () { events.push('inner inner click'); }}, 'click me');
+                    }
+                  ),
+                  h('button.inner-component', {onclick: function () { events.push('inner click'); }}, 'click me')
+                );
+              }
+            ),
+            h('button.outer-component', {onclick: function () { events.push('outer click'); }}, 'click me')
+          );
+        }
+
+        attach(render);
+
+        return click('button.inner-component').then(function () {
+          expect(events).to.eql(['component click', 'inner click']);
+        }).then(function () {
+          return click('button.inner-inner-component').then(function () {
+            expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click']);
+          });
+        }).then(function () {
+          return click('button.outer-component').then(function () {
+            expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click', 'outer click']);
+          });
+        });
+      });
+    });
+
+    describe('plastiq.html.refreshAfter', function () {
+      it('refreshes after the promise is complete', function () {
+        function load(model) {
+          return wait(20).then(function () {
+            model.text = 'loaded';
+          });
+        }
+
+        function render(model) {
+          plastiq.html.refreshAfter(load(model));
+
+          return h('div', model.text);
+        }
+
+        attach(render, {text: 'loading'});
+
+        return retry(function () {
+          expect(find('div').text()).to.equal('loaded');
         });
       });
     });
