@@ -123,9 +123,19 @@ var plastiq = require('plastiq');
 
 The `render` function takes a model object and returns a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
 
+JS
+
 ```JavaScript
 function render(model) {
   return h('span', 'hi ', model.name);
+}
+```
+JSX
+```jsx
+class App {
+  render() {
+    return <span>hi {this.name}</span>;
+  }
 }
 ```
 
@@ -263,6 +273,28 @@ When the event handler has completed the view is automatically re-rendered.
 
 If you return a promise, then the view is also re-rendered when the promise resolves.
 
+JSX
+
+```jsx
+class App {
+  render() {
+    return <div>
+      <ul>{this.people.map(function (person) {
+        return <li>person.name</li>;
+      })}</ul>
+      <button onclick="function () {
+        this.people.push({name: 'Person ' + (this.people.length + 1)});
+      }">
+        Add Person
+       </button>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App());
+```
+JS
+
 ```JavaScript
 function render(model) {
   return h('div',
@@ -290,6 +322,21 @@ You can attach event handlers to `window`, such as `window.onscroll` and `window
 
 E.g. to add an `onresize` handler:
 
+JSX
+
+```jsx
+class App {
+  render() {
+    return <div>
+    width = {window.innerWidth} , height = {window.innerHeight},
+    {h.window({ onresize: function () {console.log('resizing');} })}
+    </div>;
+  }
+}
+
+```
+JS
+
 ```JavaScript
 function render() {
   return h('div',
@@ -307,6 +354,22 @@ This applies to `textarea` and input types `text`, `url`, `date`, `email`, `colo
 
 The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object `{get: function () { ... }, set: function (value) { ... }}`.
 
+JSX
+
+```jsx
+class App {
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding={[this, 'name']} />
+      <div>hi {this.name}</div>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App());
+```
+JS
 ```JavaScript
 function render(model) {
   return h('div',
@@ -325,6 +388,25 @@ Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 Bind the model to each radio button. The buttons can be bound to complex (non-string) values.
 
+JSX
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  render() {
+    return <div>
+      <input class="red" type="radio" name="colour" binding={[this, 'colour']} value="red" />
+      <input class="blue" type="radio" name="colour" binding={[this, 'colour']} value=blue />
+      <input type="text" binding={[this, 'name']} />
+      <div>hi {this.name}</div>
+      <code>{JSON.stringify(this.colour)}</code>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App());
+```
+JS
 ```JavaScript
 var blue = { name: 'blue' };
 
@@ -356,6 +438,26 @@ Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
 
 Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
 
+JSX
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  render() {
+    return <div>
+      <select binding={[this, 'colour']}>
+        <option value="red"> red </option>
+        <option value={blue}> blue </option>
+      </select>
+      <code>{JSON.stringify(this.colour)}</code>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App());
+```
+JS
+
 ```JavaScript
 var blue = { name: 'blue' };
 
@@ -379,6 +481,37 @@ Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
 ## File Inputs
 
 The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
+
+JSX
+```jsx
+
+class App {
+  render() {
+    return <div>
+      <input type="file" binding={set: function (file) {
+        return new Promise(function (result) {
+          var reader = new FileReader();
+          reader.readAsText(file);
+
+          reader.onloadend = function () {
+            this.filename = file.name;
+            this.contents = reader.result;
+            result();
+          };
+        });
+      }}>
+      </input>
+      <h1>{this.filename}</h1>
+      <pre>
+        <code>{JSON.stringify(this.contents)}</code>
+      </pre>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App({filename: '(no file selected)'}));
+```
+JS
 
 ```JavaScript
 function render(model) {
@@ -450,6 +583,58 @@ install jQuery plugins.
 
 The `plastiq.html.component()` allows you to respond to when the HTML is added, updated and removed.
 
+JSX
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  render() {
+    return <div>
+    this.show
+      ? h.component(
+          {
+            onbeforeadd: function () {
+              // you can store state in `this`, and it will
+              // be present in subsequent event handlers
+              // in fact, the `this` is the same object
+              // for each event handler, across all view refreshes
+              this.someProperty = 'some value';
+            },
+
+            onadd: function (element) {
+              // element is the <div>component contents</div>
+              // you may want to add jQuery plugins here
+              console.log('added: ', this.someProperty);
+            },
+
+            onupdate: function (element) {
+              console.log('updated: ', this.someProperty);
+            },
+
+            onremove: function (element) {
+              console.log('removed: ', this.someProperty);
+            }
+          },
+          <div> component contents </div>
+        )
+      : undefined,
+      <div>
+        <label>
+          <input type="file" binding={[this, 'show']} />
+        </label>
+      </div>
+      <div>
+        <button onclick="function () {}">refresh</button>
+      </div>
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App({filename: '(no file selected)'}));
+```
+
+JS
+
 ```JavaScript
 function render(model) {
   return h('div',
@@ -500,12 +685,48 @@ Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 
 Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
 
+JSX
+```jsx
+var component = h.component(function () {
+  return <div>component counter: {this.counter} </div>;
+});
+
+class App {
+  render() {
+    return <div>
+    component
+      <div>page counter: {this.counter}</div>
+      <div>
+        <button onclick="function () {
+          this.counter++;
+          return component;
+        }">
+          refresh component
+        </button>
+      </div>
+      <div>
+        <button onclick="function () {
+          this.counter++;
+        }">
+          refresh page
+        </button>
+      </div>
+      <div>
+        <button onclick="function () {}">refresh</button>
+      </div>
+    </div>;
+  }
+}
+```
+
+JS
+
 ```JavaScript
 function render(model) {
   var component = h.component(function () {
     return h('div', 'component counter: ', model.counter);
   });
-  
+
   return h('div',
     component,
     h('div', 'page counter: ', model.counter),
@@ -539,6 +760,63 @@ You won't find controllers or components in plastiq like you would in React's `R
 Render functions contain event handlers, which act as **controllers** in other frameworks. Event handlers can either handle events inline, or delegate to methods on the model.
 
 In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
+
+JSX
+```jsx
+var component = h.component(function () {
+  return <div>component counter: {this.counter} </div>;
+});
+
+class App {
+  render() {
+    return <div>
+    <h3>People</h3>
+    <ol>
+      {this.people.map(function (person) {
+        return renderPerson(person);
+      })}
+    </ol>
+    <button onclick="function () {
+      this.counter++;
+    }">
+      refresh page
+    </button>
+      <div>page counter: {this.counter}</div>
+      <div>
+        <button onclick="function () { this.addPerson();">
+          add
+        </button>
+      </div>
+    </div>;
+  }
+  renderPerson(person){
+    return <li>
+      <input type="text binding="{[person,'name']}">
+    </li>
+    <button onclick="function () { this.deletePerson(person); ">delete</button>
+  }
+}
+plastiq.append(document.body, new App({
+  people: [
+    {name: 'Åke'},
+    {name: 'آمر'},
+    {name: '正'}
+  ],
+
+  addPerson: function () {
+    this.people.push({name: "somebody"});
+  },
+
+  deletePerson: function (person) {
+    var i = this.people.indexOf(person);
+
+    if (i >= 0) {
+      this.people.splice(i, 1);
+    }
+  }
+}));
+```
+JS
 
 ```JavaScript
 function render(model) {
@@ -594,6 +872,124 @@ Try it on [requirebin](http://requirebin.com/?gist=9ff1ee7bdb2b57fccfb6).
 The model too can contain render methods so you can take advantage of polymorphism. This might be useful, for example, if you want to render a list of different types of widgets. Each object in the list would have its own render function, rendering different HTML depending on the object.
 
 Here we render different types of animal, each with it's own user interface. Each animal object has a `render` method to render it's own HTML and event handlers.
+
+
+```JavaScript
+function render(model) {
+  return h('div',
+    h('ul',
+      model.animals.map(function (animal) {
+        return h('li', animal.render(model));
+      })
+    ),
+    h('h1', { style: { color: 'red' } }, model.sound? model.sound + '!': '')
+  );
+}
+
+plastiq.append(document.body, render, {
+  animals: [
+    {
+      name: 'Harry',
+      render: function (model) {
+        return [
+          h('h3', 'Dog ' + this.name),
+          h('button',
+            {
+              onclick: function () {
+                return model.makeSound('woof');
+              }
+            },
+            'bark'
+          )
+        ];
+      }
+    },
+    {
+      name: 'Bobo',
+      render: function (model) {
+        return [
+          h('h3', 'Lion ' + this.name),
+          h('button',
+            {
+              onclick: function () {
+                return model.makeSound('roar');
+              }
+            },
+            'roar'
+          )
+        ];
+      }
+    }
+  ],
+  makeSound: function (sound) {
+    var self = this;
+    return function (render) {
+      self.sound = sound;
+      render();
+
+      setTimeout(function () {
+        delete self.sound;
+        render();
+      }, 300);
+    }
+  }
+});
+```
+
+
+JSX
+```jsx
+class App {
+  render() {
+    return <div>
+    <ul>
+      {this.animals.map(function (animal) {
+        return h('li', animal.render(model));
+      })}
+    </ul>
+    <h1 style="color:red"> {this.sound? this.sound} ! </h1>
+    </div>;
+}
+plastiq.append(document.body, new App({
+  animals: [
+    {
+      name: 'Harry',
+      render: function () {
+        return [
+          <h3> Dog {this.name}</h3>
+          <button onclick="function () {
+            return this.makeSound('woof');
+          }"/>
+        ];
+      }
+    },
+    {
+      name: 'Bobo',
+      render: function () {
+        return [
+          <h3> Lion {this.name}</h3>
+          <button onclick="function () {
+            return this.makeSound('roar');
+          }"/>
+        ];
+      }
+    }
+  ],
+  makeSound: function (sound) {
+    var self = this;
+    return function (render) {
+      self.sound = sound;
+      render();
+
+      setTimeout(function () {
+        delete self.sound;
+        render();
+      }, 300);
+    }
+  }
+}));
+```
+JS
 
 ```JavaScript
 function render(model) {
@@ -693,6 +1089,37 @@ refresh();
 
 This is because `plastiq.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
 
+JSX
+
+```jsx
+class App {
+  render() {
+    this.refresh = h.refresh;
+    return <div>
+      <h1> my favourite color is </h1>
+      {
+        this.color?
+          <h2> {this.color} </h2>
+        :
+          this.loading?
+            <h2> loading... </h2>
+          :
+            <button onClick={ () => {
+                setTimeout( () => {
+                  this.color = 'red';
+                  this.refresh();
+                }, 1000);
+              }
+            } />
+    </div>;
+  }
+}
+
+plastiq.append(document.body, new App());
+```
+JS
+
+
 ```JavaScript
 function render(model) {
   model.refresh = h.refresh;
@@ -764,6 +1191,27 @@ Plastiq is usually very fast. It's based on [virtual-dom](https://github.com/Mat
 ## Server-side Rendering
 
 You can render plastiq components on the server-side using [vdom-to-html](https://github.com/nthtran/vdom-to-html):
+
+JSX
+
+```jsx
+var h = require('plastiq').html;
+var vdomToHtml = require('vdom-to-html');
+
+var vdom = <html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+  </head>
+  <body>
+    <h1> plastiq! </h1>
+  </body>
+</html>;
+
+
+var html = vdomToHtml(vdom);
+console.log(html);
+```
+JS
 
 ```js
 var h = require('plastiq').html;
@@ -905,7 +1353,7 @@ var component = plastiq.html.component([eventHandlers], vdomFragment | renderFun
       }
     }
     ```
-    
+
   * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and plastiq will still be able to track it.
   * `cacheKey` - if truthy, the component will only update if it's different from the previous rendering of the component. If falsey, then the component will re-render normally with everything else.
   * any other fields you want to access from the handlers.
@@ -942,25 +1390,25 @@ var attachment = plastiq.replace(element, modelWithRender, [options]);
       render();
     }
     ```
-  
+
     Or on the next tick:
-  
+
     ```JavaScript
     function requestRender(render) {
       setTimeout(render, 0);
     }
     ```
-  
+
     Or on the next animation frame:
-  
+
     ```JavaScript
     function requestRender(render) {
       requestAnimationFrame(render);
     }
     ```
-  
+
     The default is `requestAnimationFrame`, falling back to `setTimeout`.
-  
+
     For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
 ### Detach
