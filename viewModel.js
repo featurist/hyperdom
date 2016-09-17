@@ -2,6 +2,7 @@ var domComponent = require('./domComponent');
 var rendering = require('./rendering');
 var plastiqMeta = require('./meta');
 var Widgets = require('./widgets');
+var renderViewModel = require('./renderViewModel');
 
 function rerenderViewModel() {
   var meta = plastiqMeta(this);
@@ -38,25 +39,10 @@ function ViewModel(model) {
 
 ViewModel.prototype.type = 'Widget';
 
-function render(model) {
-  if (typeof model.renderCacheKey === 'function') {
-    var meta = plastiqMeta(model);
-    var key = model.renderCacheKey();
-    if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
-      return meta.cachedVdom;
-    } else {
-      meta.cacheKey = key;
-      return meta.cachedVdom = model.render();
-    }
-  } else {
-    return model.render();
-  }
-}
-
 ViewModel.prototype.init = function () {
   var self = this;
 
-  var vdom = render(this.model);
+  var vdom = renderViewModel(this.model);
 
   var meta = plastiqMeta(this.model);
   meta.widgets = meta.widgets || new Widgets();
@@ -92,7 +78,7 @@ ViewModel.prototype.update = function (previous) {
 
   this.component = previous.component;
 
-  var element = this.component.update(render(this.model));
+  var element = this.component.update(renderViewModel(this.model));
 
   if (self.model.detached) {
     return document.createTextNode('');
@@ -102,11 +88,11 @@ ViewModel.prototype.update = function (previous) {
 };
 
 ViewModel.prototype.render = function () {
-  return render(this.model);
+  return renderViewModel(this.model);
 };
 
 ViewModel.prototype.refresh = function () {
-  this.component.update(render(this.model));
+  this.component.update(renderViewModel(this.model));
   if (this.model.onupdate) {
     this.model.onupdate(this.component.element);
   }

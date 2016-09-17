@@ -5,6 +5,7 @@ var bindingMeta = require('./meta');
 var toVdom = require('./toVdom');
 var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag');
 var ViewModel = require('./viewModel');
+var renderViewModel = require('./renderViewModel');
 
 function doThenFireAfterRender(attachment, fn) {
   try {
@@ -127,7 +128,7 @@ function start(model, options, attachToDom) {
 
         if (attachment.attached) {
           doThenFireAfterRender(attachment, function () {
-            var vdom = model.render();
+            var vdom = renderViewModel(model);
             component.update(vdom);
           });
         }
@@ -364,10 +365,11 @@ var inputTypeBindings = {
 
     for(var n = 0; n < options.length; n++) {
       var option = options[n];
+      var hasValue = option.properties.hasOwnProperty('value');
       var value = option.properties.value;
       var text = option.children.map(function (x) { return x.text; }).join('');
 
-      values.push(value != undefined? value: text);
+      values.push(hasValue? value: text);
 
       var selected = value == currentValue || text == currentValue;
 
