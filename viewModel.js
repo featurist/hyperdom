@@ -1,7 +1,5 @@
 var domComponent = require('./domComponent');
-var rendering = require('./rendering');
 var plastiqMeta = require('./meta');
-var Set = require('./set');
 var plastiq = require('.');
 
 function ViewModel(model) {

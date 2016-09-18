@@ -1,6 +1,7 @@
 var plastiqMeta = require('./meta');
 var runRender = require('./runRender');
 var plastiq = require('.');
+var Set = require('./set');
 
 var lastId = 0;
 
