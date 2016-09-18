@@ -1,3 +1,7 @@
+if (typeof window === 'object') {
+  console.log('created with \uD83D\uDE80 using https://github.com/featurist/plastiq');
+}
+
 var rendering = require('./rendering');
 var deprecations = require('./deprecations');
 
@@ -9,7 +13,9 @@ exports.append = rendering.append;
 exports.appendVDom = rendering.appendVDom;
 exports.merge = rendering.merge;
 exports.binding = rendering.binding;
+exports.meta = rendering.html.meta;
 exports.refreshify = rendering.html.refreshify;
+exports.norefresh = rendering.html.norefresh;
 
 var windowEvents = require('./windowEvents');
 

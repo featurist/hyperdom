@@ -78,6 +78,7 @@ function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object' && typeof render.render == 'function') {
     return start(render, attachToDom, model);
   } else {
+    deprecations.renderFunction('plastiq.append and plastiq.replace with render functions are deprecated, please pass a ViewModel');
     return start({render: function () { return render(model); }}, attachToDom, options);
   }
 }
@@ -94,6 +95,10 @@ function start(model, attachToDom, options) {
 }
 
 var norefresh = {};
+
+function norefreshFunction() {
+  return norefresh;
+}
 
 function refreshify(fn, options) {
   if (!fn) {
@@ -148,6 +153,9 @@ exports.createEventResultHandler = function(mount, options) {
     } else if (componentToRefresh) {
       componentToRefresh.refresh();
     } else if (result === norefresh) {
+      // don't refresh;
+    } else if (result === norefreshFunction) {
+      deprecations.norefresh('plastiq.html.norefresh is deprecated, please use plastiq.norefresh()');
       // don't refresh;
     } else {
       mount.rerender();
@@ -449,6 +457,7 @@ Object.defineProperty(exports.html, 'refresh', {get: function () {
 }});
 
 function refreshAfter(promise) {
+  deprecations.refreshAfter('plastiq.html.refreshAfter is deprecated');
   var refresh = exports.html.refresh;
 
   promise.then(refresh);
