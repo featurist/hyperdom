@@ -1,90 +1,58 @@
 var h = require('./vhtml');
 var domComponent = require('./domComponent');
-var simplePromise = require('./simplePromise');
 var bindingMeta = require('./meta');
 var toVdom = require('./toVdom');
 var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag');
 var ViewModel = require('./viewModel');
-var renderViewModel = require('./renderViewModel');
+var Mount = require('./mount');
+var runRender = require('./runRender');
+var deprecations = require('./deprecations');
+var plastiq = require('.');
 
-function doThenFireAfterRender(attachment, fn) {
-  try {
-    exports.html.currentRender = {attachment: attachment};
-    exports.html.currentRender.finished = simplePromise();
-    exports.html.refresh = function (component) {
-      if (isComponent(component)) {
-        refreshComponent(component, attachment);
-      } else {
-        attachment.refresh();
-      }
-    }
-
-    fn();
-  } finally {
-    exports.html.currentRender.finished.fulfill();
-    exports.html.currentRender.finished = undefined;
-    delete exports.html.currentRender;
-    exports.html.refresh = refreshOutOfRender;
-  }
-}
-
-function refreshOutOfRender() {
-  throw new Error('Please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/plastiq#refresh-outside-render-cycle');
-}
-
-function areAllComponents(components) {
-  for (var i = 0; i < components.length; i++) {
-    if(!isComponent(components[i])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function isComponent(component) {
+function isViewModelOrComponent(component) {
   return component
-    && typeof component.init === 'function'
-    && typeof component.update === 'function'
-    && typeof component.destroy === 'function';
+    && ((typeof component.init === 'function'
+       && typeof component.update === 'function'
+       && typeof component.destroy === 'function') || (typeof component.renderViewModel === 'function'));
 }
 
 exports.merge = function (element, render, model, options) {
-  var attachment = startAttachment(render, model, options, function(model, domComponentOptions) {
+  var mount = startAttachment(render, model, options, function(mount, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    exports.html.currentRender.eventHandlerWrapper = function() {
+    var currentRender = plastiq.currentRender;
+    currentRender.eventHandlerWrapper = function() {
       return null;
     };
-    var vdom = model.render();
+    var vdom = mount.render();
     component.merge(vdom, element);
     return component;
   });
 
-  attachment.refresh();
+  mount.rerender();
 
-  return attachment;
+  return mount;
 };
 
 exports.append = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(model, domComponentOptions) {
+  return startAttachment(render, model, options, function(mount, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    var vdom = model.render();
+    var vdom = mount.render();
     element.appendChild(component.create(vdom));
     return component;
   });
 };
 
 exports.replace = function (element, render, model, options) {
-  return startAttachment(render, model, options, function(model, domComponentOptions) {
+  return startAttachment(render, model, options, function(mount, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    var vdom = model.render();
+    var vdom = mount.render();
     element.parentNode.replaceChild(component.create(vdom), element);
     return component;
   });
 };
 
 exports.appendVDom = function (vdom, render, model, options) {
-  return startAttachment(render, model, options, function(model) {
+  return startAttachment(render, model, options, function(mount) {
     var component = {
       create: function(newVDom) {
         vdom.children = [];
@@ -99,93 +67,30 @@ exports.appendVDom = function (vdom, render, model, options) {
         }
       }
     };
-    component.create(model.render());
+    component.create(mount.render());
     return component;
   });
 };
 
 exports.ViewModel = ViewModel;
 
-var attachmentId = 1;
-
 function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object' && typeof render.render == 'function') {
-    return start(render, model, attachToDom);
+    return start(render, attachToDom, model);
   } else {
-    return start({render: function () { return render(model); }}, options, attachToDom);
+    return start({render: function () { return render(model); }}, attachToDom, options);
   }
 }
 
-function start(model, options, attachToDom) {
-  var win = (options && options.window) || window;
-  var requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
-  var requested = false;
-
-  function refresh() {
-    if (!requested) {
-      requestRender(function () {
-        requested = false;
-
-        if (attachment.attached) {
-          doThenFireAfterRender(attachment, function () {
-            var vdom = renderViewModel(model);
-            component.update(vdom);
-          });
-        }
-      });
-      requested = true;
-    }
-  }
-
-  var attachment = {
-    refresh: refresh,
-    requestRender: requestRender,
-    id: attachmentId++,
-    attached: true
-  }
-
-  var component;
-
-  doThenFireAfterRender(attachment, function () {
+function start(model, attachToDom, options) {
+  var mount = new Mount(model, options);
+  runRender(mount, function () {
     if (options) {
       var domComponentOptions = {document: options.document};
     }
-    component = attachToDom(new ViewModel(model), domComponentOptions);
+    mount.component = attachToDom(mount, domComponentOptions);
   });
-
-  return {
-    detach: function () {
-      attachment.attached = false;
-    },
-    remove: function () {
-      component.destroy({removeElement: true});
-      attachment.attached = false;
-    },
-    refresh: refresh
-  };
-}
-
-exports.attach = function () {
-  console.warn('plastiq.attach has been renamed to plastiq.append, plastiq.attach will be deprecated in a future version');
-  return exports.append.apply(this, arguments);
-}
-
-function refreshComponent(component, attachment) {
-  if (!component.canRefresh) {
-    throw new Error("this component cannot be refreshed, make sure that the component's view is returned from a function");
-  }
-
-  if (!component.requested) {
-    var requestRender = attachment.requestRender;
-
-    requestRender(function () {
-      doThenFireAfterRender(attachment, function () {
-        component.requested = false;
-        component.refresh();
-      });
-    });
-    component.requested = true;
-  }
+  return mount;
 }
 
 var norefresh = {};
@@ -195,7 +100,9 @@ function refreshify(fn, options) {
     return fn;
   }
 
-  if (!exports.html.currentRender) {
+  var currentRender = plastiq.currentRender();
+
+  if (!currentRender) {
     if (typeof global === 'object') {
       return fn;
     } else {
@@ -203,59 +110,53 @@ function refreshify(fn, options) {
     }
   }
 
-  var onlyRefreshAfterPromise = options && options.refresh == 'promise';
-  var componentToRefresh = options && options.component;
+  var mount = currentRender.mount;
+  var handleEventResult = exports.createEventResultHandler(mount, options);
 
   if (options && (options.norefresh == true || options.refresh == false)) {
     return fn;
   }
 
-  var attachment = exports.html.currentRender.attachment;
-  var r = attachment.refresh;
-
   return function () {
     var result = fn.apply(this, arguments);
-
-    function handleResult(result, promiseResult) {
-      var allowRefresh = !onlyRefreshAfterPromise || promiseResult;
-
-      if (allowRefresh && result && typeof(result) == 'function') {
-        console.warn('animations are now deprecated, you should consider using plastiq.html.refresh');
-        result(r);
-      } else if (result && typeof(result.then) == 'function') {
-        if (allowRefresh) {
-          r();
-        }
-        result.then(function (result) { handleResult(result, onlyRefreshAfterPromise); });
-      } else if (
-          result
-          && typeof result.init === 'function'
-          && typeof result.update === 'function'
-          && typeof result.destroy === 'function') {
-        refreshComponent(result, attachment);
-      } else if (result instanceof Array && areAllComponents(result)) {
-        for (var i = 0; i < result.length; i++) {
-          refreshComponent(result[i], attachment);
-        }
-      } else if (componentToRefresh) {
-        refreshComponent(componentToRefresh, attachment);
-      } else if (result === norefresh) {
-        // don't refresh;
-      } else if (allowRefresh) {
-        r();
-        return result;
-      }
-    }
-
-    return handleResult(result);
+    return handleEventResult(result);
   };
 }
 
-function refreshAfter(promise) {
-  var refresh = exports.html.refresh;
+exports.createEventResultHandler = function(mount, options) {
+  var onlyRefreshAfterPromise = options && options.refresh == 'promise';
+  var viewModelToRefresh = options && options.viewModel;
+  var componentToRefresh = options && options.component;
 
-  promise.then(refresh);
-}
+  function handleEventResult(result, promiseResult) {
+    if (result && typeof(result.then) == 'function') {
+      result.then(function (result) { handleEventResult(result, true); });
+    }
+
+    if (onlyRefreshAfterPromise && !promiseResult) {
+      return;
+    }
+
+    if (isViewModelOrComponent(result)) {
+      mount.rerenderWidget(result);
+    } else if (result instanceof Array) {
+      for (var i = 0; i < result.length; i++) {
+        handleEventResult(result[i]);
+      }
+    } else if (viewModelToRefresh) {
+      viewModelToRefresh.rerenderViewModel();
+    } else if (componentToRefresh) {
+      componentToRefresh.refresh();
+    } else if (result === norefresh) {
+      // don't refresh;
+    } else {
+      mount.rerender();
+      return result;
+    }
+  }
+
+  return handleEventResult;
+};
 
 function bindTextInput(attributes, children, get, set) {
   var textEventNames = ['onkeyup', 'oninput', 'onpaste', 'textInput'];
@@ -434,7 +335,8 @@ var dataAttributeRegex = /^data-/;
 function prepareAttributes(tag, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
-  var eventHandlerWrapper = exports.html.currentRender && exports.html.currentRender.eventHandlerWrapper;
+  var currentRender = plastiq.currentRender();
+  var eventHandlerWrapper = currentRender && currentRender.eventHandlerWrapper;
 
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
@@ -536,8 +438,23 @@ exports.jsx = function (tag, attributes) {
   return h(tag, attributes || {}, childElements);
 };
 
+Object.defineProperty(exports.html, 'currentRender', {get: function () {
+  deprecations.currentRender('plastiq.html.currentRender is deprecated, please use plastiq.currentRender() instead');
+  return exports.html._currentRender;
+}});
+
+Object.defineProperty(exports.html, 'refresh', {get: function () {
+  deprecations.refresh('plastiq.html.refresh is deprecated, please use viewModel.rerender() instead');
+  return exports.html._refresh;
+}});
+
+function refreshAfter(promise) {
+  var refresh = exports.html.refresh;
+
+  promise.then(refresh);
+}
+
 exports.html.refreshify = refreshify;
-exports.html.refresh = refreshOutOfRender;
 exports.html.refreshAfter = refreshAfter;
 exports.html.norefresh = norefresh;
 

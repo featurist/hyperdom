@@ -1320,65 +1320,14 @@ describe('plastiq', function () {
     });
   });
 
-  describe('plastiq.html.window', function () {
-    it('can add and remove event handlers on window', function () {
-      function render(model) {
-        return h('div',
-          model.active
-            ? h.window(
-                {
-                  onclick: function () {
-                    model.clicks++;
-                  }
-                }
-              )
-            : undefined,
-          model.active
-            ? h('button.disactivate', {onclick: function () { model.active = false; return false; }}, 'disactivate')
-            :  h('button.activate', {onclick: function () { model.active = true; return false; }}, 'activate'),
-          h('div.click', 'click here'),
-          h('div.clicks', model.clicks)
-        );
-      }
-
-      attach(render, {clicks: 0, active: false});
-
-      return click('button.activate').then(function () {
-        return retry(function () {
-          return expect(find('button.disactivate').length).to.equal(1);
-        }).then(function () {
-          return click('div.click').then(function () {
-            return retry(function() {
-              expect(find('div.clicks').text()).to.equal('1');
-            }).then(function () {
-              return click('button.disactivate').then(function () {
-                return retry(function () {
-                  expect(find('button.activate').length).to.equal(1);
-                }).then(function () {
-                  return click('div.click').then(function () {
-                    wait(30).then(function () {
-                      return retry(function() {
-                        expect(find('div.clicks').text()).to.equal('1');
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
-
   describe('h.binding', function () {
     var refreshCalled;
 
     beforeEach(function () {
       refreshCalled = false;
-      h.currentRender = {
-        attachment: {
-          refresh: function () {
+      plastiq._currentRender = {
+        mount: {
+          rerender: function () {
             refreshCalled = true;
           },
 
@@ -1433,6 +1382,21 @@ describe('plastiq', function () {
         h.binding([model, 'field'], {component: component}).set('value');
 
         expect(component.wasRefreshed).to.be.true;
+      });
+    });
+
+    context('viewModel: viewModel', function () {
+      it('calls refresh with the view model', function () {
+        var viewModel = {
+          rerenderViewModel: function () {
+            this.wasRerendered = true;
+          }
+        }
+
+        var model = {};
+        h.binding([model, 'field'], {viewModel: viewModel}).set('value');
+
+        expect(viewModel.wasRerendered).to.be.true;
       });
     });
 
@@ -1598,7 +1562,7 @@ describe('plastiq', function () {
               onclick: function () {
                 setTimeout(function () {
                   refresh(component);
-                }, 1);
+                }, 10);
               }
             },
             'refresh')
@@ -1683,6 +1647,57 @@ describe('plastiq', function () {
             }).then(function () {
               return retry(function () {
                 expect(find('h1').text()).to.include("plastiq.html.refresh");
+              });
+            });
+          });
+        });
+      });
+    });
+
+    describe('plastiq.html.window', function () {
+      it('can add and remove event handlers on window', function () {
+        function render(model) {
+          return h('div',
+            model.active
+              ? h.window(
+                  {
+                    onclick: function () {
+                      model.clicks++;
+                    }
+                  }
+                )
+              : undefined,
+            model.active
+              ? h('button.disactivate', {onclick: function () { model.active = false; return false; }}, 'disactivate')
+              :  h('button.activate', {onclick: function () { model.active = true; return false; }}, 'activate'),
+            h('div.click', 'click here'),
+            h('div.clicks', model.clicks)
+          );
+        }
+
+        attach(render, {clicks: 0, active: false});
+
+        return click('button.activate').then(function () {
+          return retry(function () {
+            return expect(find('button.disactivate').length).to.equal(1);
+          }).then(function () {
+            return click('div.click').then(function () {
+              return retry(function() {
+                expect(find('div.clicks').text()).to.equal('1');
+              }).then(function () {
+                return click('button.disactivate').then(function () {
+                  return retry(function () {
+                    expect(find('button.activate').length).to.equal(1);
+                  }).then(function () {
+                    return click('div.click').then(function () {
+                      wait(30).then(function () {
+                        return retry(function() {
+                          expect(find('div.clicks').text()).to.equal('1');
+                        });
+                      });
+                    });
+                  });
+                });
               });
             });
           });
