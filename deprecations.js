@@ -1,9 +1,9 @@
 function deprecationWarning() {
   var warningIssued = false;
 
-  return function () {
+  return function (arg) {
     if (!warningIssued) {
-      console.warn.apply(console, arguments);
+      console.warn(arg);
       warningIssued = true;
     }
   };
