@@ -2,9 +2,6 @@ var plastiq = require('.');
 var Render = require('./render');
 var rendering = require('./rendering');
 
-var currentRender;
-var refresh;
-
 function refreshOutOfRender() {
   throw new Error('Please assign plastiq.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/plastiq#refresh-outside-render-cycle');
 }
