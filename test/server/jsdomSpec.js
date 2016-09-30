@@ -1,8 +1,8 @@
-var plastiq = require('../..');
+var hyperdom = require('../..');
 var jsdom = require('jsdom');
 var expect = require('chai').expect;
 
-describe('plastiq', function() {
+describe('hyperdom', function() {
 
   describe('.append()', function() {
 
@@ -12,13 +12,13 @@ describe('plastiq', function() {
         [],
         function (errors, window) {
           var render = function(model) {
-            return plastiq.html('p', 'hello');
+            return hyperdom.html('p', 'hello');
           }
           function requestRender(render) {
             render();
           }
 
-          plastiq.append(window.document.body, render, {}, {
+          hyperdom.append(window.document.body, render, {}, {
             window: window,
             document: window.document,
             requestRender: requestRender

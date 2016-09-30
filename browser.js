@@ -1,1 +1,1 @@
-window.plastiq = require('.');
+window.hyperdom = require('.');

@@ -1,16 +1,16 @@
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
-var plastiq = require('.');
+var hyperdom = require('.');
 var deprecations = require('./deprecations');
 
 function ComponentWidget(state, vdom) {
   if (!vdom) {
-    throw new Error('plastiq.html.component([options], vdom) expects a vdom argument');
+    throw new Error('hyperdom.html.component([options], vdom) expects a vdom argument');
   }
 
   this.state = state;
   this.key = state.key;
-  var currentRender = plastiq.currentRender();
+  var currentRender = hyperdom.currentRender();
 
   if (typeof vdom === 'function') {
     this.render = function () {
@@ -125,7 +125,7 @@ ComponentWidget.prototype.destroy = function (element) {
 };
 
 module.exports = function (state, vdom) {
-  deprecations.component('plastiq.html.component is deprecated, please use ViewModels');
+  deprecations.component('hyperdom.html.component is deprecated, please use ViewModels');
   if (typeof state === 'function') {
     return new ComponentWidget({}, state);
   } else if (state.constructor === Object) {
