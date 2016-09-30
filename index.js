@@ -1,5 +1,5 @@
 if (typeof window === 'object') {
-  console.log('\n\ncreated with \uD83D\uDE80 using https://github.com/featurist/plastiq\n\n\n');
+  console.log('\n\ncreated with \uD83D\uDE80 using https://github.com/featurist/hyperdom\n\n\n');
 }
 
 var rendering = require('./rendering');
@@ -20,7 +20,7 @@ exports.norefresh = rendering.html.norefresh;
 var windowEvents = require('./windowEvents');
 
 exports.html.window = function (attributes) {
-  deprecations.window('plastiq.window is deprecated');
+  deprecations.window('hyperdom.window is deprecated');
   return windowEvents(attributes);
 };
 

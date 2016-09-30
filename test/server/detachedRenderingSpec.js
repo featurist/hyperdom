@@ -1,11 +1,11 @@
-var plastiq = require('../..');
-var h = plastiq.html;
+var hyperdom = require('../..');
+var h = hyperdom.html;
 
 var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
 var Promise = require('bluebird').Promise;
 
-describe('plastiq', function() {
+describe('hyperdom', function() {
 
   describe('.html(), detached from a real DOM', function() {
 

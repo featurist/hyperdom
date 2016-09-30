@@ -1,6 +1,6 @@
 {
-  "name": "plastiq",
-  "version": "1.33.0",
+  "name": "hyperdom",
+  "version": "0.1.0",
   "description": "A fast, feature rich and simple framework for building dynamic browser applications.",
   "main": "index.js",
   "dependencies": {
@@ -36,9 +36,9 @@
     "test": "npm run karma && npm run mocha",
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",
-    "build": "browserify browser.js > plastiq.js && uglifyjs --compress warnings=false --mangle -- plastiq.js > plastiq.min.js",
+    "build": "browserify browser.js > hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "prepublish": "npm run build",
-    "size": "npm run build && gzip < plastiq.min.js > plastiq.min.js.gz && ls -lh plastiq.*"
+    "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*"
   },
   "keywords": [
     "virtual-dom",
@@ -46,7 +46,8 @@
     "mvc",
     "framework",
     "html",
-    "plastiq"
+    "plastiq",
+    "hyperdom"
   ],
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
   "license": "MIT",
@@ -55,10 +56,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/featurist/plastiq.git"
+    "url": "https://github.com/featurist/hyperdom.git"
   },
   "bugs": {
-    "url": "https://github.com/featurist/plastiq/issues"
+    "url": "https://github.com/featurist/hyperdom/issues"
   },
-  "homepage": "https://github.com/featurist/plastiq"
+  "homepage": "https://github.com/featurist/hyperdom"
 }

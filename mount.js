@@ -1,6 +1,6 @@
-var plastiqMeta = require('./meta');
+var hyperdomMeta = require('./meta');
 var runRender = require('./runRender');
-var plastiq = require('.');
+var hyperdom = require('.');
 var Set = require('./set');
 
 var lastId = 0;
@@ -72,13 +72,13 @@ Mount.prototype._renderViewModel = function(model) {
     self.rerender();
   };
   model.rerenderViewModel = function() {
-    var meta = plastiqMeta(this);
+    var meta = hyperdomMeta(this);
     meta.widgets.forEach(function (w) {
       self.rerenderWidget(w);
     });
   };
 
-  var meta = plastiqMeta(model);
+  var meta = hyperdomMeta(model);
   if (!meta.mount) {
     meta.mount = this;
   }
@@ -90,7 +90,7 @@ Mount.prototype._renderViewModel = function(model) {
   if (typeof model.onload == 'function') {
     if (!meta.loaded) {
       meta.loaded = true;
-      plastiq.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
+      hyperdom.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
     }
   }
 
@@ -101,7 +101,7 @@ Mount.prototype._renderViewModel = function(model) {
   }
 
   if (vdom && vdom.properties) {
-    vdom.properties._plastiqViewModel = model;
+    vdom.properties._hyperdomViewModel = model;
   }
 
   return vdom;
@@ -109,7 +109,7 @@ Mount.prototype._renderViewModel = function(model) {
 
 Mount.prototype.renderViewModel = function(model) {
   if (typeof model.renderCacheKey === 'function') {
-    var meta = plastiqMeta(model);
+    var meta = hyperdomMeta(model);
     var key = model.renderCacheKey();
     if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
       return meta.cachedVdom;

@@ -1,20 +1,20 @@
 module.exports = function (model, property) {
-  var plastiqMeta = model._plastiqMeta;
+  var hyperdomMeta = model._hyperdomMeta;
 
-  if (!plastiqMeta) {
-    plastiqMeta = {};
-    Object.defineProperty(model, '_plastiqMeta', {value: plastiqMeta});
+  if (!hyperdomMeta) {
+    hyperdomMeta = {};
+    Object.defineProperty(model, '_hyperdomMeta', {value: hyperdomMeta});
   }
 
   if (property) {
-    var meta = plastiqMeta[property];
+    var meta = hyperdomMeta[property];
 
     if (!meta) {
-      meta = plastiqMeta[property] = {};
+      meta = hyperdomMeta[property] = {};
     }
 
     return meta;
   } else {
-    return plastiqMeta;
+    return hyperdomMeta;
   }
 };
