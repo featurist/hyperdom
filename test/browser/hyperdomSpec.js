@@ -1598,6 +1598,27 @@ describe('hyperdom', function () {
     });
   });
 
+  describe('view model debugger', function () {
+    it('sets the view model to the element', function () {
+      var inner = {
+        render: function () {
+          return h('div.inner', 'inner')
+        }
+      }
+
+      var outer = {
+        render: function () {
+          return h('div.outer', 'outer', inner)
+        }
+      }
+
+      attach(outer);
+
+      expect(find('.outer')[0]._hyperdomMeta.viewModel).to.eql(outer)
+      expect(find('.inner')[0]._hyperdomMeta.viewModel).to.eql(inner)
+    })
+  })
+
   describe('v1 compatibility', function () {
     describe('hyperdom.html.refresh', function () {
       it('refreshes the UI when called', function () {

@@ -2,6 +2,7 @@ var hyperdomMeta = require('./meta');
 var runRender = require('./runRender');
 var hyperdom = require('.');
 var Set = require('./set');
+var PropertyHook = require('./propertyHook');
 
 var lastId = 0;
 
@@ -100,8 +101,15 @@ Mount.prototype._renderViewModel = function(model) {
     throw new Error('vdom returned from component cannot be an array');
   }
 
-  if (vdom && vdom.properties) {
-    vdom.properties._hyperdomViewModel = model;
+  if (vdom) {
+    if (!vdom.properties) {
+      vdom.properties = {};
+    }
+
+    vdom.properties._hyperdomMeta = new PropertyHook({
+      viewModel: model,
+      render: hyperdom.currentRender()
+    });
   }
 
   return vdom;
