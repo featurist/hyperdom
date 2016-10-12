@@ -3,7 +3,6 @@ if (typeof window === 'object') {
 }
 
 var rendering = require('./rendering');
-var deprecations = require('./deprecations');
 
 exports.html = rendering.html;
 exports.jsx = rendering.jsx;
@@ -16,15 +15,6 @@ exports.binding = rendering.binding;
 exports.meta = rendering.html.meta;
 exports.refreshify = rendering.html.refreshify;
 exports.norefresh = rendering.html.norefresh;
-
-var windowEvents = require('./windowEvents');
-
-exports.html.window = function (attributes) {
-  deprecations.window('plastiq.window is deprecated');
-  return windowEvents(attributes);
-};
-
-exports.html.component = require('./component');
 
 exports.currentRender = function () {
   return exports._currentRender;

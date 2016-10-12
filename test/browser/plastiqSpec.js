@@ -7,6 +7,8 @@ require('jquery-sendkeys');
 var browser = require('browser-monkey').find('.test');
 var vdomToHtml = require('vdom-to-html');
 var times = require('lowscore/times');
+var vdomComponent = require('../../component');
+var windowEvents = require('../../windowEvents');
 
 describe('plastiq', function () {
   var div;
@@ -1503,7 +1505,7 @@ describe('plastiq', function () {
       it('refreshes a component when called with that component', function () {
         function render(model) {
           var refresh = h.refresh;
-          var component = h.component(function () { return h('h2', model.text); });
+          var component = vdomComponent(function () { return h('h2', model.text); });
 
           return h('div',
             h('h1', model.text),
@@ -1543,7 +1545,7 @@ describe('plastiq', function () {
         function render(model) {
           var refresh = h.refresh;
 
-          var component = h.component(
+          var component = vdomComponent(
             {
               cacheKey: true,
               onupdate: function () {
@@ -1659,7 +1661,7 @@ describe('plastiq', function () {
         function render(model) {
           return h('div',
             model.active
-              ? h.window(
+              ? windowEvents(
                   {
                     onclick: function () {
                       model.clicks++;
@@ -1713,7 +1715,7 @@ describe('plastiq', function () {
         function render(model) {
           return h('div',
             model.showComponent
-              ? h.component({
+              ? vdomComponent({
                   onadd: function (element) {
                     events.push({
                       type: 'onadd',
@@ -1786,7 +1788,7 @@ describe('plastiq', function () {
 
       it('throws error if not given vdom', function () {
         function render() {
-          return h.component(
+          return vdomComponent(
             {
               onadd: function () {
 
@@ -1800,7 +1802,7 @@ describe('plastiq', function () {
 
       it('can expose long-running state for components', function () {
         function render() {
-          return h.component(
+          return vdomComponent(
             {
               onbeforeadd: function () {
                 this.counter = 2;
@@ -1839,7 +1841,7 @@ describe('plastiq', function () {
       it('renders and updates the vdom inside the component', function () {
         function render(model) {
           return h('div',
-            h.component({
+            vdomComponent({
               },
               h('span.counter', model.counter)
             ),
@@ -1868,7 +1870,7 @@ describe('plastiq', function () {
         function render(model) {
 
           return h('div',
-            h.component(function (component) {
+            vdomComponent(function (component) {
               return h('div',
                 h('span.inner-counter', model.counter),
                 h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
@@ -1908,7 +1910,7 @@ describe('plastiq', function () {
 
       it('only refreshes array of the components when returned from an event', function () {
         function render(model) {
-          var component1 = h.component(function (component) {
+          var component1 = vdomComponent(function (component) {
               return h('div',
                 h('span.inner-counter', model.counter),
                 h('button.add-inner', {onclick: function () { model.counter++; return component; }},  'add inner')
@@ -1917,7 +1919,7 @@ describe('plastiq', function () {
 
           return h('div',
             component1,
-            h.component(function (component) {
+            vdomComponent(function (component) {
               return h('div',
                 h('span.inner-counter2', model.counter),
                 h('button.add-inner2', {onclick: function () { model.counter++; return [component, component1]; }},  'add inner 2')
@@ -1961,7 +1963,7 @@ describe('plastiq', function () {
 
       it('throws exception when component is returned from event but does not have a render function', function () {
         function render(model) {
-          var component = h.component(h('span.inner-counter', model.counter));
+          var component = vdomComponent(h('span.inner-counter', model.counter));
 
           return h('div',
             component,
@@ -1984,8 +1986,8 @@ describe('plastiq', function () {
           refreshCount++;
           return h('div',
             model.show
-              ? h.component(
-                  h.component(
+              ? vdomComponent(
+                  vdomComponent(
                     {
                       onadd: function () {
                         events.push('add');
@@ -2053,7 +2055,7 @@ describe('plastiq', function () {
           var refresh = h.refresh;
 
           return h('div',
-            h.component(
+            vdomComponent(
               {
                 value: model.value,
 
@@ -2087,7 +2089,7 @@ describe('plastiq', function () {
 
         function render() {
           renders++;
-          return h.component(
+          return vdomComponent(
             {
               cacheKey: model.cacheKey,
               onupdate: function () {
@@ -2134,7 +2136,7 @@ describe('plastiq', function () {
 
         function render() {
           return h('div',
-            h.component(
+            vdomComponent(
               {
                 on: function (type, handler) {
                   return function() {
@@ -2145,7 +2147,7 @@ describe('plastiq', function () {
               },
               function () {
                 return h('div',
-                  h.component(
+                  vdomComponent(
                     {
                       on: function (type, handler) {
                         return function() {
