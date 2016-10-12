@@ -3,7 +3,6 @@ var h = plastiq.html;
 
 var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
-var Promise = require('bluebird').Promise;
 var plastiqComponent = require('../../component');
 
 describe('plastiq', function() {

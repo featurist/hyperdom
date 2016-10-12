@@ -18,8 +18,13 @@ describe('plastiq', function () {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   });
 
-  function attach(render, model) {
-    plastiq.append(div, render, model, { requestRender: setTimeout });
+  function attach() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(div);
+    args.push({
+      requestRender: r => setTimeout(r, 0) 
+    });
+    plastiq.append.apply(plastiq, args);
   }
 
   function find(selector) {
@@ -41,6 +46,26 @@ describe('plastiq', function () {
       find(selector).prop('checked', true);
       find(selector).click();
     });
+  }
+
+  function renderMonitor() {
+    return {
+      refreshCount: 0,
+
+      rendering: function () {
+        this.refreshCount++;
+      },
+
+      waitForRender: function () {
+        var self = this;
+
+        var oldRefreshCount = self.refreshCount;
+
+        return retry(function () {
+          expect(self.refreshCount).to.equal(oldRefreshCount + 1);
+        });
+      }
+    };
   }
 
   describe('attaching', function () {
@@ -952,6 +977,7 @@ describe('plastiq', function () {
 
     it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
       var events = [];
+      var monitor = renderMonitor();
 
       var model = {
         showComponent: true,
@@ -985,6 +1011,8 @@ describe('plastiq', function () {
         },
 
         render: function() {
+          monitor.rendering();
+
           return h('div',
             this.showComponent? this.innerModel: undefined,
             h('button.refresh', {onclick: function () {}},  'refresh'),
@@ -993,42 +1021,41 @@ describe('plastiq', function () {
         }
       };
 
-
       attach(model);
 
       var expectedParent = div.firstChild;
       var expectedElement = div.firstChild.firstChild;
 
       return click('button.refresh').then(function () {
-        return wait(30).then(function () {
-          return click('button.refresh').then(function () {
-            return wait(30).then(function () {
-              return click('button.remove').then(function () {
-                return wait(30).then(function () {
-                  expect(events).to.eql([
-                    {
-                      type: 'onadd',
-                      parent: expectedParent,
-                      element: expectedElement
-                    },
-                    {
-                      type: 'onupdate',
-                      element: expectedElement
-                    },
-                    {
-                      type: 'onupdate',
-                      element: expectedElement
-                    },
-                    {
-                      type: 'onremove',
-                      element: expectedElement
-                    }
-                  ]);
-                });
-              });
-            });
-          });
-        });
+        return monitor.waitForRender();
+      }).then(function () {
+        return click('button.refresh');
+      }).then(function () {
+        return monitor.waitForRender();
+      }).then(function () {
+        return click('button.remove');
+      }).then(function () {
+        return monitor.waitForRender();
+      }).then(function () {
+        expect(events).to.eql([
+          {
+            type: 'onadd',
+            parent: expectedParent,
+            element: expectedElement
+          },
+          {
+            type: 'onupdate',
+            element: expectedElement
+          },
+          {
+            type: 'onupdate',
+            element: expectedElement
+          },
+          {
+            type: 'onremove',
+            element: expectedElement
+          }
+        ]);
       });
     });
 
@@ -1540,10 +1567,12 @@ describe('plastiq', function () {
       });
 
       it('updates the component when refreshed', function () {
+        var monitor = renderMonitor();
         var updated = 0, rendered = 0;
 
         function render(model) {
           var refresh = h.refresh;
+          monitor.rendering();
 
           var component = vdomComponent(
             {
@@ -1562,9 +1591,9 @@ describe('plastiq', function () {
             component,
             h('button.refresh', {
               onclick: function () {
-                setTimeout(function () {
+                monitor.waitForRender().then(function () {
                   refresh(component);
-                }, 10);
+                });
               }
             },
             'refresh')
@@ -1711,8 +1740,11 @@ describe('plastiq', function () {
       it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
         var events = [];
         var componentState;
+        var monitor = renderMonitor();
 
         function render(model) {
+          monitor.rendering();
+
           return h('div',
             model.showComponent
               ? vdomComponent({
@@ -1751,38 +1783,38 @@ describe('plastiq', function () {
         var expectedElement = div.firstChild.firstChild;
 
         return click('button.refresh').then(function () {
-          return wait(30).then(function () {
-            return click('button.refresh').then(function () {
-              return wait(30).then(function () {
-                return click('button.remove').then(function () {
-                  return wait(30).then(function () {
-                    expect(events).to.eql([
-                      {
-                        type: 'onadd',
-                        parent: expectedParent,
-                        element: expectedElement
-                      },
-                      {
-                        type: 'onupdate',
-                        element: expectedElement,
-                        state: componentState
-                      },
-                      {
-                        type: 'onupdate',
-                        element: expectedElement,
-                        state: componentState
-                      },
-                      {
-                        type: 'onremove',
-                        element: expectedElement,
-                        state: componentState
-                      }
-                    ]);
-                  });
-                });
-              });
-            });
-          });
+          return monitor.waitForRender();
+        }).then(function () {
+          return click('button.refresh');
+        }).then(function () {
+          return monitor.waitForRender();
+        }).then(function () {
+          return click('button.remove');
+        }).then(function () {
+          return monitor.waitForRender();
+        }).then(function () {
+          expect(events).to.eql([
+            {
+              type: 'onadd',
+              parent: expectedParent,
+              element: expectedElement
+            },
+            {
+              type: 'onupdate',
+              element: expectedElement,
+              state: componentState
+            },
+            {
+              type: 'onupdate',
+              element: expectedElement,
+              state: componentState
+            },
+            {
+              type: 'onremove',
+              element: expectedElement,
+              state: componentState
+            }
+          ]);
         });
       });
 
