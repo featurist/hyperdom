@@ -12,7 +12,6 @@ function deprecationWarning() {
 module.exports = {
   refresh: deprecationWarning(),
   currentRender: deprecationWarning(),
-  window: deprecationWarning(),
   component: deprecationWarning(),
   renderFunction: deprecationWarning(),
   refreshAfter: deprecationWarning(),

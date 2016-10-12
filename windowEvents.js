@@ -1,7 +1,6 @@
 var domComponent = require('./domComponent');
 var rendering = require('./rendering');
 var VText = require("virtual-dom/vnode/vtext.js")
-var deprecations = require('./deprecations');
 
 function WindowWidget(attributes) {
   this.attributes = attributes;
@@ -75,6 +74,5 @@ WindowWidget.prototype.destroy = function () {
 };
 
 module.exports = function (attributes) {
-  deprecations.window('plastiq.window is deprecated');
   return new WindowWidget(attributes);
 };
