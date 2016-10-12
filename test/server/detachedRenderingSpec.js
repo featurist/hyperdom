@@ -4,6 +4,7 @@ var h = plastiq.html;
 var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
 var Promise = require('bluebird').Promise;
+var plastiqComponent = require('../../component');
 
 describe('plastiq', function() {
 
@@ -17,7 +18,7 @@ describe('plastiq', function() {
             model.counter++;
           }
         }),
-        h.component(function () {
+        plastiqComponent(function () {
           return h('.component');
         }),
         h.rawHtml('div', '<span>some raw HTML</span>')
