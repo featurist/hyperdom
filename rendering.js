@@ -8,6 +8,7 @@ var Mount = require('./mount');
 var runRender = require('./runRender');
 var deprecations = require('./deprecations');
 var hyperdom = require('.');
+var listener = require('./listener');
 
 function isViewModelOrComponent(component) {
   return component
@@ -207,18 +208,6 @@ function attachEventHandler(attributes, eventNames, handler) {
   }
 }
 
-function ListenerHook(listener) {
-  this.listener = exports.html.refreshify(listener);
-}
-
-ListenerHook.prototype.hook = function (element, propertyName) {
-  element.addEventListener(propertyName.substring(2), this.listener, false);
-};
-
-ListenerHook.prototype.unhook = function (element, propertyName) {
-  element.removeEventListener(propertyName.substring(2), this.listener);
-};
-
 function customEvent(name) {
   if (typeof Event == 'function') {
     return new Event(name);
@@ -246,7 +235,7 @@ var inputTypeBindings = {
   radio: function (attributes, children, get, set) {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
-    attributes.on_hyperdomsyncchecked = new ListenerHook(function (event) {
+    attributes.on_hyperdomsyncchecked = listener(function (event) {
       attributes.checked = event.target.checked;
     });
 
