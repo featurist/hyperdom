@@ -7,7 +7,8 @@ var ViewModel = require('./viewModel');
 var Mount = require('./mount');
 var runRender = require('./runRender');
 var deprecations = require('./deprecations');
-var plastiq = require('.');
+var hyperdom = require('.');
+var listener = require('./listener');
 
 function isViewModelOrComponent(component) {
   return component
@@ -19,7 +20,7 @@ function isViewModelOrComponent(component) {
 exports.merge = function (element, render, model, options) {
   var mount = startAttachment(render, model, options, function(mount, domComponentOptions) {
     var component = domComponent(domComponentOptions);
-    var currentRender = plastiq.currentRender;
+    var currentRender = hyperdom.currentRender;
     currentRender.eventHandlerWrapper = function() {
       return null;
     };
@@ -78,7 +79,7 @@ function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object' && typeof render.render == 'function') {
     return start(render, attachToDom, model);
   } else {
-    deprecations.renderFunction('plastiq.append and plastiq.replace with render functions are deprecated, please pass a ViewModel');
+    deprecations.renderFunction('hyperdom.append and hyperdom.replace with render functions are deprecated, please pass a ViewModel');
     return start({render: function () { return render(model); }}, attachToDom, options);
   }
 }
@@ -105,13 +106,13 @@ function refreshify(fn, options) {
     return fn;
   }
 
-  var currentRender = plastiq.currentRender();
+  var currentRender = hyperdom.currentRender();
 
   if (!currentRender) {
     if (typeof global === 'object') {
       return fn;
     } else {
-      throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/plastiq#outside-render-cycle');
+      throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/hyperdom#outside-render-cycle');
     }
   }
 
@@ -155,7 +156,7 @@ exports.createEventResultHandler = function(mount, options) {
     } else if (result === norefresh) {
       // don't refresh;
     } else if (result === norefreshFunction) {
-      deprecations.norefresh('plastiq.html.norefresh is deprecated, please use plastiq.norefresh()');
+      deprecations.norefresh('hyperdom.html.norefresh is deprecated, please use hyperdom.norefresh()');
       // don't refresh;
     } else {
       mount.rerender();
@@ -207,18 +208,6 @@ function attachEventHandler(attributes, eventNames, handler) {
   }
 }
 
-function ListenerHook(listener) {
-  this.listener = exports.html.refreshify(listener);
-}
-
-ListenerHook.prototype.hook = function (element, propertyName) {
-  element.addEventListener(propertyName.substring(2), this.listener, false);
-};
-
-ListenerHook.prototype.unhook = function (element, propertyName) {
-  element.removeEventListener(propertyName.substring(2), this.listener);
-};
-
 function customEvent(name) {
   if (typeof Event == 'function') {
     return new Event(name);
@@ -246,7 +235,7 @@ var inputTypeBindings = {
   radio: function (attributes, children, get, set) {
     var value = attributes.value;
     attributes.checked = get() == attributes.value;
-    attributes.on_plastiqsyncchecked = new ListenerHook(function (event) {
+    attributes.on_hyperdomsyncchecked = listener(function (event) {
       attributes.checked = event.target.checked;
     });
 
@@ -255,7 +244,7 @@ var inputTypeBindings = {
       if (name) {
         var inputs = document.getElementsByName(name);
         for (var i = 0, l = inputs.length; i < l; i++) {
-          inputs[i].dispatchEvent(customEvent('_plastiqsyncchecked'));
+          inputs[i].dispatchEvent(customEvent('_hyperdomsyncchecked'));
         }
       }
       set(value);
@@ -343,7 +332,7 @@ var dataAttributeRegex = /^data-/;
 function prepareAttributes(tag, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
-  var currentRender = plastiq.currentRender();
+  var currentRender = hyperdom.currentRender();
   var eventHandlerWrapper = currentRender && currentRender.eventHandlerWrapper;
 
   for (var k = 0; k < keys.length; k++) {
@@ -460,17 +449,17 @@ exports.jsx = function (tag, attributes) {
 };
 
 Object.defineProperty(exports.html, 'currentRender', {get: function () {
-  deprecations.currentRender('plastiq.html.currentRender is deprecated, please use plastiq.currentRender() instead');
+  deprecations.currentRender('hyperdom.html.currentRender is deprecated, please use hyperdom.currentRender() instead');
   return exports.html._currentRender;
 }});
 
 Object.defineProperty(exports.html, 'refresh', {get: function () {
-  deprecations.refresh('plastiq.html.refresh is deprecated, please use viewModel.rerender() instead');
+  deprecations.refresh('hyperdom.html.refresh is deprecated, please use viewModel.rerender() instead');
   return exports.html._refresh;
 }});
 
 function refreshAfter(promise) {
-  deprecations.refreshAfter('plastiq.html.refreshAfter is deprecated');
+  deprecations.refreshAfter('hyperdom.html.refreshAfter is deprecated');
   var refresh = exports.html.refresh;
 
   promise.then(refresh);
@@ -544,7 +533,7 @@ function chainConverters(startIndex, converters) {
 
 function bindingObject(model, property) {
   var _meta;
-  function plastiqMeta() {
+  function hyperdomMeta() {
     return _meta || (_meta = bindingMeta(model, property));
   }
 
@@ -553,7 +542,7 @@ function bindingObject(model, property) {
 
     return {
       get: function() {
-        var meta = plastiqMeta();
+        var meta = hyperdomMeta();
         var modelValue = model[property];
         var modelText;
 
@@ -578,7 +567,7 @@ function bindingObject(model, property) {
       },
 
       set: function(view) {
-        var meta = plastiqMeta();
+        var meta = hyperdomMeta();
         meta.view = view;
 
         try {
@@ -590,7 +579,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return plastiqMeta();
+        return hyperdomMeta();
       }
     };
   } else {
@@ -604,7 +593,7 @@ function bindingObject(model, property) {
       },
 
       meta: function() {
-        return plastiqMeta();
+        return hyperdomMeta();
       }
     };
   }

@@ -1,6 +1,6 @@
 var $ = require('jquery');
-var plastiq = require('../..');
-var h = plastiq.html;
+var hyperdom = require('../..');
+var h = hyperdom.html;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
@@ -14,7 +14,7 @@ var detect = {
   dataset: typeof document.body.dataset == 'object'
 }
 
-describe('plastiq', function () {
+describe('hyperdom', function () {
   var div;
 
   beforeEach(function () {
@@ -28,7 +28,7 @@ describe('plastiq', function () {
     args.push({
       requestRender: setTimeout
     });
-    plastiq.append.apply(plastiq, args);
+    hyperdom.append.apply(hyperdom, args);
   }
 
   function find(selector) {
@@ -100,7 +100,7 @@ describe('plastiq', function () {
         return h('div.rendered');
       }
 
-      plastiq.append(targetDiv, render);
+      hyperdom.append(targetDiv, render);
 
       expect(div.innerHTML).to.equal('<div><div class="rendered"></div></div>');
     });
@@ -115,7 +115,7 @@ describe('plastiq', function () {
 
       var renderRequested = false;
 
-      plastiq.append(targetDiv, model, {
+      hyperdom.append(targetDiv, model, {
         requestRender: function (render) {
           renderRequested = true;
           setTimeout(render);
@@ -133,7 +133,7 @@ describe('plastiq', function () {
         return h('div.rendered');
       }
 
-      plastiq.replace(targetDiv, render);
+      hyperdom.replace(targetDiv, render);
 
       expect(div.innerHTML).to.equal('<div class="rendered"></div>');
     });
@@ -145,7 +145,7 @@ describe('plastiq', function () {
 
       var targetVDom = h('body');
 
-      plastiq.appendVDom(targetVDom, render);
+      hyperdom.appendVDom(targetVDom, render);
 
       expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
     });
@@ -157,7 +157,7 @@ describe('plastiq', function () {
           h('button.update',
             {
               onclick: function () {
-                model.name = 'plastiq render';
+                model.name = 'hyperdom render';
               }
             },
             'update'
@@ -171,7 +171,7 @@ describe('plastiq', function () {
 
       var mergeDiv = div.children[0];
 
-      plastiq.merge(mergeDiv, render, model);
+      hyperdom.merge(mergeDiv, render, model);
 
       return retry(function () {
         expect(find('button.update')[0].onclick).to.exist;
@@ -179,7 +179,7 @@ describe('plastiq', function () {
         return click('button.update').then(function () {
         }).then(function () {
           return retry(function () {
-            expect(find('h1').text()).to.equal('plastiq render');
+            expect(find('h1').text()).to.equal('hyperdom render');
           });
         });
       });
@@ -1381,7 +1381,7 @@ describe('plastiq', function () {
 
     beforeEach(function () {
       refreshCalled = false;
-      plastiq._currentRender = {
+      hyperdom._currentRender = {
         mount: {
           rerender: function () {
             refreshCalled = true;
@@ -1514,7 +1514,7 @@ describe('plastiq', function () {
         return browser.find('input.x').typeIn('x');
       }).then(function () {
         return retry(function() {
-          expect(plastiq.html.meta(model, 'x').error.message).to.equal('Must be an integer');
+          expect(hyperdom.html.meta(model, 'x').error.message).to.equal('Must be an integer');
           expect(model.x).to.equal(1);
         });
       });
@@ -1522,7 +1522,7 @@ describe('plastiq', function () {
   });
 
   describe('v1 compatibility', function () {
-    describe('plastiq.html.refresh', function () {
+    describe('hyperdom.html.refresh', function () {
       it('refreshes the UI when called', function () {
         function render(model) {
           var refresh = h.refresh;
@@ -1704,7 +1704,7 @@ describe('plastiq', function () {
               expect(find('h1').text()).to.equal('before timeout');
             }).then(function () {
               return retry(function () {
-                expect(find('h1').text()).to.include("plastiq.html.refresh");
+                expect(find('h1').text()).to.include("hyperdom.html.refresh");
               });
             });
           });
@@ -1712,7 +1712,7 @@ describe('plastiq', function () {
       });
     });
 
-    describe('plastiq.html.window', function () {
+    describe('hyperdom.html.window', function () {
       it('can add and remove event handlers on window', function () {
         function render(model) {
           return h('div',
@@ -1763,7 +1763,7 @@ describe('plastiq', function () {
       });
     });
 
-    describe('plastiq.html.component', function () {
+    describe('hyperdom.html.component', function () {
       it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
         var events = [];
         var componentState;
@@ -2237,7 +2237,7 @@ describe('plastiq', function () {
       });
     });
 
-    describe('plastiq.html.refreshAfter', function () {
+    describe('hyperdom.html.refreshAfter', function () {
       it('refreshes after the promise is complete', function () {
         function load(model) {
           return wait(20).then(function () {
@@ -2246,7 +2246,7 @@ describe('plastiq', function () {
         }
 
         function render(model) {
-          plastiq.html.refreshAfter(load(model));
+          hyperdom.html.refreshAfter(load(model));
 
           return h('div', model.text);
         }

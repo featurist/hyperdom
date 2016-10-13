@@ -1,11 +1,11 @@
-var plastiq = require('../..');
-var h = plastiq.html;
+var hyperdom = require('../..');
+var h = hyperdom.html;
 
 var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
-var plastiqComponent = require('../../component');
+var hyperdomComponent = require('../../component');
 
-describe('plastiq', function() {
+describe('hyperdom', function() {
 
   describe('.html(), detached from a real DOM', function() {
 
@@ -17,7 +17,7 @@ describe('plastiq', function() {
             model.counter++;
           }
         }),
-        plastiqComponent(function () {
+        hyperdomComponent(function () {
           return h('.component');
         }),
         h.rawHtml('div', '<span>some raw HTML</span>')

@@ -1,5 +1,5 @@
-var plastiq = require('.');
-var h = plastiq.html;
+var hyperdom = require('.');
+var h = hyperdom.html;
 
 module.exports = function () {
   var refresh;

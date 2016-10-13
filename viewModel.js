@@ -1,9 +1,9 @@
 var domComponent = require('./domComponent');
-var plastiqMeta = require('./meta');
-var plastiq = require('.');
+var hyperdomMeta = require('./meta');
+var hyperdom = require('.');
 
 function ViewModel(model) {
-  var currentRender = plastiq.currentRender();
+  var currentRender = hyperdom.currentRender();
 
   this.currentRender = currentRender;
   this.model = model;
@@ -19,7 +19,7 @@ ViewModel.prototype.init = function () {
 
   var vdom = this.render();
 
-  var meta = plastiqMeta(this.model);
+  var meta = hyperdomMeta(this.model);
   meta.widgets.add(this);
 
   this.component = domComponent();
@@ -72,7 +72,7 @@ ViewModel.prototype.rerender = function () {
 ViewModel.prototype.destroy = function (element) {
   var self = this;
 
-  var meta = plastiqMeta(this.model);
+  var meta = hyperdomMeta(this.model);
   meta.widgets.delete(this);
 
   if (self.model.onremove) {

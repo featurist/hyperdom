@@ -1,18 +1,15 @@
-var rendering = require('./rendering');
+var hyperdom = require('./index');
 
 function ListenerHook(listener) {
-  this.listener = rendering.html.refreshify(listener);
+  this.listener = hyperdom.refreshify(listener);
 }
 
-ListenerHook.prototype.hook = function (element, propertyName, previous) {
-  if (previous) {
-    element.removeEventListener(propertyName.substring(2), previous.listener, false);
-  }
+ListenerHook.prototype.hook = function (element, propertyName) {
   element.addEventListener(propertyName.substring(2), this.listener, false);
 };
 
 ListenerHook.prototype.unhook = function (element, propertyName) {
-  element.removeEventListener(propertyName.substring(2), this.listener, false);
+  element.removeEventListener(propertyName.substring(2), this.listener);
 };
 
 module.exports = function (listener) {
