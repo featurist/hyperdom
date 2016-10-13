@@ -1,7 +1,3 @@
-if (typeof window === 'object') {
-  console.log('\n\ncreated with \uD83D\uDE80 using https://github.com/featurist/plastiq\n\n\n');
-}
-
 var rendering = require('./rendering');
 
 exports.html = rendering.html;
