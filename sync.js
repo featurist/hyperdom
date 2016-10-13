@@ -11,8 +11,6 @@ module.exports = function () {
   var currentFn;
 
   function callFn() {
-    var self = this;
-
     if (promise) {
       if (!awaitingPromise) {
         promise.then(function () {
@@ -44,7 +42,6 @@ module.exports = function () {
   }
 
   function sync() {
-    var self = this;
     var now = Date.now();
 
     if (valueHasChanged()) {

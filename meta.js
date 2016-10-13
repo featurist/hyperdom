@@ -6,11 +6,15 @@ module.exports = function (model, property) {
     Object.defineProperty(model, '_plastiqMeta', {value: plastiqMeta});
   }
 
-  var meta = plastiqMeta[property];
+  if (property) {
+    var meta = plastiqMeta[property];
 
-  if (!meta) {
-    meta = plastiqMeta[property] = {};
+    if (!meta) {
+      meta = plastiqMeta[property] = {};
+    }
+
+    return meta;
+  } else {
+    return plastiqMeta;
   }
-
-  return meta;
 };

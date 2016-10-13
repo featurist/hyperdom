@@ -1,34 +1,37 @@
 var createElement = require('virtual-dom/create-element');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
-var isVnode = require('virtual-dom/vnode/is-vnode');
-var isWidget = require('virtual-dom/vnode/is-widget');
+var toVdom = require('./toVdom');
+var isVdom = require('./isVdom');
 
 function DomComponent(options) {
   this.document = options && options.document;
 }
 
-DomComponent.prototype.create = function (vdom) {
-  if (!isVnode(vdom) && !isWidget(vdom)) {
+function prepareVdom(object) {
+  var vdom = toVdom(object);
+  if (!isVdom(vdom)) {
     throw new Error('expected render to return vdom');
+  } else {
+    return vdom;
   }
-  this.vdom = vdom;
+}
+
+DomComponent.prototype.create = function (vdom) {
+  this.vdom = prepareVdom(vdom);
   return this.element = createElement(this.vdom, {document: this.document});
 };
 
 DomComponent.prototype.merge = function (vdom, element) {
-  if (!isVnode(vdom) && !isWidget(vdom)) {
-    throw new Error('expected render to return vdom');
-  }
-  this.vdom = vdom;
+  this.vdom = prepareVdom(vdom);
   return this.element = element;
 };
 
 DomComponent.prototype.update = function (vdom) {
-  var patches = diff(this.vdom, vdom);
-  this.element = patch(this.element, patches);
-  this.vdom = vdom;
-  return this.element;
+  var oldVdom = this.vdom;
+  this.vdom = prepareVdom(vdom);
+  var patches = diff(oldVdom, this.vdom);
+  return this.element = patch(this.element, patches);
 };
 
 DomComponent.prototype.destroy = function (options) {
