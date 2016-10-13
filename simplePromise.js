@@ -14,10 +14,7 @@ SimplePromise.prototype.fulfill = function (value) {
 
 SimplePromise.prototype.then = function (success) {
   if (this.isFulfilled) {
-    var self = this;
-    setTimeout(function () {
-      success(self.value);
-    });
+    success(this.value);
   } else {
     this.listeners.push(success);
   }

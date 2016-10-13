@@ -1,6 +1,7 @@
-var h = require('./rendering').html;
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
+var plastiq = require('.');
+var deprecations = require('./deprecations');
 
 function ComponentWidget(state, vdom) {
   if (!vdom) {
@@ -9,10 +10,12 @@ function ComponentWidget(state, vdom) {
 
   this.state = state;
   this.key = state.key;
+  var currentRender = plastiq.currentRender();
+
   if (typeof vdom === 'function') {
     this.render = function () {
-      if (h.currentRender) {
-        h.currentRender.eventHandlerWrapper = state.on;
+      if (currentRender) {
+        currentRender.eventHandlerWrapper = state.on;
       }
       return vdom.apply(this.state, arguments);
     };
@@ -26,7 +29,7 @@ function ComponentWidget(state, vdom) {
   this.cacheKey = state.cacheKey;
   this.component = domComponent();
 
-  var renderFinished = h.currentRender && h.currentRender.finished;
+  var renderFinished = currentRender && currentRender.finished;
   if (renderFinished) {
     this.afterRender = function (fn) {
       renderFinished.then(fn);
@@ -107,6 +110,8 @@ ComponentWidget.prototype.refresh = function () {
   }
 };
 
+ComponentWidget.prototype.rerender = ComponentWidget.prototype.refresh;
+
 ComponentWidget.prototype.destroy = function (element) {
   var self = this;
 
@@ -120,6 +125,7 @@ ComponentWidget.prototype.destroy = function (element) {
 };
 
 module.exports = function (state, vdom) {
+  deprecations.component('plastiq.html.component is deprecated, please use ViewModels');
   if (typeof state === 'function') {
     return new ComponentWidget({}, state);
   } else if (state.constructor === Object) {

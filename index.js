@@ -7,14 +7,11 @@ exports.replace = rendering.replace;
 exports.append = rendering.append;
 exports.appendVDom = rendering.appendVDom;
 exports.merge = rendering.merge;
-
-exports.bind = require('./oldbind');
 exports.binding = rendering.binding;
+exports.meta = rendering.html.meta;
+exports.refreshify = rendering.html.refreshify;
+exports.norefresh = rendering.html.norefresh;
 
-var windowEvents = require('./windowEvents');
-
-exports.html.window = function (attributes) {
-  return windowEvents(attributes);
+exports.currentRender = function () {
+  return exports._currentRender;
 };
-
-exports.html.component = require('./component');

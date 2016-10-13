@@ -302,15 +302,17 @@ Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
 
 ## Window Events
 
-You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `h.window()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `windowEvents()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
 
 E.g. to add an `onresize` handler:
 
 ```JavaScript
+var windowEvents = require('plastiq/windowEvents');
+
 function render() {
   return h('div',
     'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
-    h.window({ onresize: function () {console.log('resizing');} })
+    windowEvents({ onresize: function () {console.log('resizing');} })
   );
 }
 ```
@@ -459,18 +461,20 @@ function render(model) {
 
 plastiq stores the temporary state in an object called `_plastiqMeta` on your model object, until the converter's `model(view)` function stops throwing errors.
 
-## Components
+## Components [deprecated, use view models]
 
 Components can be used to track the life-time of some HTML. This is usually helpful if you want to
 install jQuery plugins.
 
-The `plastiq.html.component()` allows you to respond to when the HTML is added, updated and removed.
+Copmnents allow you to respond to when the HTML is added, updated and removed.
 
 ```JavaScript
+var plastiqComponent = require('plastiq/component');
+
 function render(model) {
   return h('div',
     model.show
-      ? h.component(
+      ? plastiqComponent(
           {
             onbeforeadd: function () {
               // you can store state in `this`, and it will
@@ -517,8 +521,10 @@ Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
 
 ```JavaScript
+var plastiqComponent = require('plastiq/component');
+
 function render(model) {
-  var component = h.component(function () {
+  var component = plastiqComponent(function () {
     return h('div', 'component counter: ', model.counter);
   });
   
