@@ -22,7 +22,7 @@ describe('plastiq', function () {
     var args = Array.prototype.slice.call(arguments);
     args.unshift(div);
     args.push({
-      requestRender: r => setTimeout(r, 0) 
+      requestRender: setTimeout
     });
     plastiq.append.apply(plastiq, args);
   }
@@ -60,6 +60,22 @@ describe('plastiq', function () {
         var self = this;
 
         var oldRefreshCount = self.refreshCount;
+
+        return this.wait(oldRefreshCount);
+      },
+
+      waitForRenderAfter: function (action) {
+        var self = this;
+
+        var oldRefreshCount = self.refreshCount;
+
+        return action.then(function () {
+          return self.wait(oldRefreshCount);
+        });
+      },
+
+      wait: function(oldRefreshCount) {
+        var self = this;
 
         return retry(function () {
           expect(self.refreshCount).to.equal(oldRefreshCount + 1);
@@ -1026,16 +1042,10 @@ describe('plastiq', function () {
       var expectedParent = div.firstChild;
       var expectedElement = div.firstChild.firstChild;
 
-      return click('button.refresh').then(function () {
-        return monitor.waitForRender();
+      return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
+        return monitor.waitForRenderAfter(click('button.refresh'));
       }).then(function () {
-        return click('button.refresh');
-      }).then(function () {
-        return monitor.waitForRender();
-      }).then(function () {
-        return click('button.remove');
-      }).then(function () {
-        return monitor.waitForRender();
+        return monitor.waitForRenderAfter(click('button.remove'));
       }).then(function () {
         expect(events).to.eql([
           {
@@ -1782,16 +1792,10 @@ describe('plastiq', function () {
         var expectedParent = div.firstChild;
         var expectedElement = div.firstChild.firstChild;
 
-        return click('button.refresh').then(function () {
-          return monitor.waitForRender();
+        return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
+          return monitor.waitForRenderAfter(click('button.refresh'));
         }).then(function () {
-          return click('button.refresh');
-        }).then(function () {
-          return monitor.waitForRender();
-        }).then(function () {
-          return click('button.remove');
-        }).then(function () {
-          return monitor.waitForRender();
+          return monitor.waitForRenderAfter(click('button.remove'));
         }).then(function () {
           expect(events).to.eql([
             {
