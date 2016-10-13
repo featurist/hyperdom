@@ -111,6 +111,22 @@ Insert the following lines at the top of your `.jsx` file:
 var hyperdom = require('hyperdom');
 ```
 
+## Debugging the DOM
+
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+
+```jsx
+render() {
+  return <h1>{this.title}</h1>
+}
+```
+
+Will generate
+
+```html
+<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
+```
+
 # Features
 
 ## Rendering the View
