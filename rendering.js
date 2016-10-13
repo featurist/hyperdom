@@ -385,6 +385,19 @@ function prepareAttributes(tag, attributes, childElements) {
     }
   }
 
+  if (attributes.__source) {
+    if (!dataset) {
+      dataset = attributes.dataset;
+
+      if (!dataset) {
+        dataset = attributes.dataset = {};
+      }
+    }
+
+    dataset.fileName = attributes.__source.fileName;
+    dataset.lineNumber = attributes.__source.lineNumber;
+  }
+
   if (attributes.className) {
     attributes.className = generateClassName(attributes.className);
   }

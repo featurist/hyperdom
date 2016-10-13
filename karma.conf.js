@@ -45,6 +45,12 @@ module.exports = function(config) {
       showDiff: true
     },
 
+    client: {
+      mocha: {
+        timeout: 0
+      }
+    },
+
     // web server port
     port: 9876,
 
