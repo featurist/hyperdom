@@ -5,6 +5,7 @@ exports.jsx = rendering.jsx;
 exports.attach = rendering.attach;
 exports.replace = rendering.replace;
 exports.append = rendering.append;
+exports.merge = rendering.merge;
 exports.appendVDom = rendering.appendVDom;
 exports.merge = rendering.merge;
 exports.binding = rendering.binding;
