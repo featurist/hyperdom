@@ -176,7 +176,7 @@ function bindTextInput(attributes, children, get, set) {
   }
 
   attachEventHandler(attributes, textEventNames, function (ev) {
-    if (bindingValue != ev.target.value) {
+    if (get() != ev.target.value) {
       set(ev.target.value);
     }
   });
@@ -553,7 +553,13 @@ function bindingObject(model, property) {
           meta.view = modelText;
           return modelText;
         } else {
-          var previousValue = converter.model(meta.view);
+          var previousValue;
+          try {
+            previousValue = converter.model(meta.view);
+          } catch (e) {
+            meta.error = e;
+            return meta.view;
+          }
           modelText = converter.view(modelValue);
           var normalisedPreviousText = converter.view(previousValue);
 
