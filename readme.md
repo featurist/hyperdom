@@ -88,17 +88,15 @@ Other browsers are likely to work but aren't routinely tested.
 
 # sister projects
 
-* [plastiq-ace-editor](https://github.com/featurist/plastiq-ace-editor)
-* [plastiq-draggabilly](https://github.com/featurist/plastiq-draggabilly)
-* [plastiq-medium-editor](https://github.com/featurist/plastiq-medium-editor)
-* [plastiq-ckeditor](https://github.com/featurist/plastiq-ckeditor)
-* [plastiq-jsxify](https://github.com/featurist/plastiq-jsxify)
-* [plastiq-loader](https://github.com/featurist/plastiq-loader)
-* [plastiq-router](https://github.com/featurist/plastiq-router)
-* [plastiq-semantic-ui](https://github.com/featurist/plastiq-semantic-ui)
-* [plastiq-sortable](https://github.com/featurist/plastiq-sortable)
-* [plastiq-throttle](https://github.com/featurist/plastiq-throttle)
-* [plastiq-zeroclipboard](https://github.com/featurist/plastiq-zeroclipboard)
+* [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
+* [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
+* [hyperdom-medium-editor](https://github.com/featurist/hyperdom-medium-editor)
+* [hyperdom-ckeditor](https://github.com/featurist/hyperdom-ckeditor)
+* [hyperdom-loader](https://github.com/featurist/hyperdom-loader)
+* [hyperdom-router](https://github.com/featurist/hyperdom-router)
+* [hyperdom-semantic-ui](https://github.com/featurist/hyperdom-semantic-ui)
+* [hyperdom-sortable](https://github.com/featurist/hyperdom-sortable)
+* [hyperdom-zeroclipboard](https://github.com/featurist/hyperdom-zeroclipboard)
 
 # JSX
 
