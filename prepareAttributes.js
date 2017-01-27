@@ -68,6 +68,8 @@ module.exports = function(tag, attributes, childElements) {
     bindModel(tag, attributes, childElements);
     delete attributes.binding;
   }
+
+  return attributes
 }
 
 var renames = {
