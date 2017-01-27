@@ -1,6 +1,7 @@
 var hyperdom = require('.');
 var Render = require('./render');
 var rendering = require('./rendering');
+var refreshify = require('./refreshify')
 
 function refreshOutOfRender() {
   throw new Error('Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/hyperdom#refresh-outside-render-cycle');
@@ -13,9 +14,9 @@ module.exports = function(mount, fn) {
     hyperdom._currentRender = render;
 
     rendering.html._currentRender = render;
-    rendering.html._refresh = rendering.createEventResultHandler(mount);
+    rendering.html._refresh = function(result) { refreshify.refreshAfterEvent(result, mount) }
 
-    fn();
+    return fn();
   } finally {
     render.finished.fulfill();
     hyperdom._currentRender = undefined;
