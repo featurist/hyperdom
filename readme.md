@@ -9,7 +9,7 @@ Of course, the **model** can be as simple or sophisticated as you need, and you 
 
 Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
-Sponsored by [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo@2x.png)](https://www.Browserstack.com/).
+Sponsored by [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
 # An Example
 
