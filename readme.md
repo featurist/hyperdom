@@ -1,13 +1,22 @@
 # hyperdom [![npm version](https://img.shields.io/npm/v/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![npm](https://img.shields.io/npm/dm/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![Build Status](https://travis-ci.org/featurist/hyperdom.svg?branch=master)](https://travis-ci.org/featurist/hyperdom)
 
-A fast, feature rich and **simple** framework for building dynamic browser applications.
+A fast, feature rich and **simple** framework for building dynamic browser
+applications.
 
-1. There is one **model** for the whole page, this model is stateful, object-oriented and free of framework elements.
-2. There is a **render function** that renders the model into HTML every time the model changes, but only applies the differences from the last render to the DOM.
+Hyperdom apps use **view models** that encapsulate the state and rendering of
+that state. A view model is expected to include a `render()` method, which
+returns a virtual DOM fragment representing the HTML for that view.
 
-Of course, the **model** can be as simple or sophisticated as you need, and you can refactor the **render function** into **render functions** or polymorphic **render methods**, or whatever works best. It's just javascript, you know what you're doing.
+Any time the state of the view model changes, it's render function is called
+again to produce new HTML, but hyperdom only applies the differences from the
+last render to the physical DOM.
 
-Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
+Of course, any view model can split state and delegate rendering between other
+view models, thereby achieving modular design and separation of concerns.
+
+Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/)
+and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM
+patching.
 
 Sponsored by [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
@@ -17,7 +26,7 @@ in JSX, using [babel](https://babeljs.io/)
 
 ```jsx
 /** @jsx hyperdom.jsx */
-var hyperdom = require('hyperdom');
+var hyperdom = require('hyperdom')
 
 class App {
   render() {
@@ -25,28 +34,30 @@ class App {
       <label>what's your name?</label>
       <input type="text" binding={[this, 'name']} />
       <div>hi {this.name}</div>
-    </div>;
+    </div>
   }
 }
 
-hyperdom.append(document.body, new App());
+hyperdom.append(document.body, new App())
 ```
 
 in JS
 
-```JavaScript
-var hyperdom = require('hyperdom');
-var h = hyperdom.html;
+```js
+const hyperdom = require('hyperdom')
+const h = hyperdom.html
 
-function render(model) {
-  return h('div',
-    h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: [model, 'name']}),
-    h('div', 'hi ', model.name)
-  );
+class App {
+  render() {
+    return h('div',
+      h('label', "what's your name?"), ' ',
+      h('input', {type: 'text', binding: [model, 'name']}),
+      h('div', 'hi ', model.name)
+    )
+  }
 }
 
-hyperdom.append(document.body, render, {name: ''});
+hyperdom.append(document.body, new App())
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
@@ -59,7 +70,9 @@ Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 Use either with browserify:
 
-    var hyperdom = require('hyperdom');
+    ```js
+    const hyperdom = require('hyperdom')
+    ```
 
 Or from HTML, first create a symlink:
 
@@ -67,7 +80,9 @@ Or from HTML, first create a symlink:
 
 Then
 
+    ```html
     <script src="hyperdom.js"></script>
+    ```
 
 # size
 
@@ -100,18 +115,22 @@ Other browsers are likely to work but aren't routinely tested.
 
 # JSX
 
-JSX is well supported, and can perform faster than using non-JSX `hyperdom.html()` as JSX is slightly less flexible expression of VDOM, (you can't specify selectors as you can using `hyperdom.html()`.)
+JSX is well supported, and can perform faster than using non-JSX
+`hyperdom.html()` as JSX is slightly less flexible expression of VDOM, (you
+can't specify selectors as you can using `hyperdom.html()`.)
 
 Insert the following lines at the top of your `.jsx` file:
 
 ```jsx
 /** @jsx hyperdom.jsx */
-var hyperdom = require('hyperdom');
+const hyperdom = require('hyperdom')
 ```
 
 ## Debugging the DOM
 
-By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/)
+hyperdom will generate `data-file-name` and `data-line-number` attributes
+pointing to the file that generated the DOM.
 
 ```jsx
 render() {
@@ -127,47 +146,66 @@ Will generate
 
 # Features
 
-## Rendering the View
+## Rendering a View Model
 
-The `render` function takes a model object and returns a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
+Hyperdom uses the concept of a View Model, which encapsulates the state of an
+app or component, and its rendering as a virtual DOM.
 
-```JavaScript
-function render(model) {
-  return h('span', 'hi ', model.name);
+The `render` function returns a virtual DOM fragment and is expected to have no
+side-effects, so it should **should not modify any state**, just return the
+view. It should not be relied upon to manipulate any state, this is because it
+can be called very frequently during user interaction, or very rarely or never
+while the browser tab is not in focus.
+
+```js
+class App {
+  render() {
+    return h('span', 'hi ', this.name)
+  }
 }
 ```
+
+`hyperdom.html()` provides a convenient way of building up a virtual DOM
+fragment and accepts arguments of different types:
 
 ### Use Selectors
 
 Use `tagname`, with any number of `.class` and `#id`.
 
-```JavaScript
-h('div.class#id', 'hi ', model.name);
+```js
+h('div.class#id', 'hi ', model.name)
 ```
 
-Spaces are taken to be small hierarchies of HTML elements, this will produce `<pre><code>...</code></pre>`:
+Spaces are taken to be small hierarchies of HTML elements, this will produce
+`<pre><code>...</code></pre>`:
 
-```JavaScript
-h('pre code', 'hi ', model.name);
+```js
+h('pre code', 'hi ', model.name)
 ```
 
 ### Add HTML Attributes
 
-```JavaScript
-h('span', { style: { color: 'red' } }, 'name: ', model.name);
+```js
+h('span', { style: { color: 'red' } }, 'name: ', model.name)
 ```
 
-[virtual-dom](https://github.com/Matt-Esch/virtual-dom) uses JavaScript names for HTML attributes like `className`, `htmlFor` and `tabIndex`. Hyperdom supports these, but also allows regular HTML names so you can use `class`, `for` and `tabindex`. These are much more familiar to people and you don't have to learn anything new.
+[virtual-dom](https://github.com/Matt-Esch/virtual-dom) uses JavaScript names
+for HTML attributes like `className`, `htmlFor` and `tabIndex`. Hyperdom
+supports these, but also allows regular HTML names so you can use `class`, `for`
+and `tabindex`. These are much more familiar to people and you don't have to
+learn anything new.
 
 Non-standard HTML attribtes can be placed in the `attributes` key:
 
-```JavaScript
-h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
+```js
+h('span', { attributes: {'my-html-attribute': 'stuff'} }, 'name: ', model.name)
 ```
 
 ### Keys
 
-Hyperdom (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
+Hyperdom (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is
+not clever enough to be able to compare lists of elements. For example, say you
+render the following:
 
 ```js
 h('ul',
@@ -188,7 +226,8 @@ h('ul',
 )
 ```
 
-The lists will be compared like this, and lots of work will be done to change the DOM:
+The lists will be compared like this, and lots of work will be done to change
+the DOM:
 
 ```html
 <li>one</li>   => <li>zero</li>  (change)
@@ -197,7 +236,8 @@ The lists will be compared like this, and lots of work will be done to change th
                   <li>three</li> (new)
 ```
 
-If we put a unique `key` (String or Number) into the attributes, then we can avoid all that extra work, and just insert the `<li>zero</li>`.
+If we put a unique `key` (String or Number) into the attributes, then we can
+avoid all that extra work, and just insert the `<li>zero</li>`.
 
 ```js
 h('ul',
@@ -225,42 +265,46 @@ It will be compared like this, much faster:
 <li>three</li> => <li>three</li>
 ```
 
-Its not all about performance, there are other things that can be affected by this too, including CSS transitions when CSS classes or style is changed.
+It's not all about performance, there are other things that can be affected by
+this too, including CSS transitions when CSS classes or style is changed.
 
 ### Raw HTML
 
-Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
+Insert raw unescaped HTML. Be careful! Make sure there's no chance of script
+injection.
 
-```JavaScript
+```js
 function render(model) {
-  return h.rawHtml('div',
-    {style: { color: 'red' } },
-    'some dangerous <script>doTerribleThings()</script> HTML');
+  return h.rawHtml('div', { class: 'evil' },
+    'dangerous <script>doTerribleThings()</script> HTML')
 }
 ```
 
-This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `h.rawHtml('td', '&nbsp;')`.
+This can be useful for rendering HTML entities too. For example, to put `&nbsp;`
+in a table cell use `h.rawHtml('td', '&nbsp;')`.
 
 ### Classes
 
 * an string, e.g. `'item selected'`.
-* an array - the classes will be all the items space delimited, e.g. `['item', 'selected']`.
-* an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
+* an array - the classes will be all the items space delimited, e.g.
+  `['item', 'selected']`.
+* an object - the classes will be all the keys with truthy values, space
+  delimited, e.g. `{item: true, selected: item.selected}`.
 
-```JavaScript
+```js
 h('span', { class: { selected: model.selected } }, 'name: ', model.name);
 ```
 
 ### Data Attributes
 
 ```js
-h('div', {'data-stuff': 'something'});
+h('div', { 'data-stuff': 'something' })
 ```
 
 or
 
 ```js
-h('div', {dataset: {stuff: 'something'}});
+h('div', { dataset: {stuff: 'something'} })
 ```
 
 ## Responding to Events
@@ -269,42 +313,53 @@ Pass a function to any `on*` event handler.
 
 When the event handler has completed the view is automatically re-rendered.
 
-If you return a promise, then the view is also re-rendered when the promise resolves.
+If you return a promise, then the view is also re-rendered when the promise
+resolves.
 
-```JavaScript
-function render(model) {
-  return h('div',
-    h('ul',
-      model.people.map(function (person) {
-        return h('li', person.name);
-      })
-    ),
-    h('button', {
-      onclick: function () {
-        model.people.push({name: 'Person ' + (model.people.length + 1)});
-      }
-    }, 'Add Person')
-  );
+```js
+class App {
+  constructor() {
+    this.people = []
+  }
+
+  render() {
+    return h('div',
+      h('ul',
+        this.people.map(function (person) {
+          return h('li', person.name);
+        })
+      ),
+      h('button', {
+        onclick: () => {
+          this.people.push({name: 'Person ' + (this.people.length + 1)})
+        }
+      }, 'Add Person')
+    );
+  }
 }
 
-hyperdom.append(document.body, render, { people: [] });
+hyperdom.append(document.body, new App())
 ```
 
 Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
 
 ## Window Events
 
-You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `windowEvents()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+You can attach event handlers to `window`, such as `window.onscroll` and
+`window.onresize`. Return a `windowEvents()` from your render function passing
+an object containing the event handlers to attach. When the window vdom is
+shown, the event handlers are added to `window`, when the window vdom is not
+shown, the event handlers are removed from `window`.
 
 E.g. to add an `onresize` handler:
 
-```JavaScript
-var windowEvents = require('hyperdom/windowEvents');
+```js
+var windowEvents = require('hyperdom/windowEvents')
 
 function render() {
   return h('div',
     'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
-    windowEvents({ onresize: function () {console.log('resizing');} })
+    windowEvents({ onresize: function () { console.log('resizing') } })
   );
 }
 ```
@@ -313,11 +368,15 @@ Try it on [requirebin](http://requirebin.com/?gist=8790af706dbd09840093)
 
 ## Binding the Inputs
 
-This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
+This applies to `textarea` and input types `text`, `url`, `date`, `email`,
+`color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of
+them.
 
-The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object `{get: function () { ... }, set: function (value) { ... }}`.
+The `binding` attribute can be used to bind an input to a model field. You can
+pass either an array `[model, 'fieldName']`, or an object with this contract:
+`{ get: function () { ... }, set: function (value) { ... } }`.
 
-```JavaScript
+```js
 function render(model) {
   return h('div',
     h('label', "what's your name?"), ' ',
@@ -333,9 +392,10 @@ Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 ## Radio Buttons
 
-Bind the model to each radio button. The buttons can be bound to complex (non-string) values.
+Bind the model to each radio button. The buttons can be bound to complex
+(non-string) values.
 
-```JavaScript
+```js
 var blue = { name: 'blue' };
 
 function render(model) {
@@ -364,9 +424,10 @@ Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
 
 ## Select Dropdowns
 
-Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
+Bind the model onto the `select` element. The `option`s can have complex
+(non-string) values.
 
-```JavaScript
+```js
 var blue = { name: 'blue' };
 
 function render(model) {
@@ -388,9 +449,11 @@ Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
 
 ## File Inputs
 
-The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
+The file input is much like any other binding, except that only the binding's
+`set` method ever called, never the `get` method - the file input can only be
+set by a user selecting a file.
 
-```JavaScript
+```js
 function render(model) {
   return h('div',
     h('input',
@@ -429,7 +492,7 @@ Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
 
 When the user input represents an invalid model value, you may not want to bind that value on to the model immediately. For example, when converting the input value to the model type would discard the user's temporary input value. In these cases, you can use a custom transformer, like this:
 
-```JavaScript
+```js
 var mustBeAnInteger = {
   view: function(model) {
     // convert the model value into the user input value
@@ -460,7 +523,7 @@ install jQuery plugins.
 
 Copmnents allow you to respond to when the HTML is added, updated and removed.
 
-```JavaScript
+```js
 var hyperdomComponent = require('hyperdom/component');
 
 function render(model) {
@@ -512,14 +575,14 @@ Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 
 Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
 
-```JavaScript
+```js
 var hyperdomComponent = require('hyperdom/component');
 
 function render(model) {
   var component = hyperdomComponent(function () {
     return h('div', 'component counter: ', model.counter);
   });
-  
+
   return h('div',
     component,
     h('div', 'page counter: ', model.counter),
@@ -554,7 +617,7 @@ Render functions contain event handlers, which act as **controllers** in other f
 
 In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
 
-```JavaScript
+```js
 function render(model) {
   return h('div',
     h('h3', 'People'),
@@ -609,7 +672,7 @@ The model too can contain render methods so you can take advantage of polymorphi
 
 Here we render different types of animal, each with it's own user interface. Each animal object has a `render` method to render it's own HTML and event handlers.
 
-```JavaScript
+```js
 function render(model) {
   return h('div',
     h('ul',
@@ -697,7 +760,7 @@ You can refresh the view at any time by getting a **refresh** function. You can 
 
 **Note that just calling `hyperdom.html.refresh()` will not work, please assign it to the model, or a local variable, then call it.**
 
-```JavaScript
+```js
 var refresh = hyperdom.html.refresh;
 
 // later
@@ -707,7 +770,7 @@ refresh();
 
 This is because `hyperdom.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
 
-```JavaScript
+```js
 function render(model) {
   model.refresh = h.refresh;
 
@@ -731,7 +794,7 @@ function render(model) {
 hyperdom.append(document.body, render, {});
 ```
 
-```JavaScript
+```js
 var refresh = hyperdom.html.refresh;
 refresh([component]);
 ```
@@ -836,7 +899,7 @@ This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a r
 
 ## Rendering the Virtual DOM
 
-```JavaScript
+```js
 var vdomFragment = hyperdom.html(selector, [attributes], children, ...);
 ```
 
@@ -851,7 +914,7 @@ Form input elements can be passed a `binding` attribute, which is expected to be
 
 * An array with two items, the first being the model and second the field name, the third being an optional function called on the input when set, for example to convert a string into a number use `Number`.
 
-  ```JavaScript
+  ```js
   [object, 'fieldName', convert]
   ```
 
@@ -861,7 +924,7 @@ Form input elements can be passed a `binding` attribute, which is expected to be
 
 * An object with two methods, `get` and `set`, to get and set the new value, respectively.
 
-  ```JavaScript
+  ```js
   {
     get: function () {
       return model.property;
@@ -886,7 +949,7 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 
 **Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
 
-```JavaScript
+```js
 var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 ```
 
@@ -896,7 +959,7 @@ var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 
 ## Components
 
-```JavaScript
+```js
 var component = hyperdom.html.component([eventHandlers], vdomFragment | renderFunction);
 ```
 
@@ -919,7 +982,7 @@ var component = hyperdom.html.component([eventHandlers], vdomFragment | renderFu
       }
     }
     ```
-    
+
   * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and hyperdom will still be able to track it.
   * `cacheKey` - if truthy, the component will only update if it's different from the previous rendering of the component. If falsey, then the component will re-render normally with everything else.
   * any other fields you want to access from the handlers.
@@ -931,7 +994,7 @@ var component = hyperdom.html.component([eventHandlers], vdomFragment | renderFu
 
 ## Attaching to the DOM
 
-```JavaScript
+```js
 var attachment = hyperdom.append(element, render, model, [options]);
 var attachment = hyperdom.append(element, modelWithRender, [options]);
 
@@ -951,30 +1014,30 @@ var attachment = hyperdom.replace(element, modelWithRender, [options]);
 
     For example, immediately:
 
-    ```JavaScript
+    ```js
     function requestRender(render) {
       render();
     }
     ```
-  
+
     Or on the next tick:
-  
-    ```JavaScript
+
+    ```js
     function requestRender(render) {
       setTimeout(render, 0);
     }
     ```
-  
+
     Or on the next animation frame:
-  
-    ```JavaScript
+
+    ```js
     function requestRender(render) {
       requestAnimationFrame(render);
     }
     ```
-  
+
     The default is `requestAnimationFrame`, falling back to `setTimeout`.
-  
+
     For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
 ### Detach
