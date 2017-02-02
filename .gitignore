@@ -1,6 +1,6 @@
 .*.sw?
 .sw?
 /node_modules/
-/plastiq.js
-/plastiq.min.js
+/hyperdom.js
+/hyperdom.min.js
 /npm-debug.log
