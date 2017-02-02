@@ -70,19 +70,21 @@ Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 Use either with browserify:
 
-    ```js
-    const hyperdom = require('hyperdom')
-    ```
+```js
+const hyperdom = require('hyperdom')
+```
 
 Or from HTML, first create a symlink:
 
-    ln -s node_modules/hyperdom/hyperdom.js public/hyperdom.js
+```
+ln -s node_modules/hyperdom/hyperdom.js public/hyperdom.js
+```
 
 Then
 
-    ```html
-    <script src="hyperdom.js"></script>
-    ```
+```html
+<script src="hyperdom.js"></script>
+```
 
 # size
 
