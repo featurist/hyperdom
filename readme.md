@@ -88,6 +88,8 @@ Other browsers are likely to work but aren't routinely tested.
 
 # sister projects
 
+Get started with a skeleton web app using hyperdom and DOM tests with browser-monkey: [hyperdom-boilerplate](https://github.com/PaulCampbell/hyperdom-boilerplate)
+
 * [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
 * [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
 * [hyperdom-medium-editor](https://github.com/featurist/hyperdom-medium-editor)
