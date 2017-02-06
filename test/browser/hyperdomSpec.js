@@ -599,6 +599,28 @@ describe('hyperdom', function () {
       });
     });
 
+    it('can bind to an attribute of the viewModel', function () {
+      function ViewModel() {
+        this.text = ''
+      }
+
+      ViewModel.prototype.render = function render() {
+        return h('div',
+          h('input', {type: 'text', binding: 'text'}),
+          h('span', this.text)
+        );
+      }
+
+      attach(new ViewModel());
+
+      find('input').sendkeys('haha');
+
+      return retry(function() {
+        expect(find('span').text()).to.equal('haha');
+        expect(find('input').val()).to.equal('haha');
+      });
+    });
+
     describe('setting input values on reused DOM elements', function () {
       it('checkbox', function () {
         function render(model) {

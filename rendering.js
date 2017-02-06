@@ -470,9 +470,12 @@ exports.html.refreshAfter = refreshAfter;
 exports.html.norefresh = norefresh;
 
 function makeBinding(b, options) {
-  var binding = b instanceof Array
-    ?  bindingObject.apply(undefined, b)
-    : b;
+  var binding = b;
+  if (b instanceof Array) {
+    binding = bindingObject.apply(undefined, b);
+  } else if (typeof b === 'string') {
+    throw new Error('Binding value cannot be a string')
+  }
 
   binding.set = refreshify(binding.set, options);
 
