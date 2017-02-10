@@ -113,6 +113,23 @@ Insert the following lines at the top of your `.jsx` file:
 var hyperdom = require('hyperdom');
 ```
 
+# SVG
+
+```jsx
+/** @jsx svg */
+var svg = require('hyperdom/svg')
+
+class Circle {
+  render() {
+    return <svg width="100" height="100">
+      <circle cx="50" cy="50" r="40" stroke="red" stroke-width="4" fill="yellow" />
+    </svg>
+  }
+}
+```
+
+SVG in hyperdom supports all the same DOM events and interaction you'd expect from hyperdom.
+
 ## Debugging the DOM
 
 By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
