@@ -1,7 +1,7 @@
 var hyperdomMeta = require('./meta');
-var runRender = require('./runRender');
-var hyperdom = require('.');
+var render = require('./render');
 var Set = require('./set');
+var refreshify = require('./refreshify')
 
 var lastId = 0;
 
@@ -18,6 +18,10 @@ function Mount(model, options) {
   this.mounted = true;
 }
 
+Mount.prototype.transformFunctionAttribute = function(key, value) {
+  return refreshify(value)
+};
+
 Mount.prototype.queueRender = function () {
   if (!this.renderQueued) {
     var requestRender = this.requestRender;
@@ -27,7 +31,7 @@ Mount.prototype.queueRender = function () {
       self.renderQueued = false;
 
       if (self.mounted) {
-        runRender(self, function () {
+        render(self, function () {
           if (self.mountRenderRequested) {
             var vdom = self.render();
             self.component.update(vdom);
@@ -90,7 +94,7 @@ Mount.prototype._renderViewModel = function(model) {
   if (typeof model.onload == 'function') {
     if (!meta.loaded) {
       meta.loaded = true;
-      hyperdom.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
+      refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
     }
   }
 

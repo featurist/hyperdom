@@ -1,4 +1,4 @@
-var hyperdom = require('.');
+var render = require('./render');
 var deprecations = require('./deprecations');
 
 var norefresh = {};
@@ -16,7 +16,7 @@ module.exports = function(fn, options) {
     return fn;
   }
 
-  var mount = currentMount()
+  var mount = render.currentRender().mount
 
   return function () {
     var result = fn.apply(this, arguments);
@@ -37,29 +37,10 @@ function cloneOptions(options) {
   }
 }
 
-var noMount = {
-  rerenderWidget: function() {
-    this.rerender()
-  },
-
-  rerender: function() {
-    throw new Error('You cannot create virtual-dom event handlers outside a render function. See https://github.com/featurist/hyperdom#outside-render-cycle');
-  }
-}
-
-function currentMount() {
-  var currentRender = hyperdom.currentRender();
-
-  return currentRender? currentRender.mount: noMount
-}
-
 module.exports.norefresh = norefreshFunction
 module.exports.refreshAfterEvent = refreshAfterEvent
 
 function refreshAfterEvent(result, mount, options) {
-  if (!mount) {
-    mount = currentMount()
-  }
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
   var viewModelToRefresh = options && options.viewModel;
   var componentToRefresh = options && options.component;

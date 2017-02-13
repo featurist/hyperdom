@@ -54,4 +54,4 @@ function domComponent(options) {
   return new DomComponent(options);
 }
 
-module.exports = domComponent;
+exports.create = domComponent;

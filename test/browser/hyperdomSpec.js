@@ -11,6 +11,8 @@ var vdomToHtml = require('vdom-to-html');
 var times = require('lowscore/times');
 var vdomComponent = require('../../component');
 var windowEvents = require('../../windowEvents');
+var merge = require('../../merge')
+var runRender = require('../../render')
 
 var detect = {
   dataset: typeof document.body.dataset == 'object'
@@ -152,38 +154,61 @@ describe('hyperdom', function () {
       expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
     });
 
-    it('can merge onto an existing DOM', function () {
-      function render(model) {
-        return h('div.static',
-          h('h1', model.name),
-          h('button.update',
-            {
-              onclick: function () {
-                model.name = 'hyperdom render';
-              }
-            },
-            'update'
-          )
-        );
-      }
+    describe('server-side rendering', function () {
+      var app
+      var events
 
-      var model = {name: 'static render'};
+      beforeEach(function () {
+        events = []
 
-      $(targetDiv).replaceWith(vdomToHtml(render(model)));
+        app = {
+          name: 'server render',
 
-      var mergeDiv = div.children[0];
+          render: function() {
+            var self = this;
+            return h('div.static',
+              h('h1', self.name),
+              h('button.update',
+                {
+                  onclick: function () {
+                    events.push('click')
+                    self.name = 'client render';
+                  }
+                },
+                'update'
+              )
+            );
+          }
+        }
+      });
 
-      hyperdom.merge(mergeDiv, render, model);
+      it('can merge onto an existing DOM', function () {
+        $(targetDiv).replaceWith(vdomToHtml(app.render()));
 
-      return retry(function () {
-        expect(find('button.update')[0].onclick).to.exist;
-      }).then(function () {
-        return click('button.update').then(function () {
+        var mergeDiv = div.children[0];
+
+        merge(mergeDiv, app);
+
+        return retry(function () {
+          expect(find('button.update')[0].onclick).to.exist;
         }).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('hyperdom render');
+          return click('button.update').then(function () {
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('client render');
+            });
           });
         });
+      });
+
+      it('updates client side with client-side changes', function () {
+        $(targetDiv).replaceWith(vdomToHtml(app.render()));
+
+        var mergeDiv = div.children[0];
+        app.name = 'client render'
+        merge(mergeDiv, app)
+
+        expect(find('h1').text()).to.equal('client render');
       });
     });
   });
@@ -1427,7 +1452,7 @@ describe('hyperdom', function () {
 
     beforeEach(function () {
       refreshCalled = false;
-      hyperdom._currentRender = {
+      runRender._currentRender = {
         mount: {
           rerender: function () {
             refreshCalled = true;

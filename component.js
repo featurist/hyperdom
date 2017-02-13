@@ -1,6 +1,6 @@
 var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
-var hyperdom = require('.');
+var render = require('./render');
 var deprecations = require('./deprecations');
 
 function ComponentWidget(state, vdom) {
@@ -10,12 +10,14 @@ function ComponentWidget(state, vdom) {
 
   this.state = state;
   this.key = state.key;
-  var currentRender = hyperdom.currentRender();
+  var currentRender = render.currentRender();
 
   if (typeof vdom === 'function') {
     this.render = function () {
-      if (currentRender) {
-        currentRender.eventHandlerWrapper = state.on;
+      if (currentRender && state.on) {
+        currentRender.transformFunctionAttribute = function(key, value) {
+          return state.on(key.replace(/^on/, ''), value)
+        }
       }
       return vdom.apply(this.state, arguments);
     };
@@ -27,7 +29,7 @@ function ComponentWidget(state, vdom) {
     }
   }
   this.cacheKey = state.cacheKey;
-  this.component = domComponent();
+  this.component = domComponent.create();
 
   var renderFinished = currentRender && currentRender.finished;
   if (renderFinished) {

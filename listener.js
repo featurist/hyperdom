@@ -1,7 +1,7 @@
-var hyperdom = require('./index');
+var refreshify = require('./refreshify');
 
 function ListenerHook(listener) {
-  this.listener = hyperdom.refreshify(listener);
+  this.listener = refreshify(listener);
 }
 
 ListenerHook.prototype.hook = function (element, propertyName) {

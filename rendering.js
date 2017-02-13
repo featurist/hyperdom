@@ -3,36 +3,17 @@ var domComponent = require('./domComponent');
 var bindingMeta = require('./meta');
 var toVdom = require('./toVdom');
 var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag');
-var ViewModel = require('./viewModel');
 var Mount = require('./mount');
-var runRender = require('./runRender');
+var render = require('./render');
 var deprecations = require('./deprecations');
-var hyperdom = require('.');
 var prepareAttributes = require('./prepareAttributes')
 var refreshify = require('./refreshify')
 var binding = require('./binding')
 var refreshAfter = require('./refreshAfter')
 
-exports.merge = function (element, render, model, options) {
-  var mount = startAttachment(render, model, options, function(mount, domComponentOptions) {
-    var component = domComponent(domComponentOptions);
-    var currentRender = hyperdom.currentRender;
-    currentRender.eventHandlerWrapper = function() {
-      return null;
-    };
-    var vdom = mount.render();
-    component.merge(vdom, element);
-    return component;
-  });
-
-  mount.rerender();
-
-  return mount;
-};
-
 exports.append = function (element, render, model, options) {
   return startAttachment(render, model, options, function(mount, domComponentOptions) {
-    var component = domComponent(domComponentOptions);
+    var component = domComponent.create(domComponentOptions);
     var vdom = mount.render();
     element.appendChild(component.create(vdom));
     return component;
@@ -41,7 +22,7 @@ exports.append = function (element, render, model, options) {
 
 exports.replace = function (element, render, model, options) {
   return startAttachment(render, model, options, function(mount, domComponentOptions) {
-    var component = domComponent(domComponentOptions);
+    var component = domComponent.create(domComponentOptions);
     var vdom = mount.render();
     element.parentNode.replaceChild(component.create(vdom), element);
     return component;
@@ -69,8 +50,6 @@ exports.appendVDom = function (vdom, render, model, options) {
   });
 };
 
-exports.ViewModel = ViewModel;
-
 function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object' && typeof render.render == 'function') {
     return start(render, attachToDom, model);
@@ -82,7 +61,7 @@ function startAttachment(render, model, options, attachToDom) {
 
 function start(model, attachToDom, options) {
   var mount = new Mount(model, options);
-  runRender(mount, function () {
+  render(mount, function () {
     if (options) {
       var domComponentOptions = {document: options.document};
     }
@@ -144,12 +123,19 @@ exports.jsx = function (tag, attributes) {
 
 Object.defineProperty(exports.html, 'currentRender', {get: function () {
   deprecations.currentRender('hyperdom.html.currentRender is deprecated, please use hyperdom.currentRender() instead');
-  return exports.html._currentRender;
+  return render._currentRender;
 }});
 
 Object.defineProperty(exports.html, 'refresh', {get: function () {
   deprecations.refresh('hyperdom.html.refresh is deprecated, please use viewModel.rerender() instead');
-  return exports.html._refresh;
+  if (render._currentRender) {
+    var currentRender = render._currentRender
+    return function(result) {
+      refreshify.refreshAfterEvent(result, currentRender.mount)
+    }
+  } else {
+    throw new Error('Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/hyperdom#refresh-outside-render-cycle');
+  }
 }});
 
 Object.defineProperty(exports.html, 'norefresh', {get: function () {
