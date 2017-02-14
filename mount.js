@@ -7,6 +7,7 @@ var lastId = 0;
 
 function Mount(model, options) {
   var win = (options && options.window) || window;
+  var router = typeof options == 'object' && options.hasOwnProperty('router')? options.router: undefined;
   this.requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
 
   this.model = model;
@@ -16,6 +17,7 @@ function Mount(model, options) {
   this.widgetRendersRequested = undefined;
   this.id = ++lastId;
   this.mounted = true;
+  this.router = router
 }
 
 Mount.prototype.transformFunctionAttribute = function(key, value) {
@@ -52,6 +54,9 @@ Mount.prototype.queueRender = function () {
 };
 
 Mount.prototype.render = function() {
+  if (this.router) {
+    return this.router.render(this)
+  }
   return this.renderViewModel(this.model);
 };
 
