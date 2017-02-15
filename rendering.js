@@ -7,9 +7,9 @@ var Mount = require('./mount');
 var render = require('./render');
 var deprecations = require('./deprecations');
 var prepareAttributes = require('./prepareAttributes')
-var refreshify = require('./refreshify')
 var binding = require('./binding')
 var refreshAfter = require('./refreshAfter')
+var refreshEventResult = require('./refreshEventResult')
 
 exports.append = function (element, render, model, options) {
   return startAttachment(render, model, options, function(mount, domComponentOptions) {
@@ -131,7 +131,7 @@ Object.defineProperty(exports.html, 'refresh', {get: function () {
   if (render._currentRender) {
     var currentRender = render._currentRender
     return function(result) {
-      refreshify.refreshAfterEvent(result, currentRender.mount)
+      refreshEventResult(result, currentRender.mount)
     }
   } else {
     throw new Error('Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers. See https://github.com/featurist/hyperdom#refresh-outside-render-cycle');
@@ -140,7 +140,7 @@ Object.defineProperty(exports.html, 'refresh', {get: function () {
 
 Object.defineProperty(exports.html, 'norefresh', {get: function () {
   deprecations.refresh('hyperdom.html.norefresh is deprecated, please use hyperdom.norefresh() instead');
-  return refreshify.norefresh
+  return refreshEventResult.norefresh
 }});
 
 Object.defineProperty(exports.html, 'binding', {get: function () {

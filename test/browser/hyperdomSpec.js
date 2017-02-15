@@ -13,6 +13,7 @@ var vdomComponent = require('../../component');
 var windowEvents = require('../../windowEvents');
 var merge = require('../../merge')
 var runRender = require('../../render')
+var Mount = require('../../mount')
 
 var detect = {
   dataset: typeof document.body.dataset == 'object'
@@ -1452,6 +1453,8 @@ describe('hyperdom', function () {
 
     beforeEach(function () {
       refreshCalled = false;
+      var mount = new Mount()
+
       runRender._currentRender = {
         mount: {
           rerender: function () {
@@ -1460,6 +1463,10 @@ describe('hyperdom', function () {
 
           requestRender: function (fn) {
             fn();
+          },
+
+          refreshify: function(fn, options) {
+            return mount.refreshify.call(this, fn, options)
           }
         }
       };

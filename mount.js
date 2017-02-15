@@ -2,6 +2,7 @@ var hyperdomMeta = require('./meta');
 var render = require('./render');
 var Set = require('./set');
 var refreshify = require('./refreshify')
+var refreshEventResult = require('./refreshEventResult')
 
 var lastId = 0;
 
@@ -20,8 +21,25 @@ function Mount(model, options) {
   this.router = router
 }
 
+Mount.prototype.refreshify = function(fn, options) {
+  if (!fn) {
+    return fn;
+  }
+
+  if (options && (options.norefresh == true || options.refresh == false)) {
+    return fn;
+  }
+
+  var self = this
+
+  return function () {
+    var result = fn.apply(this, arguments);
+    return refreshEventResult(result, self, options);
+  };
+}
+
 Mount.prototype.transformFunctionAttribute = function(key, value) {
-  return refreshify(value)
+  return this.refreshify(value)
 };
 
 Mount.prototype.queueRender = function () {
@@ -55,9 +73,11 @@ Mount.prototype.queueRender = function () {
 
 Mount.prototype.render = function() {
   if (this.router) {
-    return this.router.render(this)
+    this.setupViewModel(this.model)
+    return this.router.render(this.model)
+  } else {
+    return this.renderViewModel(this.model);
   }
-  return this.renderViewModel(this.model);
 };
 
 Mount.prototype.rerender = function () {
@@ -74,7 +94,7 @@ Mount.prototype.rerenderWidget = function (widget) {
   this.queueRender();
 };
 
-Mount.prototype._renderViewModel = function(model) {
+Mount.prototype.setupViewModel = function(model) {
   var self = this;
 
   model.rerender = function () {
@@ -102,7 +122,10 @@ Mount.prototype._renderViewModel = function(model) {
       refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
     }
   }
+}
 
+Mount.prototype._renderViewModel = function(model) {
+  this.setupViewModel(model)
   var vdom = model.render();
 
   if (vdom instanceof Array) {

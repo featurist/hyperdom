@@ -3,6 +3,7 @@ var refreshify = require('./refreshify')
 var binding = require('./binding')
 var meta = require('./meta');
 var render = require('./render')
+var refreshEventResult = require('./refreshEventResult')
 
 exports.html = rendering.html;
 exports.html.refreshify = refreshify
@@ -14,6 +15,6 @@ exports.appendVDom = rendering.appendVDom;
 exports.binding = binding;
 exports.meta = meta;
 exports.refreshify = refreshify;
-exports.norefresh = refreshify.norefresh;
+exports.norefresh = refreshEventResult.norefresh;
 
 exports.currentRender = render.currentRender
