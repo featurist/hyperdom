@@ -2,6 +2,7 @@ var $ = require('jquery');
 var hyperdom = require('../..');
 var mapBinding = require('../../mapBinding');
 var h = hyperdom.html;
+var jsx = hyperdom.jsx;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
@@ -483,6 +484,50 @@ describe('hyperdom', function () {
         expect(find('div').data('line-number')).to.eql(80);
       });
     }
+  });
+
+  describe('jsx', function () {
+    it('renders', function () {
+      function render() {
+        return jsx('div', {class: 'one'}, [
+          jsx('div', {class: 'two'}, ['text'])
+        ]);
+      }
+
+      attach(render, {});
+
+      expect(find('div.one').attr('class')).to.eql('one');
+      expect(find('div.one > div.two').text()).to.eql('text');
+    });
+  });
+
+  describe('xml', function () {
+    it('renders xml element all children with namespace specified with xmlns', function () {
+      function render() {
+        return jsx('svg', {xmlns: 'http://www.w3.org/2000/svg', width: "300", height: "300"}, [
+          jsx('circle', {cx: '50', cy: '50', r: '40', stroke: 'red', 'stroke-width': '4', fill: 'yellow'})
+        ]);
+      }
+
+      attach(render, {});
+
+      expect(find('svg')[0].namespaceURI).to.eql('http://www.w3.org/2000/svg');
+      expect(find('svg>circle')[0].namespaceURI).to.eql('http://www.w3.org/2000/svg');
+    });
+
+    it('renders tags with namespaces', function () {
+      function render() {
+        return jsx('data', {xmlns: 'urn:data', 'xmlns--addr': 'urn:address'}, [
+          jsx('addr--address', {name: 'bob', 'addr--street': 'ny st'})
+        ])
+      }
+
+      attach(render, {});
+
+      expect(find('data')[0].namespaceURI).to.eql('urn:data');
+      expect(find('data>address')[0].namespaceURI).to.eql('urn:address')
+      expect(find('data>address')[0].getAttributeNS('urn:address', 'street')).to.eql('ny st')
+    });
   });
 
   it('can respond to button clicks', function () {
