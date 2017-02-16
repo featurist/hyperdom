@@ -1,6 +1,8 @@
 var $ = require('jquery');
 var hyperdom = require('../..');
+var mapBinding = require('../../mapBinding');
 var h = hyperdom.html;
+var jsx = hyperdom.jsx;
 var expect = require('chai').expect;
 var retry = require('trytryagain');
 require('jquery-sendkeys');
@@ -484,6 +486,50 @@ describe('hyperdom', function () {
     }
   });
 
+  describe('jsx', function () {
+    it('renders', function () {
+      function render() {
+        return jsx('div', {class: 'one'}, [
+          jsx('div', {class: 'two'}, ['text'])
+        ]);
+      }
+
+      attach(render, {});
+
+      expect(find('div.one').attr('class')).to.eql('one');
+      expect(find('div.one > div.two').text()).to.eql('text');
+    });
+  });
+
+  describe('xml', function () {
+    it('renders xml element all children with namespace specified with xmlns', function () {
+      function render() {
+        return jsx('svg', {xmlns: 'http://www.w3.org/2000/svg', width: "300", height: "300"}, [
+          jsx('circle', {cx: '50', cy: '50', r: '40', stroke: 'red', 'stroke-width': '4', fill: 'yellow'})
+        ]);
+      }
+
+      attach(render, {});
+
+      expect(find('svg')[0].namespaceURI).to.eql('http://www.w3.org/2000/svg');
+      expect(find('svg>circle')[0].namespaceURI).to.eql('http://www.w3.org/2000/svg');
+    });
+
+    it('renders tags with namespaces', function () {
+      function render() {
+        return jsx('data', {xmlns: 'urn:data', 'xmlns--addr': 'urn:address'}, [
+          jsx('addr--address', {name: 'bob', 'addr--street': 'ny st'})
+        ])
+      }
+
+      attach(render, {});
+
+      expect(find('data')[0].namespaceURI).to.eql('urn:data');
+      expect(find('data>address')[0].namespaceURI).to.eql('urn:address')
+      expect(find('data>address')[0].getAttributeNS('urn:address', 'street')).to.eql('ny st')
+    });
+  });
+
   it('can respond to button clicks', function () {
     function render(model) {
       return h('div',
@@ -549,7 +595,7 @@ describe('hyperdom', function () {
           }),
           h('button.norefresh', {
             onclick: function () {
-              return h.norefresh;
+              return hyperdom.norefresh();
             }
           }),
           h('span', refreshes)
@@ -657,7 +703,7 @@ describe('hyperdom', function () {
 
         function render(model) {
           return h('div',
-            h('input', {type: 'text', binding: [model, 'number', numberConversion]}),
+            h('input', {type: 'text', binding: mapBinding(model, 'number', numberConversion)}),
             h('span', model.number)
           );
         }
@@ -686,7 +732,7 @@ describe('hyperdom', function () {
 
         function render(model) {
           return h('div',
-            h('input', {type: 'text', binding: [model, 'number', number]}),
+            h('input', {type: 'text', binding: mapBinding(model, 'number', number)}),
             h('span', model.number)
           );
         }
@@ -1376,7 +1422,7 @@ describe('hyperdom', function () {
     });
   });
 
-  describe('h.binding', function () {
+  describe('hyperdom.binding', function () {
     var refreshCalled;
 
     beforeEach(function () {
@@ -1397,12 +1443,12 @@ describe('hyperdom', function () {
     function expectToRefresh(options, v) {
       var model = {};
 
-      h.binding([model, 'field'], options).set('value');
+      hyperdom.binding([model, 'field'], options).set('value');
       expect(refreshCalled).to.equal(v);
     }
 
     function expectPromiseToRefresh(options, before, after) {
-      h.binding({
+      hyperdom.binding({
         set: function () {
           return wait(10);
         }
@@ -1435,7 +1481,7 @@ describe('hyperdom', function () {
         }
 
         var model = {};
-        h.binding([model, 'field'], {component: component}).set('value');
+        hyperdom.binding([model, 'field'], {component: component}).set('value');
 
         expect(component.wasRefreshed).to.be.true;
       });
@@ -1450,7 +1496,7 @@ describe('hyperdom', function () {
         }
 
         var model = {};
-        h.binding([model, 'field'], {viewModel: viewModel}).set('value');
+        hyperdom.binding([model, 'field'], {viewModel: viewModel}).set('value');
 
         expect(viewModel.wasRerendered).to.be.true;
       });
@@ -1500,7 +1546,7 @@ describe('hyperdom', function () {
       }
       function render(model) {
         return h('div',
-          h('input.x', {binding: [model, 'x', integer]})
+          h('input.x', {binding: mapBinding(model, 'x', integer)})
         );
       }
       var model = {};
@@ -2239,10 +2285,14 @@ describe('hyperdom', function () {
 
     describe('hyperdom.html.refreshAfter', function () {
       it('refreshes after the promise is complete', function () {
+        var waiting
+
         function load(model) {
-          return wait(20).then(function () {
-            model.text = 'loaded';
-          });
+          return waiting
+            ? undefined
+            : waiting = wait(20).then(function () {
+              model.text = 'loaded';
+            })
         }
 
         function render(model) {

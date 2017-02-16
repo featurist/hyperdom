@@ -113,6 +113,25 @@ Insert the following lines at the top of your `.jsx` file:
 var hyperdom = require('hyperdom');
 ```
 
+# SVG (or XML more generally)
+
+Hyperdom will interpret XML if it contains an `xmlns` attribute. This includes regular XML behaviour like declaring and using namespaces. JSX itself doesn't support `namespace:tag` syntax, so you can use an alternative syntax with `--` instead, for e.g. `namespace--tag`.
+
+```jsx
+/** @jsx hyperdom.jsx */
+var hyperdom = require('hyperdom')
+
+class Circle {
+  render() {
+    return <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="40" stroke="red" stroke-width="4" fill="yellow" />
+    </svg>
+  }
+}
+```
+
+SVG in hyperdom supports all the same DOM events and interaction you'd expect from hyperdom.
+
 ## Debugging the DOM
 
 By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.

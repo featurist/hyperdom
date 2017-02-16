@@ -2,6 +2,7 @@
 
 var VNode = require('virtual-dom/vnode/vnode.js');
 var isHook = require('virtual-dom/vnode/is-vhook');
+var xml = require('./xml')
 
 var softSetHook = require('virtual-dom/virtual-hyperscript/hooks/soft-set-hook.js');
 
@@ -32,5 +33,11 @@ function h(tagName, props, children) {
     props.value = softSetHook(props.value);
   }
 
-  return new VNode(tag, props, children, key, namespace);
+  var vnode = new VNode(tag, props, children, key, namespace);
+
+  if (props.xmlns) {
+    xml.transform(vnode)
+  }
+
+  return vnode
 }
