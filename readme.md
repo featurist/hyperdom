@@ -130,6 +130,10 @@ class Circle {
 
 SVG in hyperdom supports all the same DOM events and interaction you'd expect from hyperdom.
 
+### Namespaces
+
+Some features of SVG require XML namespaces to work, JSX doesn't support namespace syntax natively, so instead hyperdom recognises `--` instead of `:` for namespaces. For example `xlink:href` should be written `xlink--href`.
+
 ## Debugging the DOM
 
 By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
