@@ -3,4 +3,5 @@
 /node_modules/
 /hyperdom.js
 /hyperdom.min.js
+/hyperdom.min.js.gz
 /npm-debug.log
