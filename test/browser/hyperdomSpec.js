@@ -525,8 +525,39 @@ describe('hyperdom', function () {
       attach(render, {});
 
       expect(find('data')[0].namespaceURI).to.eql('urn:data');
-      expect(find('data>address')[0].namespaceURI).to.eql('urn:address')
-      expect(find('data>address')[0].getAttributeNS('urn:address', 'street')).to.eql('ny st')
+      var address = find('data>address')[0]
+      expect(address.namespaceURI).to.eql('urn:address')
+      expect(address.prefix).to.eql('addr')
+      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute.name).to.eql('addr:street')
+      expect(addressAttribute.prefix).to.eql('addr')
+      expect(addressAttribute.localName).to.eql('street')
+      expect(addressAttribute.value).to.eql('ny st')
+      expect(address.getAttribute('name')).to.eql('bob')
+    });
+
+    it('inner element can declare new default namespace', function () {
+      function render() {
+        return jsx('data', {xmlns: 'urn:data'}, [
+          jsx('address', {name: 'bob', xmlns: 'urn:address', 'xmlns--addr': 'urn:address', 'addr--street': 'ny st'})
+        ])
+      }
+
+      attach(render, {});
+
+      expect(find('data')[0].namespaceURI).to.eql('urn:data');
+      var address = find('data>address')[0]
+      expect(address.namespaceURI).to.eql('urn:address')
+      expect(address.prefix).to.eql(null)
+      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute).to.exist
+      expect(addressAttribute.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute.name).to.eql('addr:street')
+      expect(addressAttribute.prefix).to.eql('addr')
+      expect(addressAttribute.localName).to.eql('street')
+      expect(addressAttribute.value).to.eql('ny st')
+      expect(address.getAttribute('name')).to.eql('bob')
     });
   });
 
