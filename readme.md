@@ -476,21 +476,27 @@ function render(model) {
 
 hyperdom stores the temporary state in an object called `_hyperdomMeta` on your model object, until the converter's `model(view)` function stops throwing errors.
 
-## Components [deprecated, use view models]
+## Components
 
 Components can be used to track the life-time of some HTML. This is usually helpful if you want to
-install jQuery plugins.
+install jQuery plugins. The state (the `this`) of the component is kept in the virtual dom and is
+destroyed as soon as it is removed from the DOM, so expect to store view-related state, not application state.
 
 Copmnents allow you to respond to when the HTML is added, updated and removed.
 
 ```JavaScript
-var hyperdomComponent = require('hyperdom/component');
+var hyperdom = require('hyperdom');
 
 function render(model) {
   return h('div',
     model.show
-      ? hyperdomComponent(
+      ? hyperdom.component(
           {
+            renderCacheKey: function () {
+              // return a cache key here
+              // to cache the render output
+            },
+
             onbeforeadd: function () {
               // you can store state in `this`, and it will
               // be present in subsequent event handlers
@@ -505,15 +511,30 @@ function render(model) {
               console.log('added: ', this.someProperty);
             },
 
-            onupdate: function (element) {
+            onbeforeupdate: function (element) {
+              // immediately before the element is updated
               console.log('updated: ', this.someProperty);
             },
 
-            onremove: function (element) {
+            onupdate: function (element) {
+              // after the element is updated
+              console.log('updated: ', this.someProperty);
+            },
+
+            onbeforeremove: function (element) {
+              // immediately before the element is removed
               console.log('removed: ', this.someProperty);
+            },
+
+            onremove: function (element) {
+              // after the element is removed
+              console.log('removed: ', this.someProperty);
+            },
+
+            render: function () {
+              h('div', 'component contents')
             }
-          },
-          h('div', 'component contents')
+          }
         )
       : undefined,
     h('div',
@@ -536,10 +557,10 @@ Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
 Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
 
 ```JavaScript
-var hyperdomComponent = require('hyperdom/component');
+var hyperdom = require('hyperdom');
 
 function render(model) {
-  var component = hyperdomComponent(function () {
+  var component = hyperdom.component(function () {
     return h('div', 'component counter: ', model.counter);
   });
   

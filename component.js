@@ -2,6 +2,7 @@ var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
 var render = require('./render');
 var deprecations = require('./deprecations');
+var ViewModel = require('./viewModel')
 
 function ComponentWidget(state, vdom) {
   if (!vdom) {
@@ -127,7 +128,7 @@ ComponentWidget.prototype.destroy = function (element) {
 };
 
 module.exports = function (state, vdom) {
-  deprecations.component('hyperdom.html.component is deprecated, please use ViewModels');
+  deprecations.component('hyperdom.html.component is deprecated, please use hyperdom.component');
   if (typeof state === 'function') {
     return new ComponentWidget({}, state);
   } else if (state.constructor === Object) {
