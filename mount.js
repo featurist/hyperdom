@@ -76,7 +76,7 @@ Mount.prototype.render = function() {
     this.setupViewModel(this.model)
     return this.router.render(this.model)
   } else {
-    return this.renderViewModel(this.model);
+    return this.renderViewModel(this.model)
   }
 };
 

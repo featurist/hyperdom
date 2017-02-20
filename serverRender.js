@@ -1,7 +1,9 @@
+var vdomToHtml = require('vdom-to-html')
 var Mount = require('./mount')
 var render = require('./render')
 var router = require('./router')
 var StoreCache = require('./storeCache')
+var toVdom = require('./toVdom')
 
 module.exports = function(app, url) {
   if (router.hasRoute(app, url)) {
@@ -14,8 +16,17 @@ module.exports = function(app, url) {
     render(mount, () => mount.render())
 
     return cache.loaded().then(() => {
+      var vdom
+      var html
+
+      render(mount, () => {
+        vdom = toVdom(mount.render())
+        html = vdomToHtml(vdom)
+      })
+
       return {
-        vdom: render(mount, () => mount.render()),
+        vdom: vdom,
+        html: html,
         data: cache.data
       }
     })

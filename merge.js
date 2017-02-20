@@ -3,19 +3,23 @@ var Mount = require('./mount')
 var vdomParser = require('vdom-parser')
 var render = require('./render');
 
-module.exports = function(div, app, options) {
+module.exports = function(element, app, options) {
+  if (!element) {
+    throw new Error('merge: element must not be null')
+  }
+
   var mount = new Mount(app, options);
 
   mount.component = domComponent.create(options);
-  var serverVdom = vdomParser(div)
-  mount.component.merge(serverVdom, div);
+  var serverVdom = vdomParser(element)
+  mount.component.merge(serverVdom, element);
 
   mount.loadCache = new LoadCache(options && options.loadCache)
 
-  var vdom = render(mount, function () {
-    return mount.render();
+  render(mount, function () {
+    var vdom = mount.render();
+    mount.component.update(vdom);
   })
-  mount.component.update(vdom);
 
   mount.loadCache = undefined
 

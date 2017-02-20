@@ -28,11 +28,19 @@ function Router(options) {
   this.history = history
 }
 
+function modelRoutes(model) {
+  if (typeof model.routes === 'function') {
+    return model.routes()
+  } else {
+    throw new Error('for routing, hyperdom expects a model.routes() method to return route')
+  }
+}
+
 Router.prototype.render = function(model) {
   this.history.start(model)
 
   var url = this.history.url()
-  var routes = model.routes()
+  var routes = modelRoutes(model)
 
   var action
   if (this.lastUrl != url) {
@@ -90,7 +98,7 @@ Router.prototype.route = function(pattern) {
 }
 
 exports.hasRoute = function(model, url) {
-  var routes = model.routes()
+  var routes = modelRoutes(model)
   return !!routes.find(function (r) { return r.match(url) })
 }
 
