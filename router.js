@@ -149,8 +149,10 @@ Route.prototype.urlParams = function(url, _match) {
   var match = _match || this.match(url)
   var params = exports.querystring.parse(query)
 
-  for (var n = 1; n < match.length; n++) {
-    params[this.variables[n - 1]] = match[n]
+  if (match) {
+    for (var n = 1; n < match.length; n++) {
+      params[this.variables[n - 1]] = match[n]
+    }
   }
 
   return params
@@ -288,10 +290,12 @@ exports.querystring = {
   parse: function(search) {
     var params = {};
 
-    (search || '').split('&').map(function (param) {
-      var v = param.split('=').map(decodeURIComponent)
-      params[v[0]] = v[1]
-    })
+    if (search) {
+      search.split('&').map(function (param) {
+        var v = param.split('=').map(decodeURIComponent)
+        params[v[0]] = v[1]
+      })
+    }
 
     return params
   },
