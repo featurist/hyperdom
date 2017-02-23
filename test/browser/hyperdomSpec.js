@@ -1665,18 +1665,14 @@ describe('hyperdom', function () {
         return '<h1>element: ' + (monitor.renderCount - 1) + '</h1>'
       }
 
-      return click('button.add').then(function () {
-        return monitor.waitForRender()
-      }).then(function () {
+      return monitor.waitForRenderAfter(click('button.add')).then(function () {
         expect(events).to.eql([
           ['onbeforeadd', monitor.renderCount],
           ['onadd', elementHtml(), monitor.renderCount, 'beforeadd']
         ])
         events = []
 
-        return click('button.update')
-      }).then(function () {
-        return monitor.waitForRender()
+        return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(events).to.eql([
           ['onbeforeupdate', oldElementHtml(), monitor.renderCount, 'add'],
@@ -1684,9 +1680,7 @@ describe('hyperdom', function () {
         ])
         events = []
 
-        return click('button.remove')
-      }).then(function () {
-        return monitor.waitForRender()
+        return monitor.waitForRenderAfter(click('button.remove'))
       }).then(function () {
         expect(events).to.eql([
           ['onbeforeremove', oldElementHtml(), monitor.renderCount - 1, 'update'],
@@ -1723,15 +1717,11 @@ describe('hyperdom', function () {
       expect(find('h1').text()).to.equal('element: one')
 
       renderData = 'two'
-      return click('button.update').then(function () {
-        return monitor.waitForRender()
-      }).then(function () {
+      return monitor.waitForRenderAfter(click('button.update')).then(function () {
         expect(find('h1').text()).to.equal('element: one')
 
         renderCacheKey = 'two'
-        return click('button.update')
-      }).then(function () {
-        return monitor.waitForRender()
+        return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(find('h1').text()).to.equal('element: two')
       })

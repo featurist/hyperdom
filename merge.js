@@ -33,17 +33,5 @@ function LoadCache(data) {
 LoadCache.prototype.cache = function(key) {
   var data = this.data[key]
 
-  return {
-    then: function(fn) {
-      return new Promise(resolve => {
-        resolve(fn(data))
-      })
-    },
-
-    catch: function(fn) {
-      return new Promise(resolve => {
-        resolve(fn(data))
-      })
-    }
-  }
+  return Promise.resolve(data)
 }
