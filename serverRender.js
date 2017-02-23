@@ -10,25 +10,35 @@ module.exports = function(app, url) {
     var cache = new StoreCache()
     var mount = new Mount(app, {window: {}, router: router.create({history: new ServerHistory(url)})})
 
-    mount.loadCache = cache
-    mount.refreshify = StoreCache.refreshify
+    mount.serverRenderCache = cache
+    mount.refreshify = cache.refreshify
 
-    render(mount, () => mount.render())
+    return renderUntilAllLoaded(mount, cache, {maxRenders: 10})
+  }
+}
 
+function renderUntilAllLoaded(mount, cache, {maxRenders} = {}) {
+  if (maxRenders <= 0) {
+    throw new Error('page could not load all resources')
+  }
+
+  var vdom
+  var html
+
+  render(mount, () => {
+    vdom = toVdom(mount.render())
+    html = vdomToHtml(vdom)
+  })
+
+  if (cache.loadPromises.length) {
     return cache.loaded().then(() => {
-      var vdom
-      var html
-
-      render(mount, () => {
-        vdom = toVdom(mount.render())
-        html = vdomToHtml(vdom)
-      })
-
-      return {
-        vdom: vdom,
-        html: html,
-        data: cache.data
-      }
+      return renderUntilAllLoaded(mount, cache, {maxRenders: maxRenders - 1})
+    })
+  } else {
+    return Promise.resolve({
+      vdom: vdom,
+      html: html,
+      data: cache.data
     })
   }
 }

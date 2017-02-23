@@ -1,7 +1,6 @@
 var hyperdomMeta = require('./meta');
 var render = require('./render');
 var Set = require('./set');
-var refreshify = require('./refreshify')
 var refreshEventResult = require('./refreshEventResult')
 
 var lastId = 0;
@@ -119,7 +118,7 @@ Mount.prototype.setupViewModel = function(model) {
   if (typeof model.onload == 'function') {
     if (!meta.loaded) {
       meta.loaded = true;
-      refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
+      this.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
     }
   }
 }

@@ -1,4 +1,4 @@
-var loadCache = require('../../loadCache')
+var serverRenderCache = require('../../serverRenderCache')
 var StoreCache = require('../../storeCache')
 var render = require('../../render')
 var expect = require('chai').expect
@@ -12,8 +12,8 @@ describe('store cache', function () {
 
     render._currentRender = {
       mount: {
-        refreshify: StoreCache.refreshify,
-        loadCache: storeCache
+        refreshify: storeCache.refreshify,
+        serverRenderCache: storeCache
       }
     }
   })
@@ -33,7 +33,7 @@ describe('store cache', function () {
     var setData2
 
     refreshify(function () {
-      return loadCache('key', () => load('some data')).then(data => {
+      return serverRenderCache('key', () => load('some data')).then(data => {
         expect(data).to.equal('some data')
         return setData1 = data
       }).then(data => {
@@ -54,7 +54,7 @@ describe('store cache', function () {
     var setData
 
     refreshify(function () {
-      loadCache('key', () => load('some data')).then(data => {
+      serverRenderCache('key', () => load('some data')).then(data => {
         expect(data).to.equal('some data')
         setData = data
       })
