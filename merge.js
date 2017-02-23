@@ -14,14 +14,14 @@ module.exports = function(element, app, options) {
   var serverVdom = vdomParser(element)
   mount.component.merge(serverVdom, element);
 
-  mount.loadCache = new LoadCache(options && options.loadCache)
+  mount.serverRenderCache = new LoadCache(options && options.loadCache)
 
   render(mount, function () {
     var vdom = mount.render();
     mount.component.update(vdom);
   })
 
-  mount.loadCache = undefined
+  delete mount.serverRenderCache
 
   return mount
 }
@@ -35,7 +35,15 @@ LoadCache.prototype.cache = function(key) {
 
   return {
     then: function(fn) {
-      return fn(data)
+      return new Promise(resolve => {
+        resolve(fn(data))
+      })
+    },
+
+    catch: function(fn) {
+      return new Promise(resolve => {
+        resolve(fn(data))
+      })
     }
   }
 }

@@ -50,7 +50,7 @@ describe('store cache', function () {
     })
   });
 
-  it("doesn't store value in model in time if promise not returned", function () {
+  it("can store data even if promise isn't returned", function () {
     var setData
 
     refreshify(function () {
@@ -61,8 +61,8 @@ describe('store cache', function () {
     })()
 
     return storeCache.loaded().then(() => {
-      expect(storeCache.data).to.eql({})
-      expect(setData).to.be.undefined
+      expect(storeCache.data).to.eql({key: 'some data'})
+      expect(setData).to.equal('some data')
     })
   });
 });
