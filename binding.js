@@ -1,14 +1,10 @@
 var refreshify = require('./refreshify');
 var meta = require('./meta');
-var deprecations = require('./deprecations')
 
 module.exports = function(b, options) {
   var binding = b
 
   if (b instanceof Array) {
-    if (b.length > 2) {
-      deprecations.mapBinding("[model, property, mapping] have moved to require('hyperdom/mapBinding')(model, property, mapping)")
-    }
     binding = bindingObject.apply(undefined, b)
   }
 
@@ -17,7 +13,7 @@ module.exports = function(b, options) {
   return binding;
 }
 
-function bindingObject(model, property) {
+function bindingObject(model, property, setter) {
   var _meta;
 
   return {
@@ -27,6 +23,9 @@ function bindingObject(model, property) {
 
     set: function (value) {
       model[property] = value;
+      if (setter) {
+        return setter(value)
+      }
     },
 
     meta: function() {
