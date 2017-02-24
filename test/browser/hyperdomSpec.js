@@ -551,8 +551,39 @@ describe('hyperdom', function () {
       attach(render, {});
 
       expect(find('data')[0].namespaceURI).to.eql('urn:data');
-      expect(find('data>address')[0].namespaceURI).to.eql('urn:address')
-      expect(find('data>address')[0].getAttributeNS('urn:address', 'street')).to.eql('ny st')
+      var address = find('data>address')[0]
+      expect(address.namespaceURI).to.eql('urn:address')
+      expect(address.prefix).to.eql('addr')
+      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute.name).to.eql('addr:street')
+      expect(addressAttribute.prefix).to.eql('addr')
+      expect(addressAttribute.localName).to.eql('street')
+      expect(addressAttribute.value).to.eql('ny st')
+      expect(address.getAttribute('name')).to.eql('bob')
+    });
+
+    it('inner element can declare new default namespace', function () {
+      function render() {
+        return jsx('data', {xmlns: 'urn:data'}, [
+          jsx('address', {name: 'bob', xmlns: 'urn:address', 'xmlns--addr': 'urn:address', 'addr--street': 'ny st'})
+        ])
+      }
+
+      attach(render, {});
+
+      expect(find('data')[0].namespaceURI).to.eql('urn:data');
+      var address = find('data>address')[0]
+      expect(address.namespaceURI).to.eql('urn:address')
+      expect(address.prefix).to.eql(null)
+      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute).to.exist
+      expect(addressAttribute.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute.name).to.eql('addr:street')
+      expect(addressAttribute.prefix).to.eql('addr')
+      expect(addressAttribute.localName).to.eql('street')
+      expect(addressAttribute.value).to.eql('ny st')
+      expect(address.getAttribute('name')).to.eql('bob')
     });
   });
 
@@ -1725,6 +1756,27 @@ describe('hyperdom', function () {
       }).then(function () {
         expect(find('h1').text()).to.equal('element: two')
       })
+    })
+  })
+
+  describe('view model debugger', function () {
+    it('sets the view model to the element', function () {
+      var inner = {
+        render: function () {
+          return h('div.inner', 'inner')
+        }
+      }
+
+      var outer = {
+        render: function () {
+          return h('div.outer', 'outer', inner)
+        }
+      }
+
+      attach(outer);
+
+      expect(find('.outer')[0]._hyperdomMeta.viewModel).to.eql(outer)
+      expect(find('.inner')[0]._hyperdomMeta.viewModel).to.eql(inner)
     })
   })
 
