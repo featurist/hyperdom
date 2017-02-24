@@ -8,6 +8,7 @@ var ViewModel = require('./viewModel')
 
 exports.html = rendering.html;
 exports.html.refreshify = refreshify
+exports.rawHtml = rendering.rawHtml
 exports.jsx = rendering.jsx;
 exports.attach = rendering.attach;
 exports.replace = rendering.replace;

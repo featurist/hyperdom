@@ -5,13 +5,11 @@ var router = require('./router')
 var StoreCache = require('./storeCache')
 var toVdom = require('./toVdom')
 
-module.exports = function(app, url) {
-  if (router.hasRoute(app, url)) {
-    return render(app, url)
-  }
+module.exports.hasRoute = function(app, url) {
+  return router.hasRoute(app, url)
 }
 
-function render(app, url) {
+module.exports.render = function(app, url) {
   var renderRequested = false
 
   var cache = new StoreCache()
