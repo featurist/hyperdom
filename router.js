@@ -1,5 +1,6 @@
 var makeBinding = require('./binding')
 var refreshify = require('./refreshify')
+var h = require('./rendering').html
 
 var router
 
@@ -7,12 +8,19 @@ function defaultRouter() {
   return router? router: exports.set()
 }
 
-exports.render = function(model) {
-  return defaultRouter().render(model)
+exports.render = function() {
+  var router = defaultRouter()
+  return router.render.apply(router, arguments)
 }
 
-exports.route = function(pattern) {
-  return defaultRouter().route(pattern)
+exports.route = function() {
+  var router = defaultRouter()
+  return router.route.apply(router, arguments)
+}
+
+exports.notFound = function() {
+  var router = defaultRouter()
+  return router.notFound.apply(router, arguments)
 }
 
 exports.set = function(options) {
@@ -32,7 +40,7 @@ function modelRoutes(model) {
   if (typeof model.routes === 'function') {
     return model.routes()
   } else {
-    throw new Error('for routing, hyperdom expects a model.routes() method to return route')
+    return []
   }
 }
 
@@ -67,15 +75,30 @@ Router.prototype.render = function(model) {
     if (action.render) {
       return action.render()
     }
+  } else {
+    return renderNotFound(url)
   }
 }
 
+function renderNotFound(url) {
+  return h('code', 'no route for ' + url)
+}
+
+Router.prototype.notFound = (function() {
+  var patternVariables = preparePattern('*')
+
+  return function(options) {
+    options.notFound = true
+    return new Route(patternVariables, options)
+  }
+})()
+
 Router.prototype.route = function(pattern) {
   var self = this
-  var patternVariables = preparePattern(pattern, true)
+  var patternVariables = preparePattern(pattern)
 
   function route(options) {
-    return new Route(route, patternVariables, options)
+    return new Route(patternVariables, options)
   }
 
   route.push = function(params) {
@@ -99,16 +122,17 @@ Router.prototype.route = function(pattern) {
 
 exports.hasRoute = function(model, url) {
   var routes = modelRoutes(model)
-  return !!routes.find(function (r) { return r.match(url) })
+  var route = routes.find(function (r) { return r.match(url) })
+
+  return !!route && !route.notFound
 }
 
-function Route(route, patternVariables, options) {
-  this.route = route
+function Route(patternVariables, options) {
   this.pattern = patternVariables.pattern
 
   this.variables = patternVariables.variables
   this.regex = patternVariables.regex
-  this.partialRegex = patternVariables.partialRegex
+  this.mountRegex = patternVariables.mountRegex
 
   this.mount = typeof options == 'object' && options.hasOwnProperty('mount')? options.mount: undefined;
   var params = typeof options == 'object' && options.hasOwnProperty('params')? options.params: undefined
@@ -144,17 +168,19 @@ function bindParams(params) {
 
 Route.prototype.match = function(url) {
   if (this.mount) {
-    var match = this.partialRegex.exec(url.split('?')[0])
+    var match = this.mountRegex.exec(url.split('?')[0])
 
-    var subRoutes = modelRoutes(this.mount)
-    var subMatch
-    var subRoute = subRoutes.find(function (r) { return subMatch = r.match(url) })
+    if (match) {
+      var subRoutes = modelRoutes(this.mount)
+      var subMatch
+      var subRoute = subRoutes.find(function (r) { return subMatch = r.match(url) })
 
-    if (subMatch) {
-      return {
-        baseMatch: match,
-        subRoute: subRoute,
-        subMatch: subMatch
+      if (subMatch) {
+        return {
+          baseMatch: match,
+          subRoute: subRoute,
+          subMatch: subMatch
+        }
       }
     }
   } else {
@@ -183,8 +209,10 @@ Route.prototype.set = function(url, match) {
     match = mountMatch.baseMatch
   }
 
+  var defaultParams = { url: url }
+
   var self = this
-  var params = this.urlParams(url, match)
+  var params = extend(this.urlParams(url, match), defaultParams)
 
   if (this.params) {
     Object.keys(this.params).forEach(function (key) {
@@ -230,6 +258,8 @@ function mountRender(baseRoute, render) {
 Route.prototype.get = function(url, match, baseParams) {
   var self = this
   var action
+  var defaultParams = { url: url }
+
   
   if (this.binding || baseParams || this.params) {
     var bindingParams = this.binding && this.binding.get? this.binding.get() || {}: {}
@@ -335,28 +365,32 @@ function escapeRegex(pattern) {
   return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-var splatVariableRegex = /(\:([a-z\-_]+)\\\*)/ig
-var variableRegex = /(:([-a-z_]+))/ig
-
 function compilePattern(pattern) {
+  var anyRegex = /\\\*/ig
+  var splatVariableRegex = /:[a-z\-_]+\\\*/ig
+  var variableRegex = /:[-a-z_]+/ig
+
   return escapeRegex(pattern)
     .replace(splatVariableRegex, "(.+)")
+    .replace(anyRegex, ".*")
     .replace(variableRegex, "([^\/]+)")
 }
 
 function preparePattern(pattern) {
   var match
-  var variableRegex = new RegExp('(:([-a-z_]+))', 'ig')
+  var variableRegex = new RegExp(':([-a-z_]+)', 'ig')
   var variables = []
 
   while ((match = variableRegex.exec(pattern))) {
-    variables.push(match[2])
+    variables.push(match[1])
   }
+
+  var compiledPattern = compilePattern(pattern)
 
   return {
     pattern: pattern,
-    regex: new RegExp('^' + compilePattern(pattern) + '$'),
-    partialRegex: new RegExp('^' + compilePattern(pattern)),
+    regex: new RegExp('^' + compiledPattern + '$'),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern.endsWith('/')? '': '(/|$)')),
     variables: variables
   }
 }

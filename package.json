@@ -9,11 +9,13 @@
     "virtual-dom": "2.1.1"
   },
   "devDependencies": {
+    "babel-preset-hyperdom": "^1.0.0",
     "benchmark": "2.1.0",
     "bluebird": "3.3.4",
     "browser-monkey": "1.28.2",
     "browserify": "14.1.0",
     "chai": "3.5.0",
+    "httpism": "^2.7.0",
     "jquery": "2.1.3",
     "jquery-sendkeys": "4.0.0",
     "jsdom": "8.2.0",

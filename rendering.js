@@ -51,7 +51,7 @@ exports.appendVDom = function (vdom, render, model, options) {
 };
 
 function startAttachment(render, model, options, attachToDom) {
-  if (typeof render == 'object' && typeof render.render == 'function') {
+  if (typeof render == 'object') {
     return start(render, attachToDom, model);
   } else {
     deprecations.renderFunction('hyperdom.append and hyperdom.replace with render functions are deprecated, please pass a ViewModel');
