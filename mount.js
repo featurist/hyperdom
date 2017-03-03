@@ -1,5 +1,5 @@
 var hyperdomMeta = require('./meta');
-var render = require('./render');
+var runRender = require('./render');
 var Set = require('./set');
 var refreshEventResult = require('./refreshEventResult')
 var vtext = require("virtual-dom/vnode/vtext.js")
@@ -52,19 +52,11 @@ Mount.prototype.queueRender = function () {
       self.renderQueued = false;
 
       if (self.mounted) {
-        render(self, function () {
-          if (self.mountRenderRequested) {
-            var vdom = self.render();
-            self.component.update(vdom);
-            self.mountRenderRequested = false;
-          } else if (self.widgetRendersRequested && self.widgetRendersRequested.length) {
-            for (var i = 0, l = self.widgetRendersRequested.length; i < l; i++) {
-              var w = self.widgetRendersRequested[i];
-              w.rerender();
-            }
-            self.widgetRendersRequested = undefined;
-          }
-        });
+        if (self.mountRenderRequested) {
+          self.rerenderImmediately()
+        } else if (self.widgetRendersRequested) {
+          self.rerenderWidgetsImmediately()
+        }
       }
     });
 
@@ -86,6 +78,28 @@ Mount.prototype.rerender = function () {
   this.queueRender();
 };
 
+Mount.prototype.rerenderImmediately = function() {
+  var self = this
+
+  runRender(self, function () {
+    var vdom = self.render();
+    self.component.update(vdom);
+    self.mountRenderRequested = false;
+  })
+}
+
+Mount.prototype.rerenderWidgetsImmediately = function() {
+  var self = this
+
+  runRender(self, function () {
+    for (var i = 0, l = self.widgetRendersRequested.length; i < l; i++) {
+      var w = self.widgetRendersRequested[i];
+      w.rerender();
+    }
+    self.widgetRendersRequested = undefined;
+  })
+}
+
 Mount.prototype.rerenderWidget = function (widget) {
   if (!this.widgetRendersRequested) {
     this.widgetRendersRequested = [];
@@ -101,6 +115,11 @@ Mount.prototype.setupViewModel = function(model) {
   model.rerender = function () {
     self.rerender();
   };
+
+  model.rerenderImmediately = function () {
+    self.rerenderImmediately();
+  };
+
   model.rerenderViewModel = function() {
     var meta = hyperdomMeta(this);
     meta.widgets.forEach(function (w) {
@@ -140,7 +159,7 @@ Mount.prototype._renderViewModel = function(model) {
 
     vdom.properties._hyperdomMeta = new PropertyHook({
       viewModel: model,
-      render: render.currentRender()
+      render: runRender.currentRender()
     });
   }
 

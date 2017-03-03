@@ -101,16 +101,19 @@ Router.prototype.route = function(pattern) {
     return new Route(patternVariables, options)
   }
 
-  route.push = function(params) {
+  route.push = function(params, options) {
     self.history.push(expand(patternVariables.pattern, params))
+    if (!(options && options.resetScroll == false)) {
+      window.scrollTo(0, 0)
+    }
   }
 
   route.replace = function(params) {
     self.history.replace(expand(patternVariables.pattern, params))
   }
 
-  route.href = function(params) {
-    return new HrefAttribute(route, params)
+  route.href = function(params, options) {
+    return new HrefAttribute(route, params, options)
   }
 
   route.url = function(params) {
@@ -448,12 +451,22 @@ exports.historyApi = {
     this.started = true
     this.active = true
 
-    window.addEventListener('popstate', function(ev) {
+    window.addEventListener('popstate', function() {
       if (self.active) {
-        self.popstate = true
-        self.popstateState = ev.state
         if (model) {
-          model.rerender()
+          model.rerenderImmediately()
+
+          // hack!
+          // Chrome 56.0.2924.87 (64-bit)
+          // explanation:
+          // when you move back and forward in history the browser will remember the scroll
+          // positions at each URL and then restore those scroll positions when you come
+          // back to that URL, just like in normal navigation
+          // However, the trick is to rerender the page so that it has the correct height
+          // before that scroll takes place, which is what we do with model.rerenderImmediately()
+          // also, it seems that its necessary to call document.body.clientHeight to force it
+          // to layout the page before attempting set the scroll position
+          document.body.clientHeight
         }
       }
     })
@@ -479,11 +492,11 @@ exports.historyApi = {
   }
 }
 
-function HrefAttribute(route, params) {
+function HrefAttribute(route, params, options) {
   this.href = route.url(params)
   this.onclick = refreshify(function(event) {
     if (!event.metaKey) {
-      route.push(params)
+      route.push(params, options)
       event.preventDefault()
     }
   })
