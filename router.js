@@ -1,11 +1,16 @@
 var makeBinding = require('./binding')
 var refreshify = require('./refreshify')
+var runRender = require('./render')
 var h = require('./rendering').html
 
 var router
 
 function defaultRouter() {
   return router? router: exports.set()
+}
+
+exports.reset = function() {
+  defaultRouter().reset()
 }
 
 exports.render = function() {
@@ -32,13 +37,26 @@ exports.create = function(options) {
 }
 
 function Router(options) {
-  var history = typeof options == 'object' && options.hasOwnProperty('history')? options.history: exports.historyApi;
+  var history = typeof options == 'object' && options.hasOwnProperty('history')? options.history: new HistoryApi();
   this.history = history
 }
 
-function modelRoutes(model) {
+Router.prototype.reset = function() {
+  this.history.reset()
+}
+
+function modelRoutes(model, isModel) {
+  if (isModel) {
+    runRender.currentRender().mount.setupModelComponent(model)
+  }
+
   if (typeof model.routes === 'function') {
-    return model.routes()
+    var routes = model.routes()
+    if (routes instanceof Object && typeof routes.routes === 'function') {
+      return modelRoutes(routes, true)
+    } else {
+      return routes
+    }
   } else {
     return []
   }
@@ -48,7 +66,7 @@ Router.prototype.render = function(model) {
   this.history.start(model)
 
   var url = this.history.url()
-  var routes = modelRoutes(model)
+  var routes = modelRoutes(model, true)
 
   var action
   if (this.lastUrl != url) {
@@ -76,12 +94,12 @@ Router.prototype.render = function(model) {
       return action.render()
     }
   } else {
-    return renderNotFound(url)
+    return renderNotFound(url, routes)
   }
 }
 
-function renderNotFound(url) {
-  return h('code', 'no route for ' + url)
+function renderNotFound(url, routes) {
+  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern; }).join('\n')))
 }
 
 Router.prototype.notFound = (function() {
@@ -124,7 +142,7 @@ Router.prototype.route = function(pattern) {
 }
 
 exports.hasRoute = function(model, url) {
-  var routes = modelRoutes(model)
+  var routes = modelRoutes(model, true)
   var route = routes.find(function (r) { return r.match(url) })
 
   return !!route && !route.notFound
@@ -137,13 +155,11 @@ function Route(patternVariables, options) {
   this.regex = patternVariables.regex
   this.mountRegex = patternVariables.mountRegex
 
-  this.mount = typeof options == 'object' && options.hasOwnProperty('mount')? options.mount: undefined;
-  var params = typeof options == 'object' && options.hasOwnProperty('params')? options.params: undefined
-  this.params = params? bindParams(params): undefined
-  var binding = typeof options == 'object' && options.hasOwnProperty('binding')? options.binding: undefined
-  this.binding = binding? makeBinding(binding): undefined
+  this.routes = typeof options == 'object' && options.hasOwnProperty('routes')? options.routes: undefined;
+  var bindings = typeof options == 'object' && options.hasOwnProperty('bindings')? options.bindings: undefined
+  this.bindings = bindings? bindParams(bindings): undefined
   this.onload = typeof options == 'object' && options.hasOwnProperty('onload')? options.onload: undefined
-  this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.mount? undefined: function () {})
+  this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.routes? function(inner) { return inner }: function () {})
   var push = typeof options == 'object' && options.hasOwnProperty('push')? options.push: undefined
 
   if (typeof push === 'function') {
@@ -170,22 +186,8 @@ function bindParams(params) {
 }
 
 Route.prototype.match = function(url) {
-  if (this.mount) {
-    var match = this.mountRegex.exec(url.split('?')[0])
-
-    if (match) {
-      var subRoutes = modelRoutes(this.mount)
-      var subMatch
-      var subRoute = subRoutes.find(function (r) { return subMatch = r.match(url) })
-
-      if (subMatch) {
-        return {
-          baseMatch: match,
-          subRoute: subRoute,
-          subMatch: subMatch
-        }
-      }
-    }
+  if (this.routes) {
+    return this.mountRegex.exec(url.split('?')[0])
   } else {
     return this.regex.exec(url.split('?')[0])
   }
@@ -206,20 +208,12 @@ Route.prototype.urlParams = function(url, _match) {
 }
 
 Route.prototype.set = function(url, match) {
-  var mountMatch
-  if (this.mount) {
-    mountMatch = match
-    match = mountMatch.baseMatch
-  }
-
-  var defaultParams = { url: url }
-
   var self = this
-  var params = extend(this.urlParams(url, match), defaultParams)
+  var params = extend(this.urlParams(url, match), {url: url})
 
-  if (this.params) {
-    Object.keys(this.params).forEach(function (key) {
-      var binding = self.params[key]
+  if (this.bindings) {
+    Object.keys(this.bindings).forEach(function (key) {
+      var binding = self.bindings[key]
 
       if (binding && binding.set) {
         binding.set(params[key])
@@ -227,20 +221,13 @@ Route.prototype.set = function(url, match) {
     })
   }
 
-  if (this.binding && this.binding.set) {
-    this.binding.set(params)
-  }
-
   if (this.onload) {
     refreshify(function () { return self.onload(params) }, {refresh: 'proimse'})()
   }
 
-  if (this.mount) {
-    var action = mountMatch.subRoute.set(url, mountMatch.subMatch)
-
-    return {
-      render: mountRender(this, action.render)
-    }
+  if (this.routes) {
+    var routes = modelRoutes(this)
+    return this.wrapAction(setUrl(url, routes))
   } else {
     return {
       render: this.render.bind(this)
@@ -248,68 +235,50 @@ Route.prototype.set = function(url, match) {
   }
 }
 
-function mountRender(baseRoute, render) {
+function subRender(outerRender, innerRender) {
   return function() {
-    if (baseRoute.render) {
-      return baseRoute.render(render())
-    } else {
-      return render()
-    }
+    return outerRender(innerRender())
   }
+}
+
+Route.prototype.wrapAction = function(action) {
+  var innerRender = action.render
+  var outerRender = this.render
+  action.render = function() {
+    return outerRender(innerRender())
+  }
+  return action
 }
 
 Route.prototype.get = function(url, match, baseParams) {
   var self = this
   var action
-  var defaultParams = { url: url }
-
+  var routes
   
-  if (this.binding || baseParams || this.params) {
-    var bindingParams = this.binding && this.binding.get? this.binding.get() || {}: {}
-
-    var paramsParams = {}
-    Object.keys(this.params).forEach(function (key) {
-      var binding = self.params[key]
+  if (this.bindings) {
+    var params = {}
+    Object.keys(this.bindings).forEach(function (key) {
+      var binding = self.bindings[key]
 
       if (binding && binding.get) {
-        paramsParams[key] = binding.get()
+        params[key] = binding.get()
       }
     })
 
-    var params = extend(extend(baseParams || {}, paramsParams), bindingParams)
     var newUrl = expand(this.pattern, params)
     var oldParams = this.urlParams(url)
     var newParams = this.urlParams(newUrl)
     var push = this.push(oldParams, newParams)
+  }
 
-    if (this.mount) {
-      action = match.subRoute.get(url, undefined, params)
-
-      return {
-        url: action.url,
-        push: push || action.push,
-        render: mountRender(this, action.render)
-      }
-    } else {
-      return {
-        url: newUrl,
-        push: push,
-        render: this.render.bind(this)
-      }
-    }
+  if (this.routes) {
+    routes = modelRoutes(this)
+    return this.wrapAction(getUrl(url, routes))
   } else {
-    if (this.mount) {
-      action = match.subRoute.get(url)
-
-      return {
-        url: action.url,
-        push: action.push,
-        render: mountRender(this, action.render)
-      }
-    } else {
-      return {
-        render: this.render.bind(this)
-      }
+    return {
+      url: newUrl,
+      push: push,
+      render: this.render.bind(this)
     }
   }
 }
@@ -393,7 +362,7 @@ function preparePattern(pattern) {
   return {
     pattern: pattern,
     regex: new RegExp('^' + compiledPattern + '$'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern.endsWith('/')? '': '(/|$)')),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern.endsWith('/')? '': '/|$')),
     variables: variables
   }
 }
@@ -442,54 +411,58 @@ exports.querystring = {
   }
 }
 
-exports.historyApi = {
-  start: function (model) {
-    var self = this
-    if (this.started) {
-      return
-    }
-    this.started = true
-    this.active = true
+var HistoryApi = function() {
+}
 
-    window.addEventListener('popstate', function() {
-      if (self.active) {
-        if (model) {
-          model.rerenderImmediately()
-
-          // hack!
-          // Chrome 56.0.2924.87 (64-bit)
-          // explanation:
-          // when you move back and forward in history the browser will remember the scroll
-          // positions at each URL and then restore those scroll positions when you come
-          // back to that URL, just like in normal navigation
-          // However, the trick is to rerender the page so that it has the correct height
-          // before that scroll takes place, which is what we do with model.rerenderImmediately()
-          // also, it seems that its necessary to call document.body.clientHeight to force it
-          // to layout the page before attempting set the scroll position
-          document.body.clientHeight
-        }
-      }
-    })
-  },
-  stop: function () {
-    // I _think_ this is a chrome bug
-    // if we removeEventListener then history.back() doesn't work
-    // Chrome Version 43.0.2357.81 (64-bit), Mac OS X 10.10.3
-    // yeah...
-    this.active = false
-  },
-  url: function () {
-    return window.location.pathname + window.location.search
-  },
-  push: function (url) {
-    window.history.pushState(undefined, undefined, url)
-  },
-  state: function (state) {
-    window.history.replaceState(state)
-  },
-  replace: function (url) {
-    window.history.replaceState(undefined, undefined, url)
+HistoryApi.prototype.start = function (model) {
+  if (this.started) {
+    return
   }
+  this.started = true
+
+  window.addEventListener('popstate', this.listener = function() {
+    if (model) {
+      model.rerenderImmediately()
+
+      // hack!
+      // Chrome 56.0.2924.87 (64-bit)
+      // explanation:
+      // when you move back and forward in history the browser will remember the scroll
+      // positions at each URL and then restore those scroll positions when you come
+      // back to that URL, just like in normal navigation
+      // However, the trick is to rerender the page so that it has the correct height
+      // before that scroll takes place, which is what we do with model.rerenderImmediately()
+      // also, it seems that its necessary to call document.body.clientHeight to force it
+      // to layout the page before attempting set the scroll position
+      document.body.clientHeight
+    }
+  })
+}
+
+HistoryApi.prototype.reset = function() {
+  this.stop()
+  this.started = false
+  this.active = false
+}
+
+HistoryApi.prototype.stop = function () {
+  window.removeEventListener('popstate', this.listener)
+}
+
+HistoryApi.prototype.url = function () {
+  return window.location.pathname + window.location.search
+}
+
+HistoryApi.prototype.push = function (url) {
+  window.history.pushState(undefined, undefined, url)
+}
+
+HistoryApi.prototype.state = function (state) {
+  window.history.replaceState(state)
+}
+
+HistoryApi.prototype.replace = function (url) {
+  window.history.replaceState(undefined, undefined, url)
 }
 
 function HrefAttribute(route, params, options) {

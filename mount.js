@@ -66,7 +66,7 @@ Mount.prototype.queueRender = function () {
 
 Mount.prototype.render = function() {
   if (this.router) {
-    this.setupViewModel(this.model)
+    this.setupModelComponent(this.model)
     return this.router.render(this.model)
   } else {
     return this.renderViewModel(this.model)
@@ -109,43 +109,38 @@ Mount.prototype.rerenderWidget = function (widget) {
   this.queueRender();
 };
 
-Mount.prototype.setupViewModel = function(model) {
+Mount.prototype.setupModelComponent = function(model) {
   var self = this;
 
-  model.rerender = function () {
-    self.rerender();
-  };
-
-  model.rerenderImmediately = function () {
-    self.rerenderImmediately();
-  };
-
-  model.rerenderViewModel = function() {
-    var meta = hyperdomMeta(this);
-    meta.widgets.forEach(function (w) {
-      self.rerenderWidget(w);
-    });
-  };
-
   var meta = hyperdomMeta(model);
+
   if (!meta.mount) {
     meta.mount = this;
-  }
-
-  if (!meta.widgets) {
     meta.widgets = new Set();
-  }
 
-  if (typeof model.onload == 'function') {
-    if (!meta.loaded) {
-      meta.loaded = true;
+    model.rerender = function () {
+      self.rerender();
+    };
+
+    model.rerenderImmediately = function () {
+      self.rerenderImmediately();
+    };
+
+    model.rerenderViewModel = function() {
+      var meta = hyperdomMeta(this);
+      meta.widgets.forEach(function (w) {
+        self.rerenderWidget(w);
+      });
+    };
+
+    if (typeof model.onload == 'function') {
       this.refreshify(function () { return model.onload(); }, {refresh: 'promise'})();
     }
   }
 }
 
 Mount.prototype._renderViewModel = function(model) {
-  this.setupViewModel(model)
+  this.setupModelComponent(model)
   var vdom = typeof model.render == 'function'? model.render(): new vtext(JSON.stringify(model))
 
   if (vdom instanceof Array) {
