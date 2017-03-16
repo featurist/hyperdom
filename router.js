@@ -18,6 +18,10 @@ exports.render = function() {
   return router.render.apply(router, arguments)
 }
 
+exports.url = function() {
+  return defaultRouter().url()
+}
+
 exports.route = function() {
   var router = defaultRouter()
   return router.route.apply(router, arguments)
@@ -42,6 +46,7 @@ function Router(options) {
 }
 
 Router.prototype.reset = function() {
+  this.lastUrl = undefined
   this.history.reset()
 }
 
@@ -62,35 +67,51 @@ function modelRoutes(model, isModel) {
   }
 }
 
+Router.prototype.url = function() {
+  return this.history.url()
+}
+
 Router.prototype.render = function(model) {
+  var self = this
   this.history.start(model)
 
-  var url = this.history.url()
-  var routes = modelRoutes(model, true)
+  function renderUrl(redirects) {
+    var url = self.history.url()
+    var routes = modelRoutes(model, true)
 
-  var action
-  if (this.lastUrl != url) {
-    action = setUrl(url, routes)
-  } else {
-    action = getUrl(url, routes)
-  }
+    var action
+    if (self.lastUrl != url) {
+      action = setUrl(url, routes)
+    } else {
+      action = getUrl(url, routes)
+    }
 
-  if (action) {
-    if (action.url) {
-      if (this.lastUrl != action.url) {
-        this.history.replace(action.url)
-        this.lastUrl = this.history.url()
+    if (action) {
+      if (action.url) {
+        if (self.lastUrl != action.url) {
+          self.history.replace(action.url)
+          self.lastUrl = self.history.url()
+        }
+      } else if (action.redirect) {
+        if (redirects.length > 10) {
+          throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
+        }
+        self.history.replace(action.redirect)
+        redirects.push(url)
+        return renderUrl(redirects)
+      } else {
+        self.lastUrl = url
+      }
+
+      if (action.render) {
+        return action.render()
       }
     } else {
-      this.lastUrl = url
+      return renderNotFound(url, routes)
     }
-
-    if (action.render) {
-      return action.render()
-    }
-  } else {
-    return renderNotFound(url, routes)
   }
+
+  return renderUrl([])
 }
 
 function renderNotFound(url, routes) {
@@ -155,6 +176,7 @@ function Route(patternVariables, options) {
   this.bindings = bindings? bindParams(bindings): undefined
   this.onload = typeof options == 'object' && options.hasOwnProperty('onload')? options.onload: undefined
   this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.routes? function(inner) { return inner }: function () {})
+  this.redirect = typeof options == 'object' && options.hasOwnProperty('redirect')? options.redirect: undefined
 }
 
 function bindParams(params) {
@@ -191,7 +213,16 @@ Route.prototype.urlParams = function(url, _match) {
 
 Route.prototype.set = function(url, match) {
   var self = this
-  var params = extend(this.urlParams(url, match), {url: url})
+  var params = this.urlParams(url, match)
+
+  if (this.redirect) {
+    var url = this.redirect(params)
+    if (url) {
+      return {
+        redirect: url
+      }
+    }
+  }
 
   if (this.bindings) {
     Object.keys(this.bindings).forEach(function (key) {

@@ -210,6 +210,70 @@ describe('router', function () {
     })
   })
 
+  describe('redirect', function () {
+    var app
+    var a
+    var b
+
+    context('app with redirect', function () {
+      var redirectBack
+
+      beforeEach(function () {
+        redirectBack = false
+
+        a = router.route('/a')
+        b = router.route('/b')
+
+        app = {
+          routes: function () {
+            var self = this
+
+            return [
+              a({
+                redirect: function (params) {
+                  console.log('a redirect');
+                  return b.url(params)
+                }
+              }),
+
+              b({
+                bindings: {
+                  b: [this, 'b']
+                },
+
+                redirect: function (params) {
+                  console.log('b redirect', redirectBack);
+                  if (redirectBack) {
+                    return a.url(params)
+                  }
+                },
+
+                render: function () {
+                  return h('h1', 'b = ' + self.b)
+                }
+              })
+            ]
+          }
+        }
+      })
+
+      it('redirects from one route to another', function () {
+        var monkey = mount(app, {url: '/a?b=x', router: router})
+
+        return monkey.find('h1').shouldHave({text: 'b = x'}).then(function () {
+          expect(router.url()).to.equal('/b?b=x')
+        })
+      })
+
+      it('throws error if redirects more than 10 times', function () {
+        redirectBack = true
+        expect(function () {
+          mount(app, {url: '/a?b=x', router: router})
+        }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
+      })
+    })
+  })
+
   describe('sub routes', function () {
     var events
 
@@ -286,7 +350,7 @@ describe('router', function () {
         var monkey = mount(app, {url: '/a/b', router: router})
 
         expect(events).to.eql([
-          ['outer onload', {a: 'a', url: '/a/b'}],
+          ['outer onload', {a: 'a'}],
           ['outer routes'],
           ['outer render']
         ])
@@ -306,7 +370,7 @@ describe('router', function () {
           ])
         }).then(function () {
           expect(events).to.eql([
-            ['outer onload', {a: 'a', url: '/a/c'}],
+            ['outer onload', {a: 'a'}],
             ['outer routes'],
             ['outer render']
           ])
