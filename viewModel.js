@@ -30,9 +30,18 @@ ViewModel.prototype.init = function () {
     self.model.onbeforeadd()
   }
 
-  if (self.model.onadd) {
+  if (self.model.onbeforeadd) {
+    self.model.onbeforerender()
+  }
+
+  if (self.model.onadd || self.model.onrender) {
     this.currentRender.finished.then(function () {
-      self.model.onadd(element);
+      if (self.model.onadd) {
+        self.model.onadd(self.component.element);
+      }
+      if (self.model.onrender) {
+        self.model.onrender(self.component.element);
+      }
     });
   }
 
@@ -55,16 +64,27 @@ ViewModel.prototype.update = function (previous) {
     this.model = previous.model;
   }
 
-  if (self.model.onupdate) {
+
+  if (self.model.onupdate || self.model.onrender) {
     this.currentRender.finished.then(function () {
-      self.model.onupdate(self.component.element);
+      if (self.model.onupdate) {
+        self.model.onupdate(self.component.element, oldElement);
+      }
+      if (self.model.onrender) {
+        self.model.onrender(self.component.element, oldElement);
+      }
     });
   }
 
   this.component = previous.component;
+  var oldElement = this.component.element
 
   if (self.model.onbeforeupdate) {
-    self.model.onbeforeupdate(this.component.element)
+    self.model.onbeforeupdate(oldElement)
+  }
+
+  if (self.model.onbeforeadd) {
+    self.model.onbeforerender(oldElement)
   }
 
   var element = this.component.update(this.render());

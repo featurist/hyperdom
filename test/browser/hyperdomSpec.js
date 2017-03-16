@@ -1654,13 +1654,21 @@ describe('hyperdom', function () {
                   this.lastState = 'add'
                 },
 
+                onbeforerender: function (element) {
+                  events.push(['onbeforerender', element? element.innerHTML: null, this.data, this.lastState])
+                },
+
+                onrender: function (element, oldElement) {
+                  events.push(['onrender', element.innerHTML, oldElement? oldElement.innerHTML: null, this.data, this.lastState])
+                },
+
                 onbeforeupdate: function (element) {
                   events.push(['onbeforeupdate', element.innerHTML, this.data, this.lastState])
                   this.lastState = 'beforeupdate'
                 },
 
-                onupdate: function (element) {
-                  events.push(['onupdate', element.innerHTML, this.data, this.lastState])
+                onupdate: function (element, oldElement) {
+                  events.push(['onupdate', element.innerHTML, oldElement.innerHTML, this.data, this.lastState])
                   this.lastState = 'update'
                 },
 
@@ -1699,7 +1707,9 @@ describe('hyperdom', function () {
       return monitor.waitForRenderAfter(click('button.add')).then(function () {
         expect(events).to.eql([
           ['onbeforeadd', monitor.renderCount],
-          ['onadd', elementHtml(), monitor.renderCount, 'beforeadd']
+          ['onbeforerender', null, monitor.renderCount, 'beforeadd'],
+          ['onadd', elementHtml(), monitor.renderCount, 'beforeadd'],
+          ['onrender', elementHtml(), null, monitor.renderCount, 'add']
         ])
         events = []
 
@@ -1707,7 +1717,9 @@ describe('hyperdom', function () {
       }).then(function () {
         expect(events).to.eql([
           ['onbeforeupdate', oldElementHtml(), monitor.renderCount, 'add'],
-          ['onupdate', elementHtml(), monitor.renderCount, 'beforeupdate']
+          ['onbeforerender', oldElementHtml(), monitor.renderCount, 'beforeupdate'],
+          ['onupdate', elementHtml(), elementHtml(), monitor.renderCount, 'beforeupdate'],
+          ['onrender', elementHtml(), elementHtml(), monitor.renderCount, 'update']
         ])
         events = []
 
