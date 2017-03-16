@@ -78,12 +78,7 @@ Router.prototype.render = function(model) {
   if (action) {
     if (action.url) {
       if (this.lastUrl != action.url) {
-        if (action.push) {
-          this.history.push(action.url)
-        } else {
-          this.history.replace(action.url)
-        }
-
+        this.history.replace(action.url)
         this.lastUrl = this.history.url()
       }
     } else {
@@ -160,19 +155,6 @@ function Route(patternVariables, options) {
   this.bindings = bindings? bindParams(bindings): undefined
   this.onload = typeof options == 'object' && options.hasOwnProperty('onload')? options.onload: undefined
   this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.routes? function(inner) { return inner }: function () {})
-  var push = typeof options == 'object' && options.hasOwnProperty('push')? options.push: undefined
-
-  if (typeof push === 'function') {
-    this.push = push
-  } else if (push instanceof Object) {
-    this.push = function (oldParams, newParams) {
-      return Object.keys(push).some(function (key) {
-        return push[key] && (oldParams.hasOwnProperty(key) || newParams.hasOwnProperty(key)) && oldParams[key] !== newParams[key]
-      })
-    }
-  } else {
-    this.push = function () { return push }
-  }
 }
 
 function bindParams(params) {
@@ -268,7 +250,6 @@ Route.prototype.get = function(url, match, baseParams) {
     var newUrl = expand(this.pattern, params)
     var oldParams = this.urlParams(url)
     var newParams = this.urlParams(newUrl)
-    var push = this.push(oldParams, newParams)
   }
 
   if (this.routes) {
@@ -277,7 +258,6 @@ Route.prototype.get = function(url, match, baseParams) {
   } else {
     return {
       url: newUrl,
-      push: push,
       render: this.render.bind(this)
     }
   }
