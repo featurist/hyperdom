@@ -1480,7 +1480,8 @@ describe('hyperdom', function () {
   });
 
   describe('hyperdom.binding', function () {
-    var refreshCalled;
+    this.timeout(2000)
+    var refreshCalled
 
     beforeEach(function () {
       refreshCalled = false;
@@ -1510,19 +1511,55 @@ describe('hyperdom', function () {
       expect(refreshCalled).to.equal(v);
     }
 
-    function expectPromiseToRefresh(options, before, after) {
-      hyperdom.binding({
+    function expectPromiseToRefreshWithOptions(options, expectations) {
+      var binding = hyperdom.binding({
         set: function () {
-          return wait(10);
+          return wait(10)
         }
-      }, options).set('value');
-      expect(refreshCalled).to.equal(before);
+      }, options)
+
+      return expectPromiseToRefreshWithBinding(binding, expectations)
+    }
+
+    function expectPromiseToRefreshWithBinding(binding, expectations) {
+      binding.set('value');
+
+      expect(refreshCalled).to.equal(expectations.immediately);
       refreshCalled = false;
 
       return wait(20).then(function () {
-        expect(refreshCalled).to.equal(after);
+        expect(refreshCalled).to.equal(expectations.afterPromise);
       });
     }
+
+    describe('setters', function () {
+      it('calls setter and refreshes after promise is returned', function () {
+        var set = false
+        var promiseSet = false
+
+        var object = {
+          property: 'oldValue'
+        }
+
+        return expectPromiseToRefreshWithBinding(hyperdom.binding([object, 'property', function (value) {
+          set = value
+          return wait(10).then(function () {
+            promiseSet = value
+          })
+        }]), {immediately: true, afterPromise: true}).then(function () {
+          expect(set).to.equal('value')
+          expect(promiseSet).to.equal('value')
+        })
+      })
+    })
+
+    describe('validation', function () {
+      it('throws if a string is passed', function () {
+        expect(function () {
+          hyperdom.binding('asdf')
+        }).to.throw(/bindings must be.*or an object.*asdf/)
+      })
+    })
 
     context('normal', function () {
       it('normally calls refresh', function () {
@@ -1530,7 +1567,7 @@ describe('hyperdom', function () {
       });
 
       it('normally calls refresh, even after a promise', function () {
-        return expectPromiseToRefresh(undefined, true, true);
+        return expectPromiseToRefreshWithOptions(undefined, {immediately: true, afterPromise: true});
       });
     });
 
@@ -1571,7 +1608,7 @@ describe('hyperdom', function () {
       });
 
       it('never calls refresh, even after promise', function () {
-        return expectPromiseToRefresh({norefresh: true}, false, false);
+        return expectPromiseToRefreshWithOptions({norefresh: true}, {immediately: false, afterPromise: false});
       });
     });
 
@@ -1581,7 +1618,7 @@ describe('hyperdom', function () {
       });
 
       it('never calls refresh, even after promise', function () {
-        return expectPromiseToRefresh({refresh: false}, false, false);
+        return expectPromiseToRefreshWithOptions({refresh: false}, {immediately: false, afterPromise: false});
       });
     });
 
@@ -1591,7 +1628,7 @@ describe('hyperdom', function () {
       });
 
       it("doesn't call refresh, but does after a promise", function () {
-        return expectPromiseToRefresh({refresh: 'promise'}, false, true);
+        return expectPromiseToRefreshWithOptions({refresh: 'promise'}, {immediately: false, afterPromise: true});
       });
     });
   });

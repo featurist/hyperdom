@@ -6,6 +6,10 @@ module.exports = function(b, options) {
 
   if (b instanceof Array) {
     binding = bindingObject.apply(undefined, b)
+  } else if (b instanceof Object && (typeof b.set === 'function' || typeof b.get === 'function')) {
+    binding = b
+  } else {
+    throw Error('hyperdom bindings must be either an array [object, property, setter] or an object { get(), set(value) }, instead binding was: ' + JSON.stringify(b))
   }
 
   binding.set = refreshify(binding.set, options);
