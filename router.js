@@ -22,6 +22,14 @@ exports.url = function() {
   return defaultRouter().url()
 }
 
+exports.push = function(url) {
+  return defaultRouter().push(url)
+}
+
+exports.replace = function(url) {
+  return defaultRouter().replace(url)
+}
+
 exports.route = function() {
   var router = defaultRouter()
   return router.route.apply(router, arguments)
@@ -117,6 +125,14 @@ Router.prototype.render = function(model) {
 
   return renderUrl([])
 }
+
+Router.prototype.push = function(url) {
+  this.history.push(url)
+};
+
+Router.prototype.replace = function(url) {
+  this.history.replace(url)
+};
 
 function renderNotFound(url, routes) {
   return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern; }).join('\n')))

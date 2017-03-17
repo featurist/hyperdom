@@ -7,25 +7,27 @@ var h = require('../..').html
 var expect = require('chai').expect
 
 describeRouter('hash')
-describeRouter('pushState')
+if (window.history && window.history.pushState) {
+  describeRouter('pushState')
+}
 
 function describeRouter(historyApi) {
-  function mount(app, url) {
-    var options = {router: router}
-
-    if (historyApi == 'hash') {
-      options.hash = url.replace(/^\//, '')
-    } else {
-      options.url = url
-    }
-
-    return mountMonkey(app, options)
-  }
-
-  describe('router', function () {
+  describe('router (' + historyApi + ')', function () {
     after(function () {
       reloadButton()
     })
+
+    function mount(app, url) {
+      var options = {router: router}
+
+      if (historyApi == 'hash') {
+        options.hash = url
+      } else {
+        options.url = url
+      }
+
+      return mountMonkey(app, options)
+    }
 
     function resetRouter() {
       if (historyApi == 'hash') {
@@ -249,6 +251,7 @@ function describeRouter(historyApi) {
         beforeEach(function () {
           redirectBack = false
 
+          var home = router.route('/')
           a = router.route('/a')
           b = router.route('/b')
 
@@ -257,6 +260,12 @@ function describeRouter(historyApi) {
               var self = this
 
               return [
+                home({
+                  render: function () {
+                    return h('h1', 'home')
+                  }
+                }),
+
                 a({
                   redirect: function (params) {
                     return b.url(params)
@@ -294,20 +303,24 @@ function describeRouter(historyApi) {
         describe('recursive redirects', function () {
           it('throws error if redirects more than 10 times', function () {
             redirectBack = true
+            var monkey = mount(app, '/')
+            a.push({b: 'x'})
             expect(function () {
-              mount(app, '/a?b=x')
+              app.rerenderImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
-            // the recursive redirects test pushes a lot of URLs
-            // in the hash form, this generates a lot of hashchange
-            // events, which disrupts the next test
-            //
-            // here we mount the app, push a new hash and wait for
-            // all the previous hashchanges to run out
-            resetRouter()
-            redirectBack = false
-            var monkey = mount(app, '/a?b=y')
-            return monkey.find('h1').shouldHave({text: 'b = y'})
+            if (historyApi == 'hash') {
+              // the recursive redirects test pushes a lot of URLs
+              // in the hash form, this generates a lot of hashchange
+              // events, which disrupts the next test
+              //
+              // here we mount the app, push a new hash and wait for
+              // all the previous hashchanges to run out
+              // resetRouter()
+              redirectBack = false
+              a.push({b: 'y'})
+              return monkey.find('h1').shouldHave({text: 'b = y'})
+            }
           })
         })
       })

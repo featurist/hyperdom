@@ -38,6 +38,7 @@
   },
   "scripts": {
     "test": "npm run karma && npm run mocha",
+    "test-all": "BROWSERS=all npm test",
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",
     "build": "browserify browser.js > hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
