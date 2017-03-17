@@ -33,6 +33,9 @@ exports.notFound = function() {
 }
 
 exports.set = function(options) {
+  if (router) {
+    router.reset()
+  }
   return router = new Router(options)
 }
 
@@ -85,6 +88,7 @@ Router.prototype.render = function(model) {
     } else {
       action = getUrl(url, routes)
     }
+
 
     if (action) {
       if (action.url) {
@@ -159,9 +163,8 @@ Router.prototype.route = function(pattern) {
 
 exports.hasRoute = function(model, url) {
   var routes = modelRoutes(model, true)
-  var route = routes.find(function (r) { return r.match(url) })
-
-  return !!route && !route.notFound
+  var match = findMatch(url, routes)
+  return !!match && !match.route.notFound
 }
 
 function Route(patternVariables, options) {
@@ -183,7 +186,7 @@ function bindParams(params) {
   var bindings = {}
 
   Object.keys(params).forEach(function (key) {
-    bindings[key] = makeBinding(params[key])
+    bindings[key] = makeBinding(params[key], {refresh: 'promise'})
   })
 
   return bindings
@@ -235,7 +238,9 @@ Route.prototype.set = function(url, match) {
   }
 
   if (this.onload) {
-    refreshify(function () { return self.onload(params) }, {refresh: 'proimse'})()
+    refreshify(function () {
+      return self.onload(params)
+    }, {refresh: 'promise'})()
   }
 
   if (this.routes) {
@@ -278,9 +283,8 @@ Route.prototype.get = function(url, match, baseParams) {
       }
     })
 
-    var newUrl = expand(this.pattern, params)
     var oldParams = this.urlParams(url)
-    var newParams = this.urlParams(newUrl)
+    var newUrl = expand(this.pattern, extend(oldParams, params))
   }
 
   if (this.routes) {
@@ -373,24 +377,36 @@ function preparePattern(pattern) {
   return {
     pattern: pattern,
     regex: new RegExp('^' + compiledPattern + '$'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern.endsWith('/')? '': '/|$')),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/'? '': '/|$')),
     variables: variables
   }
 }
 
 function setUrl(url, routes) {
-  var match
-  var route = routes.find(function (r) { return match = r.match(url) })
-  if (route) {
-    return route.set(url, match)
+  var match = findMatch(url, routes)
+  if (match) {
+    return match.route.set(url, match.match)
+  }
+}
+
+function findMatch(url, routes) {
+  for (var r = 0, l = routes.length; r < l; r++) {
+    var route = routes[r];
+    var match
+
+    if (match = route.match(url)) {
+      return {
+        route: route,
+        match: match
+      }
+    }
   }
 }
 
 function getUrl(url, routes) {
-  var match
-  var route = routes.find(function (r) { return match = r.match(url) })
-  if (route) {
-    return route.get(url, match)
+  var match = findMatch(url, routes)
+  if (match) {
+    return match.route.get(url, match.match)
   }
 }
 
@@ -453,7 +469,6 @@ HistoryApi.prototype.start = function (model) {
 HistoryApi.prototype.reset = function() {
   this.stop()
   this.started = false
-  this.active = false
 }
 
 HistoryApi.prototype.stop = function () {
@@ -474,6 +489,74 @@ HistoryApi.prototype.state = function (state) {
 
 HistoryApi.prototype.replace = function (url) {
   window.history.replaceState(undefined, undefined, url)
+}
+
+exports.historyApi = function () {
+  return new HistoryApi()
+}
+
+var lastId = 0
+
+function Hash () {
+  this.id = ++lastId
+}
+
+Hash.prototype.start = function (model) {
+  var self = this;
+  if (this.started) {
+    return
+  }
+  this.started = true
+  this.active = true
+
+  this.hashchangeListener = function(event) {
+    if (self.active) {
+      if (!self.pushed) {
+        if (model) {
+          model.rerenderImmediately()
+        }
+      } else {
+        self.pushed = false;
+      }
+    }
+  }
+  window.addEventListener('hashchange', this.hashchangeListener);
+}
+
+Hash.prototype.stop = function () {
+  this.active = false
+  window.removeEventListener('hashchange', this.hashchangeListener);
+}
+
+Hash.prototype.reset = function() {
+  this.stop()
+  this.started = false
+};
+
+Hash.prototype.url = function() {
+  var path = window.location.hash || '#';
+
+  var m = /^#(.*?)(\?.*)?$/.exec(path);
+  var pathname = m[1]
+  var search = m[2]
+
+  return '/' + pathname + (search? search: '')
+};
+
+Hash.prototype.push = function(url) {
+  this.pushed = true;
+  window.location.hash = url.replace(/^\//, '');
+};
+
+Hash.prototype.state = function() {
+};
+
+Hash.prototype.replace = function(url) {
+  return this.push(url);
+};
+
+exports.hash = function () {
+  return new Hash()
 }
 
 function HrefAttribute(route, params, options) {
