@@ -1,24 +1,17 @@
-var hyperdom = require('.');
+var render = require('./render');
 var bindModel = require('./bindModel')
-var refreshify = require('./refreshify')
 
 module.exports = function(tag, attributes, childElements) {
   var keys = Object.keys(attributes);
   var dataset;
-  var currentRender = hyperdom.currentRender();
-  var eventHandlerWrapper = currentRender && currentRender.eventHandlerWrapper;
+  var currentRender = render.currentRender();
 
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k];
     var attribute = attributes[key];
 
-    if (typeof(attribute) == 'function') {
-      if (eventHandlerWrapper) {
-        var fn = eventHandlerWrapper.call(undefined, key.replace(/^on/, ''), attribute);
-        attributes[key] = typeof fn === 'function'? refreshify(fn): fn;
-      } else {
-        attributes[key] = refreshify(attribute);
-      }
+    if (typeof(attribute) == 'function' && currentRender) {
+      attributes[key] = currentRender.transformFunctionAttribute(key, attribute)
     }
 
     var rename = renames[key];

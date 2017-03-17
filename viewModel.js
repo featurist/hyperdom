@@ -1,10 +1,11 @@
 var domComponent = require('./domComponent');
 var hyperdomMeta = require('./meta');
-var hyperdom = require('.');
+var render = require('./render');
 
-function ViewModel(model) {
-  var currentRender = hyperdom.currentRender();
+function ViewModel(model, options) {
+  var currentRender = render.currentRender();
 
+  this.isComponent = options && options.hasOwnProperty('component') && options.component
   this.currentRender = currentRender;
   this.model = model;
   this.key = model.renderKey;
@@ -22,12 +23,25 @@ ViewModel.prototype.init = function () {
   var meta = hyperdomMeta(this.model);
   meta.widgets.add(this);
 
-  this.component = domComponent();
+  this.component = domComponent.create();
   var element = this.component.create(vdom);
 
-  if (self.model.onadd) {
+  if (self.model.onbeforeadd) {
+    self.model.onbeforeadd()
+  }
+
+  if (self.model.onbeforeadd) {
+    self.model.onbeforerender()
+  }
+
+  if (self.model.onadd || self.model.onrender) {
     this.currentRender.finished.then(function () {
-      self.model.onadd(element);
+      if (self.model.onadd) {
+        self.model.onadd(self.component.element);
+      }
+      if (self.model.onrender) {
+        self.model.onrender(self.component.element);
+      }
     });
   }
 
@@ -41,13 +55,37 @@ ViewModel.prototype.init = function () {
 ViewModel.prototype.update = function (previous) {
   var self = this;
 
-  if (self.model.onupdate) {
+  if (this.isComponent) {
+    var keys = Object.keys(this.model);
+    for(var n = 0; n < keys.length; n++) {
+      var key = keys[n];
+      previous.model[key] = self.model[key];
+    }
+    this.model = previous.model;
+  }
+
+
+  if (self.model.onupdate || self.model.onrender) {
     this.currentRender.finished.then(function () {
-      self.model.onupdate(self.component.element);
+      if (self.model.onupdate) {
+        self.model.onupdate(self.component.element, oldElement);
+      }
+      if (self.model.onrender) {
+        self.model.onrender(self.component.element, oldElement);
+      }
     });
   }
 
   this.component = previous.component;
+  var oldElement = this.component.element
+
+  if (self.model.onbeforeupdate) {
+    self.model.onbeforeupdate(oldElement)
+  }
+
+  if (self.model.onbeforeadd) {
+    self.model.onbeforerender(oldElement)
+  }
 
   var element = this.component.update(this.render());
 
@@ -74,6 +112,10 @@ ViewModel.prototype.destroy = function (element) {
 
   var meta = hyperdomMeta(this.model);
   meta.widgets.delete(this);
+
+  if (self.model.onbeforeremove) {
+    self.model.onbeforeremove(element)
+  }
 
   if (self.model.onremove) {
     this.currentRender.finished.then(function () {

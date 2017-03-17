@@ -5,7 +5,7 @@ var VText = require("virtual-dom/vnode/vtext.js")
 function WindowWidget(attributes) {
   this.attributes = attributes;
   this.vdom = new VText('');
-  this.component = domComponent();
+  this.component = domComponent.create();
 
   var self = this;
   this.cache = {};

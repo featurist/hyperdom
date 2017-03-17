@@ -11,6 +11,9 @@ var vdomToHtml = require('vdom-to-html');
 var times = require('lowscore/times');
 var vdomComponent = require('../../component');
 var windowEvents = require('../../windowEvents');
+var merge = require('../../merge')
+var runRender = require('../../render')
+var Mount = require('../../mount')
 
 var detect = {
   dataset: typeof document.body.dataset == 'object'
@@ -56,16 +59,16 @@ describe('hyperdom', function () {
 
   function renderMonitor() {
     return {
-      refreshCount: 0,
+      renderCount: 0,
 
       rendering: function () {
-        this.refreshCount++;
+        this.renderCount++;
       },
 
       waitForRender: function () {
         var self = this;
 
-        var oldRefreshCount = self.refreshCount;
+        var oldRefreshCount = self.renderCount;
 
         return this.wait(oldRefreshCount);
       },
@@ -73,7 +76,7 @@ describe('hyperdom', function () {
       waitForRenderAfter: function (action) {
         var self = this;
 
-        var oldRefreshCount = self.refreshCount;
+        var oldRefreshCount = self.renderCount;
 
         return action.then(function () {
           return self.wait(oldRefreshCount);
@@ -84,7 +87,7 @@ describe('hyperdom', function () {
         var self = this;
 
         return retry(function () {
-          expect(self.refreshCount).to.equal(oldRefreshCount + 1);
+          expect(self.renderCount).to.equal(oldRefreshCount + 1);
         });
       }
     };
@@ -130,6 +133,36 @@ describe('hyperdom', function () {
       });
     });
 
+    it('can pass a synchronous reqeustRender function', function () {
+      var model = {
+        count: 0,
+
+        render: function () {
+          var self = this
+          return h('div',
+            h('div.count', 'count: ' + this.count),
+            h('button.add', {onclick: function () { self.count++ }}, '++')
+          )
+        }
+      };
+
+      var renderRequested = false;
+
+      hyperdom.append(targetDiv, model, {
+        requestRender: function (render) {
+          render()
+        }
+      });
+
+      expect(find('.count').text()).to.equal('count: 0')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 1')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 2')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 3')
+    });
+
     it('can replace an element', function () {
       function render() {
         return h('div.rendered');
@@ -152,38 +185,61 @@ describe('hyperdom', function () {
       expect(vdomToHtml(targetVDom)).to.contain('<div class="rendered"></div>');
     });
 
-    it('can merge onto an existing DOM', function () {
-      function render(model) {
-        return h('div.static',
-          h('h1', model.name),
-          h('button.update',
-            {
-              onclick: function () {
-                model.name = 'hyperdom render';
-              }
-            },
-            'update'
-          )
-        );
-      }
+    describe('server-side rendering', function () {
+      var app
+      var events
 
-      var model = {name: 'static render'};
+      beforeEach(function () {
+        events = []
 
-      $(targetDiv).replaceWith(vdomToHtml(render(model)));
+        app = {
+          name: 'server render',
 
-      var mergeDiv = div.children[0];
+          render: function() {
+            var self = this;
+            return h('div.static',
+              h('h1', self.name),
+              h('button.update',
+                {
+                  onclick: function () {
+                    events.push('click')
+                    self.name = 'client render';
+                  }
+                },
+                'update'
+              )
+            );
+          }
+        }
+      });
 
-      hyperdom.merge(mergeDiv, render, model);
+      it('can merge onto an existing DOM', function () {
+        $(targetDiv).replaceWith(vdomToHtml(app.render()));
 
-      return retry(function () {
-        expect(find('button.update')[0].onclick).to.exist;
-      }).then(function () {
-        return click('button.update').then(function () {
+        var mergeDiv = div.children[0];
+
+        merge(mergeDiv, app);
+
+        return retry(function () {
+          expect(find('button.update')[0].onclick).to.exist;
         }).then(function () {
-          return retry(function () {
-            expect(find('h1').text()).to.equal('hyperdom render');
+          return click('button.update').then(function () {
+          }).then(function () {
+            return retry(function () {
+              expect(find('h1').text()).to.equal('client render');
+            });
           });
         });
+      });
+
+      it('updates client side with client-side changes', function () {
+        $(targetDiv).replaceWith(vdomToHtml(app.render()));
+
+        var mergeDiv = div.children[0];
+        app.name = 'client render'
+        merge(mergeDiv, app)
+
+        expect(find('h1').text()).to.equal('client render');
       });
     });
   });
@@ -1454,11 +1510,14 @@ describe('hyperdom', function () {
   });
 
   describe('hyperdom.binding', function () {
-    var refreshCalled;
+    this.timeout(2000)
+    var refreshCalled
 
     beforeEach(function () {
       refreshCalled = false;
-      hyperdom._currentRender = {
+      var mount = new Mount()
+
+      runRender._currentRender = {
         mount: {
           rerender: function () {
             refreshCalled = true;
@@ -1466,6 +1525,10 @@ describe('hyperdom', function () {
 
           requestRender: function (fn) {
             fn();
+          },
+
+          refreshify: function(fn, options) {
+            return mount.refreshify.call(this, fn, options)
           }
         }
       };
@@ -1478,19 +1541,55 @@ describe('hyperdom', function () {
       expect(refreshCalled).to.equal(v);
     }
 
-    function expectPromiseToRefresh(options, before, after) {
-      hyperdom.binding({
+    function expectPromiseToRefreshWithOptions(options, expectations) {
+      var binding = hyperdom.binding({
         set: function () {
-          return wait(10);
+          return wait(10)
         }
-      }, options).set('value');
-      expect(refreshCalled).to.equal(before);
+      }, options)
+
+      return expectPromiseToRefreshWithBinding(binding, expectations)
+    }
+
+    function expectPromiseToRefreshWithBinding(binding, expectations) {
+      binding.set('value');
+
+      expect(refreshCalled).to.equal(expectations.immediately);
       refreshCalled = false;
 
       return wait(20).then(function () {
-        expect(refreshCalled).to.equal(after);
+        expect(refreshCalled).to.equal(expectations.afterPromise);
       });
     }
+
+    describe('setters', function () {
+      it('calls setter and refreshes after promise is returned', function () {
+        var set = false
+        var promiseSet = false
+
+        var object = {
+          property: 'oldValue'
+        }
+
+        return expectPromiseToRefreshWithBinding(hyperdom.binding([object, 'property', function (value) {
+          set = value
+          return wait(10).then(function () {
+            promiseSet = value
+          })
+        }]), {immediately: true, afterPromise: true}).then(function () {
+          expect(set).to.equal('value')
+          expect(promiseSet).to.equal('value')
+        })
+      })
+    })
+
+    describe('validation', function () {
+      it('throws if a string is passed', function () {
+        expect(function () {
+          hyperdom.binding('asdf')
+        }).to.throw(/bindings must be.*or an object.*asdf/)
+      })
+    })
 
     context('normal', function () {
       it('normally calls refresh', function () {
@@ -1498,7 +1597,7 @@ describe('hyperdom', function () {
       });
 
       it('normally calls refresh, even after a promise', function () {
-        return expectPromiseToRefresh(undefined, true, true);
+        return expectPromiseToRefreshWithOptions(undefined, {immediately: true, afterPromise: true});
       });
     });
 
@@ -1539,7 +1638,7 @@ describe('hyperdom', function () {
       });
 
       it('never calls refresh, even after promise', function () {
-        return expectPromiseToRefresh({norefresh: true}, false, false);
+        return expectPromiseToRefreshWithOptions({norefresh: true}, {immediately: false, afterPromise: false});
       });
     });
 
@@ -1549,7 +1648,7 @@ describe('hyperdom', function () {
       });
 
       it('never calls refresh, even after promise', function () {
-        return expectPromiseToRefresh({refresh: false}, false, false);
+        return expectPromiseToRefreshWithOptions({refresh: false}, {immediately: false, afterPromise: false});
       });
     });
 
@@ -1559,7 +1658,7 @@ describe('hyperdom', function () {
       });
 
       it("doesn't call refresh, but does after a promise", function () {
-        return expectPromiseToRefresh({refresh: 'promise'}, false, true);
+        return expectPromiseToRefreshWithOptions({refresh: 'promise'}, {immediately: false, afterPromise: true});
       });
     });
   });
@@ -1597,6 +1696,147 @@ describe('hyperdom', function () {
       });
     });
   });
+
+  describe('hyperdom.component', function () {
+    it('captures lifetime events', function () {
+      var monitor = renderMonitor();
+      var events = []
+
+      var app = {
+        render: function() {
+          monitor.rendering();
+
+          return h('div',
+            this.show?
+              hyperdom.component({
+                data: monitor.renderCount,
+
+                onbeforeadd: function () {
+                  events.push(['onbeforeadd', this.data])
+                  this.lastState = 'beforeadd'
+                },
+
+                onadd: function (element) {
+                  events.push(['onadd', element.innerHTML, this.data, this.lastState])
+                  this.lastState = 'add'
+                },
+
+                onbeforerender: function (element) {
+                  events.push(['onbeforerender', element? element.innerHTML: null, this.data, this.lastState])
+                },
+
+                onrender: function (element, oldElement) {
+                  events.push(['onrender', element.innerHTML, oldElement? oldElement.innerHTML: null, this.data, this.lastState])
+                },
+
+                onbeforeupdate: function (element) {
+                  events.push(['onbeforeupdate', element.innerHTML, this.data, this.lastState])
+                  this.lastState = 'beforeupdate'
+                },
+
+                onupdate: function (element, oldElement) {
+                  events.push(['onupdate', element.innerHTML, oldElement.innerHTML, this.data, this.lastState])
+                  this.lastState = 'update'
+                },
+
+                onbeforeremove: function (element) {
+                  events.push(['onbeforeremove', element.innerHTML, this.data, this.lastState])
+                  this.lastState = 'beforeremove'
+                },
+
+                onremove: function (element) {
+                  events.push(['onremove', element.innerHTML, this.data, this.lastState])
+                  this.lastState = 'remove'
+                },
+
+                render: function () {
+                  return h('div', h('h1', 'element: ' + monitor.renderCount))
+                }
+              })
+              : undefined,
+            h('button.add', {onclick: function () { app.show = true; }}, 'add'),
+            h('button.remove', {onclick: function () { app.show = false; }}, 'remove'),
+            h('button.update', {onclick: function () {}}, 'update')
+          )
+        }
+      }
+
+      attach(app)
+
+      function elementHtml() {
+        return '<h1>element: ' + monitor.renderCount + '</h1>'
+      }
+
+      function oldElementHtml() {
+        return '<h1>element: ' + (monitor.renderCount - 1) + '</h1>'
+      }
+
+      return monitor.waitForRenderAfter(click('button.add')).then(function () {
+        expect(events).to.eql([
+          ['onbeforeadd', monitor.renderCount],
+          ['onbeforerender', null, monitor.renderCount, 'beforeadd'],
+          ['onadd', elementHtml(), monitor.renderCount, 'beforeadd'],
+          ['onrender', elementHtml(), null, monitor.renderCount, 'add']
+        ])
+        events = []
+
+        return monitor.waitForRenderAfter(click('button.update'))
+      }).then(function () {
+        expect(events).to.eql([
+          ['onbeforeupdate', oldElementHtml(), monitor.renderCount, 'add'],
+          ['onbeforerender', oldElementHtml(), monitor.renderCount, 'beforeupdate'],
+          ['onupdate', elementHtml(), elementHtml(), monitor.renderCount, 'beforeupdate'],
+          ['onrender', elementHtml(), elementHtml(), monitor.renderCount, 'update']
+        ])
+        events = []
+
+        return monitor.waitForRenderAfter(click('button.remove'))
+      }).then(function () {
+        expect(events).to.eql([
+          ['onbeforeremove', oldElementHtml(), monitor.renderCount - 1, 'update'],
+          ['onremove', oldElementHtml(), monitor.renderCount - 1, 'beforeremove']
+        ])
+      })
+    })
+
+    it('can cache', function () {
+      var monitor = renderMonitor();
+      var renderData = 'one'
+      var renderCacheKey = 'one'
+
+      var app = {
+        render: function() {
+          monitor.rendering();
+
+          return h('div',
+            hyperdom.component({
+              renderCacheKey: function () {
+                return renderCacheKey
+              },
+              render: function () {
+                return h('h1', 'element: ' + renderData)
+              }
+            }),
+            h('button.update', {onclick: function () {}}, 'update')
+          )
+        }
+      }
+
+      attach(app)
+
+      expect(find('h1').text()).to.equal('element: one')
+
+      renderData = 'two'
+      return monitor.waitForRenderAfter(click('button.update')).then(function () {
+        expect(find('h1').text()).to.equal('element: one')
+
+        renderCacheKey = 'two'
+        return monitor.waitForRenderAfter(click('button.update'))
+      }).then(function () {
+        expect(find('h1').text()).to.equal('element: two')
+      })
+    })
+  })
 
   describe('view model debugger', function () {
     it('sets the view model to the element', function () {
