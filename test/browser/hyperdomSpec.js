@@ -133,6 +133,36 @@ describe('hyperdom', function () {
       });
     });
 
+    it('can pass a synchronous reqeustRender function', function () {
+      var model = {
+        count: 0,
+
+        render: function () {
+          var self = this
+          return h('div',
+            h('div.count', 'count: ' + this.count),
+            h('button.add', {onclick: function () { self.count++ }}, '++')
+          )
+        }
+      };
+
+      var renderRequested = false;
+
+      hyperdom.append(targetDiv, model, {
+        requestRender: function (render) {
+          render()
+        }
+      });
+
+      expect(find('.count').text()).to.equal('count: 0')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 1')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 2')
+      find('.add').click()
+      expect(find('.count').text()).to.equal('count: 3')
+    });
+
     it('can replace an element', function () {
       function render() {
         return h('div.rendered');

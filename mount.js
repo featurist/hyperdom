@@ -45,8 +45,10 @@ Mount.prototype.transformFunctionAttribute = function(key, value) {
 
 Mount.prototype.queueRender = function () {
   if (!this.renderQueued) {
-    var requestRender = this.requestRender;
     var self = this;
+
+    var requestRender = this.requestRender;
+    this.renderQueued = true;
 
     requestRender(function () {
       self.renderQueued = false;
@@ -59,8 +61,6 @@ Mount.prototype.queueRender = function () {
         }
       }
     });
-
-    this.renderQueued = true;
   }
 };
 
