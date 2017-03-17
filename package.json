@@ -1,6 +1,6 @@
 {
   "name": "hyperdom",
-  "version": "0.2.0-server-render",
+  "version": "0.2.0",
   "description": "A fast, feature rich and simple framework for building dynamic browser applications.",
   "main": "index.js",
   "dependencies": {
