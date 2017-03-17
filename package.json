@@ -12,7 +12,7 @@
     "babel-preset-hyperdom": "^1.0.0",
     "benchmark": "2.1.0",
     "bluebird": "3.3.4",
-    "browser-monkey": "1.28.2",
+    "browser-monkey": "featurist/browser-monkey#easy-mount",
     "browserify": "14.1.0",
     "chai": "3.5.0",
     "httpism": "^2.7.0",
