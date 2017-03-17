@@ -1,7 +1,6 @@
 /* eslint-env mocha */
 
-var reloadButton = require('browser-monkey/reloadButton')
-var mountMonkey = require('browser-monkey/hyperdom')
+var mountHyperdom = require('./mountHyperdom')
 var router = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
@@ -13,10 +12,6 @@ if (window.history && window.history.pushState) {
 
 function describeRouter(historyApi) {
   describe('router (' + historyApi + ')', function () {
-    after(function () {
-      reloadButton()
-    })
-
     function mount(app, url) {
       var options = {router: router}
 
@@ -26,7 +21,7 @@ function describeRouter(historyApi) {
         options.url = url
       }
 
-      return mountMonkey(app, options)
+      return mountHyperdom(app, options)
     }
 
     function resetRouter() {
