@@ -4,7 +4,7 @@ var binding = require('./binding')
 var meta = require('./meta');
 var render = require('./render')
 var refreshEventResult = require('./refreshEventResult')
-var ViewModel = require('./viewModel')
+var Component = require('./component')
 
 exports.html = rendering.html;
 exports.html.refreshify = refreshify
@@ -19,7 +19,7 @@ exports.meta = meta;
 exports.refreshify = refreshify;
 exports.norefresh = refreshEventResult.norefresh;
 exports.component = function(model) {
-  return new ViewModel(model, {component: true})
+  return new Component(model, {component: true})
 }
 
 exports.currentRender = render.currentRender

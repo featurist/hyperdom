@@ -16,7 +16,7 @@ function Mount(model, options) {
 
   this.renderQueued = false;
   this.mountRenderRequested = false;
-  this.widgetRendersRequested = undefined;
+  this.componentRendersRequested = undefined;
   this.id = ++lastId;
   this.mounted = true;
   this.router = router
@@ -55,9 +55,9 @@ Mount.prototype.queueRender = function () {
 
       if (self.mounted) {
         if (self.mountRenderRequested) {
-          self.rerenderImmediately()
-        } else if (self.widgetRendersRequested) {
-          self.rerenderWidgetsImmediately()
+          self.refreshImmediately()
+        } else if (self.componentRendersRequested) {
+          self.refreshComponentsImmediately()
         }
       }
     });
@@ -69,16 +69,16 @@ Mount.prototype.render = function() {
     this.setupModelComponent(this.model)
     return this.router.render(this.model)
   } else {
-    return this.renderViewModel(this.model)
+    return this.renderComponent(this.model)
   }
 };
 
-Mount.prototype.rerender = function () {
+Mount.prototype.refresh = function () {
   this.mountRenderRequested = true;
   this.queueRender();
 };
 
-Mount.prototype.rerenderImmediately = function() {
+Mount.prototype.refreshImmediately = function() {
   var self = this
 
   runRender(self, function () {
@@ -88,24 +88,24 @@ Mount.prototype.rerenderImmediately = function() {
   })
 }
 
-Mount.prototype.rerenderWidgetsImmediately = function() {
+Mount.prototype.refreshComponentsImmediately = function() {
   var self = this
 
   runRender(self, function () {
-    for (var i = 0, l = self.widgetRendersRequested.length; i < l; i++) {
-      var w = self.widgetRendersRequested[i];
-      w.rerender();
+    for (var i = 0, l = self.componentRendersRequested.length; i < l; i++) {
+      var w = self.componentRendersRequested[i];
+      w.refresh();
     }
-    self.widgetRendersRequested = undefined;
+    self.componentRendersRequested = undefined;
   })
 }
 
-Mount.prototype.rerenderWidget = function (widget) {
-  if (!this.widgetRendersRequested) {
-    this.widgetRendersRequested = [];
+Mount.prototype.refreshComponent = function (component) {
+  if (!this.componentRendersRequested) {
+    this.componentRendersRequested = [];
   }
 
-  this.widgetRendersRequested.push(widget);
+  this.componentRendersRequested.push(component);
   this.queueRender();
 };
 
@@ -116,20 +116,20 @@ Mount.prototype.setupModelComponent = function(model) {
 
   if (!meta.mount) {
     meta.mount = this;
-    meta.widgets = new Set();
+    meta.components = new Set();
 
-    model.rerender = function () {
-      self.rerender();
+    model.refresh = function () {
+      self.refresh();
     };
 
-    model.rerenderImmediately = function () {
-      self.rerenderImmediately();
+    model.refreshImmediately = function () {
+      self.refreshImmediately();
     };
 
-    model.rerenderViewModel = function() {
+    model.refreshComponent = function() {
       var meta = hyperdomMeta(this);
-      meta.widgets.forEach(function (w) {
-        self.rerenderWidget(w);
+      meta.components.forEach(function (w) {
+        self.refreshComponent(w);
       });
     };
 
@@ -139,11 +139,12 @@ Mount.prototype.setupModelComponent = function(model) {
   }
 }
 
-Mount.prototype._renderViewModel = function(model) {
+Mount.prototype._renderComponent = function(model) {
   this.setupModelComponent(model)
   var vdom = typeof model.render == 'function'? model.render(): new vtext(JSON.stringify(model))
 
   if (vdom instanceof Array) {
+    console.error('vdom returned from component cannot be an array, component: ', model)
     throw new Error('vdom returned from component cannot be an array');
   }
 
@@ -153,7 +154,7 @@ Mount.prototype._renderViewModel = function(model) {
     }
 
     vdom.properties._hyperdomMeta = new PropertyHook({
-      viewModel: model,
+      component: model,
       render: runRender.currentRender()
     });
   }
@@ -161,7 +162,7 @@ Mount.prototype._renderViewModel = function(model) {
   return vdom;
 }
 
-Mount.prototype.renderViewModel = function(model) {
+Mount.prototype.renderComponent = function(model) {
   if (typeof model.renderCacheKey === 'function') {
     var meta = hyperdomMeta(model);
     var key = model.renderCacheKey();
@@ -169,10 +170,10 @@ Mount.prototype.renderViewModel = function(model) {
       return meta.cachedVdom;
     } else {
       meta.cacheKey = key;
-      return meta.cachedVdom = this._renderViewModel(model);
+      return meta.cachedVdom = this._renderComponent(model);
     }
   } else {
-    return this._renderViewModel(model);
+    return this._renderComponent(model);
   }
 };
 

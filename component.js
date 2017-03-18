@@ -1,141 +1,139 @@
-var VText = require("virtual-dom/vnode/vtext.js")
 var domComponent = require('./domComponent');
+var hyperdomMeta = require('./meta');
 var render = require('./render');
-var deprecations = require('./deprecations');
-var ViewModel = require('./viewModel')
 
-function ComponentWidget(state, vdom) {
-  if (!vdom) {
-    throw new Error('hyperdom.html.component([options], vdom) expects a vdom argument');
-  }
-
-  this.state = state;
-  this.key = state.key;
+function Component(model, options) {
   var currentRender = render.currentRender();
 
-  if (typeof vdom === 'function') {
-    this.render = function () {
-      if (currentRender && state.on) {
-        currentRender.transformFunctionAttribute = function(key, value) {
-          return state.on(key.replace(/^on/, ''), value)
-        }
-      }
-      return vdom.apply(this.state, arguments);
-    };
-    this.canRefresh = true;
-  } else {
-    vdom = vdom || new VText('');
-    this.render = function () {
-      return vdom;
-    }
-  }
-  this.cacheKey = state.cacheKey;
-  this.component = domComponent.create();
-
-  var renderFinished = currentRender && currentRender.finished;
-  if (renderFinished) {
-    this.afterRender = function (fn) {
-      renderFinished.then(fn);
-    };
-  } else {
-    this.afterRender = function () {};
-  }
+  this.isComponent = options && options.hasOwnProperty('component') && options.component
+  this.currentRender = currentRender;
+  this.model = model;
+  this.key = model.renderKey;
+  this.component = undefined;
+  this.mount = currentRender.mount;
 }
 
-ComponentWidget.prototype.type = 'Widget';
+Component.prototype.type = 'Widget';
 
-ComponentWidget.prototype.init = function () {
+Component.prototype.init = function () {
   var self = this;
 
-  if (self.state.onbeforeadd) {
-    self.state.onbeforeadd();
-  }
+  var vdom = this.render();
 
-  var vdom = this.render(this);
-  if (vdom instanceof Array) {
-    throw new Error('vdom returned from component cannot be an array');
-  }
+  var meta = hyperdomMeta(this.model);
+  meta.components.add(this);
 
+  this.component = domComponent.create();
   var element = this.component.create(vdom);
 
-  if (self.state.onadd) {
-    this.afterRender(function () {
-      self.state.onadd(element);
+  if (self.model.onbeforeadd) {
+    self.model.onbeforeadd()
+  }
+
+  if (self.model.onbeforeadd) {
+    self.model.onbeforerender()
+  }
+
+  if (self.model.onadd || self.model.onrender) {
+    this.currentRender.finished.then(function () {
+      if (self.model.onadd) {
+        self.model.onadd(self.component.element);
+      }
+      if (self.model.onrender) {
+        self.model.onrender(self.component.element);
+      }
     });
   }
 
-  if (self.state.detached) {
+  if (self.model.detached) {
     return document.createTextNode('');
   } else {
     return element;
   }
 };
 
-ComponentWidget.prototype.update = function (previous) {
+function beforeUpdate(model, element) {
+  if (model.onbeforeupdate) {
+    model.onbeforeupdate(element)
+  }
+
+  if (model.onbeforerender) {
+    model.onbeforerender(element)
+  }
+}
+
+function afterUpdate(model, element, oldElement) {
+  if (model.onupdate) {
+    model.onupdate(element, oldElement);
+  }
+
+  if (model.onrender) {
+    model.onrender(element, oldElement);
+  }
+}
+
+Component.prototype.update = function (previous) {
   var self = this;
 
-  var refresh = !this.cacheKey || this.cacheKey !== previous.cacheKey;
-
-  if (refresh) {
-    if (self.state.onupdate) {
-      this.afterRender(function () {
-        self.state.onupdate(self.component.element);
-      });
+  if (this.isComponent) {
+    var keys = Object.keys(this.model);
+    for(var n = 0; n < keys.length; n++) {
+      var key = keys[n];
+      previous.model[key] = self.model[key];
     }
+    this.model = previous.model;
+  }
+
+
+  if (self.model.onupdate || self.model.onrender) {
+    this.currentRender.finished.then(function () {
+      afterUpdate(self.model, self.component.element, oldElement)
+    });
   }
 
   this.component = previous.component;
+  var oldElement = this.component.element
 
-  if (previous.state && this.state) {
-    var keys = Object.keys(this.state);
-    for(var n = 0; n < keys.length; n++) {
-      var key = keys[n];
-      previous.state[key] = self.state[key];
-    }
-    this.state = previous.state;
-  }
+  beforeUpdate(this.model, oldElement)
 
-  if (refresh) {
-    var element = this.component.update(this.render(this));
+  var element = this.component.update(this.render());
 
-    if (self.state.detached) {
-      return document.createTextNode('');
-    } else {
-      return element;
-    }
+  if (self.model.detached) {
+    return document.createTextNode('');
+  } else {
+    return element;
   }
 };
 
-ComponentWidget.prototype.refresh = function () {
-  this.component.update(this.render(this));
-  if (this.state.onupdate) {
-    this.state.onupdate(this.component.element);
-  }
+Component.prototype.render = function () {
+  return this.mount.renderComponent(this.model);
 };
 
-ComponentWidget.prototype.rerender = ComponentWidget.prototype.refresh;
+Component.prototype.refresh = function () {
+  var oldElement = this.component.element
 
-ComponentWidget.prototype.destroy = function (element) {
+  beforeUpdate(this.model, oldElement)
+  this.component.update(this.render());
+  afterUpdate(this.model, this.component.element, oldElement)
+};
+
+Component.prototype.destroy = function (element) {
   var self = this;
 
-  if (self.state.onremove) {
-    this.afterRender(function () {
-      self.state.onremove(element);
+  var meta = hyperdomMeta(this.model);
+  meta.components.delete(this);
+
+  if (self.model.onbeforeremove) {
+    self.model.onbeforeremove(element)
+  }
+
+  if (self.model.onremove) {
+    this.currentRender.finished.then(function () {
+      self.model.onremove(element);
     });
   }
 
   this.component.destroy();
 };
 
-module.exports = function (state, vdom) {
-  deprecations.component('hyperdom.html.component is deprecated, please use hyperdom.component');
-  if (typeof state === 'function') {
-    return new ComponentWidget({}, state);
-  } else if (state.constructor === Object) {
-    return new ComponentWidget(state, vdom);
-  } else {
-    return new ComponentWidget({}, state);
-  }
-};
-
-module.exports.ComponentWidget = ComponentWidget;
+module.exports = Component;

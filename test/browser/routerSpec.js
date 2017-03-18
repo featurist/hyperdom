@@ -224,11 +224,11 @@ function describeRouter(historyApi) {
 
           return loadsArticle(monkey, app.article, 'x').then(function () {
             route.push({id: 'y'})
-            app.rerender()
+            app.refresh()
             return loadsArticle(monkey, app.article, 'y')
           }).then(function () {
             route.push({id: 'z'})
-            app.rerender()
+            app.refresh()
             return loadsArticle(monkey, app.article, 'z')
           })
         })
@@ -301,7 +301,7 @@ function describeRouter(historyApi) {
             var monkey = mount(app, '/')
             a.push({b: 'x'})
             expect(function () {
-              app.rerenderImmediately()
+              app.refreshImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
             if (historyApi == 'hash') {
@@ -412,7 +412,7 @@ function describeRouter(historyApi) {
           ]).then(function () {
             expect(events).to.eql([])
             routes.b.push({a: 'a', b: 'c'})
-            app.rerender()
+            app.refresh()
 
             return Promise.all([
               monkey.find('div.menu').shouldHave({text: 'menu'}),

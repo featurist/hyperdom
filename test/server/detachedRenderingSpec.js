@@ -3,7 +3,7 @@ var h = hyperdom.html;
 
 var vdomToHtml = require('vdom-to-html');
 var expect = require('chai').expect;
-var hyperdomComponent = require('../../component');
+var hyperdomComponent = require('../../componentWidget');
 
 describe('hyperdom', function() {
 

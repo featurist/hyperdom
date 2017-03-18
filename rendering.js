@@ -54,7 +54,7 @@ function startAttachment(render, model, options, attachToDom) {
   if (typeof render == 'object') {
     return start(render, attachToDom, model);
   } else {
-    deprecations.renderFunction('hyperdom.append and hyperdom.replace with render functions are deprecated, please pass a ViewModel');
+    deprecations.renderFunction('hyperdom.append and hyperdom.replace with render functions are deprecated, please pass a component');
     return start({render: function () { return render(model); }}, attachToDom, options);
   }
 }
@@ -127,7 +127,7 @@ Object.defineProperty(exports.html, 'currentRender', {get: function () {
 }});
 
 Object.defineProperty(exports.html, 'refresh', {get: function () {
-  deprecations.refresh('hyperdom.html.refresh is deprecated, please use viewModel.rerender() instead');
+  deprecations.refresh('hyperdom.html.refresh is deprecated, please use component.refresh() instead');
   if (render._currentRender) {
     var currentRender = render._currentRender
     return function(result) {
