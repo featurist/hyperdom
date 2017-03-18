@@ -10,12 +10,9 @@
   },
   "devDependencies": {
     "babel-preset-hyperdom": "^1.0.0",
-    "benchmark": "2.1.0",
-    "bluebird": "3.3.4",
     "browser-monkey": "2.4.1",
     "browserify": "14.1.0",
     "chai": "3.5.0",
-    "httpism": "^2.7.0",
     "jquery": "2.1.3",
     "jquery-sendkeys": "4.0.0",
     "jsdom": "8.2.0",
@@ -33,8 +30,7 @@
     "mocha": "3.2.0",
     "trytryagain": "1.2.0",
     "uglify-js": "2.4.16",
-    "vdom-to-html": "2.0.0",
-    "watchify": "3.9.0"
+    "vdom-to-html": "2.0.0"
   },
   "scripts": {
     "test": "npm run karma && npm run mocha",
