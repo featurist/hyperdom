@@ -4,9 +4,10 @@ var mountHyperdom = require('./mountHyperdom')
 var router = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
+var detect = require('./detect')
 
 describeRouter('hash')
-if (window.history && window.history.pushState) {
+if (detect.pushState) {
   describeRouter('pushState')
 }
 
@@ -84,21 +85,23 @@ function describeRouter(historyApi) {
         })
       })
 
-      it('can navigate backward and forward', function () {
-        var monkey = mount(app, '/a')
+      if (detect.historyBack) {
+        it('can navigate backward and forward', function () {
+          var monkey = mount(app, '/a')
 
-        return monkey.find('h1').shouldHave({text: 'a'}).then(function () {
-          return monkey.find('button', {text: 'b'}).click()
-        }).then(function () {
-          return monkey.find('h1').shouldHave({text: 'b'})
-        }).then(function () {
-          window.history.back()
-          return monkey.find('h1').shouldHave({text: 'a'})
-        }).then(function () {
-          window.history.forward()
-          return monkey.find('h1').shouldHave({text: 'b'})
+          return monkey.find('h1').shouldHave({text: 'a'}).then(function () {
+            return monkey.find('button', {text: 'b'}).click()
+          }).then(function () {
+            return monkey.find('h1').shouldHave({text: 'b'})
+          }).then(function () {
+            window.history.back()
+            return monkey.find('h1').shouldHave({text: 'a'})
+          }).then(function () {
+            window.history.forward()
+            return monkey.find('h1').shouldHave({text: 'b'})
+          })
         })
-      })
+      }
     })
 
     function articleComponent() {
