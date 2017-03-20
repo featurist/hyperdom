@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 var mountHyperdom = require('./mountHyperdom')
-var router = require('../../router')
+var hyperdomRouter = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
@@ -13,6 +13,8 @@ if (detect.pushState) {
 
 function describeRouter(historyApi) {
   describe('router (' + historyApi + ')', function () {
+    var router
+
     function mount(app, url) {
       var options = {router: router}
 
@@ -27,9 +29,9 @@ function describeRouter(historyApi) {
 
     function resetRouter() {
       if (historyApi == 'hash') {
-        router.set({history: router.hash()})
+        router = hyperdomRouter.router({history: hyperdomRouter.hash()})
       } else {
-        router.set()
+        router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
       }
     }
 

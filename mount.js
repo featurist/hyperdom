@@ -182,6 +182,9 @@ Mount.prototype.detach = function () {
 };
 
 Mount.prototype.remove = function () {
+  if (this.router) {
+    this.router.reset()
+  }
   this.component.destroy({removeElement: true});
   this.mounted = false;
 };

@@ -3,62 +3,14 @@ var refreshify = require('./refreshify')
 var runRender = require('./render')
 var h = require('./rendering').html
 
-var router
-
-function defaultRouter() {
-  return router? router: exports.set()
-}
-
-exports.reset = function() {
-  defaultRouter().reset()
-}
-
-exports.render = function() {
-  var router = defaultRouter()
-  return router.render.apply(router, arguments)
-}
-
-exports.url = function() {
-  return defaultRouter().url()
-}
-
-exports.push = function(url) {
-  return defaultRouter().push(url)
-}
-
-exports.replace = function(url) {
-  return defaultRouter().replace(url)
-}
-
-exports.route = function() {
-  var router = defaultRouter()
-  return router.route.apply(router, arguments)
-}
-
-exports.notFound = function() {
-  var router = defaultRouter()
-  return router.notFound.apply(router, arguments)
-}
-
-exports.set = function(options) {
-  if (router) {
-    router.reset()
-  }
-  return router = new Router(options)
-}
-
-exports.create = function(options) {
-  return new Router(options)
-}
-
 function Router(options) {
-  var history = typeof options == 'object' && options.hasOwnProperty('history')? options.history: new HistoryApi();
-  this.history = history
+  this._querystring = typeof options == 'object' && options.hasOwnProperty('querystring')? options.querystring: new QueryString();
+  this.history = typeof options == 'object' && options.hasOwnProperty('history')? options.history: new PushState();
 }
 
 Router.prototype.reset = function() {
   this.lastUrl = undefined
-  this.history.reset()
+  this.history.stop()
 }
 
 function modelRoutes(model, isModel) {
@@ -138,32 +90,34 @@ function renderNotFound(url, routes) {
   return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern; }).join('\n')))
 }
 
-Router.prototype.notFound = (function() {
-  var patternVariables = preparePattern('*')
+var notFoundPatternVariables = preparePattern('*')
 
-  return function(options) {
-    options.notFound = true
-    return new Route(patternVariables, options)
-  }
-})()
+Router.prototype.notFound = function(options) {
+  options.notFound = true
+  return new Route(notFoundPatternVariables, options, this)
+}
 
 Router.prototype.route = function(pattern) {
   var self = this
   var patternVariables = preparePattern(pattern)
 
   function route(options) {
-    return new Route(patternVariables, options)
+    return new Route(patternVariables, options, self)
+  }
+
+  route.params = function() {
+    return route().urlParams(self.url())
   }
 
   route.push = function(params, options) {
-    self.history.push(expand(patternVariables.pattern, params))
+    self.history.push(self.expandUrl(patternVariables.pattern, params))
     if (!(options && options.resetScroll == false)) {
       window.scrollTo(0, 0)
     }
   }
 
   route.replace = function(params) {
-    self.history.replace(expand(patternVariables.pattern, params))
+    self.history.replace(self.expandUrl(patternVariables.pattern, params))
   }
 
   route.href = function(params, options) {
@@ -171,20 +125,15 @@ Router.prototype.route = function(pattern) {
   }
 
   route.url = function(params) {
-    return expand(patternVariables.pattern, params)
+    return self.expandUrl(patternVariables.pattern, params)
   }
 
   return route
 }
 
-exports.hasRoute = function(model, url) {
-  var routes = modelRoutes(model, true)
-  var match = findMatch(url, routes)
-  return !!match && !match.route.notFound
-}
-
-function Route(patternVariables, options) {
+function Route(patternVariables, options, router) {
   this.pattern = patternVariables.pattern
+  this.router = router
 
   this.variables = patternVariables.variables
   this.regex = patternVariables.regex
@@ -208,6 +157,12 @@ function bindParams(params) {
   return bindings
 }
 
+Route.prototype.hasRoute = function(model, url) {
+  var routes = modelRoutes(model, true)
+  var match = findMatch(url, routes)
+  return !!match && !match.route.notFound
+}
+
 Route.prototype.match = function(url) {
   if (this.routes) {
     return this.mountRegex.exec(url.split('?')[0])
@@ -219,7 +174,7 @@ Route.prototype.match = function(url) {
 Route.prototype.urlParams = function(url, _match) {
   var query = url.split('?')[1]
   var match = _match || this.match(url)
-  var params = exports.querystring.parse(query)
+  var params = this.router._querystring.parse(query)
 
   if (match) {
     for (var n = 1; n < match.length; n++) {
@@ -235,10 +190,10 @@ Route.prototype.set = function(url, match) {
   var params = this.urlParams(url, match)
 
   if (this.redirect) {
-    var url = this.redirect(params)
-    if (url) {
+    var redirectUrl = this.redirect(params)
+    if (redirectUrl) {
       return {
-        redirect: url
+        redirect: redirectUrl
       }
     }
   }
@@ -269,12 +224,6 @@ Route.prototype.set = function(url, match) {
   }
 }
 
-function subRender(outerRender, innerRender) {
-  return function() {
-    return outerRender(innerRender())
-  }
-}
-
 Route.prototype.wrapAction = function(action) {
   var innerRender = action.render
   var outerRender = this.render
@@ -284,9 +233,8 @@ Route.prototype.wrapAction = function(action) {
   return action
 }
 
-Route.prototype.get = function(url, match, baseParams) {
+Route.prototype.get = function(url) {
   var self = this
-  var action
   var routes
   
   if (this.bindings) {
@@ -300,7 +248,7 @@ Route.prototype.get = function(url, match, baseParams) {
     })
 
     var oldParams = this.urlParams(url)
-    var newUrl = expand(this.pattern, extend(oldParams, params))
+    var newUrl = this.router.expandUrl(this.pattern, extend(oldParams, params))
   }
 
   if (this.routes) {
@@ -339,7 +287,7 @@ function paramToString(p) {
   }
 }
 
-function expand(pattern, _params) {
+Router.prototype.expandUrl = function(pattern, _params) {
   var params = _params || {}
   var onlyQueryParams = clone(params)
 
@@ -355,7 +303,7 @@ function expand(pattern, _params) {
     return encodeURIComponent(paramToString(param))
   })
 
-  var query = exports.querystring.stringify(onlyQueryParams)
+  var query = this._querystring.stringify(onlyQueryParams)
 
   if (query) {
     return url + '?' + query
@@ -410,7 +358,7 @@ function findMatch(url, routes) {
     var route = routes[r];
     var match
 
-    if (match = route.match(url)) {
+    if ((match = route.match(url))) {
       return {
         route: route,
         match: match
@@ -426,38 +374,40 @@ function getUrl(url, routes) {
   }
 }
 
-exports.querystring = {
-  parse: function(search) {
-    var params = {};
+function QueryString() {
+}
 
-    if (search) {
-      search.split('&').map(function (param) {
-        var v = param.split('=').map(decodeURIComponent)
-        params[v[0]] = v[1]
-      })
-    }
+QueryString.prototype.parse = function(search) {
+  var params = {};
 
-    return params
-  },
-  stringify: function(paramsObject) {
-    var query = Object.keys(paramsObject).map(function (key) {
-      var param = paramToString(paramsObject[key])
-
-      if (param != '') {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(param)
-      }
-    }).filter(function (param) {
-      return param
-    }).join('&')
-
-    return query
+  if (search) {
+    search.split('&').map(function (param) {
+      var v = param.split('=').map(decodeURIComponent)
+      params[v[0]] = v[1]
+    })
   }
+
+  return params
 }
 
-var HistoryApi = function() {
+QueryString.prototype.stringify = function (paramsObject) {
+  var query = Object.keys(paramsObject).map(function (key) {
+    var param = paramToString(paramsObject[key])
+
+    if (param != '') {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(param)
+    }
+  }).filter(function (param) {
+    return param
+  }).join('&')
+
+  return query
 }
 
-HistoryApi.prototype.start = function (model) {
+var PushState = function() {
+}
+
+PushState.prototype.start = function (model) {
   if (this.started) {
     return
   }
@@ -482,39 +432,29 @@ HistoryApi.prototype.start = function (model) {
   })
 }
 
-HistoryApi.prototype.reset = function() {
-  this.stop()
+PushState.prototype.stop = function () {
   this.started = false
-}
-
-HistoryApi.prototype.stop = function () {
   window.removeEventListener('popstate', this.listener)
 }
 
-HistoryApi.prototype.url = function () {
+PushState.prototype.url = function () {
   return window.location.pathname + window.location.search
 }
 
-HistoryApi.prototype.push = function (url) {
+PushState.prototype.push = function (url) {
   window.history.pushState(undefined, undefined, url)
 }
 
-HistoryApi.prototype.state = function (state) {
+PushState.prototype.state = function (state) {
   window.history.replaceState(state)
 }
 
-HistoryApi.prototype.replace = function (url) {
+PushState.prototype.replace = function (url) {
   window.history.replaceState(undefined, undefined, url)
 }
 
-exports.historyApi = function () {
-  return new HistoryApi()
-}
-
-var lastId = 0
 
 function Hash () {
-  this.id = ++lastId
 }
 
 Hash.prototype.start = function (model) {
@@ -523,10 +463,9 @@ Hash.prototype.start = function (model) {
     return
   }
   this.started = true
-  this.active = true
 
   this.hashchangeListener = function() {
-    if (self.active) {
+    if (self.started) {
       if (!self.pushed) {
         if (model) {
           model.refreshImmediately()
@@ -540,14 +479,9 @@ Hash.prototype.start = function (model) {
 }
 
 Hash.prototype.stop = function () {
-  this.active = false
+  this.started = false
   window.removeEventListener('hashchange', this.hashchangeListener);
 }
-
-Hash.prototype.reset = function() {
-  this.stop()
-  this.started = false
-};
 
 Hash.prototype.url = function() {
   var path = window.location.hash || '#';
@@ -571,10 +505,6 @@ Hash.prototype.replace = function(url) {
   return this.push(url);
 };
 
-exports.hash = function () {
-  return new Hash()
-}
-
 function HrefAttribute(route, params, options) {
   this.href = route.url(params)
   this.onclick = refreshify(function(event) {
@@ -592,4 +522,22 @@ HrefAttribute.prototype.hook = function (element) {
 
 HrefAttribute.prototype.unhook = function (element) {
   element.onclick = null
+}
+
+exports = module.exports = new Router()
+
+exports.hash = function () {
+  return new Hash()
+}
+
+exports.pushState = function () {
+  return new PushState()
+}
+
+exports.querystring = function () {
+  return new QueryString()
+}
+
+exports.router = function (options) {
+  return new Router(options)
 }
