@@ -49,11 +49,14 @@ Router.prototype.render = function(model) {
       action = getUrl(url, routes)
     }
 
-
     if (action) {
       if (action.url) {
         if (self.lastUrl != action.url) {
-          self.history.replace(action.url)
+          if (action.push) {
+            self.history.push(action.url)
+          } else {
+            self.history.replace(action.url)
+          }
           self.lastUrl = self.history.url()
         }
       } else if (action.redirect) {
@@ -145,6 +148,20 @@ function Route(patternVariables, options, router) {
   this.onload = typeof options == 'object' && options.hasOwnProperty('onload')? options.onload: undefined
   this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.routes? function(inner) { return inner }: function () {})
   this.redirect = typeof options == 'object' && options.hasOwnProperty('redirect')? options.redirect: undefined
+
+  var push = typeof options == 'object' && options.hasOwnProperty('push')? options.push: undefined
+
+  if (typeof push === 'function') {
+    this.push = push
+  } else if (push instanceof Object) {
+    this.push = function (oldParams, newParams) {
+      return Object.keys(push).some(function (key) {
+        return push[key] && (oldParams.hasOwnProperty(key) || newParams.hasOwnProperty(key)) && oldParams[key] !== newParams[key]
+      })
+    }
+  } else {
+    this.push = function () { return push }
+  }
 }
 
 function bindParams(params) {
@@ -248,7 +265,9 @@ Route.prototype.get = function(url) {
     })
 
     var oldParams = this.urlParams(url)
-    var newUrl = this.router.expandUrl(this.pattern, extend(oldParams, params))
+    var newUrl = this.router.expandUrl(this.pattern, extend(extend({}, oldParams), params))
+    var newParams = this.urlParams(newUrl)
+    var push = this.push(oldParams, newParams)
   }
 
   if (this.routes) {
@@ -257,6 +276,7 @@ Route.prototype.get = function(url) {
   } else {
     return {
       url: newUrl,
+      push: push,
       render: this.render.bind(this)
     }
   }
