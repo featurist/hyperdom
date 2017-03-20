@@ -1,6 +1,6 @@
 var vtext = require("virtual-dom/vnode/vtext.js")
 var isVdom = require('./isVdom');
-var ViewModel = require('./viewModel')
+var Component = require('./component')
 
 function toVdom(object) {
   if (object === undefined || object === null) {
@@ -14,7 +14,7 @@ function toVdom(object) {
   } else if (isVdom(object)) {
     return object;
   } else if (typeof object.render === 'function') {
-    return new ViewModel(object);
+    return new Component(object);
   } else {
     return new vtext(JSON.stringify(object));
   }

@@ -465,7 +465,7 @@ HistoryApi.prototype.start = function (model) {
 
   window.addEventListener('popstate', this.listener = function() {
     if (model) {
-      model.rerenderImmediately()
+      model.refreshImmediately()
 
       // hack!
       // Chrome 56.0.2924.87 (64-bit)
@@ -473,8 +473,8 @@ HistoryApi.prototype.start = function (model) {
       // when you move back and forward in history the browser will remember the scroll
       // positions at each URL and then restore those scroll positions when you come
       // back to that URL, just like in normal navigation
-      // However, the trick is to rerender the page so that it has the correct height
-      // before that scroll takes place, which is what we do with model.rerenderImmediately()
+      // However, the trick is to refresh the page so that it has the correct height
+      // before that scroll takes place, which is what we do with model.refreshImmediately()
       // also, it seems that its necessary to call document.body.clientHeight to force it
       // to layout the page before attempting set the scroll position
       document.body.clientHeight
@@ -525,11 +525,11 @@ Hash.prototype.start = function (model) {
   this.started = true
   this.active = true
 
-  this.hashchangeListener = function(event) {
+  this.hashchangeListener = function() {
     if (self.active) {
       if (!self.pushed) {
         if (model) {
-          model.rerenderImmediately()
+          model.refreshImmediately()
         }
       } else {
         self.pushed = false;

@@ -9,7 +9,7 @@ require('jquery-sendkeys');
 var browser = require('browser-monkey').find('.test');
 var vdomToHtml = require('vdom-to-html');
 var times = require('lowscore/times');
-var vdomComponent = require('../../component');
+var vdomComponent = require('../../componentWidget');
 var windowEvents = require('../../windowEvents');
 var merge = require('../../merge')
 var runRender = require('../../render')
@@ -1058,7 +1058,7 @@ describe('hyperdom', function () {
     });
   });
 
-  describe('view models', function () {
+  describe('components', function () {
     it('calls onload once when HTML appears on page', function () {
       var model = {
         loaded: 0,
@@ -1096,7 +1096,7 @@ describe('hyperdom', function () {
       });
     });
 
-    describe('inner view models', function () {
+    describe('inner components', function () {
       it('calls onload once when HTML appears on page', function () {
         var model = {
           innerModel: {
@@ -1373,7 +1373,7 @@ describe('hyperdom', function () {
       });
     });
 
-    it('the view model can rerender the view', function () {
+    it('the component can refresh the view', function () {
       var model = {
         name: 'Njord',
 
@@ -1387,14 +1387,14 @@ describe('hyperdom', function () {
       expect(find('h1').text()).to.equal('hi Njord');
 
       model.name = 'Hayfa';
-      model.rerender();
+      model.refresh();
 
       return retry(function () {
         expect(find('h1').text()).to.equal('hi Hayfa');
       });
     });
 
-    it('can rerender several view models without rerendering the whole page', function () {
+    it('can refresh several components without refreshing the whole page', function () {
       var model = {
         model1: innerModel('model1', 'one'),
         model2: innerModel('model2', 'xxx'),
@@ -1421,13 +1421,13 @@ describe('hyperdom', function () {
 
       model.model1.name = 'two';
       model.model2.name = 'yyy';
-      model.model1.rerenderViewModel();
+      model.model1.refreshComponent();
 
       return retry(function () {
         expect(find('h1.model1').text()).to.equal('hi two');
         expect(find('h1.model2').text()).to.equal('hi xxx');
       }).then(function () {
-        model.model2.rerenderViewModel();
+        model.model2.refreshComponent();
       }).then(function () {
         return retry(function () {
           expect(find('h1.model1').text()).to.equal('hi two');
@@ -1437,8 +1437,8 @@ describe('hyperdom', function () {
         model.model1.name = 'three';
         model.model2.name = 'zzz';
 
-        model.model1.rerenderViewModel();
-        model.model2.rerenderViewModel();
+        model.model1.refreshComponent();
+        model.model2.refreshComponent();
 
         return retry(function () {
           expect(find('h1.model1').text()).to.equal('hi three');
@@ -1447,7 +1447,7 @@ describe('hyperdom', function () {
       });
     });
 
-    it('a view model can be represented several times and be rerendered', function () {
+    it('a component can be represented several times and be refreshed', function () {
       var model = {
         models: 1,
 
@@ -1473,34 +1473,34 @@ describe('hyperdom', function () {
       expect(find('ul').text()).to.equal('Jack');
 
       model.innerModel.name = 'Jill';
-      model.innerModel.rerenderViewModel();
+      model.innerModel.refreshComponent();
 
       return retry(function () {
         expect(find('ul').text()).to.equal('Jill');
       }).then(function () {
         model.models = 3;
-        model.rerender();
+        model.refresh();
       }).then(function () {
         return retry(function () {
           expect(find('ul').text()).to.equal('JillJillJill');
         });
       }).then(function () {
         model.innerModel.name = 'Jacky';
-        model.innerModel.rerenderViewModel();
+        model.innerModel.refreshComponent();
 
         return retry(function () {
           expect(find('ul').text()).to.equal('JackyJackyJacky');
         });
       }).then(function () {
         model.models = 2;
-        model.rerender();
+        model.refresh();
       }).then(function () {
         return retry(function () {
           expect(find('ul').text()).to.equal('JackyJacky');
         });
       }).then(function () {
         model.innerModel.name = 'Joel';
-        model.innerModel.rerenderViewModel();
+        model.innerModel.refreshComponent();
 
         return retry(function () {
           expect(find('ul').text()).to.equal('JoelJoel');
@@ -1519,7 +1519,7 @@ describe('hyperdom', function () {
 
       runRender._currentRender = {
         mount: {
-          rerender: function () {
+          refresh: function () {
             refreshCalled = true;
           },
 
@@ -1601,7 +1601,7 @@ describe('hyperdom', function () {
       });
     });
 
-    context('component: component', function () {
+    context('component: old component', function () {
       it('calls refresh with the component', function () {
         var component = {
           canRefresh: true,
@@ -1617,18 +1617,18 @@ describe('hyperdom', function () {
       });
     });
 
-    context('viewModel: viewModel', function () {
-      it('calls refresh with the view model', function () {
-        var viewModel = {
-          rerenderViewModel: function () {
-            this.wasRerendered = true;
+    context('component: component', function () {
+      it('calls refresh with the component', function () {
+        var component = {
+          refreshComponent: function () {
+            this.wasRefreshed = true;
           }
         }
 
         var model = {};
-        hyperdom.binding([model, 'field'], {viewModel: viewModel}).set('value');
+        hyperdom.binding([model, 'field'], {component: component}).set('value');
 
-        expect(viewModel.wasRerendered).to.be.true;
+        expect(component.wasRefreshed).to.be.true;
       });
     });
 
@@ -1838,8 +1838,8 @@ describe('hyperdom', function () {
     })
   })
 
-  describe('view model debugger', function () {
-    it('sets the view model to the element', function () {
+  describe('component debugger', function () {
+    it('sets the component to the element', function () {
       var inner = {
         render: function () {
           return h('div.inner', 'inner')
@@ -1854,8 +1854,8 @@ describe('hyperdom', function () {
 
       attach(outer);
 
-      expect(find('.outer')[0]._hyperdomMeta.viewModel).to.eql(outer)
-      expect(find('.inner')[0]._hyperdomMeta.viewModel).to.eql(inner)
+      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
+      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
     })
   })
 

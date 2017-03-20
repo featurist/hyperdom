@@ -12,7 +12,6 @@ module.exports.norefresh = norefreshFunction
 
 function refreshAfterEvent(result, mount, options) {
   var onlyRefreshAfterPromise = options && options.refresh == 'promise';
-  var viewModelToRefresh = options && options.viewModel;
   var componentToRefresh = options && options.component;
 
   if (result && typeof(result.then) == 'function') {
@@ -27,32 +26,34 @@ function refreshAfterEvent(result, mount, options) {
     return;
   }
 
-  if (isViewModelOrComponent(result)) {
-    mount.rerenderWidget(result);
+  if (isComponent(result)) {
+    mount.refreshComponent(result);
   } else if (result instanceof Array) {
     for (var i = 0; i < result.length; i++) {
       refreshAfterEvent(result[i], mount, options);
     }
-  } else if (viewModelToRefresh) {
-    viewModelToRefresh.rerenderViewModel();
   } else if (componentToRefresh) {
-    componentToRefresh.refresh();
+    if (componentToRefresh.refreshComponent) {
+      componentToRefresh.refreshComponent()
+    } else {
+      componentToRefresh.refresh();
+    }
   } else if (result === norefresh) {
     // don't refresh;
   } else if (result === norefreshFunction) {
     deprecations.norefresh('hyperdom.norefresh is deprecated, please use hyperdom.norefresh()');
     // don't refresh;
   } else {
-    mount.rerender();
+    mount.refresh();
     return result;
   }
 }
 
-function isViewModelOrComponent(component) {
+function isComponent(component) {
   return component
     && ((typeof component.init === 'function'
        && typeof component.update === 'function'
-       && typeof component.destroy === 'function') || (typeof component.renderViewModel === 'function'));
+       && typeof component.destroy === 'function') || (typeof component.refreshComponent === 'function'));
 }
 
 function cloneOptions(options) {
@@ -60,7 +61,6 @@ function cloneOptions(options) {
     return {
       norefresh: options.norefresh,
       refresh: options.refresh,
-      viewModel: options.viewModel,
       component: options.component,
     }
   } else {

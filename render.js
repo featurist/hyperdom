@@ -31,7 +31,7 @@ runRender.currentRender = function () {
 
 var defaultRender = {
   mount: {
-    renderViewModel: function(model) { return model.render() },
+    renderComponent: function(model) { return model.render() },
     refreshify: function(fn) { return fn }
   },
 
