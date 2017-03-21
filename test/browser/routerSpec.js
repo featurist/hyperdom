@@ -28,10 +28,29 @@ function describeRouter(historyApi) {
     }
 
     function resetRouter() {
+      if (router) {
+        router.reset()
+      }
       if (historyApi == 'hash') {
         router = hyperdomRouter.router({history: hyperdomRouter.hash()})
       } else {
         router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
+      }
+    }
+
+    function push(route, params) {
+      if (history == 'hash') {
+        return new Promise(function (resolve) {
+          var oldURL = window.location.href
+          window.addEventListener('hashchange', function (event) {
+            if (event.oldURL === oldURL) {
+              resolve()
+            }
+            route.push(params)
+          })
+        })
+      } else {
+        route.push(params)
       }
     }
 
@@ -549,8 +568,9 @@ function describeRouter(historyApi) {
             monkey.find('h1').shouldHave({text: 'b = b'})
           ]).then(function () {
             expect(events).to.eql([])
-            routes.b.push({a: 'a', b: 'c'})
-            app.refresh()
+            return push(routes.b, {a: 'a', b: 'c'})
+          }).then(function () {
+            app.refreshImmediately()
 
             return Promise.all([
               monkey.find('div.menu').shouldHave({text: 'menu'}),

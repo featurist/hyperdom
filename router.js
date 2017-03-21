@@ -194,7 +194,7 @@ Route.prototype.urlParams = function(url, _match) {
   var params = this.router._querystring.parse(query)
 
   if (match) {
-    for (var n = 1; n < match.length; n++) {
+    for (var n = 1; n < match.length - 1; n++) {
       params[this.variables[n - 1]] = match[n]
     }
   }
@@ -360,8 +360,8 @@ function preparePattern(pattern) {
 
   return {
     pattern: pattern,
-    regex: new RegExp('^' + compiledPattern + '$'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/'? '': '/|$')),
+    regex: new RegExp('^' + compiledPattern + '($)'),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/'? '': '(/|$)')),
     variables: variables
   }
 }
@@ -472,7 +472,6 @@ PushState.prototype.state = function (state) {
 PushState.prototype.replace = function (url) {
   window.history.replaceState(undefined, undefined, url)
 }
-
 
 function Hash () {
 }
