@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 var mountHyperdom = require('./mountHyperdom')
-var router = require('../../router')
+var hyperdomRouter = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
@@ -13,6 +13,8 @@ if (detect.pushState) {
 
 function describeRouter(historyApi) {
   describe('router (' + historyApi + ')', function () {
+    var router
+
     function mount(app, url) {
       var options = {router: router}
 
@@ -26,10 +28,29 @@ function describeRouter(historyApi) {
     }
 
     function resetRouter() {
+      if (router) {
+        router.reset()
+      }
       if (historyApi == 'hash') {
-        router.set({history: router.hash()})
+        router = hyperdomRouter.router({history: hyperdomRouter.hash()})
       } else {
-        router.set()
+        router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
+      }
+    }
+
+    function push(route, params) {
+      if (history == 'hash') {
+        return new Promise(function (resolve) {
+          var oldURL = window.location.href
+          window.addEventListener('hashchange', function (event) {
+            if (event.oldURL === oldURL) {
+              resolve()
+            }
+            route.push(params)
+          })
+        })
+      } else {
+        route.push(params)
       }
     }
 
@@ -190,6 +211,139 @@ function describeRouter(historyApi) {
         })
       })
     })
+
+    if (history == 'pushState') {
+      describe('push replace', function () {
+        context('app with bindings', function () {
+          var app
+          var route
+          var home
+          var push
+
+          beforeEach(function () {
+            route = router.route('/:a')
+            home = router.route('/')
+
+            app = {
+              routes: function () {
+                var self = this
+
+                return [
+                  home({
+                    render: function () {
+                      return h('h1', 'home')
+                    }
+                  }),
+                  route({
+                    bindings: {
+                      a: [this, 'a'],
+                    },
+
+                    push: push,
+
+                    render: function () {
+                      return h('h1', 'a = ' + self.a)
+                    }
+                  })
+                ]
+              }
+            }
+          })
+
+          context('when a is always push', function () {
+            beforeEach(function () {
+              push = {a: true}
+            })
+
+            it('pushes changes to binding a when it changes', function () {
+              var monkey = mount(app, '/a')
+
+              return monkey.find('h1').shouldHave({text: 'a = a'}).then(function () {
+                app.a = 'b'
+                app.refresh()
+                return monkey.find('h1').shouldHave({text: 'a = b'})
+              }).then(function () {
+                expect(window.location.pathname).to.equal('/b')
+                window.history.back()
+                return monkey.find('h1').shouldHave({text: 'a = a'})
+              }).then(function () {
+                expect(window.location.pathname).to.equal('/a')
+              })
+            })
+          })
+
+          context('when a is never push', function () {
+            beforeEach(function () {
+              push = {a: false}
+            })
+
+            it('pushes changes to binding a when it changes', function () {
+              var monkey = mount(app, '/')
+
+              return monkey.find('h1').shouldHave({text: 'home'}).then(function () {
+                route.push({a: 'a'})
+                app.refresh()
+              }).then(function () {
+                return monkey.find('h1').shouldHave({text: 'a = a'})
+              }).then(function () {
+                app.a = 'b'
+                app.refresh()
+                return monkey.find('h1').shouldHave({text: 'a = b'})
+              }).then(function () {
+                window.history.back()
+                return monkey.find('h1').shouldHave({text: 'home'})
+              })
+            })
+          })
+
+          context('when a is sometimes push', function () {
+            var pushResult
+            var oldParams
+            var newParams
+
+            beforeEach(function () {
+              pushResult = false
+              push = function(_oldParams, _newParams) {
+                oldParams = _oldParams
+                newParams = _newParams
+                return pushResult
+              }
+            })
+
+            it('pushes changes to binding a when it changes', function () {
+              var monkey = mount(app, '/')
+
+              return monkey.find('h1').shouldHave({text: 'home'}).then(function () {
+                route.push({a: 'a'})
+                app.refresh()
+              }).then(function () {
+                return monkey.find('h1').shouldHave({text: 'a = a'})
+              }).then(function () {
+                app.a = 'b'
+                pushResult = true
+                app.refresh()
+                return monkey.find('h1').shouldHave({text: 'a = b'})
+              }).then(function () {
+                expect(oldParams).to.eql({a: 'a'})
+                expect(newParams).to.eql({a: 'b'})
+                window.history.back()
+                return monkey.find('h1').shouldHave({text: 'a = a'})
+              }).then(function () {
+                app.a = 'b'
+                pushResult = false
+                app.refresh()
+                return monkey.find('h1').shouldHave({text: 'a = b'})
+              }).then(function () {
+                expect(oldParams).to.eql({a: 'a'})
+                expect(newParams).to.eql({a: 'b'})
+                window.history.back()
+                return monkey.find('h1').shouldHave({text: 'home'})
+              })
+            })
+          })
+        })
+      })
+    }
 
     describe('onload', function () {
       context('app with onload', function () {
@@ -414,8 +568,9 @@ function describeRouter(historyApi) {
             monkey.find('h1').shouldHave({text: 'b = b'})
           ]).then(function () {
             expect(events).to.eql([])
-            routes.b.push({a: 'a', b: 'c'})
-            app.refresh()
+            return push(routes.b, {a: 'a', b: 'c'})
+          }).then(function () {
+            app.refreshImmediately()
 
             return Promise.all([
               monkey.find('div.menu').shouldHave({text: 'menu'}),
