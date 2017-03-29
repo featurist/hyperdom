@@ -1,9 +1,11 @@
 var hyperdomMeta = require('./meta');
 var runRender = require('./render');
+var domComponent = require('./domComponent');
 var Set = require('./set');
 var refreshEventResult = require('./refreshEventResult')
 var vtext = require("virtual-dom/vnode/vtext.js")
 var PropertyHook = require('./propertyHook');
+var Component = require('./component')
 
 var lastId = 0;
 
@@ -12,6 +14,7 @@ function Mount(model, options) {
   var router = typeof options == 'object' && options.hasOwnProperty('router')? options.router: undefined;
   this.requestRender = (options && options.requestRender) || win.requestAnimationFrame || win.setTimeout;
 
+  this.document = (options && options.document) || document
   this.model = model;
 
   this.renderQueued = false;
@@ -64,13 +67,12 @@ Mount.prototype.queueRender = function () {
   }
 };
 
+Mount.prototype.createDomComponent = function() {
+  return domComponent.create({ document: this.document })
+};
+
 Mount.prototype.render = function() {
-  if (this.router) {
-    this.setupModelComponent(this.model)
-    return this.router.render(this.model)
-  } else {
-    return this.renderComponent(this.model)
-  }
+  return (this.router && this.router.render(this.model)) || this.model
 };
 
 Mount.prototype.refresh = function () {

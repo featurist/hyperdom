@@ -23,7 +23,6 @@
     "karma-browserstack-launcher": "1.2.0",
     "karma-chrome-launcher": "2.0.0",
     "karma-cli": "1.0.1",
-    "karma-electron": "5.1.1",
     "karma-electron-launcher": "0.2.0",
     "karma-firefox-launcher": "1.0.0",
     "karma-ievms": "0.1.0",

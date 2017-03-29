@@ -1,4 +1,3 @@
-var domComponent = require('./domComponent');
 var hyperdomMeta = require('./meta');
 var render = require('./render');
 
@@ -23,7 +22,7 @@ Component.prototype.init = function () {
   var meta = hyperdomMeta(this.model);
   meta.components.add(this);
 
-  this.component = domComponent.create();
+  this.component = this.currentRender.mount.createDomComponent()
   var element = this.component.create(vdom);
 
   if (self.model.onbeforeadd) {

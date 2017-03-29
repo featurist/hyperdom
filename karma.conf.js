@@ -41,6 +41,10 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: process.env.BROWSERS? ['dots']: ['mocha'],
 
+    electronOpts: {
+      show: false
+    },
+
     mochaReporter: {
       showDiff: true
     },

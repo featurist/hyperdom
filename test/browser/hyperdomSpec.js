@@ -1219,70 +1219,59 @@ describe('hyperdom', function () {
       });
     });
 
-    it('calls onadd when adding the HTML, onupdate when updating the HTML, onremove when removing the HTML', function () {
+    it('top level receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
       var events = [];
-      var refreshCount = 0;
+      var monitor = renderMonitor();
 
       var model = {
-        innerModel: {
-          onadd: function () {
-            events.push('add');
-          },
-          onupdate: function () {
-            events.push('update');
-          },
-          onremove: function () {
-            events.push('remove');
-          },
-          render: function () {
-            return h('div', 'rest of the content')
-          }
+        onadd: function (element) {
+          events.push({
+            type: 'onadd',
+            parent: element.parentNode,
+            element: element
+          });
+        },
+
+        onupdate: function (element) {
+          events.push({
+            type: 'onupdate',
+            element: element,
+          });
         },
 
         render: function () {
-          refreshCount++;
-          return h('div',
-            model.show? this.innerModel: undefined,
-            h('button.refresh', {onclick: function () {}}, 'refresh'),
-            h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
-          );
-        }
-      };
+          monitor.rendering();
 
-      var waitForRefresh = (function () {
-        var oldRefreshCount = 1;
-        return function () {
-          return retry(function () {
-            expect(refreshCount).to.equal(oldRefreshCount + 1);
-          }).then(function () {
-            oldRefreshCount = refreshCount;
-          });
-        };
-      })();
+          return h('div',
+            h('h1', 'component'),
+            h('button.refresh', {onclick: function () {} }, 'refresh')
+          )
+        }
+      }
 
       attach(model);
 
-      return click('input.show').then(function () {
-        return waitForRefresh().then(function () {
-          return click('button.refresh').then(function () {
-            return waitForRefresh().then(function () {
-              return click('button.refresh').then(function () {
-                return waitForRefresh().then(function () {
-                  return click('input.show').then(function () {
-                    return retry(function () {
-                      expect(events).to.eql([
-                        'add',
-                        'update',
-                        'update',
-                        'remove'
-                      ]);
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
+      var expectedParent = div;
+      var expectedElement = div.firstChild;
+
+      return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
+        return monitor.waitForRenderAfter(click('button.refresh'));
+      }).then(function () {
+        expect(events).to.eql([
+          {
+            type: 'onadd',
+            parent: expectedParent,
+            element: expectedElement
+          },
+          {
+            type: 'onupdate',
+            element: expectedElement
+          },
+          {
+            type: 'onupdate',
+            element: expectedElement
+          }
+        ]);
       });
     });
 
@@ -1697,133 +1686,138 @@ describe('hyperdom', function () {
     });
   });
 
-  describe('hyperdom.component', function () {
-    it('captures lifetime events', function () {
-      var monitor = renderMonitor();
-      var events = []
+  describe('components', function () {
+    var events
+    var monitor
+    var renderData
+    var renderCacheKey
 
-      var app = {
-        render: function() {
+    beforeEach(function () {
+      monitor = renderMonitor()
+      events = []
+
+      renderData = 'one'
+      renderCacheKey = 'one'
+    })
+
+    function trimH1(innerHTML) {
+      return /<h1>.*?<\/h1>/.exec(innerHTML)[0]
+    }
+
+    function component(options) {
+      var render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: undefined;
+
+      return {
+        onbeforeadd: function () {
+          events.push(['onbeforeadd'])
+          this.lastState = 'beforeadd'
+        },
+
+        onadd: function (element) {
+          events.push(['onadd', trimH1(element.innerHTML), this.lastState])
+          this.lastState = 'add'
+        },
+
+        onbeforerender: function (element) {
+          events.push(['onbeforerender', element? trimH1(element.innerHTML): null, this.lastState])
+        },
+
+        onrender: function (element, oldElement) {
+          events.push(['onrender', trimH1(element.innerHTML), oldElement? trimH1(oldElement.innerHTML): null, this.lastState])
+        },
+
+        onbeforeupdate: function (element) {
+          events.push(['onbeforeupdate', trimH1(element.innerHTML), this.lastState])
+          this.lastState = 'beforeupdate'
+        },
+
+        onupdate: function (element, oldElement) {
+          events.push(['onupdate', trimH1(element.innerHTML), trimH1(oldElement.innerHTML), this.lastState])
+          this.lastState = 'update'
+        },
+
+        onbeforeremove: function (element) {
+          events.push(['onbeforeremove', trimH1(element.innerHTML), this.lastState])
+          this.lastState = 'beforeremove'
+        },
+
+        onremove: function (element) {
+          events.push(['onremove', trimH1(element.innerHTML), this.lastState])
+          this.lastState = 'remove'
+        },
+
+        render: function () {
+          return h('div', h('h1', 'element: ' + monitor.renderCount), render? render(): '')
+        }
+      }
+    }
+
+    function cachingComponent(render) {
+      return {
+        renderCacheKey: function () {
           monitor.rendering();
-
+          return renderCacheKey
+        },
+        render: function () {
           return h('div',
-            this.show?
-              hyperdom.component({
-                data: monitor.renderCount,
-
-                onbeforeadd: function () {
-                  events.push(['onbeforeadd', this.data])
-                  this.lastState = 'beforeadd'
-                },
-
-                onadd: function (element) {
-                  events.push(['onadd', element.innerHTML, this.data, this.lastState])
-                  this.lastState = 'add'
-                },
-
-                onbeforerender: function (element) {
-                  events.push(['onbeforerender', element? element.innerHTML: null, this.data, this.lastState])
-                },
-
-                onrender: function (element, oldElement) {
-                  events.push(['onrender', element.innerHTML, oldElement? oldElement.innerHTML: null, this.data, this.lastState])
-                },
-
-                onbeforeupdate: function (element) {
-                  events.push(['onbeforeupdate', element.innerHTML, this.data, this.lastState])
-                  this.lastState = 'beforeupdate'
-                },
-
-                onupdate: function (element, oldElement) {
-                  events.push(['onupdate', element.innerHTML, oldElement.innerHTML, this.data, this.lastState])
-                  this.lastState = 'update'
-                },
-
-                onbeforeremove: function (element) {
-                  events.push(['onbeforeremove', element.innerHTML, this.data, this.lastState])
-                  this.lastState = 'beforeremove'
-                },
-
-                onremove: function (element) {
-                  events.push(['onremove', element.innerHTML, this.data, this.lastState])
-                  this.lastState = 'remove'
-                },
-
-                render: function () {
-                  return h('div', h('h1', 'element: ' + monitor.renderCount))
-                }
-              })
-              : undefined,
-            h('button.add', {onclick: function () { app.show = true; }}, 'add'),
-            h('button.remove', {onclick: function () { app.show = false; }}, 'remove'),
-            h('button.update', {onclick: function () {}}, 'update')
+            h('h1', 'element: ' + renderData),
+            render? render(): ''
           )
         }
       }
+    }
 
-      attach(app)
-
+    function respondsToEvents(options) {
       function elementHtml() {
-        return '<h1>element: ' + monitor.renderCount + '</h1>'
+        return '<h1>element: ' + (monitor.renderCount - renderOffset) + '</h1>'
       }
 
       function oldElementHtml() {
-        return '<h1>element: ' + (monitor.renderCount - 1) + '</h1>'
+        return '<h1>element: ' + (monitor.renderCount - renderOffset - 1) + '</h1>'
       }
 
-      return monitor.waitForRenderAfter(click('button.add')).then(function () {
+      var clickAdd
+      var renderOffset
+
+      if (!(options && options.remove === false)) {
+        renderOffset = 0
+        clickAdd = monitor.waitForRenderAfter(click('button.add'))
+      } else {
+        renderOffset = 1
+        clickAdd = Promise.resolve()
+      }
+
+      return clickAdd.then(function () {
         expect(events).to.eql([
-          ['onbeforeadd', monitor.renderCount],
-          ['onbeforerender', null, monitor.renderCount, 'beforeadd'],
-          ['onadd', elementHtml(), monitor.renderCount, 'beforeadd'],
-          ['onrender', elementHtml(), null, monitor.renderCount, 'add']
+          ['onbeforeadd'],
+          ['onbeforerender', null, 'beforeadd'],
+          ['onadd', elementHtml(), 'beforeadd'],
+          ['onrender', elementHtml(), null, 'add']
         ])
         events = []
 
         return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(events).to.eql([
-          ['onbeforeupdate', oldElementHtml(), monitor.renderCount, 'add'],
-          ['onbeforerender', oldElementHtml(), monitor.renderCount, 'beforeupdate'],
-          ['onupdate', elementHtml(), elementHtml(), monitor.renderCount, 'beforeupdate'],
-          ['onrender', elementHtml(), elementHtml(), monitor.renderCount, 'update']
+          ['onbeforeupdate', oldElementHtml(), 'add'],
+          ['onbeforerender', oldElementHtml(), 'beforeupdate'],
+          ['onupdate', elementHtml(), elementHtml(), 'beforeupdate'],
+          ['onrender', elementHtml(), elementHtml(), 'update']
         ])
         events = []
 
-        return monitor.waitForRenderAfter(click('button.remove'))
-      }).then(function () {
-        expect(events).to.eql([
-          ['onbeforeremove', oldElementHtml(), monitor.renderCount - 1, 'update'],
-          ['onremove', oldElementHtml(), monitor.renderCount - 1, 'beforeremove']
-        ])
-      })
-    })
-
-    it('can cache', function () {
-      var monitor = renderMonitor();
-      var renderData = 'one'
-      var renderCacheKey = 'one'
-
-      var app = {
-        render: function() {
-          monitor.rendering();
-
-          return h('div',
-            hyperdom.component({
-              renderCacheKey: function () {
-                return renderCacheKey
-              },
-              render: function () {
-                return h('h1', 'element: ' + renderData)
-              }
-            }),
-            h('button.update', {onclick: function () {}}, 'update')
-          )
+        if (!(options && options.remove === false)) {
+          return monitor.waitForRenderAfter(click('button.remove')).then(function () {
+            expect(events).to.eql([
+              ['onbeforeremove', oldElementHtml(), 'update'],
+              ['onremove', oldElementHtml(), 'beforeremove']
+            ])
+          })
         }
-      }
-
-      attach(app)
-
+      })
+    }
+      
+    function canCache() {
       expect(find('h1').text()).to.equal('element: one')
 
       renderData = 'two'
@@ -1834,6 +1828,115 @@ describe('hyperdom', function () {
         return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(find('h1').text()).to.equal('element: two')
+      })
+    }
+
+    context('model components', function () {
+      it('captures lifetime events', function () {
+        var model = {
+          show: false,
+
+          innerModel: component(),
+
+          render: function() {
+            monitor.rendering();
+
+            this.innerModel.data = monitor.renderCount
+
+            return h('div',
+              this.show? this.innerModel: undefined,
+              h('button.add', {onclick: function () { model.show = true; }}, 'add'),
+              h('button.update', {onclick: function () {}},  'update'),
+              h('button.remove', {onclick: function () { model.show = false; }}, 'remove')
+            );
+          }
+        };
+
+        attach(model);
+
+        return respondsToEvents()
+      })
+
+      it('can cache', function () {
+        var app = {
+          innerModel: cachingComponent(),
+
+          render: function() {
+            return h('div',
+              this.innerModel,
+              h('button.update', {onclick: function () {}}, 'update')
+            )
+          }
+        }
+
+        attach(app)
+
+        return canCache()
+      })
+    })
+
+    context('top level model components', function () {
+      it('captures lifetime events', function () {
+        var model = component({
+          render: function () {
+            monitor.rendering();
+            return h('div',
+              h('button.add', {onclick: function () { model.show = true; }}, 'add'),
+              h('button.update', {onclick: function () {}},  'update')
+            );
+          }
+        })
+
+        attach(model);
+
+        return respondsToEvents({remove: false})
+      })
+
+      it('can cache', function () {
+        var app = cachingComponent(function () {
+          return h('button.update', {onclick: function () {}}, 'update')
+        })
+
+        attach(app)
+
+        return canCache()
+      })
+    })
+
+    context('view components', function () {
+      it('captures lifetime events', function () {
+        var app = {
+          render: function() {
+            monitor.rendering();
+            return h('div',
+              this.show?
+                hyperdom.component(component())
+                : undefined,
+              h('button.add', {onclick: function () { app.show = true; }}, 'add'),
+              h('button.remove', {onclick: function () { app.show = false; }}, 'remove'),
+              h('button.update', {onclick: function () {}}, 'update')
+            )
+          }
+        }
+
+        attach(app)
+
+        return respondsToEvents()
+      })
+
+      it('can cache', function () {
+        var app = {
+          render: function() {
+            return h('div',
+              hyperdom.component(cachingComponent()),
+              h('button.update', {onclick: function () {}}, 'update')
+            )
+          }
+        }
+
+        attach(app)
+
+        return canCache()
       })
     })
   })
