@@ -378,10 +378,19 @@ function findMatch(url, routes) {
     var route = routes[r];
     var match
 
-    if ((match = route.match(url))) {
-      return {
-        route: route,
-        match: match
+    if (typeof route.match === 'function') {
+      if ((match = route.match(url))) {
+        return {
+          route: route,
+          match: match
+        }
+      }
+    } else if (typeof route.routes === 'function') {
+      var subRoutes = modelRoutes(route)
+      var subMatch = findMatch(url, subRoutes)
+      
+      if (subMatch) {
+        return subMatch
       }
     }
   }
