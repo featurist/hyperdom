@@ -1,4 +1,4 @@
-var refreshify = require('./refreshify');
+var refreshify = require('./render').refreshify;
 var meta = require('./meta');
 
 module.exports = function(b, options) {

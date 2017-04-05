@@ -617,57 +617,84 @@ describe('hyperdom', function () {
     });
   });
 
-  it('can respond to button clicks', function () {
-    function render(model) {
-      return h('div',
-        h('button', {
+  describe('event handlers', function () {
+    it('can respond to button clicks', function () {
+      function render(model) {
+        return h('div',
+          h('button', {
+            onclick: function () {
+              model.on = true;
+            }
+          }),
+          model.on? h('span', 'on'): undefined
+        );
+      }
+
+      attach(render, {});
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(find('span').text()).to.eql('on');
+        });
+      });
+    });
+
+    it('can respond to button clicks after promise resolves', function () {
+      function render(model) {
+        return h('div',
+          h('button', {
+            onclick: function () {
+              model.text = 'loading';
+              return new Promise(function (result) {
+                setTimeout(function () {
+                  model.text = 'loaded';
+                  result();
+                }, 100);
+              });
+            }
+          }),
+          h('span', model.text)
+        );
+      }
+
+      attach(render, {});
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(find('span').text()).to.eql('loading');
+        });
+      }).then(function () {
+        return retry(function () {
+          expect(find('span').text()).to.eql('loaded');
+        });
+      });
+    });
+
+    it('can define event handlers outside of the render loop', function () {
+      var model = {
+        button: h('button', {
           onclick: function () {
             model.on = true;
           }
         }),
-        model.on? h('span', 'on'): undefined
-      );
-    }
 
-    attach(render, {});
+        render: function () {
+          return h('div',
+            this.button,
+            model.on? h('span', 'on'): undefined
+          );
+        }
+      }
 
-    return click('button').then(function () {
-      return retry(function () {
-        expect(find('span').text()).to.eql('on');
+      attach(model);
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(find('span').text()).to.eql('on');
+        });
       });
-    });
-  });
-
-  it('can respond to button clicks after promise resolves', function () {
-    function render(model) {
-      return h('div',
-        h('button', {
-          onclick: function () {
-            model.text = 'loading';
-            return new Promise(function (result) {
-              setTimeout(function () {
-                model.text = 'loaded';
-                result();
-              }, 100);
-            });
-          }
-        }),
-        h('span', model.text)
-      );
-    }
-
-    attach(render, {});
-
-    return click('button').then(function () {
-      return retry(function () {
-        expect(find('span').text()).to.eql('loading');
-      });
-    }).then(function () {
-      return retry(function () {
-        expect(find('span').text()).to.eql('loaded');
-      });
-    });
-  });
+    })
+  })
 
   describe('norefresh', function () {
     it("when returned the view doesn't refresh after the handler has run", function () {

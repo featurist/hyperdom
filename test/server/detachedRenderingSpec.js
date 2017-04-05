@@ -24,9 +24,9 @@ describe('hyperdom', function() {
       );
       var html = vdomToHtml(vdom);
       expect(html).to.equal('<div class="outer"><div class="inner"></div><div class="component"></div><div><span>some raw HTML</span></div></div>');
-      vdom.children[0].properties.onclick();
+      vdom.children[0].properties.onclick.handler();
       expect(model.counter).to.equal(1);
-      vdom.children[0].properties.onclick();
+      vdom.children[0].properties.onclick.handler();
       expect(model.counter).to.equal(2);
     });
 
