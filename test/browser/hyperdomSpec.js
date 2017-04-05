@@ -694,6 +694,37 @@ describe('hyperdom', function () {
         });
       });
     })
+
+    it('can render components outside of the render loop', function () {
+      var model = {
+        button: h('div',
+          {
+            render: function () {
+              return h('button', {
+                onclick: function () {
+                  model.on = true;
+                }
+              })
+            }
+          }
+        ),
+
+        render: function () {
+          return h('div',
+            this.button,
+            model.on? h('span', 'on'): undefined
+          );
+        }
+      }
+
+      attach(model);
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(find('span').text()).to.eql('on');
+        });
+      });
+    })
   })
 
   describe('norefresh', function () {
