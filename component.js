@@ -29,7 +29,7 @@ Component.prototype.init = function () {
     self.model.onbeforeadd()
   }
 
-  if (self.model.onbeforeadd) {
+  if (self.model.onbeforerender) {
     self.model.onbeforerender()
   }
 
