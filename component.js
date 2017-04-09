@@ -2,14 +2,10 @@ var hyperdomMeta = require('./meta');
 var render = require('./render');
 
 function Component(model, options) {
-  var currentRender = render.currentRender();
-
   this.isComponent = options && options.hasOwnProperty('component') && options.component
-  this.currentRender = currentRender;
   this.model = model;
   this.key = model.renderKey;
   this.component = undefined;
-  this.mount = currentRender.mount;
 }
 
 Component.prototype.type = 'Widget';
@@ -22,7 +18,8 @@ Component.prototype.init = function () {
   var meta = hyperdomMeta(this.model);
   meta.components.add(this);
 
-  this.component = this.currentRender.mount.createDomComponent()
+  var currentRender = render.currentRender();
+  this.component = currentRender.mount.createDomComponent()
   var element = this.component.create(vdom);
 
   if (self.model.onbeforeadd) {
@@ -34,7 +31,7 @@ Component.prototype.init = function () {
   }
 
   if (self.model.onadd || self.model.onrender) {
-    this.currentRender.finished.then(function () {
+    currentRender.finished.then(function () {
       if (self.model.onadd) {
         self.model.onadd(self.component.element);
       }
@@ -85,7 +82,8 @@ Component.prototype.update = function (previous) {
 
 
   if (self.model.onupdate || self.model.onrender) {
-    this.currentRender.finished.then(function () {
+    var currentRender = render.currentRender();
+    currentRender.finished.then(function () {
       afterUpdate(self.model, self.component.element, oldElement)
     });
   }
@@ -105,7 +103,8 @@ Component.prototype.update = function (previous) {
 };
 
 Component.prototype.render = function () {
-  return this.mount.renderComponent(this.model);
+  var currentRender = render.currentRender();
+  return currentRender.mount.renderComponent(this.model);
 };
 
 Component.prototype.refresh = function () {
@@ -127,7 +126,8 @@ Component.prototype.destroy = function (element) {
   }
 
   if (self.model.onremove) {
-    this.currentRender.finished.then(function () {
+    var currentRender = render.currentRender();
+    currentRender.finished.then(function () {
       self.model.onremove(element);
     });
   }

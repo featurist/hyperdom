@@ -5,7 +5,6 @@ var Set = require('./set');
 var refreshEventResult = require('./refreshEventResult')
 var vtext = require("virtual-dom/vnode/vtext.js")
 var PropertyHook = require('./propertyHook');
-var Component = require('./component')
 
 var lastId = 0;
 

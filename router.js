@@ -1,5 +1,5 @@
 var makeBinding = require('./binding')
-var refreshify = require('./refreshify')
+var refreshify = require('./render').refreshify;
 var runRender = require('./render')
 var h = require('./rendering').html
 

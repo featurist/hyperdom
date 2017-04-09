@@ -24,10 +24,13 @@ Render.prototype.transformFunctionAttribute = function() {
 }
 
 module.exports = runRender
+module.exports.currentRender = currentRender
+module.exports.refreshify = refreshify
+module.exports.RefreshHook = RefreshHook
 
-runRender.currentRender = function () {
+function currentRender () {
   return runRender._currentRender || defaultRender;
-};
+}
 
 var defaultRender = {
   mount: {
@@ -36,6 +39,22 @@ var defaultRender = {
   },
 
   transformFunctionAttribute: function (key, value) {
-    return value
+    return new RefreshHook(value)
   }
+}
+
+function refreshify(fn, options) {
+  return runRender.currentRender().mount.refreshify(fn, options)
+}
+
+function RefreshHook(handler) {
+  this.handler = handler
+}
+
+RefreshHook.prototype.hook = function (node, property) {
+  node[property] = refreshify(this.handler)
+}
+
+RefreshHook.prototype.unhook = function (node, property) {
+  node[property] = null
 }
