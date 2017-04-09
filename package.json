@@ -30,14 +30,17 @@
     "karma-mocha": "1.3.0",
     "karma-mocha-reporter": "2.2.2",
     "karma-safari-launcher": "1.0.0",
+    "lie": "3.1.1",
     "lowscore": "1.12.1",
     "mocha": "3.2.0",
+    "standard": "10.0.1",
     "trytryagain": "1.2.0",
     "uglify-js": "2.4.16",
-    "vdom-to-html": "2.0.0"
+    "vdom-to-html": "2.3.1",
+    "watchify": "3.9.0"
   },
   "scripts": {
-    "test": "npm run karma && npm run mocha",
+    "test": "npm run karma && npm run mocha && standard",
     "test-all": "BROWSERS=all npm test",
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",

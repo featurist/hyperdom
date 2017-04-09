@@ -11,7 +11,7 @@ function norefreshFunction () {
 module.exports.norefresh = norefreshFunction
 
 function refreshAfterEvent (result, mount, options) {
-  var onlyRefreshAfterPromise = options && options.refresh == 'promise'
+  var onlyRefreshAfterPromise = options && options.refresh === 'promise'
   var componentToRefresh = options && options.component
 
   if (result && typeof (result.then) === 'function') {

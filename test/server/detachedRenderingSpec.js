@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 var hyperdom = require('../..')
 var h = hyperdom.html
 

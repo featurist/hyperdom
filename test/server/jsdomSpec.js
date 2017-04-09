@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 var hyperdom = require('../..')
 var jsdom = require('jsdom')
 var expect = require('chai').expect

@@ -26,7 +26,7 @@ function chainConverters (startIndex, converters) {
     }
   }
 
-  if ((converters.length - startIndex) == 1) {
+  if ((converters.length - startIndex) === 1) {
     return makeConverter(converters[startIndex])
   } else {
     var _converters

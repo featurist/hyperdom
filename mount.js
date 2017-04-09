@@ -3,7 +3,7 @@ var runRender = require('./render')
 var domComponent = require('./domComponent')
 var Set = require('./set')
 var refreshEventResult = require('./refreshEventResult')
-var vtext = require('virtual-dom/vnode/vtext.js')
+var Vtext = require('virtual-dom/vnode/vtext.js')
 var PropertyHook = require('./propertyHook')
 
 var lastId = 0
@@ -29,7 +29,7 @@ Mount.prototype.refreshify = function (fn, options) {
     return fn
   }
 
-  if (options && (options.norefresh == true || options.refresh == false)) {
+  if (options && (options.norefresh === true || options.refresh === false)) {
     return fn
   }
 
@@ -142,7 +142,7 @@ Mount.prototype.setupModelComponent = function (model) {
 
 Mount.prototype._renderComponent = function (model) {
   this.setupModelComponent(model)
-  var vdom = typeof model.render === 'function' ? model.render() : new vtext(JSON.stringify(model))
+  var vdom = typeof model.render === 'function' ? model.render() : new Vtext(JSON.stringify(model))
 
   if (vdom instanceof Array) {
     console.error('vdom returned from component cannot be an array, component: ', model)
@@ -171,7 +171,7 @@ Mount.prototype.renderComponent = function (model) {
       return meta.cachedVdom
     } else {
       meta.cacheKey = key
-      return meta.cachedVdom = this._renderComponent(model)
+      return (meta.cachedVdom = this._renderComponent(model))
     }
   } else {
     return this._renderComponent(model)

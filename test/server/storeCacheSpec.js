@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 var serverRenderCache = require('../../serverRenderCache')
 var StoreCache = require('../../storeCache')
 var render = require('../../render')
@@ -41,9 +43,9 @@ describe('store cache', function () {
     refreshify(function () {
       return serverRenderCache('key', () => load('some data')).then(data => {
         expect(data).to.equal('some data')
-        return setData1 = data
+        return (setData1 = data)
       }).then(data => {
-        return setData2 = data
+        return (setData2 = data)
       })
     })()
 

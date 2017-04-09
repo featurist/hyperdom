@@ -13,7 +13,6 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/browser/promisePolyfill.js',
       'test/browser/**/*Spec.js'
     ],
 
@@ -60,14 +59,14 @@ module.exports = function (config) {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_WARN,
-    concurrency: process.env.BROWSERS == 'all' ? 2 : Infinity,
+    concurrency: process.env.BROWSERS === 'all' ? 2 : Infinity,
 
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: process.env.BROWSERS == 'all' ? Object.keys(browsers) : ['Chrome'],
+    browsers: process.env.BROWSERS === 'all' ? Object.keys(browsers) : ['Chrome'],
 
     browserStack: {
       username: process.env.BROWSERSTACK_USER,

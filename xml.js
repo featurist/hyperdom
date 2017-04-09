@@ -26,7 +26,7 @@ function transformProperties (vnode, namespaces) {
     var keys = Object.keys(properties)
     for (var k = 0, l = keys.length; k < l; k++) {
       var key = keys[k]
-      if (key != 'style' && key != 'attributes') {
+      if (key !== 'style' && key !== 'attributes') {
         var match = namespaceRegex.exec(key)
         if (match) {
           properties[match[1] + ':' + match[3]] = new AttributeHook(namespaces[match[1]], properties[key])
@@ -55,7 +55,7 @@ function declaredNamespaces (vnode) {
     var key = keys[k]
     var value = vnode.properties[key]
 
-    if (key == 'xmlns') {
+    if (key === 'xmlns') {
       namespaces[''] = value
     } else {
       var match = xmlnsRegex.exec(key)

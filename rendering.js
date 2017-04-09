@@ -92,7 +92,7 @@ exports.html = function (hierarchySelector) {
   var tag
   var attributes = arguments[1]
 
-  if (attributes && attributes.constructor == Object && typeof attributes.render !== 'function') {
+  if (attributes && attributes.constructor === Object && typeof attributes.render !== 'function') {
     childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 2))
     prepareAttributes(selector, attributes, childElements)
     tag = parseTag(selector, attributes)
@@ -160,7 +160,7 @@ function rawHtml () {
   var html
   var options
 
-  if (arguments.length == 2) {
+  if (arguments.length === 2) {
     selector = arguments[0]
     html = arguments[1]
     options = {innerHTML: html}

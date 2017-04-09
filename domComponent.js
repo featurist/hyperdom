@@ -19,19 +19,19 @@ function prepareVdom (object) {
 
 DomComponent.prototype.create = function (vdom) {
   this.vdom = prepareVdom(vdom)
-  return this.element = createElement(this.vdom, {document: this.document})
+  return (this.element = createElement(this.vdom, {document: this.document}))
 }
 
 DomComponent.prototype.merge = function (vdom, element) {
   this.vdom = prepareVdom(vdom)
-  return this.element = element
+  return (this.element = element)
 }
 
 DomComponent.prototype.update = function (vdom) {
   var oldVdom = this.vdom
   this.vdom = prepareVdom(vdom)
   var patches = diff(oldVdom, this.vdom)
-  return this.element = patch(this.element, patches)
+  return (this.element = patch(this.element, patches))
 }
 
 DomComponent.prototype.destroy = function (options) {

@@ -1,5 +1,7 @@
 /* eslint-env mocha */
 
+require('lie/polyfill')
+
 var mountHyperdom = require('./mountHyperdom')
 var hyperdomRouter = require('../../router')
 var h = require('../..').html
@@ -18,7 +20,7 @@ function describeRouter (historyApi) {
     function mount (app, url) {
       var options = {router: router}
 
-      if (historyApi == 'hash') {
+      if (historyApi === 'hash') {
         options.hash = url
       } else {
         options.url = url
@@ -31,26 +33,10 @@ function describeRouter (historyApi) {
       if (router) {
         router.reset()
       }
-      if (historyApi == 'hash') {
+      if (historyApi === 'hash') {
         router = hyperdomRouter.router({history: hyperdomRouter.hash()})
       } else {
         router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
-      }
-    }
-
-    function push (route, params) {
-      if (history == 'hash') {
-        return new Promise(function (resolve) {
-          var oldURL = window.location.href
-          window.addEventListener('hashchange', function (event) {
-            if (event.oldURL === oldURL) {
-              resolve()
-            }
-            route.push(params)
-          })
-        })
-      } else {
-        route.push(params)
       }
     }
 
@@ -212,7 +198,7 @@ function describeRouter (historyApi) {
       })
     })
 
-    if (history == 'pushState') {
+    if (historyApi === 'pushState') {
       describe('push replace', function () {
         context('app with bindings', function () {
           var app
@@ -461,7 +447,7 @@ function describeRouter (historyApi) {
               app.refreshImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
-            if (historyApi == 'hash') {
+            if (historyApi === 'hash') {
               // the recursive redirects test pushes a lot of URLs
               // in the hash form, this generates a lot of hashchange
               // events, which disrupts the next test
@@ -568,7 +554,7 @@ function describeRouter (historyApi) {
             monkey.find('h1').shouldHave({text: 'b = b'})
           ]).then(function () {
             expect(events).to.eql([])
-            return push(routes.b, {a: 'a', b: 'c'})
+            return routes.b.push({a: 'a', b: 'c'})
           }).then(function () {
             app.refreshImmediately()
 

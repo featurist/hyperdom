@@ -43,7 +43,7 @@ Router.prototype.render = function (model) {
     var routes = modelRoutes(model, true)
 
     var action
-    if (self.lastUrl != url) {
+    if (self.lastUrl !== url) {
       action = setUrl(url, routes)
     } else {
       action = getUrl(url, routes)
@@ -51,7 +51,7 @@ Router.prototype.render = function (model) {
 
     if (action) {
       if (action.url) {
-        if (self.lastUrl != action.url) {
+        if (self.lastUrl !== action.url) {
           if (action.push) {
             self.history.push(action.url)
           } else {
@@ -114,7 +114,7 @@ Router.prototype.route = function (pattern) {
 
   route.push = function (params, options) {
     self.history.push(self.expandUrl(patternVariables.pattern, params))
-    if (!(options && options.resetScroll == false)) {
+    if (!(options && options.resetScroll === false)) {
       window.scrollTo(0, 0)
     }
   }
@@ -333,7 +333,7 @@ Router.prototype.expandUrl = function (pattern, _params) {
 }
 
 function escapeRegex (pattern) {
-  return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+  return pattern.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 function compilePattern (pattern) {
@@ -344,7 +344,7 @@ function compilePattern (pattern) {
   return escapeRegex(pattern)
     .replace(splatVariableRegex, '(.+)')
     .replace(anyRegex, '.*')
-    .replace(variableRegex, '([^\/]+)')
+    .replace(variableRegex, '([^/]+)')
 }
 
 function preparePattern (pattern) {
@@ -361,7 +361,7 @@ function preparePattern (pattern) {
   return {
     pattern: pattern,
     regex: new RegExp('^' + compiledPattern + '($)'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/' ? '' : '(/|$)')),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] === '/' ? '' : '(/|$)')),
     variables: variables
   }
 }
@@ -423,7 +423,7 @@ QueryString.prototype.stringify = function (paramsObject) {
   var query = Object.keys(paramsObject).map(function (key) {
     var param = paramToString(paramsObject[key])
 
-    if (param != '') {
+    if (param !== '') {
       return encodeURIComponent(key) + '=' + encodeURIComponent(param)
     }
   }).filter(function (param) {
@@ -456,7 +456,7 @@ PushState.prototype.start = function (model) {
       // before that scroll takes place, which is what we do with model.refreshImmediately()
       // also, it seems that its necessary to call document.body.clientHeight to force it
       // to layout the page before attempting set the scroll position
-      document.body.clientHeight
+      document.body.clientHeight // eslint-disable-line no-unused-expressions
     }
   })
 }

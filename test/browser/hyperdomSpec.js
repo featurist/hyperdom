@@ -1,3 +1,7 @@
+/* eslint-env mocha */
+
+require('lie/polyfill')
+
 var $ = require('jquery')
 var hyperdom = require('../..')
 var mapBinding = require('../../mapBinding')
@@ -129,7 +133,7 @@ describe('hyperdom', function () {
 
       expect(div.innerHTML).to.equal('<div><div class="rendered">stuff</div></div>')
       return click('div.rendered').then(function () {
-        expect(renderRequested).to.be.true
+        expect(renderRequested).to.equal(true)
       })
     })
 
@@ -145,8 +149,6 @@ describe('hyperdom', function () {
           )
         }
       }
-
-      var renderRequested = false
 
       hyperdom.append(targetDiv, model, {
         requestRender: function (render) {
@@ -221,7 +223,7 @@ describe('hyperdom', function () {
         merge(mergeDiv, app)
 
         return retry(function () {
-          expect(find('button.update')[0].onclick).to.exist
+          expect(find('button.update')[0].onclick).to.exist // eslint-disable-line no-unused-expressions
         }).then(function () {
           return click('button.update').then(function () {
           }).then(function () {
@@ -273,7 +275,7 @@ describe('hyperdom', function () {
 
         attach(render, {})
 
-        expect(find('.haha').text()).to.eql(expectedValue != undefined ? expectedValue : String(value))
+        expect(find('.haha').text()).to.eql(expectedValue !== undefined ? expectedValue : String(value))
       })
     }
 
@@ -606,7 +608,7 @@ describe('hyperdom', function () {
       expect(address.namespaceURI).to.eql('urn:address')
       expect(address.prefix).to.eql(null)
       var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
-      expect(addressAttribute).to.exist
+      expect(addressAttribute).to.exist // eslint-disable-line no-unused-expressions
       expect(addressAttribute.namespaceURI).to.eql('urn:address')
       expect(addressAttribute.name).to.eql('addr:street')
       expect(addressAttribute.prefix).to.eql('addr')
@@ -644,10 +646,10 @@ describe('hyperdom', function () {
           h('button', {
             onclick: function () {
               model.text = 'loading'
-              return new Promise(function (result) {
+              return new Promise(function (resolve) {
                 setTimeout(function () {
                   model.text = 'loaded'
-                  result()
+                  resolve()
                 }, 100)
               })
             }
@@ -815,7 +817,7 @@ describe('hyperdom', function () {
       it('radio', function () {
         function render (model) {
           return h('div',
-            model.value == 1 ? h('h1', 'selected one') : undefined,
+            model.value === 1 ? h('h1', 'selected one') : undefined,
             h('label', h('input.one', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 1, id: 'one'}), 'one'),
             h('label', h('input.two', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 2, id: 'two'}), 'two')
           )
@@ -1301,7 +1303,7 @@ describe('hyperdom', function () {
 
           return h('div',
             h('h1', 'component'),
-            h('button.refresh', {onclick: function () {} }, 'refresh')
+            h('button.refresh', { onclick: function () {} }, 'refresh')
           )
         }
       }
@@ -1659,7 +1661,7 @@ describe('hyperdom', function () {
         var model = {}
         hyperdom.binding([model, 'field'], {component: component}).set('value')
 
-        expect(component.wasRefreshed).to.be.true
+        expect(component.wasRefreshed).to.equal(true)
       })
     })
 
@@ -1674,7 +1676,7 @@ describe('hyperdom', function () {
         var model = {}
         hyperdom.binding([model, 'field'], {component: component}).set('value')
 
-        expect(component.wasRefreshed).to.be.true
+        expect(component.wasRefreshed).to.equal(true)
       })
     })
 
@@ -2093,7 +2095,8 @@ describe('hyperdom', function () {
 
       it('updates the component when refreshed', function () {
         var monitor = renderMonitor()
-        var updated = 0, rendered = 0
+        var updated = 0
+        var rendered = 0
 
         function render (model) {
           var refresh = h.refresh
@@ -2741,9 +2744,9 @@ describe('hyperdom', function () {
         function load (model) {
           return waiting
             ? undefined
-            : waiting = wait(20).then(function () {
+            : (waiting = wait(20).then(function () {
               model.text = 'loaded'
-            })
+            }))
         }
 
         function render (model) {
@@ -2763,7 +2766,7 @@ describe('hyperdom', function () {
 })
 
 function wait (n) {
-  return new Promise(function (result) {
-    setTimeout(result, n)
+  return new Promise(function (resolve) {
+    setTimeout(resolve, n)
   })
 }

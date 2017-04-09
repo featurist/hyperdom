@@ -6,7 +6,7 @@ if (typeof Set === 'function') {
   }
 
   module.exports.prototype.add = function (widget) {
-    if (this.items.indexOf(widget) == -1) {
+    if (this.items.indexOf(widget) === -1) {
       this.items.push(widget)
     }
   }

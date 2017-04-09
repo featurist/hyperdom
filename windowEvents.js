@@ -18,7 +18,7 @@ WindowWidget.prototype.type = 'Widget'
 
 WindowWidget.prototype.init = function () {
   applyPropertyDiffs(window, {}, this.attributes, {}, this.cache)
-  return this.element = document.createTextNode('')
+  return (this.element = document.createTextNode(''))
 }
 
 function uniq (array) {

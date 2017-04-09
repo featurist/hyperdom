@@ -26,7 +26,7 @@ var inputTypeBindings = {
 
   radio: function (attributes, children, get, set) {
     var value = attributes.value
-    attributes.checked = get() == attributes.value
+    attributes.checked = get() === attributes.value
     attributes.on_hyperdomsyncchecked = listener(function (event) {
       attributes.checked = event.target.checked
     })
@@ -47,7 +47,7 @@ var inputTypeBindings = {
     var currentValue = get()
 
     var options = children.filter(function (child) {
-      return child.tagName.toLowerCase() == 'option'
+      return child.tagName.toLowerCase() === 'option'
     })
 
     var values = []
@@ -61,7 +61,7 @@ var inputTypeBindings = {
 
       values.push(hasValue ? value : text)
 
-      var selected = value == currentValue || text == currentValue
+      var selected = value === currentValue || text === currentValue
 
       if (selected) {
         selectedIndex = n
@@ -109,11 +109,11 @@ function bindTextInput (attributes, children, get, set) {
 
   var bindingValue = get()
   if (!(bindingValue instanceof Error)) {
-    attributes.value = bindingValue != undefined ? bindingValue : ''
+    attributes.value = bindingValue !== undefined ? bindingValue : ''
   }
 
   attachEventHandler(attributes, textEventNames, function (ev) {
-    if (get() != ev.target.value) {
+    if (get() !== ev.target.value) {
       set(ev.target.value)
     }
   })
@@ -151,7 +151,7 @@ function sequenceFunctions (handler1, handler2) {
 
 function customEvent (name) {
   if (typeof Event === 'function') {
-    return new Event(name)
+    return new window.Event(name)
   } else {
     var event = document.createEvent('Event')
     event.initEvent(name, false, false)

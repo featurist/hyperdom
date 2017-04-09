@@ -19,7 +19,7 @@ StoreCache.prototype.cache = function (key, loadFn) {
   var self = this
 
   var loadPromise = loadFn().then(function (data) {
-    return self.data[key] = data
+    return (self.data[key] = data)
   })
 
   return modifyPromiseChain(loadPromise, p => {
