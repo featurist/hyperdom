@@ -1,4 +1,4 @@
-var refreshify = require('./refreshify');
+var refreshify = require('./render').refreshify;
 
 function ListenerHook(listener) {
   this.listener = refreshify(listener);

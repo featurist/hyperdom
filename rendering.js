@@ -35,13 +35,13 @@ exports.appendVDom = function (vdom, render, model, options) {
       create: function(newVDom) {
         vdom.children = [];
         if (newVDom) {
-          vdom.children.push(newVDom);
+          vdom.children.push(toVdom(newVDom));
         }
       },
       update: function(newVDom) {
         vdom.children = [];
         if (newVDom) {
-          vdom.children.push(newVDom);
+          vdom.children.push(toVdom(newVDom));
         }
       }
     };

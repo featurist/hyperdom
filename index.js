@@ -1,5 +1,4 @@
 var rendering = require('./rendering')
-var refreshify = require('./refreshify')
 var binding = require('./binding')
 var meta = require('./meta');
 var render = require('./render')
@@ -7,7 +6,7 @@ var refreshEventResult = require('./refreshEventResult')
 var Component = require('./component')
 
 exports.html = rendering.html;
-exports.html.refreshify = refreshify
+exports.html.refreshify = render.refreshify
 exports.rawHtml = rendering.rawHtml
 exports.jsx = rendering.jsx;
 exports.attach = rendering.attach;
@@ -16,7 +15,7 @@ exports.append = rendering.append;
 exports.appendVDom = rendering.appendVDom;
 exports.binding = binding;
 exports.meta = meta;
-exports.refreshify = refreshify;
+exports.refreshify = render.refreshify;
 exports.norefresh = refreshEventResult.norefresh;
 exports.component = function(model) {
   return new Component(model, {component: true})

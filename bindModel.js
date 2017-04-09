@@ -1,5 +1,6 @@
 var listener = require('./listener');
 var binding = require('./binding')
+var RefreshHook = require('./render').RefreshHook
 
 module.exports = function(tag, attributes, children) {
   var type = inputType(tag, attributes)
@@ -140,7 +141,11 @@ function insertEventHandler(attributes, eventName, handler) {
 function sequenceFunctions(handler1, handler2) {
   return function (ev) {
     handler1(ev);
-    return handler2(ev);
+    if (handler2 instanceof RefreshHook) {
+      return handler2.handler(ev);
+    } else {
+      return handler2(ev);
+    }
   };
 }
 
