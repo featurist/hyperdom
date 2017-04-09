@@ -821,11 +821,12 @@ Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Ma
 
 ## Server-side Rendering
 
-You can render hyperdom components on the server-side using [vdom-to-html](https://github.com/nthtran/vdom-to-html):
+You can render HTML as text, for example on the server, by using `toHtml`:
 
 ```js
-var h = require('hyperdom').html;
-var vdomToHtml = require('vdom-to-html');
+var hyperdom = require('hyperdom')
+var h = hyperdom.html;
+var toHtml = require('hyperdom/toHtml');
 
 var vdom = h('html',
   h('head',
@@ -836,20 +837,9 @@ var vdom = h('html',
   )
 );
 
-var html = vdomToHtml(vdom);
+var html = toHtml(vdom);
 console.log(html);
 ```
-
-Rendering will work with event handlers, components, etc.
-
-The result, however, is plain static HTML without any event handlers or jQuery plugins attached. If you want to render hyperdom views on the server and have them fully interactive in the browser, you'll need to re-attach the client-side hyperdom view with the server-side rendered view. These rough steps should guide you:
-
-1. Have the server render the HTML from a model with hyperdom.
-2. Have the server embed the model in the page, placing it into a global variable inside a `<script>` tag.
-3. Have the client-side JS load that model and re-render the vdom _without_ event handlers, this should then be identical to the vdom produced by the server.
-4. Have the client-side JS render the same model, but this time _with_ event handlers.
-5. Compare the two DOMs, without and with event handlers, producing the changes necessary to insert the event handlers into the existing DOM.
-6. Have hope.
 
 # Common Errors
 
