@@ -5,22 +5,24 @@ var router = require('./router')
 var StoreCache = require('./storeCache')
 var toVdom = require('./toVdom')
 
-module.exports.hasRoute = function(app, url) {
+module.exports.hasRoute = function (app, url) {
   return router.hasRoute(app, url)
 }
 
-module.exports.render = function(app, url) {
+module.exports.render = function (app, url) {
   var renderRequested = false
 
   var cache = new StoreCache()
-  var mount = new Mount(app, {window: {}, router: router.create({history: new ServerHistory(url)}), requestRender: () => {
-    renderRequested = true
-  }})
+  var mount = new Mount(app, {window: {},
+    router: router.create({history: new ServerHistory(url)}),
+    requestRender: () => {
+      renderRequested = true
+    }})
 
   mount.serverRenderCache = cache
   mount.refreshify = cache.refreshify
 
-  function renderUntilAllLoaded(mount, cache, {maxRenders, renders = 0} = {}) {
+  function renderUntilAllLoaded (mount, cache, {maxRenders, renders = 0} = {}) {
     if (renders >= maxRenders) {
       throw new Error('page could not load all resources')
     }
@@ -53,12 +55,12 @@ module.exports.render = function(app, url) {
   return renderUntilAllLoaded(mount, cache, {maxRenders: 10})
 }
 
-function ServerHistory(url) {
+function ServerHistory (url) {
   this._url = url
 }
 
-ServerHistory.prototype.url = function() {
+ServerHistory.prototype.url = function () {
   return this._url
 }
 
-ServerHistory.prototype.start = function() {}
+ServerHistory.prototype.start = function () {}

@@ -11,11 +11,11 @@ if (detect.pushState) {
   describeRouter('pushState')
 }
 
-function describeRouter(historyApi) {
+function describeRouter (historyApi) {
   describe('router (' + historyApi + ')', function () {
     var router
 
-    function mount(app, url) {
+    function mount (app, url) {
       var options = {router: router}
 
       if (historyApi == 'hash') {
@@ -27,7 +27,7 @@ function describeRouter(historyApi) {
       return mountHyperdom(app, options)
     }
 
-    function resetRouter() {
+    function resetRouter () {
       if (router) {
         router.reset()
       }
@@ -38,7 +38,7 @@ function describeRouter(historyApi) {
       }
     }
 
-    function push(route, params) {
+    function push (route, params) {
       if (history == 'hash') {
         return new Promise(function (resolve) {
           var oldURL = window.location.href
@@ -125,9 +125,9 @@ function describeRouter(historyApi) {
       }
     })
 
-    function articleComponent() {
+    function articleComponent () {
       return {
-        load: function(id) {
+        load: function (id) {
           var self = this
 
           this.id = id
@@ -139,7 +139,7 @@ function describeRouter(historyApi) {
           })
         },
 
-        render: function() {
+        render: function () {
           if (this.article) {
             return h('article', this.article)
           } else {
@@ -149,7 +149,7 @@ function describeRouter(historyApi) {
       }
     }
 
-    function loadsArticle(monkey, article, id) {
+    function loadsArticle (monkey, article, id) {
       return monkey.find('div.loading').shouldHave({text: 'loading article ' + id}).then(function () {
         article.resolve()
         return monkey.find('article').shouldHave({text: 'this is article ' + id})
@@ -236,7 +236,7 @@ function describeRouter(historyApi) {
                   }),
                   route({
                     bindings: {
-                      a: [this, 'a'],
+                      a: [this, 'a']
                     },
 
                     push: push,
@@ -303,7 +303,7 @@ function describeRouter(historyApi) {
 
             beforeEach(function () {
               pushResult = false
-              push = function(_oldParams, _newParams) {
+              push = function (_oldParams, _newParams) {
                 oldParams = _oldParams
                 newParams = _newParams
                 return pushResult
@@ -361,7 +361,7 @@ function describeRouter(historyApi) {
 
               return [
                 route({
-                  onload: function(params) {
+                  onload: function (params) {
                     return self.article.load(params.id)
                   },
 
@@ -487,7 +487,7 @@ function describeRouter(historyApi) {
 
         events = []
 
-        function aComponent(a) {
+        function aComponent (a) {
           return {
             a: a,
 

@@ -1,25 +1,25 @@
-var simplePromise = require('./simplePromise');
+var simplePromise = require('./simplePromise')
 
-function runRender(mount, fn) {
-  var render = new Render(mount);
+function runRender (mount, fn) {
+  var render = new Render(mount)
 
   try {
-    runRender._currentRender = render;
+    runRender._currentRender = render
 
-    return fn();
+    return fn()
   } finally {
-    render.finished.fulfill();
-    runRender._currentRender = undefined;
+    render.finished.fulfill()
+    runRender._currentRender = undefined
   }
 }
 
-function Render(mount) {
-  this.finished = simplePromise();
-  this.mount = mount;
-  this.attachment = mount;
+function Render (mount) {
+  this.finished = simplePromise()
+  this.mount = mount
+  this.attachment = mount
 }
 
-Render.prototype.transformFunctionAttribute = function() {
+Render.prototype.transformFunctionAttribute = function () {
   return this.mount.transformFunctionAttribute.apply(this.mount, arguments)
 }
 
@@ -29,13 +29,13 @@ module.exports.refreshify = refreshify
 module.exports.RefreshHook = RefreshHook
 
 function currentRender () {
-  return runRender._currentRender || defaultRender;
+  return runRender._currentRender || defaultRender
 }
 
 var defaultRender = {
   mount: {
-    renderComponent: function(model) { return model.render() },
-    refreshify: function(fn) { return fn }
+    renderComponent: function (model) { return model.render() },
+    refreshify: function (fn) { return fn }
   },
 
   transformFunctionAttribute: function (key, value) {
@@ -43,11 +43,11 @@ var defaultRender = {
   }
 }
 
-function refreshify(fn, options) {
+function refreshify (fn, options) {
   return runRender.currentRender().mount.refreshify(fn, options)
 }
 
-function RefreshHook(handler) {
+function RefreshHook (handler) {
   this.handler = handler
 }
 

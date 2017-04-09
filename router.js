@@ -1,19 +1,19 @@
 var makeBinding = require('./binding')
-var refreshify = require('./render').refreshify;
+var refreshify = require('./render').refreshify
 var runRender = require('./render')
 var h = require('./rendering').html
 
-function Router(options) {
-  this._querystring = typeof options == 'object' && options.hasOwnProperty('querystring')? options.querystring: new QueryString();
-  this.history = typeof options == 'object' && options.hasOwnProperty('history')? options.history: new PushState();
+function Router (options) {
+  this._querystring = typeof options === 'object' && options.hasOwnProperty('querystring') ? options.querystring : new QueryString()
+  this.history = typeof options === 'object' && options.hasOwnProperty('history') ? options.history : new PushState()
 }
 
-Router.prototype.reset = function() {
+Router.prototype.reset = function () {
   this.lastUrl = undefined
   this.history.stop()
 }
 
-function modelRoutes(model, isModel) {
+function modelRoutes (model, isModel) {
   if (isModel) {
     runRender.currentRender().mount.setupModelComponent(model)
   }
@@ -30,15 +30,15 @@ function modelRoutes(model, isModel) {
   }
 }
 
-Router.prototype.url = function() {
+Router.prototype.url = function () {
   return this.history.url()
 }
 
-Router.prototype.render = function(model) {
+Router.prototype.render = function (model) {
   var self = this
   this.history.start(model)
 
-  function renderUrl(redirects) {
+  function renderUrl (redirects) {
     var url = self.history.url()
     var routes = modelRoutes(model, true)
 
@@ -81,60 +81,60 @@ Router.prototype.render = function(model) {
   return renderUrl([])
 }
 
-Router.prototype.push = function(url) {
+Router.prototype.push = function (url) {
   this.history.push(url)
-};
+}
 
-Router.prototype.replace = function(url) {
+Router.prototype.replace = function (url) {
   this.history.replace(url)
-};
+}
 
-function renderNotFound(url, routes) {
-  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern; }).join('\n')))
+function renderNotFound (url, routes) {
+  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern }).join('\n')))
 }
 
 var notFoundPatternVariables = preparePattern('*')
 
-Router.prototype.notFound = function(options) {
+Router.prototype.notFound = function (options) {
   options.notFound = true
   return new Route(notFoundPatternVariables, options, this)
 }
 
-Router.prototype.route = function(pattern) {
+Router.prototype.route = function (pattern) {
   var self = this
   var patternVariables = preparePattern(pattern)
 
-  function route(options) {
+  function route (options) {
     return new Route(patternVariables, options, self)
   }
 
-  route.params = function() {
+  route.params = function () {
     return route().urlParams(self.url())
   }
 
-  route.push = function(params, options) {
+  route.push = function (params, options) {
     self.history.push(self.expandUrl(patternVariables.pattern, params))
     if (!(options && options.resetScroll == false)) {
       window.scrollTo(0, 0)
     }
   }
 
-  route.replace = function(params) {
+  route.replace = function (params) {
     self.history.replace(self.expandUrl(patternVariables.pattern, params))
   }
 
-  route.href = function(params, options) {
+  route.href = function (params, options) {
     return new HrefAttribute(route, params, options)
   }
 
-  route.url = function(params) {
+  route.url = function (params) {
     return self.expandUrl(patternVariables.pattern, params)
   }
 
   return route
 }
 
-function Route(patternVariables, options, router) {
+function Route (patternVariables, options, router) {
   this.pattern = patternVariables.pattern
   this.router = router
 
@@ -142,14 +142,14 @@ function Route(patternVariables, options, router) {
   this.regex = patternVariables.regex
   this.mountRegex = patternVariables.mountRegex
 
-  this.routes = typeof options == 'object' && options.hasOwnProperty('routes')? options.routes: undefined;
-  var bindings = typeof options == 'object' && options.hasOwnProperty('bindings')? options.bindings: undefined
-  this.bindings = bindings? bindParams(bindings): undefined
-  this.onload = typeof options == 'object' && options.hasOwnProperty('onload')? options.onload: undefined
-  this.render = typeof options == 'object' && options.hasOwnProperty('render')? options.render: (this.routes? function(inner) { return inner }: function () {})
-  this.redirect = typeof options == 'object' && options.hasOwnProperty('redirect')? options.redirect: undefined
+  this.routes = typeof options === 'object' && options.hasOwnProperty('routes') ? options.routes : undefined
+  var bindings = typeof options === 'object' && options.hasOwnProperty('bindings') ? options.bindings : undefined
+  this.bindings = bindings ? bindParams(bindings) : undefined
+  this.onload = typeof options === 'object' && options.hasOwnProperty('onload') ? options.onload : undefined
+  this.render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : (this.routes ? function (inner) { return inner } : function () {})
+  this.redirect = typeof options === 'object' && options.hasOwnProperty('redirect') ? options.redirect : undefined
 
-  var push = typeof options == 'object' && options.hasOwnProperty('push')? options.push: undefined
+  var push = typeof options === 'object' && options.hasOwnProperty('push') ? options.push : undefined
 
   if (typeof push === 'function') {
     this.push = push
@@ -164,7 +164,7 @@ function Route(patternVariables, options, router) {
   }
 }
 
-function bindParams(params) {
+function bindParams (params) {
   var bindings = {}
 
   Object.keys(params).forEach(function (key) {
@@ -174,13 +174,13 @@ function bindParams(params) {
   return bindings
 }
 
-Route.prototype.hasRoute = function(model, url) {
+Route.prototype.hasRoute = function (model, url) {
   var routes = modelRoutes(model, true)
   var match = findMatch(url, routes)
   return !!match && !match.route.notFound
 }
 
-Route.prototype.match = function(url) {
+Route.prototype.match = function (url) {
   if (this.routes) {
     return this.mountRegex.exec(url.split('?')[0])
   } else {
@@ -188,7 +188,7 @@ Route.prototype.match = function(url) {
   }
 }
 
-Route.prototype.urlParams = function(url, _match) {
+Route.prototype.urlParams = function (url, _match) {
   var query = url.split('?')[1]
   var match = _match || this.match(url)
   var params = this.router._querystring.parse(query)
@@ -202,7 +202,7 @@ Route.prototype.urlParams = function(url, _match) {
   return params
 }
 
-Route.prototype.set = function(url, match) {
+Route.prototype.set = function (url, match) {
   var self = this
   var params = this.urlParams(url, match)
 
@@ -241,19 +241,19 @@ Route.prototype.set = function(url, match) {
   }
 }
 
-Route.prototype.wrapAction = function(action) {
+Route.prototype.wrapAction = function (action) {
   var innerRender = action.render
   var outerRender = this.render
-  action.render = function() {
+  action.render = function () {
     return outerRender(innerRender())
   }
   return action
 }
 
-Route.prototype.get = function(url) {
+Route.prototype.get = function (url) {
   var self = this
   var routes
-  
+
   if (this.bindings) {
     var params = {}
     Object.keys(this.bindings).forEach(function (key) {
@@ -282,12 +282,12 @@ Route.prototype.get = function(url) {
   }
 }
 
-function extend(a, b) {
+function extend (a, b) {
   if (b) {
     var keys = Object.keys(b)
 
     for (var k = 0, l = keys.length; k < l; k++) {
-      var key = keys[k];
+      var key = keys[k]
       a[key] = b[key]
     }
 
@@ -295,11 +295,11 @@ function extend(a, b) {
   }
 }
 
-function clone(thing) {
+function clone (thing) {
   return JSON.parse(JSON.stringify(thing))
 }
 
-function paramToString(p) {
+function paramToString (p) {
   if (p === undefined || p === null) {
     return ''
   } else {
@@ -307,7 +307,7 @@ function paramToString(p) {
   }
 }
 
-Router.prototype.expandUrl = function(pattern, _params) {
+Router.prototype.expandUrl = function (pattern, _params) {
   var params = _params || {}
   var onlyQueryParams = clone(params)
 
@@ -332,22 +332,22 @@ Router.prototype.expandUrl = function(pattern, _params) {
   }
 }
 
-function escapeRegex(pattern) {
+function escapeRegex (pattern) {
   return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-function compilePattern(pattern) {
+function compilePattern (pattern) {
   var anyRegex = /\\\*/ig
   var splatVariableRegex = /:[a-z\-_]+\\\*/ig
   var variableRegex = /:[-a-z_]+/ig
 
   return escapeRegex(pattern)
-    .replace(splatVariableRegex, "(.+)")
-    .replace(anyRegex, ".*")
-    .replace(variableRegex, "([^\/]+)")
+    .replace(splatVariableRegex, '(.+)')
+    .replace(anyRegex, '.*')
+    .replace(variableRegex, '([^\/]+)')
 }
 
-function preparePattern(pattern) {
+function preparePattern (pattern) {
   var match
   var variableRegex = new RegExp(':([-a-z_]+)', 'ig')
   var variables = []
@@ -361,21 +361,21 @@ function preparePattern(pattern) {
   return {
     pattern: pattern,
     regex: new RegExp('^' + compiledPattern + '($)'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/'? '': '(/|$)')),
+    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] == '/' ? '' : '(/|$)')),
     variables: variables
   }
 }
 
-function setUrl(url, routes) {
+function setUrl (url, routes) {
   var match = findMatch(url, routes)
   if (match) {
     return match.route.set(url, match.match)
   }
 }
 
-function findMatch(url, routes) {
+function findMatch (url, routes) {
   for (var r = 0, l = routes.length; r < l; r++) {
-    var route = routes[r];
+    var route = routes[r]
     var match
 
     if (typeof route.match === 'function') {
@@ -388,7 +388,7 @@ function findMatch(url, routes) {
     } else if (typeof route.routes === 'function') {
       var subRoutes = modelRoutes(route)
       var subMatch = findMatch(url, subRoutes)
-      
+
       if (subMatch) {
         return subMatch
       }
@@ -396,18 +396,18 @@ function findMatch(url, routes) {
   }
 }
 
-function getUrl(url, routes) {
+function getUrl (url, routes) {
   var match = findMatch(url, routes)
   if (match) {
     return match.route.get(url, match.match)
   }
 }
 
-function QueryString() {
+function QueryString () {
 }
 
-QueryString.prototype.parse = function(search) {
-  var params = {};
+QueryString.prototype.parse = function (search) {
+  var params = {}
 
   if (search) {
     search.split('&').map(function (param) {
@@ -433,7 +433,7 @@ QueryString.prototype.stringify = function (paramsObject) {
   return query
 }
 
-var PushState = function() {
+var PushState = function () {
 }
 
 PushState.prototype.start = function (model) {
@@ -442,7 +442,7 @@ PushState.prototype.start = function (model) {
   }
   this.started = true
 
-  window.addEventListener('popstate', this.listener = function() {
+  window.addEventListener('popstate', this.listener = function () {
     if (model) {
       model.refreshImmediately()
 
@@ -486,56 +486,56 @@ function Hash () {
 }
 
 Hash.prototype.start = function (model) {
-  var self = this;
+  var self = this
   if (this.started) {
     return
   }
   this.started = true
 
-  this.hashchangeListener = function() {
+  this.hashchangeListener = function () {
     if (self.started) {
       if (!self.pushed) {
         if (model) {
           model.refreshImmediately()
         }
       } else {
-        self.pushed = false;
+        self.pushed = false
       }
     }
   }
-  window.addEventListener('hashchange', this.hashchangeListener);
+  window.addEventListener('hashchange', this.hashchangeListener)
 }
 
 Hash.prototype.stop = function () {
   this.started = false
-  window.removeEventListener('hashchange', this.hashchangeListener);
+  window.removeEventListener('hashchange', this.hashchangeListener)
 }
 
-Hash.prototype.url = function() {
-  var path = window.location.hash || '#';
+Hash.prototype.url = function () {
+  var path = window.location.hash || '#'
 
-  var m = /^#(.*?)(\?.*)?$/.exec(path);
+  var m = /^#(.*?)(\?.*)?$/.exec(path)
   var pathname = m[1]
   var search = m[2]
 
-  return '/' + pathname + (search? search: '')
-};
+  return '/' + pathname + (search || '')
+}
 
-Hash.prototype.push = function(url) {
-  this.pushed = true;
-  window.location.hash = url.replace(/^\//, '');
-};
+Hash.prototype.push = function (url) {
+  this.pushed = true
+  window.location.hash = url.replace(/^\//, '')
+}
 
-Hash.prototype.state = function() {
-};
+Hash.prototype.state = function () {
+}
 
-Hash.prototype.replace = function(url) {
-  return this.push(url);
-};
+Hash.prototype.replace = function (url) {
+  return this.push(url)
+}
 
-function HrefAttribute(route, params, options) {
+function HrefAttribute (route, params, options) {
   this.href = route.url(params)
-  this.onclick = refreshify(function(event) {
+  this.onclick = refreshify(function (event) {
     if (!event.metaKey) {
       route.push(params, options)
       event.preventDefault()
