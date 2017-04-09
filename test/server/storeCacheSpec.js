@@ -6,16 +6,22 @@ var refreshify = require('../../render').refreshify;
 
 describe('store cache', function () {
   var storeCache
+  var oldCurrentRender
 
   beforeEach(function () {
     storeCache = new StoreCache()
 
+    oldCurrentRender = render._currentRender
     render._currentRender = {
       mount: {
         refreshify: storeCache.refreshify,
         serverRenderCache: storeCache
       }
     }
+  })
+
+  afterEach(function () {
+    render._currentRender = oldCurrentRender
   })
 
   function load(data) {
