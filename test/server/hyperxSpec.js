@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 var hx = require('../../hyperx')
 var toHtml = require('../../toHtml')
 var expect = require('chai').expect

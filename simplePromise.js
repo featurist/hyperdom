@@ -1,25 +1,25 @@
 function SimplePromise () {
-  this.listeners = [];
+  this.listeners = []
 }
 
 SimplePromise.prototype.fulfill = function (value) {
   if (!this.isFulfilled) {
-    this.isFulfilled = true;
-    this.value = value;
+    this.isFulfilled = true
+    this.value = value
     this.listeners.forEach(function (listener) {
-      listener();
-    });
+      listener()
+    })
   }
-};
+}
 
 SimplePromise.prototype.then = function (success) {
   if (this.isFulfilled) {
-    success(this.value);
+    success(this.value)
   } else {
-    this.listeners.push(success);
+    this.listeners.push(success)
   }
-};
+}
 
 module.exports = function () {
-  return new SimplePromise();
-};
+  return new SimplePromise()
+}

@@ -1,7 +1,7 @@
-var refreshify = require('./render').refreshify;
-var meta = require('./meta');
+var refreshify = require('./render').refreshify
+var meta = require('./meta')
 
-module.exports = function(b, options) {
+module.exports = function (b, options) {
   var binding = b
 
   if (b instanceof Array) {
@@ -12,28 +12,28 @@ module.exports = function(b, options) {
     throw Error('hyperdom bindings must be either an array [object, property, setter] or an object { get(), set(value) }, instead binding was: ' + JSON.stringify(b))
   }
 
-  binding.set = refreshify(binding.set, options);
+  binding.set = refreshify(binding.set, options)
 
-  return binding;
+  return binding
 }
 
-function bindingObject(model, property, setter) {
-  var _meta;
+function bindingObject (model, property, setter) {
+  var _meta
 
   return {
     get: function () {
-      return model[property];
+      return model[property]
     },
 
     set: function (value) {
-      model[property] = value;
+      model[property] = value
       if (setter) {
         return setter(value)
       }
     },
 
-    meta: function() {
-      return _meta || (_meta = meta(model, property));
+    meta: function () {
+      return _meta || (_meta = meta(model, property))
     }
-  };
+  }
 }

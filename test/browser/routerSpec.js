@@ -1,5 +1,7 @@
 /* eslint-env mocha */
 
+require('lie/polyfill')
+
 var mountHyperdom = require('./mountHyperdom')
 var hyperdomRouter = require('../../router')
 var h = require('../..').html
@@ -11,14 +13,14 @@ if (detect.pushState) {
   describeRouter('pushState')
 }
 
-function describeRouter(historyApi) {
+function describeRouter (historyApi) {
   describe('router (' + historyApi + ')', function () {
     var router
 
-    function mount(app, url) {
+    function mount (app, url) {
       var options = {router: router}
 
-      if (historyApi == 'hash') {
+      if (historyApi === 'hash') {
         options.hash = url
       } else {
         options.url = url
@@ -27,30 +29,14 @@ function describeRouter(historyApi) {
       return mountHyperdom(app, options)
     }
 
-    function resetRouter() {
+    function resetRouter () {
       if (router) {
         router.reset()
       }
-      if (historyApi == 'hash') {
+      if (historyApi === 'hash') {
         router = hyperdomRouter.router({history: hyperdomRouter.hash()})
       } else {
         router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
-      }
-    }
-
-    function push(route, params) {
-      if (history == 'hash') {
-        return new Promise(function (resolve) {
-          var oldURL = window.location.href
-          window.addEventListener('hashchange', function (event) {
-            if (event.oldURL === oldURL) {
-              resolve()
-            }
-            route.push(params)
-          })
-        })
-      } else {
-        route.push(params)
       }
     }
 
@@ -125,9 +111,9 @@ function describeRouter(historyApi) {
       }
     })
 
-    function articleComponent() {
+    function articleComponent () {
       return {
-        load: function(id) {
+        load: function (id) {
           var self = this
 
           this.id = id
@@ -139,7 +125,7 @@ function describeRouter(historyApi) {
           })
         },
 
-        render: function() {
+        render: function () {
           if (this.article) {
             return h('article', this.article)
           } else {
@@ -149,7 +135,7 @@ function describeRouter(historyApi) {
       }
     }
 
-    function loadsArticle(monkey, article, id) {
+    function loadsArticle (monkey, article, id) {
       return monkey.find('div.loading').shouldHave({text: 'loading article ' + id}).then(function () {
         article.resolve()
         return monkey.find('article').shouldHave({text: 'this is article ' + id})
@@ -212,7 +198,7 @@ function describeRouter(historyApi) {
       })
     })
 
-    if (history == 'pushState') {
+    if (historyApi === 'pushState') {
       describe('push replace', function () {
         context('app with bindings', function () {
           var app
@@ -236,7 +222,7 @@ function describeRouter(historyApi) {
                   }),
                   route({
                     bindings: {
-                      a: [this, 'a'],
+                      a: [this, 'a']
                     },
 
                     push: push,
@@ -303,7 +289,7 @@ function describeRouter(historyApi) {
 
             beforeEach(function () {
               pushResult = false
-              push = function(_oldParams, _newParams) {
+              push = function (_oldParams, _newParams) {
                 oldParams = _oldParams
                 newParams = _newParams
                 return pushResult
@@ -361,7 +347,7 @@ function describeRouter(historyApi) {
 
               return [
                 route({
-                  onload: function(params) {
+                  onload: function (params) {
                     return self.article.load(params.id)
                   },
 
@@ -461,7 +447,7 @@ function describeRouter(historyApi) {
               app.refreshImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
-            if (historyApi == 'hash') {
+            if (historyApi === 'hash') {
               // the recursive redirects test pushes a lot of URLs
               // in the hash form, this generates a lot of hashchange
               // events, which disrupts the next test
@@ -487,7 +473,7 @@ function describeRouter(historyApi) {
 
         events = []
 
-        function aComponent(a) {
+        function aComponent (a) {
           return {
             a: a,
 
@@ -568,7 +554,7 @@ function describeRouter(historyApi) {
             monkey.find('h1').shouldHave({text: 'b = b'})
           ]).then(function () {
             expect(events).to.eql([])
-            return push(routes.b, {a: 'a', b: 'c'})
+            return routes.b.push({a: 'a', b: 'c'})
           }).then(function () {
             app.refreshImmediately()
 

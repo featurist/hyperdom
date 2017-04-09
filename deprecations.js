@@ -1,12 +1,12 @@
-function deprecationWarning() {
-  var warningIssued = false;
+function deprecationWarning () {
+  var warningIssued = false
 
   return function (arg) {
     if (!warningIssued) {
-      console.warn(arg);
-      warningIssued = true;
+      console.warn(arg)
+      warningIssued = true
     }
-  };
+  }
 }
 
 module.exports = {
@@ -17,4 +17,4 @@ module.exports = {
   refreshAfter: deprecationWarning(),
   norefresh: deprecationWarning(),
   mapBinding: deprecationWarning()
-};
+}

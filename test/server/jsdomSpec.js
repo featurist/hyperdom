@@ -1,34 +1,32 @@
-var hyperdom = require('../..');
-var jsdom = require('jsdom');
-var expect = require('chai').expect;
+/* eslint-env mocha */
 
-describe('hyperdom', function() {
+var hyperdom = require('../..')
+var jsdom = require('jsdom')
+var expect = require('chai').expect
 
-  describe('.append()', function() {
-
-    it('renders elements in jsdom', function(done) {
+describe('hyperdom', function () {
+  describe('.append()', function () {
+    it('renders elements in jsdom', function (done) {
       jsdom.env(
         '',
         [],
         function (errors, window) {
-          var render = function(model) {
-            return hyperdom.html('p', 'hello');
+          var render = function (model) {
+            return hyperdom.html('p', 'hello')
           }
-          function requestRender(render) {
-            render();
+          function requestRender (render) {
+            render()
           }
 
           hyperdom.append(window.document.body, render, {}, {
             window: window,
             document: window.document,
             requestRender: requestRender
-          });
-          expect(window.document.body.childNodes[0].tagName).to.equal('P');
-          done();
+          })
+          expect(window.document.body.childNodes[0].tagName).to.equal('P')
+          done()
         }
-      );
-    });
-
-  });
-
-});
+      )
+    })
+  })
+})

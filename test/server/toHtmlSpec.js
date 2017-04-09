@@ -1,3 +1,5 @@
+/* eslint-env mocha */
+
 var toHtml = require('../../toHtml')
 var hyperdom = require('../..')
 var h = hyperdom.html

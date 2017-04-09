@@ -1,8 +1,10 @@
+/* eslint-env mocha */
+
 var serverRenderCache = require('../../serverRenderCache')
 var StoreCache = require('../../storeCache')
 var render = require('../../render')
 var expect = require('chai').expect
-var refreshify = require('../../render').refreshify;
+var refreshify = require('../../render').refreshify
 
 describe('store cache', function () {
   var storeCache
@@ -24,14 +26,14 @@ describe('store cache', function () {
     render._currentRender = oldCurrentRender
   })
 
-  function load(data) {
+  function load (data) {
     return wait(10).then(() => data)
   }
 
-  function wait(n) {
+  function wait (n) {
     return new Promise((resolve) => {
       setTimeout(resolve, 10)
-    });
+    })
   }
 
   it('can store data loaded', function () {
@@ -41,9 +43,9 @@ describe('store cache', function () {
     refreshify(function () {
       return serverRenderCache('key', () => load('some data')).then(data => {
         expect(data).to.equal('some data')
-        return setData1 = data
+        return (setData1 = data)
       }).then(data => {
-        return setData2 = data
+        return (setData2 = data)
       })
     })()
 
@@ -54,7 +56,7 @@ describe('store cache', function () {
       expect(setData1).to.equal('some data')
       expect(setData2).to.equal('some data')
     })
-  });
+  })
 
   it("can store data even if promise isn't returned", function () {
     var setData
@@ -70,5 +72,5 @@ describe('store cache', function () {
       expect(storeCache.data).to.eql({key: 'some data'})
       expect(setData).to.equal('some data')
     })
-  });
-});
+  })
+})

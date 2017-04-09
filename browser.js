@@ -1,1 +1,1 @@
-window.hyperdom = require('.');
+window.hyperdom = require('.')

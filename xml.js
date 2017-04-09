@@ -3,7 +3,7 @@ var AttributeHook = require('virtual-dom/virtual-hyperscript/hooks/attribute-hoo
 var namespaceRegex = /^([a-z0-9_-]+)(--|:)([a-z0-9_-]+)$/i
 var xmlnsRegex = /^xmlns(--|:)([a-z0-9_-]+)$/i
 
-function transformTanName(vnode, namespaces) {
+function transformTanName (vnode, namespaces) {
   var tagNamespace = namespaceRegex.exec(vnode.tagName)
   if (tagNamespace) {
     var namespaceKey = tagNamespace[1]
@@ -17,25 +17,25 @@ function transformTanName(vnode, namespaces) {
   }
 }
 
-function transformProperties(vnode, namespaces) {
+function transformProperties (vnode, namespaces) {
   var properties = vnode.properties
 
   if (properties) {
     var attributes = properties.attributes || (properties.attributes = {})
 
-    var keys = Object.keys(properties);
+    var keys = Object.keys(properties)
     for (var k = 0, l = keys.length; k < l; k++) {
-      var key = keys[k];
-      if (key != 'style' && key != 'attributes') {
+      var key = keys[k]
+      if (key !== 'style' && key !== 'attributes') {
         var match = namespaceRegex.exec(key)
         if (match) {
           properties[match[1] + ':' + match[3]] = new AttributeHook(namespaces[match[1]], properties[key])
           delete properties[key]
         } else {
-          var property = properties[key];
-          var type = typeof property;
+          var property = properties[key]
+          var type = typeof property
           if (type === 'string' || type === 'number' || type === 'boolean') {
-            attributes[key] = property;
+            attributes[key] = property
           }
         }
       }
@@ -43,7 +43,7 @@ function transformProperties(vnode, namespaces) {
   }
 }
 
-function declaredNamespaces(vnode) {
+function declaredNamespaces (vnode) {
   var namespaces = {
     '': vnode.properties.xmlns,
     xmlns: 'http://www.w3.org/2000/xmlns/'
@@ -52,10 +52,10 @@ function declaredNamespaces(vnode) {
   var keys = Object.keys(vnode.properties)
 
   for (var k = 0, l = keys.length; k < l; k++) {
-    var key = keys[k];
+    var key = keys[k]
     var value = vnode.properties[key]
 
-    if (key == 'xmlns') {
+    if (key === 'xmlns') {
       namespaces[''] = value
     } else {
       var match = xmlnsRegex.exec(key)
@@ -69,16 +69,16 @@ function declaredNamespaces(vnode) {
   return namespaces
 }
 
-function transform(vnode) {
+function transform (vnode) {
   var namespaces = declaredNamespaces(vnode)
 
-  function transformChildren(vnode, namespaces) {
+  function transformChildren (vnode, namespaces) {
     transformTanName(vnode, namespaces)
     transformProperties(vnode, namespaces)
 
     if (vnode.children) {
       for (var c = 0, l = vnode.children.length; c < l; c++) {
-        var child = vnode.children[c];
+        var child = vnode.children[c]
         if (!(child.properties && child.properties.xmlns)) {
           transformChildren(child, namespaces)
         }
