@@ -13,21 +13,70 @@ Router.prototype.reset = function () {
   this.history.stop()
 }
 
-function modelRoutes (model, isModel) {
-  if (isModel) {
+function walkRoutes (url, model, visit) {
+  function walk (model) {
+    var action
+
     runRender.currentRender().mount.setupModelComponent(model)
+
+    if (typeof model.routes === 'function') {
+      var routes = model.routes()
+
+      for (var r = 0, l = routes.length; r < l; r++) {
+        var route = routes[r]
+
+        if (typeof route.matchUrl === 'function') {
+          action = visit(route)
+        } else {
+          action = walk(route)
+        }
+
+        if (action) {
+          if (typeof model.render === 'function') {
+            return wrapAction(model, action)
+          } else {
+            return action
+          }
+        }
+      }
+    } else {
+      throw new Error('expected model to have routes method')
+    }
   }
 
-  if (typeof model.routes === 'function') {
-    var routes = model.routes()
-    if (routes instanceof Object && typeof routes.routes === 'function') {
-      return modelRoutes(routes, true)
-    } else {
-      return routes
+  return walk(model)
+}
+
+function matchRoute (url, model, isNewUrl) {
+  var routesTried = []
+  var notFound
+
+  var action = walkRoutes(url, model, function (route) {
+    var match
+    routesTried.push(route)
+
+    if (route.notFound) {
+      notFound = route
+    } else if ((match = route.matchUrl(url))) {
+      return isNewUrl
+        ? route.set(url, match)
+        : route.get(url, match)
     }
-  } else {
-    return []
+  })
+
+  return action || {
+    render: function () {
+      return (notFound.render || renderNotFound)(url, routesTried)
+    }
   }
+}
+
+function wrapAction (model, action) {
+  var actionRender = action.render
+  action.render = function () {
+    return model.render(actionRender())
+  }
+  return action
 }
 
 Router.prototype.url = function () {
@@ -40,42 +89,30 @@ Router.prototype.render = function (model) {
 
   function renderUrl (redirects) {
     var url = self.history.url()
-    var routes = modelRoutes(model, true)
+    var isNewUrl = self.lastUrl !== url
+    var action = matchRoute(url, model, isNewUrl)
 
-    var action
-    if (self.lastUrl !== url) {
-      action = setUrl(url, routes)
+    if (action.url) {
+      if (self.lastUrl !== action.url) {
+        if (action.push) {
+          self.history.push(action.url)
+        } else {
+          self.history.replace(action.url)
+        }
+        self.lastUrl = self.history.url()
+      }
+    } else if (action.redirect) {
+      if (redirects.length > 10) {
+        throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
+      }
+      self.history.replace(action.redirect)
+      redirects.push(url)
+      return renderUrl(redirects)
     } else {
-      action = getUrl(url, routes)
+      self.lastUrl = url
     }
 
-    if (action) {
-      if (action.url) {
-        if (self.lastUrl !== action.url) {
-          if (action.push) {
-            self.history.push(action.url)
-          } else {
-            self.history.replace(action.url)
-          }
-          self.lastUrl = self.history.url()
-        }
-      } else if (action.redirect) {
-        if (redirects.length > 10) {
-          throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
-        }
-        self.history.replace(action.redirect)
-        redirects.push(url)
-        return renderUrl(redirects)
-      } else {
-        self.lastUrl = url
-      }
-
-      if (action.render) {
-        return action.render()
-      }
-    } else {
-      return renderNotFound(url, routes)
-    }
+    return action.render()
   }
 
   return renderUrl([])
@@ -93,11 +130,11 @@ function renderNotFound (url, routes) {
   return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern }).join('\n')))
 }
 
-var notFoundPatternVariables = preparePattern('*')
-
-Router.prototype.notFound = function (options) {
-  options.notFound = true
-  return new Route(notFoundPatternVariables, options, this)
+Router.prototype.notFound = function (render) {
+  return {
+    notFound: true,
+    render: render
+  }
 }
 
 Router.prototype.route = function (pattern) {
@@ -140,14 +177,16 @@ function Route (patternVariables, options, router) {
 
   this.variables = patternVariables.variables
   this.regex = patternVariables.regex
-  this.mountRegex = patternVariables.mountRegex
 
-  this.routes = typeof options === 'object' && options.hasOwnProperty('routes') ? options.routes : undefined
   var bindings = typeof options === 'object' && options.hasOwnProperty('bindings') ? options.bindings : undefined
   this.bindings = bindings ? bindParams(bindings) : undefined
   this.onload = typeof options === 'object' && options.hasOwnProperty('onload') ? options.onload : undefined
-  this.render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : (this.routes ? function (inner) { return inner } : function () {})
+  this.render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : undefined
   this.redirect = typeof options === 'object' && options.hasOwnProperty('redirect') ? options.redirect : undefined
+
+  if (!this.render && !this.redirect) {
+    throw new Error('expected route options to have either render or redirect function')
+  }
 
   var push = typeof options === 'object' && options.hasOwnProperty('push') ? options.push : undefined
 
@@ -175,26 +214,27 @@ function bindParams (params) {
 }
 
 Route.prototype.hasRoute = function (model, url) {
-  var routes = modelRoutes(model, true)
-  var match = findMatch(url, routes)
-  return !!match && !match.route.notFound
+  var action = walkRoutes(url, model, function (route, match) {
+    if (!route.notFound && (match = route.matchUrl(url))) {
+      return {
+      }
+    }
+  })
+
+  return !!action
 }
 
-Route.prototype.match = function (url) {
-  if (this.routes) {
-    return this.mountRegex.exec(url.split('?')[0])
-  } else {
-    return this.regex.exec(url.split('?')[0])
-  }
+Route.prototype.matchUrl = function (url) {
+  return this.regex.exec(url.split('?')[0])
 }
 
 Route.prototype.urlParams = function (url, _match) {
   var query = url.split('?')[1]
-  var match = _match || this.match(url)
+  var match = _match || this.matchUrl(url)
   var params = this.router._querystring.parse(query)
 
   if (match) {
-    for (var n = 1; n < match.length - 1; n++) {
+    for (var n = 1; n < match.length; n++) {
       params[this.variables[n - 1]] = match[n]
     }
   }
@@ -231,28 +271,13 @@ Route.prototype.set = function (url, match) {
     }, {refresh: 'promise'})()
   }
 
-  if (this.routes) {
-    var routes = modelRoutes(this)
-    return this.wrapAction(setUrl(url, routes))
-  } else {
-    return {
-      render: this.render.bind(this)
-    }
+  return {
+    render: this.render.bind(this)
   }
-}
-
-Route.prototype.wrapAction = function (action) {
-  var innerRender = action.render
-  var outerRender = this.render
-  action.render = function () {
-    return outerRender(innerRender())
-  }
-  return action
 }
 
 Route.prototype.get = function (url) {
   var self = this
-  var routes
 
   if (this.bindings) {
     var params = {}
@@ -270,15 +295,10 @@ Route.prototype.get = function (url) {
     var push = this.push(oldParams, newParams)
   }
 
-  if (this.routes) {
-    routes = modelRoutes(this)
-    return this.wrapAction(getUrl(url, routes))
-  } else {
-    return {
-      url: newUrl,
-      push: push,
-      render: this.render.bind(this)
-    }
+  return {
+    url: newUrl,
+    push: push,
+    render: this.render.bind(this)
   }
 }
 
@@ -360,46 +380,8 @@ function preparePattern (pattern) {
 
   return {
     pattern: pattern,
-    regex: new RegExp('^' + compiledPattern + '($)'),
-    mountRegex: new RegExp('^' + compiledPattern + (pattern[pattern.length - 1] === '/' ? '' : '(/|$)')),
+    regex: new RegExp('^' + compiledPattern + '$'),
     variables: variables
-  }
-}
-
-function setUrl (url, routes) {
-  var match = findMatch(url, routes)
-  if (match) {
-    return match.route.set(url, match.match)
-  }
-}
-
-function findMatch (url, routes) {
-  for (var r = 0, l = routes.length; r < l; r++) {
-    var route = routes[r]
-    var match
-
-    if (typeof route.match === 'function') {
-      if ((match = route.match(url))) {
-        return {
-          route: route,
-          match: match
-        }
-      }
-    } else if (typeof route.routes === 'function') {
-      var subRoutes = modelRoutes(route)
-      var subMatch = findMatch(url, subRoutes)
-
-      if (subMatch) {
-        return subMatch
-      }
-    }
-  }
-}
-
-function getUrl (url, routes) {
-  var match = findMatch(url, routes)
-  if (match) {
-    return match.route.get(url, match.match)
   }
 }
 

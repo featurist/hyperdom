@@ -14,6 +14,22 @@ function createTestDiv () {
   return div
 }
 
+function createReloadButton (href) {
+  var link = document.createElement('a')
+  link.href = href
+  link.innerText = '⟳ reload'
+  link.style = 'z-index: 1000;' +
+    'position: fixed;' +
+    'right: 5px;' +
+    'bottom: 5px;'
+
+  return link
+}
+
+window.addEventListener('onload', function () {
+  document.body.append(createReloadButton(window.location.href))
+})
+
 module.exports = function (app, options) {
   var testDiv = createTestDiv()
   if (options && (options.hash || options.url) && options.router) {
