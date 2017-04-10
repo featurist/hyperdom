@@ -286,6 +286,21 @@ or
 h('div', {dataset: {stuff: 'something'}});
 ```
 
+### Joining VDOM Arrays
+
+You may have an array of vdom elements that you want to join together with a separator, something very much like `Array.prototype.join()`, but for vdom. 
+
+```jsx
+var items = ['one', 'two', 'three']
+hyperdom.join(items.map(i => <code>{i}</code>), ', ')
+```
+
+Will produce this HTML:
+
+```html
+<code>one</code>, <code>two</code>, <code>three</code>
+```
+
 ## Responding to Events
 
 Pass a function to any `on*` event handler.
