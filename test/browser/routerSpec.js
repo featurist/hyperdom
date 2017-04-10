@@ -465,36 +465,43 @@ function describeRouter (historyApi) {
     })
 
     describe('sub routes', function () {
-      var events
-
       context('app with sub routes', function () {
         var app
         var routes
 
-        events = []
-
-        function aComponent (a) {
+        function aComponent () {
           return {
-            a: a,
-
             routes: function () {
               var self = this
 
               return [
                 routes.a({
+                  bindings: {
+                    a: [this, 'a']
+                  },
+
                   render: function () {
-                    return h('h1', 'a = ' + self.a)
+                    return h('h3', 'route a: a = ' + self.a)
                   }
                 }),
+
                 routes.b({
                   bindings: {
+                    a: [this, 'a'],
                     b: [this, 'b']
                   },
                   render: function () {
-                    return h('h1', 'b = ' + self.b)
+                    return h('h3', 'route b: a = ' + self.a, ', b = ' + self.b)
                   }
                 })
               ]
+            },
+
+            render: function (vdom) {
+              return h('div',
+                h('h2', 'component a'),
+                vdom
+              )
             }
           }
         }
@@ -507,69 +514,55 @@ function describeRouter (historyApi) {
           }
 
           app = {
+            a: aComponent(),
+
             routes: function () {
               var self = this
 
               return [
                 routes.home({
+                  render: function () {
+                    return h('h2', 'route home')
+                  }
                 }),
 
-                routes.a({
-                  onload: function (params) {
-                    events.push(['outer onload', params])
-                    self.a = aComponent(params.a)
-                  },
-
-                  routes: function () {
-                    events.push(['outer routes'])
-                    return self.a
-                  },
-
-                  render: function (vdom) {
-                    events.push(['outer render'])
-                    return h('div',
-                      h('div.menu', 'menu'),
-                      vdom
-                    )
-                  }
-                })
+                self.a
               ]
+            },
+
+            render: function (vdom) {
+              return h('div',
+                h('h1', 'app'),
+                vdom
+              )
             }
           }
         })
 
-        it('calls onload, routes and render on the outer component', function () {
-          var monkey = mount(app, '/a/b')
-
-          expect(events).to.eql([
-            ['outer onload', {a: 'a'}],
-            ['outer routes'],
-            ['outer render']
-          ])
-
-          events = []
+        it('renders subroutes wrapping in outer component renders', function () {
+          var monkey = mount(app, '/')
 
           return Promise.all([
-            monkey.find('div.menu').shouldHave({text: 'menu'}),
-            monkey.find('h1').shouldHave({text: 'b = b'})
+            monkey.find('h1').shouldHave({text: 'app'}),
+            monkey.find('h2').shouldHave({text: 'route home'})
           ]).then(function () {
-            expect(events).to.eql([])
-            return routes.b.push({a: 'a', b: 'c'})
-          }).then(function () {
+            routes.a.push({a: 'a'})
             app.refreshImmediately()
 
             return Promise.all([
-              monkey.find('div.menu').shouldHave({text: 'menu'}),
-              monkey.find('h1').shouldHave({text: 'b = c'})
+              monkey.find('h1').shouldHave({text: 'app'}),
+              monkey.find('h2').shouldHave({text: 'component a'}),
+              monkey.find('h3').shouldHave({text: 'route a: a = a'})
             ])
           }).then(function () {
-            expect(events).to.eql([
-              ['outer onload', {a: 'a'}],
-              ['outer routes'],
-              ['outer render']
-            ])
+            routes.b.push({a: 'a', b: 'c'})
+            app.refreshImmediately()
 
-            events = []
+            return Promise.all([
+              monkey.find('h1').shouldHave({text: 'app'}),
+              monkey.find('h2').shouldHave({text: 'component a'}),
+              monkey.find('h3').shouldHave({text: 'route b: a = a, b = c'})
+            ])
           })
         })
       })
