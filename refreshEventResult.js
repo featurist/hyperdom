@@ -1,6 +1,6 @@
 var deprecations = require('./deprecations')
 
-module.exports = refreshAfterEvent
+module.exports = refreshEventResult
 
 var norefresh = {}
 
@@ -10,7 +10,7 @@ function norefreshFunction () {
 
 module.exports.norefresh = norefreshFunction
 
-function refreshAfterEvent (result, mount, options) {
+function refreshEventResult (result, mount, options) {
   var onlyRefreshAfterPromise = options && options.refresh === 'promise'
   var componentToRefresh = options && options.component
 
@@ -18,7 +18,7 @@ function refreshAfterEvent (result, mount, options) {
     result.then(function (result) {
       var opts = cloneOptions(options)
       opts.refresh = undefined
-      refreshAfterEvent(result, mount, opts)
+      refreshEventResult(result, mount, opts)
     })
   }
 
@@ -30,7 +30,7 @@ function refreshAfterEvent (result, mount, options) {
     mount.refreshComponent(result)
   } else if (result instanceof Array) {
     for (var i = 0; i < result.length; i++) {
-      refreshAfterEvent(result[i], mount, options)
+      refreshEventResult(result[i], mount, options)
     }
   } else if (componentToRefresh) {
     if (componentToRefresh.refreshComponent) {

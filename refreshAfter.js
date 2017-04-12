@@ -1,7 +1,6 @@
-var deprecations = require('./deprecations')
-var refreshify = require('./render').refreshify
+var render = require('./render')
+var refreshEventResult = require('./refreshEventResult')
 
 module.exports = function (promise) {
-  deprecations.refreshAfter('hyperdom.html.refreshAfter is deprecated')
-  refreshify(function () { return promise }, {refresh: 'promise'})()
+  refreshEventResult(promise, render.currentRender().mount, {refresh: 'promise'})
 }

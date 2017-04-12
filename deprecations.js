@@ -14,7 +14,6 @@ module.exports = {
   currentRender: deprecationWarning(),
   component: deprecationWarning(),
   renderFunction: deprecationWarning(),
-  refreshAfter: deprecationWarning(),
   norefresh: deprecationWarning(),
   mapBinding: deprecationWarning()
 }

@@ -2,10 +2,15 @@ var render = require('./render')
 var bindModel = require('./bindModel')
 
 module.exports = function (tag, attributes, childElements) {
-  var keys = Object.keys(attributes)
   var dataset
   var currentRender = render.currentRender()
 
+  if (attributes.binding) {
+    bindModel(tag, attributes, childElements)
+    delete attributes.binding
+  }
+
+  var keys = Object.keys(attributes)
   for (var k = 0; k < keys.length; k++) {
     var key = keys[k]
     var attribute = attributes[key]
@@ -55,11 +60,6 @@ module.exports = function (tag, attributes, childElements) {
 
   if (attributes.className) {
     attributes.className = generateClassName(attributes.className)
-  }
-
-  if (attributes.binding) {
-    bindModel(tag, attributes, childElements)
-    delete attributes.binding
   }
 
   return attributes

@@ -1,6 +1,7 @@
 var makeBinding = require('./binding')
 var refreshify = require('./render').refreshify
 var runRender = require('./render')
+var refreshAfter = require('./refreshAfter')
 var h = require('./rendering').html
 
 function Router (options) {
@@ -260,17 +261,13 @@ Route.prototype.set = function (url, match) {
       var binding = self.bindings[key]
 
       if (binding && binding.set) {
-        refreshify(function () {
-          return binding.set(params[key])
-        }, {refresh: 'promise'})()
+        refreshAfter(binding.set(params[key]))
       }
     })
   }
 
   if (this.onload) {
-    refreshify(function () {
-      return self.onload(params)
-    }, {refresh: 'promise'})()
+    refreshAfter(self.onload(params))
   }
 
   return {

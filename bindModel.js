@@ -119,9 +119,7 @@ function bindTextInput (attributes, children, binding) {
   }, binding)
 }
 
-function attachEventHandler (attributes, eventNames, _handler, binding) {
-  var handler = refreshify(_handler, binding.options)
-
+function attachEventHandler (attributes, eventNames, handler, binding) {
   if (eventNames instanceof Array) {
     for (var n = 0; n < eventNames.length; n++) {
       insertEventHandler(attributes, eventNames[n], handler)

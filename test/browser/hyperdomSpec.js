@@ -726,6 +726,29 @@ describe('hyperdom', function () {
         })
       })
     })
+
+    it('can render bindings outside of the render loop', function () {
+      var model = {
+        text: '',
+
+        render: function () {
+          return h('div',
+            this.input,
+            h('span', model.text)
+          )
+        }
+      }
+
+      model.input = h('input', {binding: [model, 'text'], type: 'text'})
+
+      attach(model)
+      find('input').sendkeys('haha')
+
+      return retry(function () {
+        console.log(model.text)
+        expect(find('span').text()).to.eql('haha')
+      })
+    })
   })
 
   describe('norefresh', function () {
