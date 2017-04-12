@@ -38,14 +38,15 @@
     "trytryagain": "1.2.0",
     "uglify-js": "2.4.16",
     "vdom-to-html": "2.3.1",
-    "watchify": "3.9.0"
+    "watchify": "3.9.0",
+    "webpack": "2.3.3"
   },
   "scripts": {
     "test": "npm run karma && npm run mocha && standard",
     "test-all": "BROWSERS=all npm test",
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",
-    "build": "browserify browser.js > hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
+    "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "prepublish": "npm run build",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*"
   },

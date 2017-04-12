@@ -73,9 +73,9 @@ Then
 
 # size
 
-* hyperdom.js: 75K
-* hyperdom.min.js: 32K
-* hyperdom.min.js.gz: 10K
+* hyperdom.js: 77K
+* hyperdom.min.js: 29K
+* hyperdom.min.js.gz: 9.4K
 
 # browser support
 

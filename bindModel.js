@@ -1,7 +1,6 @@
 var listener = require('./listener')
 var binding = require('./binding')
 var RefreshHook = require('./render').RefreshHook
-var refreshify = require('./render').refreshify
 
 module.exports = function (tag, attributes, children) {
   var type = inputType(tag, attributes)
