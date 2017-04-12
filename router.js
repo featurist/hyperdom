@@ -260,7 +260,9 @@ Route.prototype.set = function (url, match) {
       var binding = self.bindings[key]
 
       if (binding && binding.set) {
-        binding.set(params[key])
+        refreshify(function () {
+          return binding.set(params[key])
+        }, {refresh: 'promise'})()
       }
     })
   }

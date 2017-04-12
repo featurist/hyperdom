@@ -1,7 +1,6 @@
-var refreshify = require('./render').refreshify
 var meta = require('./meta')
 
-module.exports = function (b, options) {
+module.exports = function (b) {
   var binding = b
 
   if (b instanceof Array) {
@@ -11,8 +10,6 @@ module.exports = function (b, options) {
   } else {
     throw Error('hyperdom bindings must be either an array [object, property, setter] or an object { get(), set(value) }, instead binding was: ' + JSON.stringify(b))
   }
-
-  binding.set = refreshify(binding.set, options)
 
   return binding
 }

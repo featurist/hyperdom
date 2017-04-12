@@ -1,13 +1,13 @@
 var listener = require('./listener')
 var binding = require('./binding')
 var RefreshHook = require('./render').RefreshHook
+var refreshify = require('./render').refreshify
 
 module.exports = function (tag, attributes, children) {
   var type = inputType(tag, attributes)
   var bind = inputTypeBindings[type] || bindTextInput
 
-  var bindingAttr = binding(attributes.binding)
-  bind(attributes, children, bindingAttr.get, bindingAttr.set)
+  bind(attributes, children, binding(attributes.binding))
 }
 
 var inputTypeBindings = {
@@ -15,18 +15,18 @@ var inputTypeBindings = {
 
   textarea: bindTextInput,
 
-  checkbox: function (attributes, children, get, set) {
-    attributes.checked = get()
+  checkbox: function (attributes, children, binding) {
+    attributes.checked = binding.get()
 
     attachEventHandler(attributes, 'onclick', function (ev) {
       attributes.checked = ev.target.checked
-      set(ev.target.checked)
-    })
+      return binding.set(ev.target.checked)
+    }, binding)
   },
 
-  radio: function (attributes, children, get, set) {
+  radio: function (attributes, children, binding) {
     var value = attributes.value
-    attributes.checked = get() === attributes.value
+    attributes.checked = binding.get() === attributes.value
     attributes.on_hyperdomsyncchecked = listener(function (event) {
       attributes.checked = event.target.checked
     })
@@ -39,12 +39,12 @@ var inputTypeBindings = {
           inputs[i].dispatchEvent(customEvent('_hyperdomsyncchecked'))
         }
       }
-      set(value)
-    })
+      return binding.set(value)
+    }, binding)
   },
 
-  select: function (attributes, children, get, set) {
-    var currentValue = get()
+  select: function (attributes, children, binding) {
+    var currentValue = binding.get()
 
     var options = children.filter(function (child) {
       return child.tagName.toLowerCase() === 'option'
@@ -77,20 +77,20 @@ var inputTypeBindings = {
 
     attachEventHandler(attributes, 'onchange', function (ev) {
       attributes.selectedIndex = ev.target.selectedIndex
-      set(values[ev.target.value])
-    })
+      return binding.set(values[ev.target.value])
+    }, binding)
   },
 
-  file: function (attributes, children, get, set) {
+  file: function (attributes, children, binding) {
     var multiple = attributes.multiple
 
     attachEventHandler(attributes, 'onchange', function (ev) {
       if (multiple) {
-        set(ev.target.files)
+        return binding.set(ev.target.files)
       } else {
-        set(ev.target.files[0])
+        return binding.set(ev.target.files[0])
       }
-    })
+    }, binding)
   }
 }
 
@@ -104,22 +104,24 @@ function inputType (selector, attributes) {
   }
 }
 
-function bindTextInput (attributes, children, get, set) {
+function bindTextInput (attributes, children, binding) {
   var textEventNames = ['onkeyup', 'oninput', 'onpaste', 'textInput']
 
-  var bindingValue = get()
+  var bindingValue = binding.get()
   if (!(bindingValue instanceof Error)) {
     attributes.value = bindingValue !== undefined ? bindingValue : ''
   }
 
   attachEventHandler(attributes, textEventNames, function (ev) {
-    if (get() !== ev.target.value) {
-      set(ev.target.value)
+    if (binding.get() !== ev.target.value) {
+      return binding.set(ev.target.value)
     }
-  })
+  }, binding)
 }
 
-function attachEventHandler (attributes, eventNames, handler) {
+function attachEventHandler (attributes, eventNames, _handler, binding) {
+  var handler = refreshify(_handler, binding.options)
+
   if (eventNames instanceof Array) {
     for (var n = 0; n < eventNames.length; n++) {
       insertEventHandler(attributes, eventNames[n], handler)

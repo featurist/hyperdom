@@ -1558,6 +1558,16 @@ describe('hyperdom', function () {
   })
 
   describe('hyperdom.binding', function () {
+    describe('validation', function () {
+      it('throws if a string is passed', function () {
+        expect(function () {
+          hyperdom.binding('asdf')
+        }).to.throw(/bindings must be.*or an object.*asdf/)
+      })
+    })
+  })
+
+  describe('hyperdom.refreshify', function () {
     this.timeout(2000)
     var refreshCalled
 
@@ -1583,24 +1593,20 @@ describe('hyperdom', function () {
     })
 
     function expectToRefresh (options, v) {
-      var model = {}
-
-      hyperdom.binding([model, 'field'], options).set('value')
+      (hyperdom.refreshify(function () {}, options))()
       expect(refreshCalled).to.equal(v)
     }
 
     function expectPromiseToRefreshWithOptions (options, expectations) {
-      var binding = hyperdom.binding({
-        set: function () {
-          return wait(10)
-        }
+      var fn = hyperdom.refreshify(function () {
+        return wait(10)
       }, options)
 
-      return expectPromiseToRefreshWithBinding(binding, expectations)
+      return expectPromiseToRefreshWithBinding(fn, expectations)
     }
 
-    function expectPromiseToRefreshWithBinding (binding, expectations) {
-      binding.set('value')
+    function expectPromiseToRefreshWithBinding (fn, expectations) {
+      fn()
 
       expect(refreshCalled).to.equal(expectations.immediately)
       refreshCalled = false
@@ -1609,35 +1615,6 @@ describe('hyperdom', function () {
         expect(refreshCalled).to.equal(expectations.afterPromise)
       })
     }
-
-    describe('setters', function () {
-      it('calls setter and refreshes after promise is returned', function () {
-        var set = false
-        var promiseSet = false
-
-        var object = {
-          property: 'oldValue'
-        }
-
-        return expectPromiseToRefreshWithBinding(hyperdom.binding([object, 'property', function (value) {
-          set = value
-          return wait(10).then(function () {
-            promiseSet = value
-          })
-        }]), {immediately: true, afterPromise: true}).then(function () {
-          expect(set).to.equal('value')
-          expect(promiseSet).to.equal('value')
-        })
-      })
-    })
-
-    describe('validation', function () {
-      it('throws if a string is passed', function () {
-        expect(function () {
-          hyperdom.binding('asdf')
-        }).to.throw(/bindings must be.*or an object.*asdf/)
-      })
-    })
 
     context('normal', function () {
       it('normally calls refresh', function () {
@@ -1656,11 +1633,9 @@ describe('hyperdom', function () {
           refresh: function () {
             this.wasRefreshed = true
           }
-        }
+        };
 
-        var model = {}
-        hyperdom.binding([model, 'field'], {component: component}).set('value')
-
+        (hyperdom.refreshify(function () {}, {component: component}))()
         expect(component.wasRefreshed).to.equal(true)
       })
     })
@@ -1671,11 +1646,9 @@ describe('hyperdom', function () {
           refreshComponent: function () {
             this.wasRefreshed = true
           }
-        }
+        };
 
-        var model = {}
-        hyperdom.binding([model, 'field'], {component: component}).set('value')
-
+        (hyperdom.refreshify(function () {}, {component: component}))()
         expect(component.wasRefreshed).to.equal(true)
       })
     })
