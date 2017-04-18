@@ -1763,8 +1763,13 @@ describe('hyperdom', function () {
       var render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : undefined
 
       return {
+        onload: function () {
+          events.push(['onload'])
+          this.lastState = 'load'
+        },
+
         onbeforeadd: function () {
-          events.push(['onbeforeadd'])
+          events.push(['onbeforeadd', this.lastState])
           this.lastState = 'beforeadd'
         },
 
@@ -1844,9 +1849,10 @@ describe('hyperdom', function () {
 
       return clickAdd.then(function () {
         expect(events).to.eql([
-          ['onbeforeadd'],
+          ['onbeforeadd', undefined],
           ['onbeforerender', null, 'beforeadd'],
-          ['onadd', elementHtml(), 'beforeadd'],
+          ['onload'],
+          ['onadd', elementHtml(), 'load'],
           ['onrender', elementHtml(), null, 'add']
         ])
         events = []
@@ -1965,7 +1971,7 @@ describe('hyperdom', function () {
             monitor.rendering()
             return h('div',
               this.show
-                ? hyperdom.component(component())
+                ? hyperdom.viewComponent(component())
                 : undefined,
               h('button.add', {onclick: function () { app.show = true }}, 'add'),
               h('button.remove', {onclick: function () { app.show = false }}, 'remove'),
@@ -1983,7 +1989,7 @@ describe('hyperdom', function () {
         var app = {
           render: function () {
             return h('div',
-              hyperdom.component(cachingComponent()),
+              hyperdom.viewComponent(cachingComponent()),
               h('button.update', {onclick: function () {}}, 'update')
             )
           }

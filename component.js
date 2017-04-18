@@ -2,7 +2,7 @@ var hyperdomMeta = require('./meta')
 var render = require('./render')
 
 function Component (model, options) {
-  this.isComponent = options && options.hasOwnProperty('component') && options.component
+  this.isViewComponent = options && options.hasOwnProperty('viewComponent') && options.viewComponent
   this.model = model
   this.key = model.renderKey
   this.component = undefined
@@ -13,6 +13,13 @@ Component.prototype.type = 'Widget'
 Component.prototype.init = function () {
   var self = this
 
+  if (self.model.onbeforeadd) {
+    self.model.onbeforeadd()
+  }
+  if (self.model.onbeforerender) {
+    self.model.onbeforerender()
+  }
+
   var vdom = this.render()
 
   var meta = hyperdomMeta(this.model)
@@ -21,14 +28,6 @@ Component.prototype.init = function () {
   var currentRender = render.currentRender()
   this.component = currentRender.mount.createDomComponent()
   var element = this.component.create(vdom)
-
-  if (self.model.onbeforeadd) {
-    self.model.onbeforeadd()
-  }
-
-  if (self.model.onbeforerender) {
-    self.model.onbeforerender()
-  }
 
   if (self.model.onadd || self.model.onrender) {
     currentRender.finished.then(function () {
@@ -71,7 +70,7 @@ function afterUpdate (model, element, oldElement) {
 Component.prototype.update = function (previous) {
   var self = this
 
-  if (this.isComponent) {
+  if (this.isViewComponent) {
     var keys = Object.keys(this.model)
     for (var n = 0; n < keys.length; n++) {
       var key = keys[n]

@@ -15,8 +15,8 @@ exports.meta = require('./meta')
 exports.refreshify = render.refreshify
 exports.norefresh = require('./refreshEventResult').norefresh
 exports.join = require('./join')
-exports.component = function (model) {
-  return new Component(model, {component: true})
+exports.viewComponent = function (model) {
+  return new Component(model, {viewComponent: true})
 }
 
 exports.currentRender = render.currentRender

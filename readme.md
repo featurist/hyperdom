@@ -15,8 +15,6 @@ Sponsored by:
 
 # An Example
 
-in JSX, using [babel](https://babeljs.io/)
-
 ```jsx
 /** @jsx hyperdom.jsx */
 var hyperdom = require('hyperdom');
@@ -33,25 +31,6 @@ class App {
 
 hyperdom.append(document.body, new App());
 ```
-
-in JS
-
-```JavaScript
-var hyperdom = require('hyperdom');
-var h = hyperdom.html;
-
-function render(model) {
-  return h('div',
-    h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: [model, 'name']}),
-    h('div', 'hi ', model.name)
-  );
-}
-
-hyperdom.append(document.body, render, {name: ''});
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
 
 # install
 
@@ -102,20 +81,145 @@ Get started with a skeleton web app using hyperdom and DOM tests with browser-mo
 * [hyperdom-sortable](https://github.com/featurist/hyperdom-sortable)
 * [hyperdom-zeroclipboard](https://github.com/featurist/hyperdom-zeroclipboard)
 
-# JSX
 
-JSX is well supported, and can perform faster than using non-JSX `hyperdom.html()` as JSX is slightly less flexible expression of VDOM, (you can't specify selectors as you can using `hyperdom.html()`.)
+# Hyperdom Applications
 
-Insert the following lines at the top of your `.jsx` file:
+A Hyperdom application is simply an object that contains a `render()` method which returns the desired HTML for your application in its current state. This HTML can contain event handlers which modify the application state, after which `render()` is called again to reflect the new HTML. Underneath we use virtual-dom, which ensures that the DOM is updated incrementally, applying only the changes since the last render so it's incredibly fast.
+
+The result is that we can write applications that have a simple relationship between our application data, the HTML on the page and how the page changes when the user interacts with it.
+
+Here's an example:
+
+```jsx
+var hyperdom = require('hyperdom');
+
+class App {
+  constructor() {
+    this.name = 'Sally'
+  }
+
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding="this.name" />
+      <div>hi {this.name}</div>
+    </div>;
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+Here we have a class `App`, that contains a `render()` method. We define the HTML (or virtual-dom), including an `input` element that is bound onto the model with `binding="this.name"`, this means that the app's `name` property is used to populate the `<input>`, and conversely, whenever the user types something into the `<input>`, they change `name`. The name is constantly rendered into the HTML with `hi {this.name}`.
+
+Finally, we attach the application onto the DOM using `hyperdom.append`, which appends the application's top-level DOM element to the HTML document's body.
+
+Larger applications will typically have several classes or objects like this in a hierarchical structure to handle different parts of the page, or to encapsulate different application logic. Here we have an application that shows an article and a login component:
 
 ```jsx
 /** @jsx hyperdom.jsx */
 var hyperdom = require('hyperdom');
+var httpism = require('httpism');
+
+class App {
+  constructor() {
+    this.article = new Article()
+    this.login = new Login()
+  }
+
+  render() {
+    return <div>
+      {this.login}
+      {this.article}
+    </div>
+  }
+}
+
+class Article {
+  onload() {
+    return httpism.get('/content').then(response => {
+      this.content = response.body
+    })
+  }
+
+  render() {
+    if (this.content) {
+      return <div class="article">{this.content}</div>
+    } else {
+      return <div class="article loading"></div>
+    }
+  }
+}
+
+class Login {
+  login() {
+    ...
+  }
+
+  logout() {
+    ...
+  }
+
+  render() {
+    if (this.user) {
+      <div class="user">
+        <div class="user_name">{this.user.name}</div>
+        <button onclick={() => this.logout()}>logout</button>
+      </div>
+    } else {
+      return <div>
+        <input type="text" binding={[this, 'username']} />
+        <input type="password" binding={[this, 'password']} />
+        <button onclick={() => this.login()}>login</button>
+      </div>
+    }
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+# The Render Method
+
+The `render` method returns a virtual DOM fragment. As a general rule, the render method does not modify the state of the model and returns the same VDOM fragment for the same model state.
+
+The virtual-dom can be generated using regular JavaScript or JSX
+
+## JS
+
+The JavaScript virtual-dom API has some niceties for generating classes and IDs.
+
+```js
+var h = require('hyperdom').html
+
+class App {
+  render() {
+    return h('div.content',
+  	   h('h1', 'hello!')
+    )
+  }
+}
+```
+
+## JSX
+
+You can write JSX using [babel](https://babeljs.io/) with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom). This uses `hyperdom.jsx` as the JSX pragma and [babel-plugin-transform-jsx-hyperdom-binding](https://github.com/featurist/babel-plugin-transform-jsx-hyperdom-binding) for binding syntax. JSX actually performs faster than `hyperdom.html` because JSX is a slightly less flexible form of virtual-dom.
+
+```jsx
+var hyperdom = require('hyperdom');
+
+class App {
+  render() {
+    return <div class="content">
+      <h1>hello!</h1>
+    </div>
+  }
+}
 ```
 
 # SVG (or XML more generally)
 
-Hyperdom will interpret XML if it contains an `xmlns` attribute. This includes regular XML behaviour like declaring and using namespaces. JSX itself doesn't support `namespace:tag` syntax, so you can use an alternative syntax with `--` instead, for e.g. `namespace--tag`.
+Hyperdom will interpret XML if it contains an `xmlns` attribute. This includes regular XML behaviour like declaring and using namespaces. Note that JSX itself doesn't support `namespace:tag` syntax, so you can use an alternative syntax with `--` instead, for e.g. `namespace--tag`.
 
 ```jsx
 /** @jsx hyperdom.jsx */
@@ -130,61 +234,103 @@ class Circle {
 }
 ```
 
-SVG in hyperdom supports all the same DOM events and interaction you'd expect from hyperdom.
+Rendering SVG supports all the same DOM events and interaction you'd expect from hyperdom.
 
-## Debugging the DOM
+# Events
 
-By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+There are two primary ways to respond to user events in Hyperdom, the first most basic form is to set an `on*` event handler such as `onclick` on a VDOM element, just as you would in HTML. For example, to handle a button click, you can write:
 
 ```jsx
-render() {
-  return <h1>{this.title}</h1>
-}
+<button onclick={() => this.doSomething()}>do something</button>
 ```
 
-Will generate
+The event handler can then modify the model, or start an AJAX download, or whatever is required to respond to the user. Immediately after the event handler has run, the page is re-rendered to reflect the new state of the application. In the case of asynchronous operations, like AJAX, you can return a promise from the event handler, and the page will re-render once more when the promise is resolved.
 
-```html
-<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
+A common scenario works like this:
+
+1. Render the VDOM with an event handler on `onclick`
+2. The VDOM is patched into the HTML
+3. The user clicks on the element
+4. The event handler is executed, modifies the model as necessary and optionally returns a promise of an asynchronous operation (for example, if the event handler performs AJAX)
+5. The view is re-rendered reflecting the new changes to the model
+6. If the event handler returns a promise, wait for it to resolve
+7. Re-render the model once more to reflect the changes from the asynchronous operation
+
+## Re-rendering the view
+
+Notice that the whole view is re-rendered after each event. This is because it's common for one part of the page to modify the model in such a way that other parts of the page change too, and you shouldn't have to think about which parts of the view need to be re-rendered after a model change. It's possible to do this because Hyeprdom is extremely quick and it's very rare for this approach to cause performance issues, even on mobile, and even for large complex applications, but for some types of application where there is a lot of data on a page, it can be useful to look for performance optimisations, see [performance](#performance) for details.
+
+## Bindings
+
+The second mechanism for handling events is more specialised and represents a very typical usecase for `<input>` elements. You want the input's value to represent the model, but you also want to change the model if the user interacts with the input. For this we introduce a `binding` attribute:
+
+```jsx
+<input type="text" binding="this.name"/>
 ```
 
-# Features
+which is shorthand for:
 
-## Rendering the View
-
-The `render` function takes a model object and returns a virtual DOM fragment. The render function **should not modify the model**, just return the view. It should not be relied upon to manipulate any state, this is because it can be called very frequently during user interaction, or very rarely if ever if the browser tab is not in focus.
-
-```JavaScript
-function render(model) {
-  return h('span', 'hi ', model.name);
-}
+```jsx
+<input type="text" binding={[this, 'name']}/>
 ```
 
-### Use Selectors
+The binding attribute does two things, it allows the VDOM to get the current value of the model (the model's `name` in this case), but also set it when the user types something in the text box. Both of these syntaxes above actually end up resolving to an object with two methods: `set` and `get`, and so are equivalent to:
+
+```jsx
+<input type="text" binding={
+  {
+    get: () => this.name,
+    set: (value) => this.name = value
+  }
+}/>
+```
+
+This binding object with `set` and `get` can be used to to handle additional logic when the model is read or written to by a binding. The `get` method is called when rendering the VDOM, the `set` method is called with the new value when the user interacts with the input.
+
+Alternatively you can implement the binding logic yourself, by setting the input's value and responding to `onchange` event:
+
+```jsx
+<input type="text" value={this.name} onchange={e => this.name = e.target.value}/>
+```
+
+Hyperdom bindings handle `onchange` events like this of course, but also other events such as those for copy and paste, and work across a variety of browsers, so it's recommended to use bindings where possible.
+
+## virtual-dom API
+
+### Selectors (`hyperdom.html` only)
 
 Use `tagname`, with any number of `.class` and `#id`.
 
-```JavaScript
+```js
 h('div.class#id', 'hi ', model.name);
 ```
 
 Spaces are taken to be small hierarchies of HTML elements, this will produce `<pre><code>...</code></pre>`:
 
-```JavaScript
+```js
 h('pre code', 'hi ', model.name);
 ```
 
 ### Add HTML Attributes
 
-```JavaScript
-h('span', { style: { color: 'red' } }, 'name: ', model.name);
+JS
+
+```js
+h('span', { style: { color: 'red' } }, 'name: ', this.name);
+```
+
+JSX
+
+```jsx
+<span style={{color: 'red'}}>name: {this.name}</span>
+<span style="color: red">name: {this.name}</span>
 ```
 
 [virtual-dom](https://github.com/Matt-Esch/virtual-dom) uses JavaScript names for HTML attributes like `className`, `htmlFor` and `tabIndex`. Hyperdom supports these, but also allows regular HTML names so you can use `class`, `for` and `tabindex`. These are much more familiar to people and you don't have to learn anything new.
 
 Non-standard HTML attribtes can be placed in the `attributes` key:
 
-```JavaScript
+```js
 h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
 ```
 
@@ -192,23 +338,23 @@ h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
 
 Hyperdom (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
 
-```js
-h('ul',
-  h('li', 'one'),
-  h('li', 'two'),
-  h('li', 'three')
-)
+```jsx
+<ul>
+  <li>one</li>
+  <li>two</li>
+  <li>three</li>
+</ul>
 ```
 
 And then, followed by:
 
-```js
-h('ul',
-  h('li', 'zero'),
-  h('li', 'one'),
-  h('li', 'two'),
-  h('li', 'three')
-)
+```jsx
+<ul>
+  <li>zero</li>
+  <li>one</li>
+  <li>two</li>
+  <li>three</li>
+</ul>
 ```
 
 The lists will be compared like this, and lots of work will be done to change the DOM:
@@ -222,24 +368,26 @@ The lists will be compared like this, and lots of work will be done to change th
 
 If we put a unique `key` (String or Number) into the attributes, then we can avoid all that extra work, and just insert the `<li>zero</li>`.
 
-```js
-h('ul',
-  h('li', {key: 'one'}, 'one'),
-  h('li', {key: 'two'}, 'two'),
-  h('li', {key: 'three'}, 'three'))
+```jsx
+<ul>
+  <li key="one">one</li>
+  <li key="two">two</li>
+  <li key="three">three</li>
+</ul>
 ```
 
 And:
 
-```js
-h('ul',
-  h('li', {key: 'zero'}, 'zero'),
-  h('li', {key: 'one'}, 'one'),
-  h('li', {key: 'two'}, 'two'),
-  h('li', {key: 'three'}, 'three'))
+```jsx
+<ul>
+  <li key="zero">zero</li>
+  <li key="one">one</li>
+  <li key="two">two</li>
+  <li key="three">three</li>
+</ul>
 ```
 
-It will be compared like this, much faster:
+It will be compared like this, and is much faster:
 
 ```html
                   <li>zero</li>  (new)
@@ -254,36 +402,37 @@ Its not all about performance, there are other things that can be affected by th
 
 Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
 
-```JavaScript
-function render(model) {
-  return h.rawHtml('div',
-    {style: { color: 'red' } },
-    'some dangerous <script>doTerribleThings()</script> HTML');
-}
+```js
+hyperdom.rawHtml('div',
+  {style: { color: 'red' } },
+  'some dangerous <script>doTerribleThings()</script> HTML'
+)
 ```
 
-This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `h.rawHtml('td', '&nbsp;')`.
+This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `hyperdom.rawHtml('td', '&nbsp;')`.
 
 ### Classes
 
-* an string, e.g. `'item selected'`.
+Classes have some additional features:
+
+* a string, e.g. `'item selected'`.
 * an array - the classes will be all the items space delimited, e.g. `['item', 'selected']`.
 * an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
 
-```JavaScript
-h('span', { class: { selected: model.selected } }, 'name: ', model.name);
-```
-
-### Data Attributes
+JS
 
 ```js
-h('div', {'data-stuff': 'something'});
+this.items.map(item => {
+  return h('span', { class: { selected: item == this.selectedItem } }, item.name)
+})
 ```
 
-or
+JSX
 
-```js
-h('div', {dataset: {stuff: 'something'}});
+```jsx
+this.items.map(item => {
+  return <li class={{ selected: item == this.selectedItem }}>{item.name}</li>
+})
 ```
 
 ### Joining VDOM Arrays
@@ -301,34 +450,155 @@ Will produce this HTML:
 <code>one</code>, <code>two</code>, <code>three</code>
 ```
 
-## Responding to Events
+### Data Attributes
 
-Pass a function to any `on*` event handler.
+You can use either `data-*` attributes or set the `data` attribute to an object:
 
-When the event handler has completed the view is automatically re-rendered.
-
-If you return a promise, then the view is also re-rendered when the promise resolves.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h('ul',
-      model.people.map(function (person) {
-        return h('li', person.name);
-      })
-    ),
-    h('button', {
-      onclick: function () {
-        model.people.push({name: 'Person ' + (model.people.length + 1)});
-      }
-    }, 'Add Person')
-  );
-}
-
-hyperdom.append(document.body, render, { people: [] });
+```jsx
+h('div', {'data-stuff': 'something'})
+h('div', {dataset: {stuff: 'something'}})
+<div data-stuff="something"/>
+<div data={{stuff: 'something'}}/>
 ```
 
-Try it on [requirebin](http://requirebin.com/?gist=82bf7e63cbb4072b71f0)
+## Responding to Events
+
+Pass a function to any regular HTML `on*` event handler in, such as `onclick`. That event handler can modify the state of the application, and once finished, the HTML will be re-rendered to reflect the new state.
+
+If you return a promise from your event handler then the HTML will be re-rendered twice: once when the event handler initially returns, and again when the promise resolves.
+
+```jsx
+class App {
+  constructor() {
+    this.people = []
+  }
+
+  addPerson() {
+    this.people.push({name: 'Person ' + (this.people.length + 1)})
+  }
+
+  render(model) {
+    return <div>
+      <ul>
+        {
+          this.people.map(person => <li>{person.name}</li>)
+        }
+      </ul>
+      <button onclick={() => this.addPerson()}>Add Person</button>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App())
+```
+
+## Binding the Inputs
+
+This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
+
+The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object containing `get` and `set` methods: `{get(), set(value)}`. See [bindings](#the_binding_attribute) for more details.
+
+```js
+class App {
+  render(model) {
+    return <div>
+      <label>what's your name</label>
+      <input type="text" binding={[model, 'name']}>
+      <div>hi {this.name}</div>
+    </div>
+  }
+}
+```
+
+## Radio Buttons
+
+Bind the model to each radio button. The buttons can be bound to complex (non-string) values, such as the `blue` object below.
+
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  constructor() {
+    this.colour: blue
+  }
+
+  render(model) {
+    return <div>
+      <input class="red" type="radio" name="colour" binding="this.colour" value="red">
+      <input class="blue" type="radio" name="colour" binding="this.colour" value={blue}>
+      <div>
+        colour: {JSON.stringify(this.colour)}
+      </div>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+## Select Dropdowns
+
+Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
+
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  constructor() {
+    this.colour = blue
+  }
+  
+  render(model) {
+    return <div>
+      <select binding="this.colour">
+        <option value="red">red</option>
+        <option value={blue}>blue</option>
+      </select>
+      <code>{JSON.stringify(this.colour)}</code>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+## File Inputs
+
+The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
+
+```js
+class App {
+  constructor () {
+    this.filename = '(no file selected)'
+    this.contents = ''
+  }
+  
+  render() {
+    return <div>
+      <input type="file" binding={ { set(file) => this.loadFile(file) } }>
+      <h1>{this.filename}</h1>
+      <pre>
+        <code>{this.contents}</code>
+      </pre>
+    </div>
+  }
+  
+  loadFile(file) {
+    return new Promise((resolve) => {
+      var reader = new FileReader();
+      reader.readAsText(file);
+
+      reader.onloadend = () => {
+        this.filename = file.name;
+        this.contents = reader.result;
+        resolve();
+      };
+    });
+  }
+}
+
+hyperdom.append(document.body, new App())
+```
 
 ## Window Events
 
@@ -336,467 +606,194 @@ You can attach event handlers to `window`, such as `window.onscroll` and `window
 
 E.g. to add an `onresize` handler:
 
-```JavaScript
+```js
 var windowEvents = require('hyperdom/windowEvents');
 
-function render() {
-  return h('div',
-    'width = ' + window.innerWidth + ', height = ' + window.innerHeight,
-    windowEvents({ onresize: function () {console.log('resizing');} })
-  );
-}
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=8790af706dbd09840093)
-
-## Binding the Inputs
-
-This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
-
-The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object `{get: function () { ... }, set: function (value) { ... }}`.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h('label', "what's your name?"), ' ',
-    h('input', {type: 'text', binding: [model, 'name']}),
-    h('div', 'hi ' + model.name)
-  );
-}
-
-hyperdom.append(document.body, render, { name: '' });
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=9890d270f676e9bb2681).
-
-## Radio Buttons
-
-Bind the model to each radio button. The buttons can be bound to complex (non-string) values.
-
-```JavaScript
-var blue = { name: 'blue' };
-
-function render(model) {
-  return h('div',
-    h('input.red', {
-      type: 'radio',
-      name: 'colour',
-      binding: [model, 'colour'],
-      value: 'red'
-    }),
-    h('input.blue', {
-      type: 'radio',
-      name: 'colour',
-      binding: [model, 'colour'],
-      value: blue
-    }),
-    ' ',
-    h('code', JSON.stringify(model.colour))
-  );
-}
-
-hyperdom.append(document.body, render, { colour: blue });
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=af4b00af80d6aea3d3fe).
-
-## Select Dropdowns
-
-Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
-
-```JavaScript
-var blue = { name: 'blue' };
-
-function render(model) {
-  return h('div',
-    h('select',
-      {binding: [model, 'colour']},
-      h('option', {value: 'red'}, 'red'),
-      h('option', {value: blue}, 'blue')
-    ),
-    ' ',
-    h('code', JSON.stringify(model.colour))
-  );
-}
-
-hyperdom.append(document.body, render, { colour: blue });
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=0c9b0eeb62e9b1f2089b).
-
-## File Inputs
-
-The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h('input',
+class App {
+  render() {
+    return <div>
+      width = {window.innerWidth}, height = {window.innerHeight}
       {
-        type: 'file',
-        binding: {
-          set: function (file) {
-            return new Promise(function (result) {
-              var reader = new FileReader();
-              reader.readAsText(file);
-
-              reader.onloadend = function () {
-                model.filename = file.name;
-                model.contents = reader.result;
-                result();
-              };
-            });
-          }
-        }
+        windowEvents({
+          onresize: () => console.log('resizing')
+        })
       }
-    ),
-    h('h1', model.filename),
-    h('pre', h('code', model.contents))
-  );
+    )
+  }
 }
-
-hyperdom.append(document.body, render, {
-  filename: '(no file selected)',
-  contents: ''
-});
 ```
 
-Try it on [requirebin](http://requirebin.com/?gist=f4cde0354263ba7cc56e).
+## Mapping the model to the view
 
-## Storing temporary state to prevent immediate model binding
+Sometimes you have an input that doesn't map cleanly to a view, this is often just because the HTML input element represents a string value, while the model represents something else like a number or a date.
 
-When the user input represents an invalid model value, you may not want to bind that value on to the model immediately. For example, when converting the input value to the model type would discard the user's temporary input value. In these cases, you can use a custom transformer, like this:
+For this you can use a `mapBinding`, found in `hyperdom/mapBinding`.
 
-```JavaScript
-var mustBeAnInteger = {
-  view: function(model) {
-    // convert the model value into the user input value
-    return model.toString();
+```jsx
+var mapBinding = require('hyperdom/mapBinding')
+
+var integer = {
+  view (model) {
+    // convert the model value to a string for the view
+    return model.toString()
   },
-  model: function(view) {
-    // convert the user input value into the model value, or throw an error
-    if (!/^\d+$/.test(view)) {
-      throw new Error('Must be an integer');
+  
+  model (view) {
+    // convert the input value to an integer for the model
+    return Number(view)
+  }
+}
+
+<input binding={mapBinding(this, 'age', integer)}>
+```
+
+As is often the case, it's possiible that the user enters an invalid value for the model, for example they type `xyz` into a field that should be a number. When this happens, you can throw an exception on the `model(value)` method. When this happens, the model is not modified, and so keeps the old value, but also, crucially, the view continues to be rendered with the invalid value. This way, the user can go from a valid value, they can pass through some invalid values as they type in finally a valid value. For example, when typing the date `2020-02-04`, it's not until the date is fully typed that it becomes valid.
+
+```js
+var mapBinding = require('hyperdom/mapBinding')
+
+var date = {
+  view (date) {
+    // convert the model value into the user input value
+    return `${date.getFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`
+  },
+  model (view) {
+    // test the date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(view)) {
+      // not correct, keep typing
+      throw new Error('Must be a date of the format YYYY-MM-DD');
     } else {
-      return Number(view);
+      // correct format, set the model
+      return new Date(view);
     }
   }
 }
-function render(model) {
-  return h('div',
-    h('input', {binding: [model, 'age', mustBeAnInteger]})
-  );
-}
+
+<input binding={mapBinding(this, 'dateOfBirth', date)}>
 ```
 
-hyperdom stores the temporary state in an object called `_hyperdomMeta` on your model object, until the converter's `model(view)` function stops throwing errors.
+Under the hood, hyperdom stores the intermediate value and the exception in the model's [meta](#meta) area. You can get the exception by calling `hyperdom.meta(model, field).error`.
 
 ## Components
 
-Components can be used to track the life-time of some HTML. This is usually helpful if you want to
-install jQuery plugins. The state (the `this`) of the component is kept in the virtual dom and is
-destroyed as soon as it is removed from the DOM, so expect to store view-related state, not application state.
+Components are the basic building blocks of a Hyperdom application. The simplest component is an object that contains just a `render()` method. However, components can be used to interact with HTML at a more basic level, such as when using jQuery plugins, or to cache rendering output for performance.
 
-Copmnents allow you to respond to when the HTML is added, updated and removed.
+There are two types of components in Hyperdom, with the only difference being where they store their state. The first type, and by far the most common, are **model components** and store their state in the model, or quite often, they _are_ the model. The point of **model components** is that the lifetime of their state is completely independent of whether those components are rendered or not. With **model components** the application is entirely in control of its state.
 
-```JavaScript
-var hyperdom = require('hyperdom');
+The other type are **view components** and keep their state in the view only, this means that if the component dissapears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
 
-function render(model) {
-  return h('div',
-    model.show
-      ? hyperdom.component(
-          {
-            renderCacheKey: function () {
-              // return a cache key here
-              // to cache the render output
-            },
+Nevertheless, the API for view and model components is almost entirely the same. They both respond to the same rendering cycle events and have the same rendering and caching logic.
 
-            onbeforeadd: function () {
-              // you can store state in `this`, and it will
-              // be present in subsequent event handlers
-              // in fact, the `this` is the same object
-              // for each event handler, across all view refreshes
-              this.someProperty = 'some value';
-            },
+Components allow the following:
 
-            onadd: function (element) {
-              // element is the <div>component contents</div>
-              // you may want to add jQuery plugins here
-              console.log('added: ', this.someProperty);
-            },
+1. **Rendering VDOM** - essential to any Hyperdom application
+2. **Model Loading** - asynchronously loading model resources
+3. **HTML rendering events** - useful for low-level HTML hacking, including jQuery plugins
+4. **VDOM caching** - useful in apps that render very large amounts of HTML
 
-            onbeforeupdate: function (element) {
-              // immediately before the element is updated
-              console.log('updated: ', this.someProperty);
-            },
+Componnts can implement these methods:
 
-            onupdate: function (element) {
-              // after the element is updated
-              console.log('updated: ', this.someProperty);
-            },
+* `render()` - returns the VDOM representation of the component, called on each rendering cycle
+* `onload()` (optional) - called when the component is first rendered, this can be used to setup the component, or load resources from AJAX. If this returns a promise, the view will be re-rendered again after the promise is resolved.
+* `renderKey` (optional) - used for efficient diffing of virtual-dom elements, see [keys](#keys).
+* `renderCacheKey()` (optional) - returns the cache key for the component. If the cache key hasn't changed since the last render, then the VDOM from the last render is used, otherwise, if the cache key has changed, `render()` is called for the latest VDOM.
+* `onbeforeadd()` (optional) - called before the component is first added to the VDOM tree
+* `onadd(element)` (optional) - called after the component is first added to the VDOM tree. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onbeforeupdate(element)` (optional) - called before the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the componet, and could be the same as `element`.
+* `onbeforerender([element])` (optional) - called before the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`).
+* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the componet, and could be the same as `element`.
 
-            onbeforeremove: function (element) {
-              // immediately before the element is removed
-              console.log('removed: ', this.someProperty);
-            },
+## Model Components
 
-            onremove: function (element) {
-              // after the element is removed
-              console.log('removed: ', this.someProperty);
-            },
+Model components are simply just plain objects that implement `render()` and some of the methods above. They are rendered by simply placing them in the VDOM:
 
-            render: function () {
-              h('div', 'component contents')
-            }
-          }
-        )
-      : undefined,
-    h('div',
-      h('label',
-        'show component ',
-        h('input', {type: 'checkbox', binding: [model, 'show']})
-      )
-    ),
-    h('div',
-      h('button', {onclick: function () {}}, 'refresh')
-    )
-  );
-}
-
-hyperdom.append(document.body, render, {});
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=7c08489a84b0766651a9).
-
-Components can also be used to render just parts of the page, usually for performance reasons. By returning a component or an array of components from an event handler, only those components will be rendered.
-
-```JavaScript
-var hyperdom = require('hyperdom');
-
-function render(model) {
-  var component = hyperdom.component(function () {
-    return h('div', 'component counter: ', model.counter);
-  });
-  
-  return h('div',
-    component,
-    h('div', 'page counter: ', model.counter),
-    h('div',
-      h('button', {
-        onclick: function () {
-          model.counter++;
-          return component;
-        }
-      }, 'refresh component')
-    ),
-    h('div',
-      h('button', {
-        onclick: function () {
-          model.counter++;
-        }
-      }, 'refresh page')
-    )
-  );
-}
-
-hyperdom.append(document.body, render, {counter: 0});
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=afb1a6123309267b2d5a).
-
-## Controllers?
-
-You won't find controllers or components in hyperdom like you would in React's `React.createClass()` and AngularJS's `angular.directive()` and `angular.controller()`. This sounds like an omission, but in reality they're simply not needed. Hyperdom works with render functions and model objects, the two primary building blocks of JavaScript, so it's refreshingly easy to structure and refactor your application.
-
-Render functions contain event handlers, which act as **controllers** in other frameworks. Event handlers can either handle events inline, or delegate to methods on the model.
-
-In the example below we have a `render` function and a `renderPerson` function. The `renderPerson` acts as a reusable component for rendering and handling interaction for each person.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h('h3', 'People'),
-    h('ol',
-      model.people.map(function (person) {
-        return renderPerson(model, person);
-      })
-    ),
-    h('button',
-      {
-        onclick: function () { model.addPerson(); }
-      },
-      'add')
-  );
-}
-
-function renderPerson(model, person) {
-  return h('li',
-    h('input', {type: 'text', binding: [person, 'name']}),
-    h('button',
-      {
-        onclick: function () { model.deletePerson(person); }
-      },
-      'delete')
-  )
-}
-
-hyperdom.append(document.body, render, {
-  people: [
-    {name: 'Åke'},
-    {name: 'آمر'},
-    {name: '正'}
-  ],
-
-  addPerson: function () {
-    this.people.push({name: "somebody"});
-  },
-
-  deletePerson: function (person) {
-    var i = this.people.indexOf(person);
-
-    if (i >= 0) {
-      this.people.splice(i, 1);
-    }
+```jsx
+var component = {
+  render() {
+    return <h1>model component</h1>
   }
-});
-```
-
-Try it on [requirebin](http://requirebin.com/?gist=9ff1ee7bdb2b57fccfb6).
-
-The model too can contain render methods so you can take advantage of polymorphism. This might be useful, for example, if you want to render a list of different types of widgets. Each object in the list would have its own render function, rendering different HTML depending on the object.
-
-Here we render different types of animal, each with it's own user interface. Each animal object has a `render` method to render it's own HTML and event handlers.
-
-```JavaScript
-function render(model) {
-  return h('div',
-    h('ul',
-      model.animals.map(function (animal) {
-        return h('li', animal.render(model));
-      })
-    ),
-    h('h1', { style: { color: 'red' } }, model.sound? model.sound + '!': '')
-  );
 }
 
-hyperdom.append(document.body, render, {
-  animals: [
-    {
-      name: 'Harry',
-      render: function (model) {
-        return [
-          h('h3', 'Dog ' + this.name),
-          h('button',
-            {
-              onclick: function () {
-                return model.makeSound('woof');
-              }
-            },
-            'bark'
-          )
-        ];
-      }
+<div>{component}</div>
+```
+
+## View Components
+
+View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    render() {
+      return <h1>view component</h1>
+    }
+  })
+}</div>
+```
+
+If you define fields on the object, these fields are present on each render: `this.name` is the latest value of `name`.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    name: name,
+    render() {
+      return <h1>view component {this.name}</h1>
+    }
+  })
+}</div>
+```
+
+However, if you want to initialise some state once when the component is first rendered, then use it and update it during the lifetime of the component, use `onload()`, in this case `this.name` is the value of `name` when the component was first rendered.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    onload() {
+      this.name = name
     },
-    {
-      name: 'Bobo',
-      render: function (model) {
-        return [
-          h('h3', 'Lion ' + this.name),
-          h('button',
-            {
-              onclick: function () {
-                return model.makeSound('roar');
-              }
-            },
-            'roar'
-          )
-        ];
-      }
+    
+    render() {
+      return <h1>view component {this.name}</h1>
     }
-  ],
-  makeSound: function (sound) {
-    var self = this;
-    return function (render) {
-      self.sound = sound;
-      render();
-
-      setTimeout(function () {
-        delete self.sound;
-        render();
-      }, 300);
-    }
-  }
-});
+  })
+}</div>
 ```
 
-Try it on [requirebin](http://requirebin.com/?gist=41d56a087b5f9fa7d062).
+## Caching
+
+To cache the output from `render()`, return a non-undefined cache key from `renderCacheKey()`. This is useful if the component renders something large, for example, in the 10s of thousands of HTML nodes. For example, the following will only re-render when `this.version` changes:
+
+```jsx
+var component = {
+  constructor () {
+    this.version = 0
+  }
+
+  renderCacheKey () {
+    return this.version
+  }
+
+  render () {
+    return <div>
+      ...
+    </div>
+  }
+}
+```
 
 ## Not Refreshing
 
-By default the view will refresh after an event handler has run, however you can return `hyperdom.html.norefresh` from an event handler to prevent this.
+By default the view will refresh after an event handler has run, however you can return `hyperdom.norefresh()` from an event handler to prevent this.
 
-## Refreshing the view from the model
+## Refreshing the view explicitly
 
-Sometimes you want to refresh the view at an arbitrary point, not just after a UI event. For this hyperdom views can subscribe to events produced by the model.
+Sometimes you want to refresh the view but not just after a UI event. For this, a component has a small handful of methods
 
-### Refreshing After a Promise
-
-If `load()` returns a promise, then you can pass it to `refreshAfter` and have the page refresh when the promise is complete.
-
-```js
-hyperdom.html.refreshAfter(load());
-```
-
-If the promise returns a component, or an array of components, then those only components will be refreshed.
-
-### Refresh Function
-
-You can refresh the view at any time by getting a **refresh** function. You can get this function from `hyperdom.html.refresh`, and call it after the view has rendered, i.e. after an AJAX response.
-
-**Note that just calling `hyperdom.html.refresh()` will not work, please assign it to the model, or a local variable, then call it.**
-
-```JavaScript
-var refresh = hyperdom.html.refresh;
-
-// later
-
-refresh();
-```
-
-This is because `hyperdom.html.refresh` is only set during a render cycle. To call it, make sure you assign it to your model, or a local variable so you can call it later.
-
-```JavaScript
-function render(model) {
-  model.refresh = h.refresh;
-
-  return h('div',
-    h('h1', 'my favourite color is'),
-    model.color
-      ? h('h2', model.color)
-      : model.loading
-        ? h('h2', 'loading...')
-        : h('button', {
-            onclick: function () {
-              setTimeout(function () {
-                model.color = 'red';
-                model.refresh();
-              }, 1000);
-            }
-          }, '?')
-  );
-}
-
-hyperdom.append(document.body, render, {});
-```
-
-```JavaScript
-var refresh = hyperdom.html.refresh;
-refresh([component]);
-```
-
-* `refresh()` refreshes the whole UI for the attachment. (Other attached UIs aren't refreshed.)
-* `refresh(component)` just refreshes the component. See [components](#components).
+* `component.refresh()` - can be called to queue up a refresh of the entire view. Calling this multiple times will only invoke one refresh, normally on the next animation frame.
+* `component.refreshImmediately()` - can be called to refresh the view immediately.
+* `component.refreshComponent()` - can be called to queue up a refresh of just this component.
 
 ### Refreshify
 
@@ -831,8 +828,8 @@ Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Ma
 * Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
 * Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
 * For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `hyperdom.html.binding()` to not refresh, or only refresh a component.
-* Consider using a component with a `cacheKey`, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `cacheKey` is changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
-* Consider explicitly rendering a component when the model changes. You can set the `cacheKey` to something that never changes, such as just `true`, then use `hyperdom.html.refresh(component)` to render it.
+* Consider using a component with a `renderCacheKey()` method, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `renderCacheKey()` result changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
+* For parts of the page that don't ever change, you can pre-render the VDOM statically once and return the same VDOM on each render.
 
 ## Server-side Rendering
 
@@ -854,6 +851,28 @@ var vdom = h('html',
 
 var html = toHtml(vdom);
 console.log(html);
+```
+
+# Debugging
+
+## Chrome Plugin
+
+[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
+
+## File Names and Line Numbers
+
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+
+```jsx
+render() {
+  return <h1>{this.title}</h1>
+}
+```
+
+Will generate
+
+```html
+<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
 ```
 
 # Common Errors
@@ -885,7 +904,7 @@ This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a r
 
 ## Rendering the Virtual DOM
 
-```JavaScript
+```js
 var vdomFragment = hyperdom.html(selector, [attributes], children, ...);
 ```
 
@@ -898,25 +917,28 @@ var vdomFragment = hyperdom.html(selector, [attributes], children, ...);
 
 Form input elements can be passed a `binding` attribute, which is expected to be either:
 
-* An array with two items, the first being the model and second the field name, the third being an optional function called on the input when set, for example to convert a string into a number use `Number`.
+* An array with two items, the first being the model and second the field name, the third being an optional function that is called when the binding is set, for examle, you can initiate some further processing when the value changes.
 
-  ```JavaScript
-  [object, 'fieldName', convert]
+  ```js
+  [object, fieldName, setter(value)]
   ```
 
 * `object` - an object
 * `fieldName` - the name of a field on `object`
-* `convert` (optional) - a function called on the value when setting the model, i.e. `model.field = convert(value)`.
+* `setter(value)` (optional) - a function called with the value when setting the model.
 
 * An object with two methods, `get` and `set`, to get and set the new value, respectively.
 
-  ```JavaScript
+  ```js
   {
     get: function () {
       return model.property;
     },
     set: function (value) {
       model.property = value;
+    },
+    options: {
+      // options passed directly to `hyperdom.binding()`
     }
   }
   ```
@@ -935,7 +957,7 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 
 **Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
 
-```JavaScript
+```js
 var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 ```
 
@@ -943,64 +965,24 @@ var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `html` - the element's inner HTML.
 
-## Components
-
-```JavaScript
-var component = hyperdom.html.component([eventHandlers], vdomFragment | renderFunction);
-```
-
-* `eventHandlers` - object containing:
-  * `function onbeforeadd()` - invoked before the component is rendered for the first time, before `renderFunction`. This is a good place to setup state for the component.
-  * `function onadd(element)` - invoked after the component has been rendered for the first time, the `element` being the top-most DOM element in the component.
-  * `function onupdate(element)` - invoked after the component has been re-rendered, `element` being the top-most DOM element in the component.
-  * `function onremove(element)` - invoked after the component has been removed from the DOM, `element` being the top-most DOM element in the component.
-  * `function on(eventType, handler)` - invoked during rendering to wrap any event handlers. This may be useful to add global error handlers, always return the component for rendering performance, or just generally spy on events.
-
-    ```js
-    on: function (event, handler) {
-      if (event == 'click') {
-        return function () {
-          console.log('firing a click event handler');
-          return handler.apply(this, arguments);
-        }
-      } else {
-        return handler;
-      }
-    }
-    ```
-    
-  * `detached` - a boolean indicating that the DOM element is moved during the `onadd` event. Defaults to `false`. Some jQuery components, especially dialogs, move the DOM element to another part of the DOM to aid in styling. If this is the case, use `detached: true` and hyperdom will still be able to track it.
-  * `cacheKey` - if truthy, the component will only update if it's different from the previous rendering of the component. If falsey, then the component will re-render normally with everything else.
-  * any other fields you want to access from the handlers.
-
-    The event handlers are all invoked with the same `this`, within the lifetime of the component. This means you can store state between events.
-* `vdomFragment` - the vdom fragment to render as the component.
-* `renderFunction` - a function that returns a vdom fragment of the component. This allows the component to be returned from event handlers to be refreshed independently from the rest of the page.
-* `component` - a component which can be returned from any render function. With the `renderFunction` argument, this can be returned from an event handler to refresh just this component.
-
 ## Attaching to the DOM
 
-```JavaScript
-var attachment = hyperdom.append(element, render, model, [options]);
-var attachment = hyperdom.append(element, modelWithRender, [options]);
-
-var attachment = hyperdom.replace(element, render, model, [options]);
-var attachment = hyperdom.replace(element, modelWithRender, [options]);
+```js
+var attachment = hyperdom.append(element, component, [options]);
+var attachment = hyperdom.replace(element, component, [options]);
 ```
 
 * `attachment` - the instance of the hyperdom attachment, see below.
 * `element` - any HTML element.
   * in the case of `hyperdom.append` the view is added as a child via `element.appendChild(view)`
   * in the case of `hyperdom.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
-* `render` - the render function, called as `render(model)`, is called initially, then after each event handler. The `model` is passed as the first argument.
-* `modelWithRender` - a model with a `.render()` method. This will be called as `model.render()` initially, and after each event handler.
-* `model` - the model.
+* `component` - a component: an object with a `.render()` method.
 * `options`
   * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time.
 
     For example, immediately:
 
-    ```JavaScript
+    ```js
     function requestRender(render) {
       render();
     }
@@ -1008,7 +990,7 @@ var attachment = hyperdom.replace(element, modelWithRender, [options]);
   
     Or on the next tick:
   
-    ```JavaScript
+    ```js
     function requestRender(render) {
       setTimeout(render, 0);
     }
@@ -1016,7 +998,7 @@ var attachment = hyperdom.replace(element, modelWithRender, [options]);
   
     Or on the next animation frame:
   
-    ```JavaScript
+    ```js
     function requestRender(render) {
       requestAnimationFrame(render);
     }

@@ -71,7 +71,11 @@ Mount.prototype.createDomComponent = function () {
 }
 
 Mount.prototype.render = function () {
-  return (this.router && this.router.render(this.model)) || this.model
+  if (this.router) {
+    return this.router.render(this.model)
+  } else {
+    return this.model
+  }
 }
 
 Mount.prototype.refresh = function () {
