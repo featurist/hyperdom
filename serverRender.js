@@ -15,14 +15,17 @@ module.exports.render = function (app, url) {
   var cache = new StoreCache()
   var mount = new Mount(app, {window: {},
     router: router.create({history: new ServerHistory(url)}),
-    requestRender: () => {
+    requestRender: function () {
       renderRequested = true
     }})
 
   mount.serverRenderCache = cache
   mount.refreshify = cache.refreshify
 
-  function renderUntilAllLoaded (mount, cache, {maxRenders, renders = 0} = {}) {
+  function renderUntilAllLoaded (mount, cache, options) {
+    var maxRenders = typeof options === 'object' && options.hasOwnProperty('maxRenders') ? options.maxRenders : undefined
+    var renders = typeof options === 'object' && options.hasOwnProperty('renders') ? options.renders : 0
+
     if (renders >= maxRenders) {
       throw new Error('page could not load all resources')
     }
@@ -32,17 +35,17 @@ module.exports.render = function (app, url) {
 
     renderRequested = false
 
-    runRender(mount, () => {
+    runRender(mount, function () {
       vdom = toVdom(mount.render())
       html = vdomToHtml(vdom)
     })
 
     if (cache.loadPromises.length) {
-      return cache.loaded().then(() => {
-        return renderUntilAllLoaded(mount, cache, {maxRenders, renders: renders + 1})
+      return cache.loaded().then(function () {
+        return renderUntilAllLoaded(mount, cache, {maxRenders: maxRenders, renders: renders + 1})
       })
     } else if (renderRequested) {
-      return renderUntilAllLoaded(mount, cache, {maxRenders, renders: renders + 1})
+      return renderUntilAllLoaded(mount, cache, {maxRenders: maxRenders, renders: renders + 1})
     } else {
       return Promise.resolve({
         vdom: vdom,

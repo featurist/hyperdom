@@ -27,11 +27,11 @@ describe('store cache', function () {
   })
 
   function load (data) {
-    return wait(10).then(() => data)
+    return wait(10).then(function () { return data })
   }
 
   function wait (n) {
-    return new Promise((resolve) => {
+    return new Promise(function (resolve) {
       setTimeout(resolve, 10)
     })
   }
@@ -41,15 +41,15 @@ describe('store cache', function () {
     var setData2
 
     refreshify(function () {
-      return serverRenderCache('key', () => load('some data')).then(data => {
+      return serverRenderCache('key', function () { return load('some data') }).then(function (data) {
         expect(data).to.equal('some data')
         return (setData1 = data)
-      }).then(data => {
+      }).then(function (data) {
         return (setData2 = data)
       })
     })()
 
-    return storeCache.loaded().then(() => {
+    return storeCache.loaded().then(function () {
       expect(storeCache.data).to.eql({
         key: 'some data'
       })
@@ -62,13 +62,13 @@ describe('store cache', function () {
     var setData
 
     refreshify(function () {
-      serverRenderCache('key', () => load('some data')).then(data => {
+      serverRenderCache('key', function () { return load('some data') }).then(function (data) {
         expect(data).to.equal('some data')
         setData = data
       })
     })()
 
-    return storeCache.loaded().then(() => {
+    return storeCache.loaded().then(function () {
       expect(storeCache.data).to.eql({key: 'some data'})
       expect(setData).to.equal('some data')
     })

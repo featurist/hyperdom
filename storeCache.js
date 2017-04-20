@@ -22,9 +22,9 @@ StoreCache.prototype.cache = function (key, loadFn) {
     return (self.data[key] = data)
   })
 
-  return modifyPromiseChain(loadPromise, p => {
-    if (!this.waitingForLoad) {
-      this.loadPromises.push(p)
+  return modifyPromiseChain(loadPromise, function (p) {
+    if (!self.waitingForLoad) {
+      self.loadPromises.push(p)
     }
   })
 }
@@ -51,9 +51,10 @@ function modifyPromiseChain (promise, modify) {
 }
 
 StoreCache.prototype.loaded = function () {
+  var self = this
   this.waitingForLoad = true
-  return Promise.all(this.loadPromises).then(() => {
-    this.waitingForLoad = false
-    this.loadPromises = []
+  return Promise.all(this.loadPromises).then(function () {
+    self.waitingForLoad = false
+    self.loadPromises = []
   })
 }

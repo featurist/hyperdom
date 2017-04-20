@@ -43,7 +43,7 @@ describe('to html', function () {
 
   it('can render view components to HTML', function () {
     var vdom = h('div',
-      hyperdom.component({
+      hyperdom.viewComponent({
         render: function () {
           return h('div', 'component')
         }
@@ -55,7 +55,7 @@ describe('to html', function () {
   })
 
   it('can render top-level view components to HTML', function () {
-    var vdom = hyperdom.component({
+    var vdom = hyperdom.viewComponent({
       render: function () {
         return h('div', 'component')
       }
