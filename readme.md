@@ -307,6 +307,26 @@ The application can render the routes by implementing a `routes()` function, whi
 
 ```jsx
 class App {
+  routes() {
+    return [
+      home({
+        render: () => <h2>home</h2>
+      })
+    ]
+  }
+}
+```
+
+And finally start the application with the router:
+
+```
+hyperdom.append(document.body, new App(), {router: router})
+```
+
+Here's a slightly more realistic application that renders all three routes:
+
+```jsx
+class App {
   constructor() {
     this.posts = new Posts()
   }
@@ -332,7 +352,7 @@ class App {
 
 When we're on `/` we render `<h2>home</h2>`, but nest it in a div with `<h1>our app</h1>`. This way we can have a consistent page layout no matter what route we're on. Finally, `App` defers to `Posts` for the remaining rotues:
 
-```
+```jsx
 class Posts {
   constructor() {
     this.posts = []
