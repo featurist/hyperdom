@@ -53,7 +53,6 @@
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
-    "prepublish": "npm run build",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*"
   },
   "keywords": [
