@@ -4,6 +4,7 @@ var bindingMeta = require('./meta')
 var toVdom = require('./toVdom')
 var parseTag = require('virtual-dom/virtual-hyperscript/parse-tag')
 var Mount = require('./mount')
+var Component = require('./component')
 var render = require('./render')
 var deprecations = require('./deprecations')
 var prepareAttributes = require('./prepareAttributes')
@@ -115,10 +116,14 @@ exports.html = function (hierarchySelector) {
 
 exports.jsx = function (tag, attributes) {
   var childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 2))
-  if (attributes) {
-    prepareAttributes(tag, attributes, childElements)
+  if (typeof tag === 'string') {
+    if (attributes) {
+      prepareAttributes(tag, attributes, childElements)
+    }
+    return vhtml(tag, attributes || {}, childElements)
+  } else {
+    return new Component(new tag(attributes, childElements), {viewComponent: true}) // eslint-disable-line new-cap
   }
-  return vhtml(tag, attributes || {}, childElements)
 }
 
 Object.defineProperty(exports.html, 'currentRender', {get: function () {
