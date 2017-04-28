@@ -18,15 +18,15 @@ function walkRoutes (url, model, visit) {
   function walk (model) {
     var action
 
-    runRender.currentRender().mount.setupModelComponent(model)
-
     if (typeof model.routes === 'function') {
+      runRender.currentRender().mount.setupModelComponent(model)
+
       var routes = model.routes()
 
       for (var r = 0, l = routes.length; r < l; r++) {
         var route = routes[r]
 
-        if (typeof route.matchUrl === 'function') {
+        if (route && typeof route.matchUrl === 'function') {
           action = visit(route)
         } else {
           action = walk(route)
