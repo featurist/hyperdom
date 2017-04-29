@@ -833,7 +833,9 @@ var component = {
 
 ## View Components
 
-View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`.
+View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`. You can also declare a class containing a `render()` method, and refer to it in JSX.
+
+Using `hyperdom.viewComponent()`:
 
 ```jsx
 <div>{
@@ -843,6 +845,30 @@ View models are rendered by passing an object that implements `render()` to `hyp
     }
   })
 }</div>
+```
+
+Using a view component class in JSX:
+
+```jsx
+class MyComponent {
+  constructor(properties, children) {
+    this.title = properties.title
+    this.children = children
+  }
+
+  render() {
+    return <div>
+      <h1>{this.title}</h1>
+      {this.children}
+    </div>
+  }
+}
+
+<div>
+  <MyComponent title="value">
+    <div>child element</div>
+  </MyComponent>
+</div>
 ```
 
 If you define fields on the object, these fields are present on each render: `this.name` is the latest value of `name`.

@@ -556,6 +556,27 @@ describe('hyperdom', function () {
       expect(find('div.one').attr('class')).to.eql('one')
       expect(find('div.one > div.two').text()).to.eql('text')
     })
+
+    it('renders view components', function () {
+      function CoolButton (properties, children) {
+        this.properties = properties
+        this.children = children
+      }
+
+      CoolButton.prototype.render = function () {
+        return h('button', h('span.title', this.properties.title), this.children)
+      }
+
+      var app = {
+        render: function () {
+          return h('div', jsx(CoolButton, {title: 'button title'}, h('h1', 'contents')))
+        }
+      }
+
+      attach(app)
+
+      expect(find('div button span.title').text()).to.equal('button title')
+    })
   })
 
   describe('xml', function () {
