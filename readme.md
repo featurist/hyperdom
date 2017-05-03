@@ -408,6 +408,20 @@ Each route definition can contain the following methods:
 
 * `push(oldParams, newParams)` - a function that is called if any of the bindings cause the URL to change, if the function returns true, then the new URL is set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.
 
+## Router Options
+
+You can create new router with different options:
+
+```js
+var hyperdomRouter = require('hyperdom/router')
+var router = hyperdomRouter.router(options)
+```
+
+Where `options` can contain:
+
+* `querystring` - an object that contains `stringify(params)` and `parse(querystring)` methods, the `qs` module or Node's `querystring` module are good options. By default Hyperdom uses a very simple (and small) query string parser and stringifier that works for basic values like strings and numbers, but for complex objects you'll see `%5Bobject%20Object%5D` in your query string.
+* `history` - can be either `router.hash()` for hash-style routing, or `router.pushState()` for regular History API routing.
+
 # virtual-dom API
 
 ## Selectors (`hyperdom.html` only)
