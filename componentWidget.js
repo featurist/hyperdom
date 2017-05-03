@@ -127,7 +127,7 @@ ComponentWidget.prototype.destroy = function (element) {
 }
 
 module.exports = function (state, vdom) {
-  deprecations.component('hyperdom.html.component is deprecated, please use hyperdom.component')
+  deprecations.component('hyperdom.html.component is deprecated, please use hyperdom.viewComponent')
   if (typeof state === 'function') {
     return new ComponentWidget({}, state)
   } else if (state.constructor === Object) {

@@ -40,6 +40,12 @@ var defaultRender = {
 
   transformFunctionAttribute: function (key, value) {
     return new RefreshHook(value)
+  },
+
+  finished: {
+    then: function (fn) {
+      fn()
+    }
   }
 }
 
