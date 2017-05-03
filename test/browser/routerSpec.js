@@ -567,5 +567,33 @@ function describeRouter (historyApi) {
         })
       })
     })
+
+    describe('404', function () {
+      it("when the route isn't found it shows all routes, and the current URL", function () {
+        var routes = {
+          a: router.route('/a'),
+          b: router.route('/b')
+        }
+
+        var app = {
+          routes: function () {
+            return [
+              routes.a({render: function () { return 'a' }}),
+              routes.b({render: function () { return 'b' }})
+            ]
+          }
+        }
+
+        var monkey = mount(app, '/c')
+
+        return monkey.shouldHave({text: 'no route'}).then(function () {
+          return monkey.shouldHave({text: '/c'})
+        }).then(function () {
+          return monkey.shouldHave({text: '/a'})
+        }).then(function () {
+          return monkey.shouldHave({text: '/b'})
+        })
+      })
+    })
   })
 }

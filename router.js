@@ -67,7 +67,7 @@ function matchRoute (url, model, isNewUrl) {
 
   return action || {
     render: function () {
-      return (notFound.render || renderNotFound)(url, routesTried)
+      return (notFound ? notFound.render : renderNotFound)(url, routesTried)
     }
   }
 }
