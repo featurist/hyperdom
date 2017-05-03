@@ -26,7 +26,7 @@ function walkRoutes (url, model, visit) {
       for (var r = 0, l = routes.length; r < l; r++) {
         var route = routes[r]
 
-        if (route && typeof route.matchUrl === 'function') {
+        if (route && (typeof route.matchUrl === 'function' || route.notFound)) {
           action = visit(route)
         } else {
           action = walk(route)

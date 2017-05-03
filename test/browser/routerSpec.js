@@ -594,6 +594,30 @@ function describeRouter (historyApi) {
           return monkey.shouldHave({text: '/b'})
         })
       })
+
+      it.only('can render custom 404 page', function () {
+        var routes = {
+          a: router.route('/a'),
+          b: router.route('/b')
+        }
+
+        var app = {
+          routes: function () {
+            return [
+              routes.a({render: function () { return 'a' }}),
+              routes.b({render: function () { return 'b' }}),
+              router.notFound(function (url, routesTried) {
+                var routes = routesTried.map(function (r) { return r.pattern }).join(', ')
+                return 'route ' + url + ' custom not found, tried ' + routes
+              })
+            ]
+          }
+        }
+
+        var monkey = mount(app, '/c')
+
+        return monkey.shouldHave({text: 'route /c custom not found, tried /a, /b'})
+      })
     })
   })
 }
