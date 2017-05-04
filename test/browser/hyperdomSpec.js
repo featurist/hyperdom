@@ -221,7 +221,9 @@ describe('hyperdom', function () {
 
         var mergeDiv = div.children[0]
 
-        merge(mergeDiv, app)
+        merge(mergeDiv, app, {
+          requestRender: setTimeout
+        })
 
         return retry(function () {
           expect(find('button.update')[0].onclick).to.exist // eslint-disable-line no-unused-expressions
@@ -240,7 +242,9 @@ describe('hyperdom', function () {
 
         var mergeDiv = div.children[0]
         app.name = 'client render'
-        merge(mergeDiv, app)
+        merge(mergeDiv, app, {
+          requestRender: setTimeout
+        })
 
         expect(find('h1').text()).to.equal('client render')
       })
