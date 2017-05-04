@@ -13,6 +13,7 @@ require('jquery-sendkeys')
 var browser = require('browser-monkey').find('.test')
 var vdomToHtml = require('vdom-to-html')
 var times = require('lowscore/times')
+var range = require('lowscore/range')
 var vdomComponent = require('../../componentWidget')
 var windowEvents = require('../../windowEvents')
 var merge = require('../../merge')
@@ -766,7 +767,6 @@ describe('hyperdom', function () {
       find('input').sendkeys('haha')
 
       return retry(function () {
-        console.log(model.text)
         expect(find('span').text()).to.eql('haha')
       })
     })
@@ -2041,6 +2041,38 @@ describe('hyperdom', function () {
 
       expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
       expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+    })
+  })
+
+  describe('keys', function () {
+    it('keeps HTML elements for same keys', function () {
+      var items = range(1, 11)
+      var app = {
+        render: function () {
+          return h('div', items.map(function (item) {
+            return h('div.item', {key: item}, item)
+          }))
+        }
+      }
+
+      attach(app)
+
+      return browser.find('div.item').shouldHave({
+        text: items.map(function (item) {
+          return String(item)
+        })
+      }).then(function () {
+        var two = document.querySelector('div.item:nth-child(2)')
+        items.shift()
+        app.refresh()
+        return browser.find('div.item').shouldHave({
+          text: items.map(function (item) {
+            return String(item)
+          })
+        }).then(function () {
+          expect(two.innerText).to.equal('2')
+        })
+      })
     })
   })
 
