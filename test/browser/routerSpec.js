@@ -13,14 +13,15 @@ if (detect.pushState) {
   describeRouter('pushState')
 }
 
-function describeRouter (historyApi) {
-  describe('router (' + historyApi + ')', function () {
+function describeRouter (historyApiType) {
+  describe('router (' + historyApiType + ')', function () {
     var router
+    var historyApi
 
     function mount (app, url) {
       var options = {router: router}
 
-      if (historyApi === 'hash') {
+      if (historyApiType === 'hash') {
         options.hash = url
       } else {
         options.url = url
@@ -33,11 +34,12 @@ function describeRouter (historyApi) {
       if (router) {
         router.reset()
       }
-      if (historyApi === 'hash') {
-        router = hyperdomRouter.router({history: hyperdomRouter.hash()})
-      } else {
-        router = hyperdomRouter.router({history: hyperdomRouter.pushState()})
-      }
+
+      historyApi = historyApiType === 'hash'
+        ? hyperdomRouter.hash()
+        : hyperdomRouter.pushState()
+
+      router = hyperdomRouter.router({history: historyApi})
     }
 
     beforeEach(function () {
@@ -198,7 +200,7 @@ function describeRouter (historyApi) {
       })
     })
 
-    if (historyApi === 'pushState') {
+    if (historyApiType === 'pushState') {
       describe('push replace', function () {
         context('app with bindings', function () {
           var app
@@ -447,7 +449,7 @@ function describeRouter (historyApi) {
               app.refreshImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
-            if (historyApi === 'hash') {
+            if (historyApiType === 'hash') {
               // the recursive redirects test pushes a lot of URLs
               // in the hash form, this generates a lot of hashchange
               // events, which disrupts the next test
@@ -568,6 +570,96 @@ function describeRouter (historyApi) {
       })
     })
 
+    describe('base url', function () {
+      var app
+      var routes
+
+      function withBaseUrl (baseUrl) {
+        context('with baseUrl ' + baseUrl, function () {
+          beforeEach(function () {
+            router = hyperdomRouter.router({history: historyApi, baseUrl: baseUrl})
+
+            routes = {
+              home: router.route('/'),
+              a: router.route('/a')
+            }
+
+            app = {
+              routes: function () {
+                return [
+                  routes.home({render: function () { return h('div', h('h1', 'route: home'), h('a', {href: routes.a.href()}, 'link: a')) }}),
+                  routes.a({render: function () { return 'route: a' }})
+                ]
+              }
+            }
+          })
+
+          it('URL /baseurl is recognised by route /', function () {
+            historyApi.push(baseUrl)
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: home'})
+          })
+
+          it('URL /baseurl/a is recognised by route /a', function () {
+            historyApi.push((baseUrl + '/a').replace('//', '/'))
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: a'})
+          })
+
+          it('can push urls', function () {
+            historyApi.push(baseUrl)
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: home'}).then(function () {
+              routes.a.push()
+              app.refresh()
+              return monkey.shouldHave({text: 'route: a'}).then(function () {
+                expect(historyApi.url()).to.equal('/baseurl/a')
+              })
+            })
+          })
+
+          it('can push /', function () {
+            historyApi.push(baseUrl)
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: home'}).then(function () {
+              routes.home.push()
+              app.refresh()
+              return monkey.shouldHave({text: 'route: home'}).then(function () {
+                expect(historyApi.url()).to.equal(baseUrl)
+              })
+            })
+          })
+
+          it('can replace urls', function () {
+            historyApi.push(baseUrl)
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: home'}).then(function () {
+              routes.a.replace()
+              app.refresh()
+              return monkey.shouldHave({text: 'route: a'}).then(function () {
+                expect(historyApi.url()).to.equal('/baseurl/a')
+              })
+            })
+          })
+
+          it('can navigate', function () {
+            historyApi.push(baseUrl)
+            var monkey = mount(app)
+            return monkey.shouldHave({text: 'route: home'}).then(function () {
+              return monkey.find('a', {text: 'link: a'}).click()
+            }).then(function () {
+              return monkey.shouldHave({text: 'route: a'}).then(function () {
+                expect(historyApi.url()).to.equal('/baseurl/a')
+              })
+            })
+          })
+        })
+      }
+
+      withBaseUrl('/baseurl')
+      withBaseUrl('/baseurl/')
+    })
+
     describe('404', function () {
       it("when the route isn't found it shows all routes, and the current URL", function () {
         var routes = {
@@ -595,7 +687,7 @@ function describeRouter (historyApi) {
         })
       })
 
-      it.only('can render custom 404 page', function () {
+      it('can render custom 404 page', function () {
         var routes = {
           a: router.route('/a'),
           b: router.route('/b')

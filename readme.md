@@ -442,6 +442,7 @@ Where
 
 * `path` - the current path as found in the address bar
 * `routes` - the list of routes found in the application, these can be used to show which routes are available
+* `baseUrl` - can be used to make all routes relative to this base URL path
 
 # virtual-dom API
 

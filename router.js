@@ -7,6 +7,7 @@ var h = require('./rendering').html
 function Router (options) {
   this._querystring = typeof options === 'object' && options.hasOwnProperty('querystring') ? options.querystring : new QueryString()
   this.history = typeof options === 'object' && options.hasOwnProperty('history') ? options.history : new PushState()
+  this.baseUrl = typeof options === 'object' && options.hasOwnProperty('baseUrl') ? options.baseUrl : undefined
 }
 
 Router.prototype.reset = function () {
@@ -81,7 +82,8 @@ function wrapAction (model, action) {
 }
 
 Router.prototype.url = function () {
-  return this.history.url()
+  var url = this.history.url()
+  return removeBaseUrl(this.baseUrl, url)
 }
 
 Router.prototype.render = function (model) {
@@ -89,24 +91,24 @@ Router.prototype.render = function (model) {
   this.history.start(model)
 
   function renderUrl (redirects) {
-    var url = self.history.url()
+    var url = self.url()
     var isNewUrl = self.lastUrl !== url
     var action = matchRoute(url, model, isNewUrl)
 
     if (action.url) {
       if (self.lastUrl !== action.url) {
         if (action.push) {
-          self.history.push(action.url)
+          self.push(action.url)
         } else {
-          self.history.replace(action.url)
+          self.replace(action.url)
         }
-        self.lastUrl = self.history.url()
+        self.lastUrl = self.url()
       }
     } else if (action.redirect) {
       if (redirects.length > 10) {
         throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
       }
-      self.history.replace(action.redirect)
+      self.replace(action.redirect)
       redirects.push(url)
       return renderUrl(redirects)
     } else {
@@ -119,12 +121,37 @@ Router.prototype.render = function (model) {
   return renderUrl([])
 }
 
+function removeBaseUrl (baseUrl, url) {
+  if (baseUrl) {
+    if (url.indexOf(baseUrl) === 0) {
+      var path = url.substring(baseUrl.length)
+      return path[0] === '/' ? path : '/' + path
+    } else {
+      return url
+    }
+  } else {
+    return url
+  }
+}
+
+function addBaseUrl (baseUrl, url) {
+  if (baseUrl) {
+    if (url === '/') {
+      return baseUrl
+    } else {
+      return baseUrl.replace(/\/$/, '') + '/' + url.replace(/^\//, '')
+    }
+  } else {
+    return url
+  }
+}
+
 Router.prototype.push = function (url) {
-  this.history.push(url)
+  this.history.push(addBaseUrl(this.baseUrl, url))
 }
 
 Router.prototype.replace = function (url) {
-  this.history.replace(url)
+  this.history.replace(addBaseUrl(this.baseUrl, url))
 }
 
 function renderNotFound (url, routes) {
@@ -151,14 +178,14 @@ Router.prototype.route = function (pattern) {
   }
 
   route.push = function (params, options) {
-    self.history.push(self.expandUrl(patternVariables.pattern, params))
+    self.push(self.expandUrl(patternVariables.pattern, params))
     if (!(options && options.resetScroll === false)) {
       window.scrollTo(0, 0)
     }
   }
 
   route.replace = function (params) {
-    self.history.replace(self.expandUrl(patternVariables.pattern, params))
+    self.replace(self.expandUrl(patternVariables.pattern, params))
   }
 
   route.href = function (params, options) {
