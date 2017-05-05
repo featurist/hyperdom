@@ -1,6 +1,7 @@
 var rendering = require('./rendering')
 var render = require('./render')
-var Component = require('./component')
+var viewComponent = require('./viewComponent')
+var deprecations = require('./deprecations')
 
 exports.html = rendering.html
 exports.html.refreshify = render.refreshify
@@ -15,8 +16,10 @@ exports.meta = require('./meta')
 exports.refreshify = render.refreshify
 exports.norefresh = require('./refreshEventResult').norefresh
 exports.join = require('./join')
-exports.viewComponent = function (model) {
-  return new Component(model, {viewComponent: true})
+exports.viewComponent = viewComponent
+exports.component = function (model) {
+  deprecations.viewComponent('hyperdom.component is deprecated, use hyperdom.viewComponent instead')
+  return viewComponent(model)
 }
 
 exports.currentRender = render.currentRender
