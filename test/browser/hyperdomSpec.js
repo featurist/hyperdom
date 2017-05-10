@@ -454,7 +454,7 @@ describe('hyperdom', function () {
         function render (model) {
           return h('div',
             model.text
-              ? h.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
+              ? hyperdom.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
               : undefined,
             h('button.two', {onclick: function () { model.text = 'two' }}),
             h('button.three', {onclick: function () { model.text = '' }})
@@ -480,7 +480,7 @@ describe('hyperdom', function () {
 
       it('renders undefined as empty string', function () {
         function render () {
-          return h.rawHtml('.raw', undefined)
+          return hyperdom.rawHtml('.raw', undefined)
         }
 
         attach(render, {text: 'one'})
@@ -491,7 +491,7 @@ describe('hyperdom', function () {
       it('can render raw HTML with attributes', function () {
         function render () {
           return h('div',
-            h.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
+            hyperdom.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
           )
         }
 
@@ -506,7 +506,7 @@ describe('hyperdom', function () {
       it('updates the dom when the HTML changes', function () {
         function render (model) {
           return h('div',
-            h.rawHtml('p.raw', model.html),
+            hyperdom.rawHtml('p.raw', model.html),
             h('p.x', model.x),
             h('button.one', {onclick: function () { model.x = 'zzz' }}),
             h('button.two', {onclick: function () { model.html = 'Nice <b>HTML</b>' }})

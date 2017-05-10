@@ -179,4 +179,9 @@ function rawHtml () {
   }
 }
 
-exports.html.rawHtml = rawHtml
+exports.html.rawHtml = function () {
+  console.warn('hyperdom.html.rawHtml() is deprecated, please use hyperdom.rawHtml() instead')
+  return rawHtml.apply(undefined, arguments)
+}
+
+exports.rawHtml = rawHtml
