@@ -4,6 +4,7 @@ require('lie/polyfill')
 
 var $ = require('jquery')
 var hyperdom = require('../..')
+var router = require('../../router')
 var mapBinding = require('../../mapBinding')
 var h = hyperdom.html
 var jsx = hyperdom.jsx
@@ -2077,6 +2078,68 @@ describe('hyperdom', function () {
       }
 
       attach(outer)
+
+      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
+      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+    })
+
+    afterEach(function () {
+      router.reset()
+    })
+
+    it('an application with routes sets the component to the element', function () {
+      var inner = {
+        render: function () {
+          return h('div.inner', 'inner')
+        }
+      }
+
+      var home = router.route('**')
+
+      var outer = {
+        routes: function () {
+          return [
+            home({
+              render: function () {
+                return h('div.outer', 'outer', inner)
+              }
+            })
+          ]
+        }
+      }
+
+      hyperdom.append(div, outer, {router: router})
+
+      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
+      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+    })
+
+    it('an application with routes sets the component to the element', function () {
+      var inner = {
+        render: function () {
+          return h('div.inner', 'inner')
+        }
+      }
+
+      var home = router.route('**')
+
+      var outer = {
+        routes: function () {
+          return [
+            home({
+              render: function () {
+                return inner
+              }
+            })
+          ]
+        },
+
+        renderLayout: function (content) {
+          return h('div.outer', 'outer', content)
+        }
+      }
+
+      hyperdom.append(div, outer, {router: router})
 
       expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
       expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)

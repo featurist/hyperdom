@@ -4,7 +4,7 @@ var domComponent = require('./domComponent')
 var Set = require('./set')
 var refreshEventResult = require('./refreshEventResult')
 var Vtext = require('virtual-dom/vnode/vtext.js')
-var PropertyHook = require('./propertyHook')
+var debuggingProperties = require('./debuggingProperties')
 
 var lastId = 0
 
@@ -149,22 +149,10 @@ Mount.prototype._renderComponent = function (model) {
   var vdom = typeof model.render === 'function' ? model.render() : new Vtext(JSON.stringify(model))
 
   if (vdom instanceof Array) {
-    console.error('vdom returned from component cannot be an array, component: ', model)
     throw new Error('vdom returned from component cannot be an array')
   }
 
-  if (vdom) {
-    if (!vdom.properties) {
-      vdom.properties = {}
-    }
-
-    vdom.properties._hyperdomMeta = new PropertyHook({
-      component: model,
-      render: runRender.currentRender()
-    })
-  }
-
-  return vdom
+  return debuggingProperties(vdom, model)
 }
 
 Mount.prototype.renderComponent = function (model) {

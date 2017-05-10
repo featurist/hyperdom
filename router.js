@@ -3,6 +3,7 @@ var refreshify = require('./render').refreshify
 var runRender = require('./render')
 var refreshAfter = require('./refreshAfter')
 var h = require('./rendering').html
+var debuggingProperties = require('./debuggingProperties')
 
 function Router (options) {
   this._querystring = typeof options === 'object' && options.hasOwnProperty('querystring') ? options.querystring : new QueryString()
@@ -70,15 +71,17 @@ function matchRoute (url, model, isNewUrl) {
 }
 
 function layoutAction (model, action) {
-  if (typeof model.renderLayout === 'function') {
-    var actionRender = action.render
-    action.render = function () {
-      return model.renderLayout(actionRender())
+  var actionRender = action.render
+
+  action.render = function () {
+    if (typeof model.renderLayout === 'function') {
+      return debuggingProperties(model.renderLayout(actionRender()), model)
+    } else {
+      return debuggingProperties(actionRender(), model)
     }
-    return action
-  } else {
-    return action
   }
+
+  return action
 }
 
 Router.prototype.url = function () {
