@@ -499,7 +499,7 @@ function describeRouter (historyApiType) {
               ]
             },
 
-            render: function (vdom) {
+            renderLayout: function (vdom) {
               return h('div',
                 h('h2', 'component a'),
                 vdom
@@ -532,7 +532,7 @@ function describeRouter (historyApiType) {
               ]
             },
 
-            render: function (vdom) {
+            renderLayout: function (vdom) {
               return h('div',
                 h('h1', 'app'),
                 vdom

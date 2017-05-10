@@ -341,7 +341,7 @@ class App {
     ]
   }
   
-  render(content) {
+  renderLayout(content) {
     return <div>
       <h1>our app</h1>
       {content}
@@ -397,9 +397,16 @@ class Posts {
 
 Here `Posts` defines two routes, the first one simply lists the posts available with links, the second displays the post selected. We use `bindings` to define how the route parameter in `/posts/:id` is mapped onto the model as `this.postId`. We also have some conditional logic to render either a loading page or the article itself.
 
+## Component Methods
+
+* `routes()` returns an array of routes or components. Routes define how the route is rendered, components can themselves have `routes()` methods defining more routes.
+* `renderLayout(content)` - can be used to wrap HTML around what is returned by the rendered route, such as headers and footers. `content` is the VDOM returned by rendering the route.
+
+## Route Options
+
 Each route definition can contain the following methods:
 
-* `render()` - renders the route. If the component contains `render(content)`, then the output from the route `render()` will be passed as `content` to the component's `render(content)` method.
+* `render()` - renders the route. If the component contains `renderLayout(content)`, then the output from the route `render()` will be passed as `content` to the component's `renderLayout(content)` method.
 * `onload(params)` - is called when the user navigates to the route, `params` are an object containing the parameters extracted from the route.
 * `bindings` - an object containing bindings keyed on the parameter names in the route. These two-way bindings are used to update the URL when the model changes, or to change the model if the URL changes.
 * `push` - an object containing parameter names set to `true` if changes to those parameters should cause a new URL to be set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.

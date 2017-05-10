@@ -34,11 +34,7 @@ function walkRoutes (url, model, visit) {
         }
 
         if (action) {
-          if (typeof model.render === 'function') {
-            return wrapAction(model, action)
-          } else {
-            return action
-          }
+          return layoutAction(model, action)
         }
       }
     } else {
@@ -73,12 +69,16 @@ function matchRoute (url, model, isNewUrl) {
   }
 }
 
-function wrapAction (model, action) {
-  var actionRender = action.render
-  action.render = function () {
-    return model.render(actionRender())
+function layoutAction (model, action) {
+  if (typeof model.renderLayout === 'function') {
+    var actionRender = action.render
+    action.render = function () {
+      return model.renderLayout(actionRender())
+    }
+    return action
+  } else {
+    return action
   }
-  return action
 }
 
 Router.prototype.url = function () {
