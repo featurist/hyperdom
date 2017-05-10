@@ -66,7 +66,15 @@ function start (model, attachToDom, options) {
     if (options) {
       var domComponentOptions = {document: options.document}
     }
-    mount.component = attachToDom(mount, domComponentOptions)
+    try {
+      mount.component = attachToDom(mount, domComponentOptions)
+    } catch (e) {
+      mount.component = {
+        update: function () {},
+        destroy: function () {}
+      }
+      throw e
+    }
   })
   return mount
 }

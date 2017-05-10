@@ -546,6 +546,41 @@ describe('hyperdom', function () {
         expect(find('div').data('line-number')).to.eql(80)
       })
     }
+
+    describe('rendering exceptions', function () {
+      it("doesn't render anything if an exception is thrown on first render", function () {
+        var app = {
+          render: function () {
+            throw new Error('oops')
+          }
+        }
+
+        expect(function () {
+          attach(app)
+        }).to.throw('oops')
+      })
+
+      it('no change to HTML if there is a rendering error', function () {
+        var error
+
+        var app = {
+          render: function () {
+            if (error) {
+              throw error
+            } else {
+              return h('h1', 'first render')
+            }
+          }
+        }
+
+        attach(app)
+        error = new Error('oops')
+        expect(function () {
+          app.refreshImmediately()
+        }).to.throw('oops')
+        expect(find('h1').text()).to.eql('first render')
+      })
+    })
   })
 
   describe('jsx', function () {
