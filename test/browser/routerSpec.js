@@ -8,10 +8,17 @@ var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
 
-describeRouter('hash')
+// describeRouter('hash')
 if (detect.pushState) {
   describeRouter('pushState')
 }
+
+before(function () {
+  var a = document.createElement('a')
+  a.href = window.location.href
+  a.innerText = 'refresh'
+  document.body.appendChild(a)
+})
 
 function describeRouter (historyApiType) {
   describe('router (' + historyApiType + ')', function () {
