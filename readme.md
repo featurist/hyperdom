@@ -630,7 +630,7 @@ class App {
     this.people.push({name: 'Person ' + (this.people.length + 1)})
   }
 
-  render(model) {
+  render() {
     return <div>
       <ul>
         {
@@ -653,10 +653,10 @@ The `binding` attribute can be used to bind an input to a model field. You can p
 
 ```jsx
 class App {
-  render(model) {
+  render() {
     return <div>
       <label>what's your name?</label>
-      <input type="text" binding={[model, 'name']} />
+      <input type="text" binding={[this, 'name']} />
       <div>hi {this.name}</div>
     </div>
   }
@@ -675,7 +675,7 @@ class App {
     this.colour: blue
   }
 
-  render(model) {
+  render() {
     return <div>
       <input class="red" type="radio" name="colour" binding="this.colour" value="red" />
       <input class="blue" type="radio" name="colour" binding="this.colour" value={blue} />
@@ -701,7 +701,7 @@ class App {
     this.colour = blue
   }
   
-  render(model) {
+  render() {
     return <div>
       <select binding="this.colour">
         <option value="red">red</option>
