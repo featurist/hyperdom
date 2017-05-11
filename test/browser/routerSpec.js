@@ -8,7 +8,7 @@ var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
 
-// describeRouter('hash')
+describeRouter('hash')
 if (detect.pushState) {
   describeRouter('pushState')
 }
@@ -717,6 +717,59 @@ function describeRouter (historyApiType) {
 
         return monkey.shouldHave({text: 'route /c custom not found, tried /a, /b'})
       })
+    })
+
+    describe('route definitions', function () {
+      context('with baseUrl', function () {
+        var baseUrl = '/baseurl'
+
+        beforeEach(function () {
+          router = hyperdomRouter.router({history: historyApi, baseUrl: baseUrl})
+        })
+
+        routeDefinitionSpecs()
+      })
+
+      context('with no baseUrl', function () {
+        routeDefinitionSpecs()
+      })
+
+      function routeDefinitionSpecs () {
+        it('isActive is true when URL is matched by pattern', function () {
+          var route = router.route('/')
+
+          router.push('/')
+          expect(route.isActive()).to.equal(true)
+        })
+
+        it('isActive is false when URL is not matched by pattern', function () {
+          var route = router.route('/')
+
+          router.push('/something')
+          expect(route.isActive()).to.equal(false)
+        })
+
+        it('isActive is true when URL is matched by pattern with parameters', function () {
+          var route = router.route('/article/:id')
+
+          router.push('/article/5')
+          expect(route.isActive()).to.equal(true)
+        })
+
+        it('isActive with params is true when URL is matched by pattern with same parameters', function () {
+          var route = router.route('/article/:id')
+
+          router.push('/article/5?page=3')
+          expect(route.isActive({id: 5, page: 3})).to.equal(true)
+        })
+
+        it('isActive with params is false when URL is not matched by pattern with parameters', function () {
+          var route = router.route('/article/:id')
+
+          router.push('/article/5?page=3')
+          expect(route.isActive({id: 10, page: 3})).to.equal(false)
+        })
+      }
     })
   })
 }

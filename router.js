@@ -176,6 +176,14 @@ Router.prototype.route = function (pattern) {
     return new Route(patternVariables, options, self)
   }
 
+  route.isActive = function (params) {
+    if (params) {
+      return self.url() === route.url(params)
+    } else {
+      return patternVariables.regex.test(self.url())
+    }
+  }
+
   route.params = function () {
     return route().urlParams(self.url())
   }

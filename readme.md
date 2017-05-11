@@ -399,6 +399,24 @@ Here `Posts` defines two routes, the first one simply lists the posts available 
 * `routes()` returns an array of routes or components. Routes define how the route is rendered, components can themselves have `routes()` methods defining more routes.
 * `renderLayout(content)` - can be used to wrap HTML around what is returned by the rendered route, such as headers and footers. `content` is the VDOM returned by rendering the route.
 
+## Route Definitions
+
+### isActive
+
+You can check whether the current URL is on a route by using `route.isActive(params)`. This comes in two forms: if you pass parameters to `isActive()` then those parameters must match the current URL, if you don't pass params then any URL that matches the route's pattern is considered active.
+
+```js
+var article = router.route('/article/:id')
+var home = router.route('/')
+
+// while on /article/5
+article.isActive() === true
+article.isActive({id: 5}) === true
+
+article.isActive({id: 10}) === false
+home.isActive() === false
+```
+
 ## Route Options
 
 Each route definition can contain the following methods:
