@@ -52,14 +52,16 @@ function matchRoute (url, model, isNewUrl) {
 
   var action = walkRoutes(url, model, function (route) {
     var match
-    routesTried.push(route)
 
     if (route.notFound) {
       notFound = route
-    } else if ((match = route.matchUrl(url))) {
-      return isNewUrl
-        ? route.set(url, match)
-        : route.get(url, match)
+    } else {
+      routesTried.push(route)
+      if ((match = route.matchUrl(url))) {
+        return isNewUrl
+          ? route.set(url, match)
+          : route.get(url, match)
+      }
     }
   })
 
@@ -158,7 +160,7 @@ Router.prototype.replace = function (url) {
 }
 
 function renderNotFound (url, routes) {
-  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.pattern }).join('\n')))
+  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routes.map(function (r) { return '  ' + r.definition.pattern }).join('\n')))
 }
 
 Router.prototype.notFound = function (render) {
@@ -169,53 +171,107 @@ Router.prototype.notFound = function (render) {
 }
 
 Router.prototype.route = function (pattern) {
-  var self = this
-  var patternVariables = preparePattern(pattern)
+  var routeDefinition = new RouteDefinition(pattern, this)
 
   function route (options) {
-    return new Route(patternVariables, options, self)
+    return routeDefinition.route(options)
   }
 
-  route.isActive = function (params) {
-    if (params) {
-      return self.url() === route.url(params)
-    } else {
-      return patternVariables.regex.test(self.url())
-    }
-  }
-
-  route.params = function () {
-    return route().urlParams(self.url())
-  }
-
-  route.push = function (params, options) {
-    self.push(self.expandUrl(patternVariables.pattern, params))
-    if (!(options && options.resetScroll === false)) {
-      window.scrollTo(0, 0)
-    }
-  }
-
-  route.replace = function (params) {
-    self.replace(self.expandUrl(patternVariables.pattern, params))
-  }
-
-  route.href = function (params, options) {
-    return new HrefAttribute(route, params, options)
-  }
-
-  route.url = function (params) {
-    return self.expandUrl(patternVariables.pattern, params)
-  }
+  route.isActive = routeDefinition.isActive.bind(routeDefinition)
+  route.params = routeDefinition.params.bind(routeDefinition)
+  route.push = routeDefinition.push.bind(routeDefinition)
+  route.replace = routeDefinition.replace.bind(routeDefinition)
+  route.href = routeDefinition.href.bind(routeDefinition)
+  route.url = routeDefinition.url.bind(routeDefinition)
 
   return route
 }
 
-function Route (patternVariables, options, router) {
-  this.pattern = patternVariables.pattern
-  this.router = router
+function RouteDefinition (pattern, router) {
+  var patternVariables = preparePattern(pattern)
 
+  this.pattern = patternVariables.pattern
   this.variables = patternVariables.variables
   this.regex = patternVariables.regex
+
+  this.router = router
+}
+
+RouteDefinition.prototype.route = function (options) {
+  return new Route(options, this)
+}
+
+RouteDefinition.prototype.params = function (_url, _match) {
+  var url = _url || this.router.url()
+  var match = _match || this.matchUrl(url)
+  var query = url.split('?')[1]
+  var params = this.router._querystring.parse(query)
+
+  if (match) {
+    for (var n = 1; n < match.length; n++) {
+      params[this.variables[n - 1]] = match[n]
+    }
+    return params
+  }
+}
+
+RouteDefinition.prototype.matchUrl = function (url) {
+  return this.regex.exec(url.split('?')[0])
+}
+
+RouteDefinition.prototype.isActive = function (params) {
+  if (params) {
+    var url = this.router.url()
+    var p = {}
+    extend(extend(p, this.params(url)), params)
+    return this.router.url() === this.url(p)
+  } else {
+    return !!this.matchUrl(this.router.url())
+  }
+}
+
+RouteDefinition.prototype.push = function (params, options) {
+  this.router.push(this.url(params))
+  if (!(options && options.resetScroll === false)) {
+    window.scrollTo(0, 0)
+  }
+}
+
+RouteDefinition.prototype.replace = function (params) {
+  this.router.replace(this.url(params))
+}
+
+RouteDefinition.prototype.href = function (params, options) {
+  return new HrefAttribute(this, params, options)
+}
+
+RouteDefinition.prototype.url = function (_params) {
+  var params = _params || {}
+  var onlyQueryParams = clone(params)
+
+  var url = this.pattern.replace(/:([a-z_][a-z0-9_]*)\*/gi, function (_, id) {
+    var param = params[id]
+    delete onlyQueryParams[id]
+    return encodeURI(paramToString(param))
+  })
+
+  url = url.replace(/:([a-z_][a-z0-9_]*)/gi, function (_, id) {
+    var param = params[id]
+    delete onlyQueryParams[id]
+    return encodeURIComponent(paramToString(param))
+  })
+
+  var query = this.router._querystring.stringify(onlyQueryParams)
+
+  if (query) {
+    return url + '?' + query
+  } else {
+    return url
+  }
+}
+
+function Route (options, definition) {
+  this.definition = definition
 
   var bindings = typeof options === 'object' && options.hasOwnProperty('bindings') ? options.bindings : undefined
   this.bindings = bindings ? bindParams(bindings) : undefined
@@ -252,11 +308,10 @@ function bindParams (params) {
   return bindings
 }
 
-Route.prototype.hasRoute = function (model, url) {
+Router.prototype.hasRoute = function (model, url) {
   var action = walkRoutes(url, model, function (route, match) {
     if (!route.notFound && (match = route.matchUrl(url))) {
-      return {
-      }
+      return {}
     }
   })
 
@@ -264,26 +319,12 @@ Route.prototype.hasRoute = function (model, url) {
 }
 
 Route.prototype.matchUrl = function (url) {
-  return this.regex.exec(url.split('?')[0])
-}
-
-Route.prototype.urlParams = function (url, _match) {
-  var query = url.split('?')[1]
-  var match = _match || this.matchUrl(url)
-  var params = this.router._querystring.parse(query)
-
-  if (match) {
-    for (var n = 1; n < match.length; n++) {
-      params[this.variables[n - 1]] = match[n]
-    }
-  }
-
-  return params
+  return this.definition.matchUrl(url)
 }
 
 Route.prototype.set = function (url, match) {
   var self = this
-  var params = this.urlParams(url, match)
+  var params = this.definition.params(url, match)
 
   if (this.redirect) {
     var redirectUrl = this.redirect(params)
@@ -326,9 +367,9 @@ Route.prototype.get = function (url) {
       }
     })
 
-    var oldParams = this.urlParams(url)
-    var newUrl = this.router.expandUrl(this.pattern, extend(extend({}, oldParams), params))
-    var newParams = this.urlParams(newUrl)
+    var oldParams = this.definition.params(url)
+    var newUrl = this.definition.url(extend(extend({}, oldParams), params))
+    var newParams = this.definition.params(newUrl)
     var push = this.push(oldParams, newParams)
   }
 
@@ -361,31 +402,6 @@ function paramToString (p) {
     return ''
   } else {
     return p
-  }
-}
-
-Router.prototype.expandUrl = function (pattern, _params) {
-  var params = _params || {}
-  var onlyQueryParams = clone(params)
-
-  var url = pattern.replace(/:([a-z_][a-z0-9_]*)\*/gi, function (_, id) {
-    var param = params[id]
-    delete onlyQueryParams[id]
-    return encodeURI(paramToString(param))
-  })
-
-  url = url.replace(/:([a-z_][a-z0-9_]*)/gi, function (_, id) {
-    var param = params[id]
-    delete onlyQueryParams[id]
-    return encodeURIComponent(paramToString(param))
-  })
-
-  var query = this._querystring.stringify(onlyQueryParams)
-
-  if (query) {
-    return url + '?' + query
-  } else {
-    return url
   }
 }
 
@@ -552,11 +568,11 @@ Hash.prototype.replace = function (url) {
   return this.push(url)
 }
 
-function HrefAttribute (route, params, options) {
-  this.href = route.url(params)
+function HrefAttribute (routeDefinition, params, options) {
+  this.href = routeDefinition.url(params)
   this.onclick = refreshify(function (event) {
     if (!event.metaKey) {
-      route.push(params, options)
+      routeDefinition.push(params, options)
       event.preventDefault()
     }
   })

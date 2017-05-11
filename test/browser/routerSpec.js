@@ -706,7 +706,7 @@ function describeRouter (historyApiType) {
               routes.a({render: function () { return 'a' }}),
               routes.b({render: function () { return 'b' }}),
               router.notFound(function (url, routesTried) {
-                var routes = routesTried.map(function (r) { return r.pattern }).join(', ')
+                var routes = routesTried.map(function (r) { return r.definition.pattern }).join(', ')
                 return 'route ' + url + ' custom not found, tried ' + routes
               })
             ]
@@ -735,39 +735,71 @@ function describeRouter (historyApiType) {
       })
 
       function routeDefinitionSpecs () {
-        it('isActive is true when URL is matched by pattern', function () {
-          var route = router.route('/')
+        describe('with no parameters', function () {
+          it('route is active when its pattern matches', function () {
+            var route = router.route('/')
 
-          router.push('/')
-          expect(route.isActive()).to.equal(true)
+            router.push('/')
+            expect(route.isActive()).to.equal(true)
+          })
+
+          it("route is not active when the pattern doesn't match", function () {
+            var route = router.route('/')
+
+            router.push('/something')
+            expect(route.isActive()).to.equal(false)
+          })
+
+          it('route is active when the pattern with parameters matches', function () {
+            var route = router.route('/article/:id')
+
+            router.push('/article/5')
+            expect(route.isActive()).to.equal(true)
+          })
+
+          it('route is active when the pattern with query string matches', function () {
+            var route = router.route('/')
+
+            router.push('/?page=3')
+            expect(route.isActive()).to.equal(true)
+          })
         })
 
-        it('isActive is false when URL is not matched by pattern', function () {
-          var route = router.route('/')
+        describe('with parameters', function () {
+          it('is active parameters match', function () {
+            var route = router.route('/article/:id')
 
-          router.push('/something')
-          expect(route.isActive()).to.equal(false)
-        })
+            router.push('/article/5?page=3')
+            expect(route.isActive({id: 5, page: 3})).to.equal(true)
+          })
 
-        it('isActive is true when URL is matched by pattern with parameters', function () {
-          var route = router.route('/article/:id')
+          it('is active when given parameters match', function () {
+            var route = router.route('/article/:id')
 
-          router.push('/article/5')
-          expect(route.isActive()).to.equal(true)
-        })
+            router.push('/article/5?page=3')
+            expect(route.isActive({id: 5, missing: undefined})).to.equal(true)
+          })
 
-        it('isActive with params is true when URL is matched by pattern with same parameters', function () {
-          var route = router.route('/article/:id')
+          it('is not active when given undefined parameters do not match', function () {
+            var route = router.route('/article/:id')
 
-          router.push('/article/5?page=3')
-          expect(route.isActive({id: 5, page: 3})).to.equal(true)
-        })
+            router.push('/article/5?page=3')
+            expect(route.isActive({id: 5, page: undefined})).to.equal(false)
+          })
 
-        it('isActive with params is false when URL is not matched by pattern with parameters', function () {
-          var route = router.route('/article/:id')
+          it('is not active when parameters do not match', function () {
+            var route = router.route('/article/:id')
 
-          router.push('/article/5?page=3')
-          expect(route.isActive({id: 10, page: 3})).to.equal(false)
+            router.push('/article/5?page=3')
+            expect(route.isActive({id: 10, page: 3})).to.equal(false)
+          })
+
+          it('is not active when given parameters do not match', function () {
+            var route = router.route('/article/:id')
+
+            router.push('/article/5?page=3')
+            expect(route.isActive({id: 10})).to.equal(false)
+          })
         })
       }
     })

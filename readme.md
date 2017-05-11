@@ -417,7 +417,67 @@ article.isActive({id: 10}) === false
 home.isActive() === false
 ```
 
+### url
+
+```js
+var article = router.route('/article/:id')
+article.url({id: 5, page: 3}) === '/article/5?page=3'
+```
+
+### params
+
+```js
+var article = router.route('/article/:id')
+
+// when on /article/5?page=3
+article.params() === {id: '5', page: '3'}
+
+// when on /elsewhere
+article.params() === undefined
+
+article.params('/article/10') === {id: '10'}
+```
+
+### push
+
+```js
+var article = router.route('/article/:id')
+
+// push history, resetting scroll to 0, 0
+article.push({id: 5})
+
+// push history, without scroll reset
+article.push({id: 5}, {resetScroll: false})
+```
+
+### replace
+
+```js
+var article = router.route('/article/:id')
+
+// replace history, only in push state
+article.replace({id: 5})
+```
+
 ## Route Options
+
+```js
+var article = router.route('/article/:id')
+
+class App {
+  routes() {
+    return [
+      article({
+        render: () => ...,
+        onload: (params) => ...,
+        push: { ... },
+        push: (oldParams, newParams) => ...,
+        bindings: { ... }
+      })
+    ]
+  }
+}
+```
 
 Each route definition can contain the following methods:
 
