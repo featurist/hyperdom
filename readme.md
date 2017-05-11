@@ -319,7 +319,7 @@ class App {
 
 And finally start the application with the router:
 
-```
+```js
 hyperdom.append(document.body, new App(), {router: router})
 ```
 
@@ -428,6 +428,7 @@ Where `options` can contain:
 
 * `querystring` - an object that contains `stringify(params)` and `parse(querystring)` methods, the `qs` module or Node's `querystring` module are good options. By default Hyperdom uses a very simple (and small) query string parser and stringifier that works for basic values like strings and numbers, but for complex objects you'll see `%5Bobject%20Object%5D` in your query string.
 * `history` - can be either `router.hash()` for hash-style routing, or `router.pushState()` for regular History API routing.
+* `baseUrl` - can be used to make all routes relative to this base URL path
 
 ## Not Found
 
@@ -449,7 +450,6 @@ Where
 
 * `path` - the current path as found in the address bar
 * `routes` - the list of routes found in the application, these can be used to show which routes are available
-* `baseUrl` - can be used to make all routes relative to this base URL path
 
 # virtual-dom API
 
