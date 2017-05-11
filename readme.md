@@ -123,8 +123,8 @@ class App {
 
 class Article {
   onload() {
-    return httpism.get('/content').then(response => {
-      this.content = response
+    return httpism.get('/content').then(content => {
+      this.content = content
     })
   }
 
