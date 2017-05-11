@@ -124,7 +124,7 @@ class App {
 class Article {
   onload() {
     return httpism.get('/content').then(response => {
-      this.content = response.body
+      this.content = response
     })
   }
 
