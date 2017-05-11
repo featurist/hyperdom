@@ -13,7 +13,6 @@ Sponsored by:
 # An Example
 
 ```jsx
-/** @jsx hyperdom.jsx */
 var hyperdom = require('hyperdom');
 
 class App {
@@ -103,7 +102,6 @@ Finally, we attach the application onto the DOM using `hyperdom.append`, which a
 Larger applications will typically have several classes or objects like this in a hierarchical structure to handle different parts of the page, or to encapsulate different application logic. Here we have an application that shows an article and a login component:
 
 ```jsx
-/** @jsx hyperdom.jsx */
 var hyperdom = require('hyperdom');
 var httpism = require('httpism');
 
@@ -208,7 +206,6 @@ class App {
 Hyperdom will interpret XML if it contains an `xmlns` attribute. This includes regular XML behaviour like declaring and using namespaces. Note that JSX itself doesn't support `namespace:tag` syntax, so you can use an alternative syntax with `--` instead, for e.g. `namespace--tag`.
 
 ```jsx
-/** @jsx hyperdom.jsx */
 var hyperdom = require('hyperdom')
 
 class Circle {
