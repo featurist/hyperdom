@@ -654,12 +654,12 @@ This applies to `textarea` and input types `text`, `url`, `date`, `email`, `colo
 
 The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object containing `get` and `set` methods: `{get(), set(value)}`. See [bindings](#the_binding_attribute) for more details.
 
-```js
+```jsx
 class App {
   render(model) {
     return <div>
-      <label>what's your name</label>
-      <input type="text" binding={[model, 'name']}>
+      <label>what's your name?</label>
+      <input type="text" binding={[model, 'name']} />
       <div>hi {this.name}</div>
     </div>
   }
@@ -680,8 +680,8 @@ class App {
 
   render(model) {
     return <div>
-      <input class="red" type="radio" name="colour" binding="this.colour" value="red">
-      <input class="blue" type="radio" name="colour" binding="this.colour" value={blue}>
+      <input class="red" type="radio" name="colour" binding="this.colour" value="red" />
+      <input class="blue" type="radio" name="colour" binding="this.colour" value={blue} />
       <div>
         colour: {JSON.stringify(this.colour)}
       </div>
