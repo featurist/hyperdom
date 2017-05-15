@@ -34,7 +34,7 @@ function currentRender () {
 
 var defaultRender = {
   mount: {
-    renderComponent: function (model) { return model.render() },
+    setupModelComponent: function () { },
     refreshify: function (fn) { return fn }
   },
 

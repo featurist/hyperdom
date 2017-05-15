@@ -1826,45 +1826,39 @@ describe('hyperdom', function () {
       return {
         onload: function () {
           events.push(['onload'])
-          this.lastState = 'load'
+          this.state = 'state'
         },
 
         onbeforeadd: function () {
-          events.push(['onbeforeadd', this.lastState])
-          this.lastState = 'beforeadd'
+          events.push(['onbeforeadd', this.state])
         },
 
         onadd: function (element) {
-          events.push(['onadd', trimH1(element.innerHTML), this.lastState])
-          this.lastState = 'add'
+          events.push(['onadd', trimH1(element.innerHTML), this.state])
         },
 
         onbeforerender: function (element) {
-          events.push(['onbeforerender', element ? trimH1(element.innerHTML) : null, this.lastState])
+          events.push(['onbeforerender', element ? trimH1(element.innerHTML) : null, this.state])
         },
 
         onrender: function (element, oldElement) {
-          events.push(['onrender', trimH1(element.innerHTML), oldElement ? trimH1(oldElement.innerHTML) : null, this.lastState])
+          events.push(['onrender', trimH1(element.innerHTML), oldElement ? trimH1(oldElement.innerHTML) : null, this.state])
         },
 
         onbeforeupdate: function (element) {
-          events.push(['onbeforeupdate', trimH1(element.innerHTML), this.lastState])
-          this.lastState = 'beforeupdate'
+          events.push(['onbeforeupdate', trimH1(element.innerHTML), this.state])
         },
 
         onupdate: function (element, oldElement) {
-          events.push(['onupdate', trimH1(element.innerHTML), trimH1(oldElement.innerHTML), this.lastState])
-          this.lastState = 'update'
+          events.push(['onupdate', trimH1(element.innerHTML), trimH1(oldElement.innerHTML), this.state])
         },
 
         onbeforeremove: function (element) {
-          events.push(['onbeforeremove', trimH1(element.innerHTML), this.lastState])
-          this.lastState = 'beforeremove'
+          events.push(['onbeforeremove', trimH1(element.innerHTML), this.state])
         },
 
         onremove: function (element) {
-          events.push(['onremove', trimH1(element.innerHTML), this.lastState])
-          this.lastState = 'remove'
+          events.push(['onremove', trimH1(element.innerHTML), this.state])
         },
 
         render: function () {
@@ -1875,10 +1869,54 @@ describe('hyperdom', function () {
 
     function cachingComponent (render) {
       return {
+        onload: function () {
+          events.push('onload')
+          this.lastState = 'load'
+        },
+
+        onbeforeadd: function () {
+          events.push('onbeforeadd')
+          this.lastState = 'beforeadd'
+        },
+
+        onadd: function (element) {
+          events.push('onadd')
+          this.lastState = 'add'
+        },
+
+        onbeforerender: function (element) {
+          events.push('onbeforerender')
+        },
+
+        onrender: function (element, oldElement) {
+          events.push('onrender')
+        },
+
+        onbeforeupdate: function (element) {
+          events.push('onbeforeupdate')
+          this.lastState = 'beforeupdate'
+        },
+
+        onupdate: function (element, oldElement) {
+          events.push('onupdate')
+          this.lastState = 'update'
+        },
+
+        onbeforeremove: function (element) {
+          events.push('onbeforeremove')
+          this.lastState = 'beforeremove'
+        },
+
+        onremove: function (element) {
+          events.push('onremove')
+          this.lastState = 'remove'
+        },
+
         renderCacheKey: function () {
           monitor.rendering()
           return renderCacheKey
         },
+
         render: function () {
           return h('div',
             h('h1', 'element: ' + renderData),
@@ -1910,29 +1948,29 @@ describe('hyperdom', function () {
 
       return clickAdd.then(function () {
         expect(events).to.eql([
-          ['onbeforeadd', undefined],
-          ['onbeforerender', null, 'beforeadd'],
           ['onload'],
-          ['onadd', elementHtml(), 'load'],
-          ['onrender', elementHtml(), null, 'add']
+          ['onbeforeadd', 'state'],
+          ['onbeforerender', null, 'state'],
+          ['onadd', elementHtml(), 'state'],
+          ['onrender', elementHtml(), null, 'state']
         ])
         events = []
 
         return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(events).to.eql([
-          ['onbeforeupdate', oldElementHtml(), 'add'],
-          ['onbeforerender', oldElementHtml(), 'beforeupdate'],
-          ['onupdate', elementHtml(), elementHtml(), 'beforeupdate'],
-          ['onrender', elementHtml(), elementHtml(), 'update']
+          ['onbeforeupdate', oldElementHtml(), 'state'],
+          ['onbeforerender', oldElementHtml(), 'state'],
+          ['onupdate', elementHtml(), elementHtml(), 'state'],
+          ['onrender', elementHtml(), elementHtml(), 'state']
         ])
         events = []
 
         if (!(options && options.remove === false)) {
           return monitor.waitForRenderAfter(click('button.remove')).then(function () {
             expect(events).to.eql([
-              ['onbeforeremove', oldElementHtml(), 'update'],
-              ['onremove', oldElementHtml(), 'beforeremove']
+              ['onbeforeremove', oldElementHtml(), 'state'],
+              ['onremove', oldElementHtml(), 'state']
             ])
           })
         }
@@ -1941,15 +1979,35 @@ describe('hyperdom', function () {
 
     function canCache () {
       expect(find('h1').text()).to.equal('element: one')
+      expect(events).to.eql([
+        'onload',
+        'onbeforeadd',
+        'onbeforerender',
+        'onadd',
+        'onrender'
+      ])
+      events = []
 
       renderData = 'two'
       return monitor.waitForRenderAfter(click('button.update')).then(function () {
         expect(find('h1').text()).to.equal('element: one')
 
+        expect(events).to.eql([
+        ])
+        events = []
+
         renderCacheKey = 'two'
         return monitor.waitForRenderAfter(click('button.update'))
       }).then(function () {
         expect(find('h1').text()).to.equal('element: two')
+
+        expect(events).to.eql([
+          'onbeforeupdate',
+          'onbeforerender',
+          'onupdate',
+          'onrender'
+        ])
+        events = []
       })
     }
 

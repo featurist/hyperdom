@@ -1,5 +1,7 @@
 var hyperdomMeta = require('./meta')
 var render = require('./render')
+var Vtext = require('virtual-dom/vnode/vtext.js')
+var debuggingProperties = require('./debuggingProperties')
 
 function Component (model, options) {
   this.isViewComponent = options && options.hasOwnProperty('viewComponent') && options.viewComponent
@@ -13,13 +15,6 @@ Component.prototype.type = 'Widget'
 Component.prototype.init = function () {
   var self = this
 
-  if (self.model.onbeforeadd) {
-    self.model.onbeforeadd()
-  }
-  if (self.model.onbeforerender) {
-    self.model.onbeforerender()
-  }
-
   var vdom = this.render()
 
   var meta = hyperdomMeta(this.model)
@@ -28,17 +23,6 @@ Component.prototype.init = function () {
   var currentRender = render.currentRender()
   this.component = currentRender.mount.createDomComponent()
   var element = this.component.create(vdom)
-
-  if (self.model.onadd || self.model.onrender) {
-    currentRender.finished.then(function () {
-      if (self.model.onadd) {
-        self.model.onadd(self.component.element)
-      }
-      if (self.model.onrender) {
-        self.model.onrender(self.component.element)
-      }
-    })
-  }
 
   if (self.model.detached) {
     return document.createTextNode('')
@@ -79,19 +63,10 @@ Component.prototype.update = function (previous) {
     this.model = previous.model
   }
 
-  if (self.model.onupdate || self.model.onrender) {
-    var currentRender = render.currentRender()
-    currentRender.finished.then(function () {
-      afterUpdate(self.model, self.component.element, oldElement)
-    })
-  }
-
   this.component = previous.component
   var oldElement = this.component.element
 
-  beforeUpdate(this.model, oldElement)
-
-  var element = this.component.update(this.render())
+  var element = this.component.update(this.render(oldElement))
 
   if (self.model.detached) {
     return document.createTextNode('')
@@ -100,9 +75,64 @@ Component.prototype.update = function (previous) {
   }
 }
 
-Component.prototype.render = function () {
+Component.prototype.renderModel = function (oldElement) {
+  var self = this
+  var model = this.model
   var currentRender = render.currentRender()
-  return currentRender.mount.renderComponent(this.model)
+  currentRender.mount.setupModelComponent(model)
+
+  if (!oldElement) {
+    if (self.model.onbeforeadd) {
+      self.model.onbeforeadd()
+    }
+    if (self.model.onbeforerender) {
+      self.model.onbeforerender()
+    }
+
+    if (self.model.onadd || self.model.onrender) {
+      currentRender.finished.then(function () {
+        if (self.model.onadd) {
+          self.model.onadd(self.component.element)
+        }
+        if (self.model.onrender) {
+          self.model.onrender(self.component.element)
+        }
+      })
+    }
+  } else {
+    beforeUpdate(model, oldElement)
+
+    if (model.onupdate || model.onrender) {
+      currentRender.finished.then(function () {
+        afterUpdate(model, self.component.element, oldElement)
+      })
+    }
+  }
+
+  var vdom = typeof model.render === 'function' ? model.render() : new Vtext(JSON.stringify(model))
+
+  if (vdom instanceof Array) {
+    throw new Error('vdom returned from component cannot be an array')
+  }
+
+  return debuggingProperties(vdom, model)
+}
+
+Component.prototype.render = function (oldElement) {
+  var model = this.model
+
+  if (typeof model.renderCacheKey === 'function') {
+    var meta = hyperdomMeta(model)
+    var key = model.renderCacheKey()
+    if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
+      return meta.cachedVdom
+    } else {
+      meta.cacheKey = key
+      return (meta.cachedVdom = this.renderModel(oldElement))
+    }
+  } else {
+    return this.renderModel(oldElement)
+  }
 }
 
 Component.prototype.refresh = function () {

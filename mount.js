@@ -3,8 +3,6 @@ var runRender = require('./render')
 var domComponent = require('./domComponent')
 var Set = require('./set')
 var refreshEventResult = require('./refreshEventResult')
-var Vtext = require('virtual-dom/vnode/vtext.js')
-var debuggingProperties = require('./debuggingProperties')
 
 var lastId = 0
 
@@ -141,32 +139,6 @@ Mount.prototype.setupModelComponent = function (model) {
     if (typeof model.onload === 'function') {
       this.refreshify(function () { return model.onload() }, {refresh: 'promise'})()
     }
-  }
-}
-
-Mount.prototype._renderComponent = function (model) {
-  this.setupModelComponent(model)
-  var vdom = typeof model.render === 'function' ? model.render() : new Vtext(JSON.stringify(model))
-
-  if (vdom instanceof Array) {
-    throw new Error('vdom returned from component cannot be an array')
-  }
-
-  return debuggingProperties(vdom, model)
-}
-
-Mount.prototype.renderComponent = function (model) {
-  if (typeof model.renderCacheKey === 'function') {
-    var meta = hyperdomMeta(model)
-    var key = model.renderCacheKey()
-    if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
-      return meta.cachedVdom
-    } else {
-      meta.cacheKey = key
-      return (meta.cachedVdom = this._renderComponent(model))
-    }
-  } else {
-    return this._renderComponent(model)
   }
 }
 
