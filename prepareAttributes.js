@@ -45,7 +45,7 @@ module.exports = function (tag, attributes, childElements) {
     }
   }
 
-  if (attributes.__source) {
+  if (process.env.NODE_ENV !== 'production' && attributes.__source) {
     if (!dataset) {
       dataset = attributes.dataset
 

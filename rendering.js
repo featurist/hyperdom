@@ -152,17 +152,17 @@ Object.defineProperty(exports.html, 'refresh', {get: function () {
 }})
 
 Object.defineProperty(exports.html, 'norefresh', {get: function () {
-  deprecations.refresh('hyperdom.html.norefresh is deprecated, please use hyperdom.norefresh() instead')
+  deprecations.norefresh('hyperdom.html.norefresh is deprecated, please use hyperdom.norefresh() instead')
   return refreshEventResult.norefresh
 }})
 
 Object.defineProperty(exports.html, 'binding', {get: function () {
-  deprecations.refresh('hyperdom.html.binding() is deprecated, please use hyperdom.binding() instead')
+  deprecations.htmlBinding('hyperdom.html.binding() is deprecated, please use hyperdom.binding() instead')
   return binding
 }})
 
 Object.defineProperty(exports.html, 'refreshAfter', {get: function () {
-  deprecations.refresh("hyperdom.html.refreshAfter() is deprecated, please use require('hyperdom/refreshAfter')() instead")
+  deprecations.refreshAfter("hyperdom.html.refreshAfter() is deprecated, please use require('hyperdom/refreshAfter')() instead")
   return refreshAfter
 }})
 
@@ -188,7 +188,7 @@ function rawHtml () {
 }
 
 exports.html.rawHtml = function () {
-  console.warn('hyperdom.html.rawHtml() is deprecated, please use hyperdom.rawHtml() instead')
+  deprecations.htmlRawHtml('hyperdom.html.rawHtml() is deprecated, please use hyperdom.rawHtml() instead')
   return rawHtml.apply(undefined, arguments)
 }
 
