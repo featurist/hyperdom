@@ -536,7 +536,7 @@ describe('hyperdom', function () {
     })
 
     if (detect.dataset) {
-      describe('source locations', () => {
+      describe('source locations', function () {
         it('generates filename and line number from __source attribute', function () {
           function render () {
             return h('div', {__source: {fileName: '/full/path/to/file.jsx', lineNumber: 80}})
@@ -2138,7 +2138,7 @@ describe('hyperdom', function () {
 
   describe('component debugger', function () {
     contextInProduction(function () {
-      it('does not set debugging properties', () => {
+      it('does not set debugging properties', function () {
         var inner = {
           render: function () {
             return h('div.inner', 'inner')
@@ -3024,11 +3024,11 @@ function wait (n) {
 
 function contextInProduction (fn) {
   context('when NODE_ENV=production', function () {
-    beforeEach(() => {
+    beforeEach(function () {
       process.env.NODE_ENV = 'production'
     })
 
-    afterEach(() => {
+    afterEach(function () {
       delete process.env.NODE_ENV
     })
 
