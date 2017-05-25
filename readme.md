@@ -19,7 +19,7 @@ class App {
   render() {
     return <div>
       <label>what's your name?</label>
-      <input type="text" binding={[this, 'name']} />
+      <input type="text" binding="this.name" />
       <div>hi {this.name}</div>
     </div>;
   }
@@ -27,6 +27,8 @@ class App {
 
 hyperdom.append(document.body, new App());
 ```
+
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
 # install
 
@@ -95,6 +97,8 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
+
 Here we have a class `App`, that contains a `render()` method. We define the HTML (or virtual-dom), including an `input` element that is bound onto the model with `binding="this.name"`, this means that the app's `name` property is used to populate the `<input>`, and conversely, whenever the user types something into the `<input>`, they change `name`. The name is constantly rendered into the HTML with `hi {this.name}`.
 
 Finally, we attach the application onto the DOM using `hyperdom.append`, which appends the application's top-level DOM element to the HTML document's body.
@@ -162,6 +166,8 @@ class Login {
 
 hyperdom.append(document.body, new App());
 ```
+
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
 # The Render Method
 
