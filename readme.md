@@ -1138,6 +1138,14 @@ Will generate
 <h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
 ```
 
+# Production Build
+
+Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment variable, and when set to `production` will turn these features off.
+
+To make a production build with webpack, use `webpack -p`.
+
+To make a production build with browserify, use [envify](https://github.com/hughsk/envify) and ensure `NODE_ENV=production`, for e.g. `browserify -t [ envify --NODE_ENV production  ] ...` and then use a minifier like [uglify](https://github.com/mishoo/UglifyJS2) to strip the disabled code.
+
 # Common Errors
 
 ## Outside Render Cycle

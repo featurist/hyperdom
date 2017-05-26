@@ -536,15 +536,30 @@ describe('hyperdom', function () {
     })
 
     if (detect.dataset) {
-      it('generates filename and line number from __source attribute', function () {
-        function render () {
-          return h('div', {__source: {fileName: '/full/path/to/file.jsx', lineNumber: 80}})
-        }
+      describe('source locations', function () {
+        it('generates filename and line number from __source attribute', function () {
+          function render () {
+            return h('div', {__source: {fileName: '/full/path/to/file.jsx', lineNumber: 80}})
+          }
 
-        attach(render, {})
+          attach(render, {})
 
-        expect(find('div').data('file-name')).to.eql('/full/path/to/file.jsx')
-        expect(find('div').data('line-number')).to.eql(80)
+          expect(find('div').data('file-name')).to.eql('/full/path/to/file.jsx')
+          expect(find('div').data('line-number')).to.eql(80)
+        })
+
+        contextInProduction(function () {
+          it('does not generate filename and line number', function () {
+            function render () {
+              return h('div', {__source: {fileName: '/full/path/to/file.jsx', lineNumber: 80}})
+            }
+
+            attach(render, {})
+
+            expect(find('div').data('file-name')).to.eql(undefined)
+            expect(find('div').data('line-number')).to.eql(undefined)
+          })
+        })
       })
     }
 
@@ -2122,6 +2137,27 @@ describe('hyperdom', function () {
   })
 
   describe('component debugger', function () {
+    contextInProduction(function () {
+      it('does not set debugging properties', function () {
+        var inner = {
+          render: function () {
+            return h('div.inner', 'inner')
+          }
+        }
+
+        var outer = {
+          render: function () {
+            return h('div.outer', 'outer', inner)
+          }
+        }
+
+        attach(outer)
+
+        expect(find('.outer')[0]._hyperdomMeta).to.eql(undefined)
+        expect(find('.inner')[0]._hyperdomMeta).to.eql(undefined)
+      })
+    })
+
     it('sets the component to the element', function () {
       var inner = {
         render: function () {
@@ -2983,5 +3019,19 @@ describe('hyperdom', function () {
 function wait (n) {
   return new Promise(function (resolve) {
     setTimeout(resolve, n)
+  })
+}
+
+function contextInProduction (fn) {
+  context('when NODE_ENV=production', function () {
+    beforeEach(function () {
+      process.env.NODE_ENV = 'production'
+    })
+
+    afterEach(function () {
+      delete process.env.NODE_ENV
+    })
+
+    fn()
   })
 }

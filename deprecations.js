@@ -2,7 +2,7 @@ function deprecationWarning () {
   var warningIssued = false
 
   return function (arg) {
-    if (!warningIssued) {
+    if (process.env.NODE_ENV !== 'production' && !warningIssued) {
       console.warn(arg)
       warningIssued = true
     }
@@ -16,5 +16,8 @@ module.exports = {
   renderFunction: deprecationWarning(),
   norefresh: deprecationWarning(),
   mapBinding: deprecationWarning(),
-  viewComponent: deprecationWarning()
+  viewComponent: deprecationWarning(),
+  htmlRawHtml: deprecationWarning(),
+  htmlBinding: deprecationWarning(),
+  refreshAfter: deprecationWarning()
 }
