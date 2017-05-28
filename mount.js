@@ -18,6 +18,7 @@ function Mount (model, options) {
   this.mountRenderRequested = false
   this.componentRendersRequested = undefined
   this.id = ++lastId
+  this.renderId = 0
   this.mounted = true
   this.router = router
 }
@@ -85,6 +86,7 @@ Mount.prototype.refreshImmediately = function () {
   var self = this
 
   runRender(self, function () {
+    self.renderId++
     var vdom = self.render()
     self.component.update(vdom)
     self.mountRenderRequested = false
@@ -110,6 +112,11 @@ Mount.prototype.refreshComponent = function (component) {
 
   this.componentRendersRequested.push(component)
   this.queueRender()
+}
+
+Mount.prototype.isComponentInDom = function (component) {
+  var meta = hyperdomMeta(component)
+  return meta.lastRenderId === this.renderId
 }
 
 Mount.prototype.setupModelComponent = function (model) {

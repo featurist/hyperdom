@@ -1594,6 +1594,49 @@ describe('hyperdom', function () {
       })
     })
 
+    it('does not refresh if the component was not rendered', function () {
+      var model = {
+        showModel: 1,
+
+        model1: innerModel('one'),
+        model2: innerModel('two'),
+
+        render: function () {
+          return h('div', this.showModel === 1 ? this.model1 : this.model2)
+        }
+      }
+
+      function innerModel (name) {
+        return {
+          name: name,
+
+          render: function () {
+            return h('h1', 'hi ' + this.name)
+          }
+        }
+      }
+
+      attach(model)
+
+      expect(find('h1').text()).to.equal('hi one')
+
+      model.showModel = 2
+      model.refresh()
+
+      return retry(function () {
+        expect(find('h1').text()).to.equal('hi two')
+      }).then(function () {
+        model.model1.name = 'one updated'
+        model.model1.refreshComponent()
+      }).then(function () {
+        return wait(10)
+      }).then(function () {
+        return retry(function () {
+          expect(find('h1').text()).to.equal('hi two')
+        })
+      })
+    })
+
     it('a component can be represented several times and be refreshed', function () {
       var model = {
         models: 1,

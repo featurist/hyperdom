@@ -121,8 +121,10 @@ Component.prototype.renderModel = function (oldElement) {
 Component.prototype.render = function (oldElement) {
   var model = this.model
 
+  var meta = hyperdomMeta(model)
+  meta.lastRenderId = render.currentRender().mount.renderId
+
   if (typeof model.renderCacheKey === 'function') {
-    var meta = hyperdomMeta(model)
     var key = model.renderCacheKey()
     if (key !== undefined && meta.cacheKey === key && meta.cachedVdom) {
       return meta.cachedVdom
@@ -136,11 +138,13 @@ Component.prototype.render = function (oldElement) {
 }
 
 Component.prototype.refresh = function () {
-  var oldElement = this.component.element
-
-  beforeUpdate(this.model, oldElement)
-  this.component.update(this.render())
-  afterUpdate(this.model, this.component.element, oldElement)
+  var currentRender = render.currentRender()
+  if (currentRender.mount.isComponentInDom(this.model)) {
+    var oldElement = this.component.element
+    beforeUpdate(this.model, oldElement)
+    this.component.update(this.render())
+    afterUpdate(this.model, this.component.element, oldElement)
+  }
 }
 
 Component.prototype.destroy = function (element) {

@@ -3,7 +3,7 @@ function deprecationWarning () {
 
   return function (arg) {
     if (process.env.NODE_ENV !== 'production' && !warningIssued) {
-      console.warn(arg)
+      console.warn(arg) // eslint-disable-line no-console
       warningIssued = true
     }
   }
