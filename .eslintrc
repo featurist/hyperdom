@@ -2,5 +2,8 @@
   "extends": [
     "standard",
     "plugin:es5/no-es2015"
-  ]
+  ],
+  "rules": {
+    "no-console": "error"
+  }
 }
