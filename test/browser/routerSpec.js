@@ -385,6 +385,39 @@ function describeRouter (historyApiType) {
           })
         })
       })
+
+      context('app with onload that immediately pushes another route', function () {
+        var app, root, home
+
+        beforeEach(function () {
+          root = router.route('/')
+          home = router.route('/home')
+          app = {
+            routes: function () {
+              return [
+                root({
+                  onload: function () {
+                    return home.push()
+                  },
+                  render: function () {}
+                }),
+                home({
+                  render: function () {
+                    return h('div',
+                      h('h1', 'Home')
+                    )
+                  }
+                })
+              ]
+            }
+          }
+        })
+
+        it('should render the second route', function () {
+          var monkey = mount(app, '/')
+          return monkey.find('h1').shouldHave({text: 'Home'})
+        })
+      })
     })
 
     describe('redirect', function () {
