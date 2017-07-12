@@ -478,7 +478,8 @@ class App {
         onload: (params) => ...,
         push: { ... },
         push: (oldParams, newParams) => ...,
-        bindings: { ... }
+        bindings: { ... },
+        redirect: (params) => ...,
       })
     ]
   }
@@ -488,13 +489,14 @@ class App {
 Each route definition can contain the following methods:
 
 * `render()` - renders the route. If the component contains `renderLayout(content)`, then the output from the route `render()` will be passed as `content` to the component's `renderLayout(content)` method.
-* `onload(params)` - is called when the user navigates to the route, `params` are an object containing the parameters extracted from the route.
+* `onload(params)` - is called when the user navigates to the route, `params` is an object containing the parameters extracted from the route.
 * `bindings` - an object containing bindings keyed on the parameter names in the route. These two-way bindings are used to update the URL when the model changes, or to change the model if the URL changes.
 * `push` - an object containing parameter names set to `true` if changes to those parameters should cause a new URL to be set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.
 
     For example: `push: {id: true}` would cause a new URL to be pushed on to history if the model changes in such a way that `:id` changes in the route.
 
 * `push(oldParams, newParams)` - a function that is called if any of the bindings cause the URL to change, if the function returns true, then the new URL is set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.
+* `redirect(params)` - return a URL to redirect to, `params` is an object containing the parameters extracted from the route.
 
 ## Router Options
 
