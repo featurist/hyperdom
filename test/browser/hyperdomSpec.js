@@ -633,6 +633,27 @@ describe('hyperdom', function () {
 
       expect(find('div button span.title').text()).to.equal('button title')
     })
+
+    it('renders view components without attributes', function () {
+      function CoolButton (properties, children) {
+        this.properties = properties
+        this.children = children
+      }
+
+      CoolButton.prototype.render = function () {
+        return h('button', h('span.title', this.properties.title || 'no title'), this.children)
+      }
+
+      var app = {
+        render: function () {
+          return h('div', jsx(CoolButton, undefined, h('h1', 'another cool button')))
+        }
+      }
+
+      attach(app)
+
+      expect(find('div button span.title').text()).to.equal('no title')
+    })
   })
 
   describe('xml', function () {

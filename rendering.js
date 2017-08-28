@@ -130,7 +130,7 @@ exports.jsx = function (tag, attributes) {
     }
     return vhtml(tag, attributes || {}, childElements)
   } else {
-    return new Component(new tag(attributes, childElements), {viewComponent: true}) // eslint-disable-line new-cap
+    return new Component(new tag(attributes || {}, childElements), {viewComponent: true}) // eslint-disable-line new-cap
   }
 }
 
