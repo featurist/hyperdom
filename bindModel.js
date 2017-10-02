@@ -46,7 +46,7 @@ var inputTypeBindings = {
     var currentValue = binding.get()
 
     var options = children.filter(function (child) {
-      return child.tagName.toLowerCase() === 'option'
+      return child.tagName && child.tagName.toLowerCase() === 'option'
     })
 
     var values = []

@@ -1197,6 +1197,26 @@ describe('hyperdom', function () {
       })
     })
 
+    it('can render select with text nodes', function () {
+      function render (model) {
+        return h('div',
+          h('select',
+            {binding: [model, 'colour']},
+            h('option.red', {value: 'red'}, 'red'),
+            ''
+          ),
+          h('span', JSON.stringify(model.colour))
+        )
+      }
+
+      attach(render, { colour: 'red' })
+
+      return retry(function () {
+        expect(find('span').text()).to.equal('"red"')
+        expect(find('option.red').prop('selected')).to.equal(true)
+      })
+    })
+
     it('can bind to select with no values on its options', function () {
       function render (model) {
         return h('div',
