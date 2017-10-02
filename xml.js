@@ -2,6 +2,7 @@ var AttributeHook = require('virtual-dom/virtual-hyperscript/hooks/attribute-hoo
 
 var namespaceRegex = /^([a-z0-9_-]+)(--|:)([a-z0-9_-]+)$/i
 var xmlnsRegex = /^xmlns(--|:)([a-z0-9_-]+)$/i
+var SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
 
 function transformTanName (vnode, namespaces) {
   var tagNamespace = namespaceRegex.exec(vnode.tagName)
@@ -32,10 +33,15 @@ function transformProperties (vnode, namespaces) {
           properties[match[1] + ':' + match[3]] = new AttributeHook(namespaces[match[1]], properties[key])
           delete properties[key]
         } else {
-          var property = properties[key]
-          var type = typeof property
-          if (type === 'string' || type === 'number' || type === 'boolean') {
-            attributes[key] = property
+          if (vnode.namespace === SVG_NAMESPACE && key === 'className') {
+            attributes['class'] = properties.className
+            delete properties.className
+          } else {
+            var property = properties[key]
+            var type = typeof property
+            if (type === 'string' || type === 'number' || type === 'boolean') {
+              attributes[key] = property
+            }
           }
         }
       }

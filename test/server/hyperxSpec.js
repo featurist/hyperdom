@@ -8,4 +8,7 @@ describe('hyperx', function () {
   it('can render with hyperx', function () {
     expect(toHtml(hx`<div>hi</div>`)).to.equal('<div>hi</div>') // eslint-disable-line es5/no-template-literals
   })
+  it('can render svg with class with hyperx', function () {
+    expect(toHtml(hx`<svg><rect class="hello"></rect></svg>`)).to.equal('<svg><rect class="hello"></rect></svg>') // eslint-disable-line es5/no-template-literals
+  })
 })

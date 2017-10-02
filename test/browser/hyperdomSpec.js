@@ -634,6 +634,18 @@ describe('hyperdom', function () {
       expect(find('div button span.title').text()).to.equal('button title')
     })
 
+    it('renders svg classes', function () {
+      function render () {
+        return jsx('svg', {xmlns: 'http://www.w3.org/2000/svg', width: '300', height: '300'}, [
+          jsx('circle', {class: 'svg-circle'})
+        ])
+      }
+
+      attach(render, {})
+
+      expect(find('.svg-circle').length).to.eql(1)
+    })
+
     it('renders view components without attributes', function () {
       function CoolButton (properties, children) {
         this.properties = properties
