@@ -360,40 +360,42 @@ class Posts {
   constructor() {
     this.posts = []
   }
-  
+
   async onload() {
     this.posts = await httpism.get('/posts')
   }
 
   routes() {
-    posts({
-      render: () => <div>
-        {
-          this.posts.map(post => (
-            <a href={routes.post.href({id: post.id})}>{post.title}</a>
-          ))
+    return [
+      posts({
+        render: () => <div>
+          {
+            this.posts.map(post => (
+              <a href={routes.post.href({id: post.id})}>{post.title}</a>
+            ))
+          }
+        </div>
+      }),
+
+      post({
+        bindings: {
+          id: [this, 'postId']
+        },
+
+        render: () => {
+          var post = this.posts[this.postId]
+
+          if (post) {
+            return <article>
+              <h1>{post.title}</h1>
+              {post.content}
+            </article>
+          } else {
+            <div>loading...</div>
+          }
         }
-      </div>
-    }),
-    
-    post({
-      bindings: {
-        id: [this, 'postId']
-      },
-      
-      render: () => {
-        var post = this.posts[this.postId]
-        
-        if (post) {
-          return <article>
-            <h1>{post.title}</h1>
-            {post.content}
-          </article>
-        } else {
-          <div>loading...</div>
-        }
-      }
-    })
+      })
+    ]
   }
 }
 ```
