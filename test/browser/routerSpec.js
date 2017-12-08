@@ -8,7 +8,7 @@ var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
 
-describeRouter('hash')
+// describeRouter('hash')
 if (detect.pushState) {
   describeRouter('pushState')
 }
@@ -21,7 +21,7 @@ before(function () {
 })
 
 function describeRouter (historyApiType) {
-  describe('router (' + historyApiType + ')', function () {
+  describe.only('router (' + historyApiType + ')', function () {
     var router
     var historyApi
 
@@ -356,8 +356,8 @@ function describeRouter (historyApiType) {
 
               return [
                 route({
-                  onload: function (params) {
-                    return self.article.load(params.id)
+                  onload: function (location) {
+                    return self.article.load(location.params.id)
                   },
 
                   render: function () {
@@ -573,6 +573,306 @@ function describeRouter (historyApiType) {
               monkey.find('h3').shouldHave({text: 'route b: a = a, b = c'})
             ])
           })
+        })
+      })
+    })
+
+    describe('middleware', function () {
+      it('can wrap layout', function () {
+        var app = {
+          routes: function () {
+            return [
+              router.use(function (location, next) {
+                return h('div.outer',
+                  h('h1', 'outer'),
+                  next()
+                )
+              }),
+              router.use(function (location, next) {
+                return h('div.inner',
+                  h('h1', 'inner')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.outer > .inner').shouldExist()
+      })
+
+      it('can prevent middleware from being executed, but not the rest', function () {
+        var app = {
+          routes: function () {
+            return [
+              router.use(
+                function (location, next) {
+                },
+                function (location, next) {
+                  return h('div.hidden',
+                    h('h1', 'hidden')
+                  )
+                }
+              ),
+              router.use(function (location, next) {
+                return h('div.rest',
+                  h('h1', 'rest')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.rest').shouldExist()
+      })
+
+      it('can allow middleware to be executed, and layout the rest', function () {
+        var app = {
+          routes: function () {
+            return [
+              router.use(
+                function (location, next) {
+                  return next()
+                },
+                function (location, next) {
+                  return h('div.shown',
+                    h('h1', 'shown'),
+                    next()
+                  )
+                }
+              ),
+              router.use(function (location, next) {
+                return h('div.rest',
+                  h('h1', 'rest')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.shown > .rest').shouldExist()
+      })
+
+      it('can prevent a route from being executed, but not the rest', function () {
+        var route = router.route('/')
+
+        var app = {
+          routes: function () {
+            return [
+              route(
+                function (location, next) {
+                },
+                {
+                  render: function (location, next) {
+                    return h('div.shown',
+                      h('h1', 'shown')
+                    )
+                  }
+                }
+              ),
+              router.use(function (location, next) {
+                return h('div.rest',
+                  h('h1', 'rest')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.rest').shouldExist()
+      })
+
+      it('can allow a route to be executed, and layout the rest', function () {
+        var route = router.route('/')
+
+        var app = {
+          routes: function () {
+            return [
+              route(
+                function (location, next) {
+                  return next()
+                },
+                {
+                  render: function (location, next) {
+                    return h('div.shown',
+                      h('h1', 'shown'),
+                      next()
+                    )
+                  }
+                }
+              ),
+              router.use(function (location, next) {
+                return h('div.rest',
+                  h('h1', 'rest')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.shown > .rest').shouldExist()
+      })
+
+      it('route can delegate to other routes', function () {
+        var route = router.route('/')
+
+        var app = {
+          routes: function () {
+            return [
+              route(
+                {
+                  routes: function () {
+                    return [
+                      router.use(function (location, next) {
+                        return h('div.delegated',
+                          h('h1', 'delegated'),
+                          next()
+                        )
+                      })
+                    ]
+                  }
+                }
+              ),
+              router.use(function (location, next) {
+                return h('div.rest',
+                  h('h1', 'rest')
+                )
+              })
+            ]
+          }
+        }
+        var monkey = mount(app, '/')
+        return monkey.find('.delegated > .rest').shouldExist()
+      })
+
+      describe('renderLayout', function () {
+        it('renders layout from model', function () {
+          var app = {
+            routes: function () {
+              return [
+                router.use(function (location, next) {
+                  return h('div.content',
+                    h('h1', 'content')
+                  )
+                })
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.outer-layout', h('h1', 'outer layout'), vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.outer-layout > .content').shouldExist()
+        })
+
+        it('renders all layouts from parent models', function () {
+          var inner = {
+            routes: function () {
+              return [
+                router.use(function (location, next) {
+                  return h('div.content',
+                    h('h1', 'content')
+                  )
+                })
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.inner-layout', h('h1', 'inner layout'), vdom)
+            }
+          }
+
+          var app = {
+            routes: function () {
+              return [
+                inner
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.outer-layout', h('h1', 'outer layout'), vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.outer-layout > .inner-layout > .content').shouldExist()
+        })
+
+        it('renders all layouts from parent models, when child model in middleware', function () {
+          var inner = {
+            routes: function () {
+              return [
+                router.use(function (location, next) {
+                  return h('div.content',
+                    h('h1', 'content')
+                  )
+                })
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.inner-layout', h('h1', 'inner layout'), vdom)
+            }
+          }
+
+          var app = {
+            routes: function () {
+              return [
+                router.use(
+                  function (location, next) {
+                    return next()
+                  },
+                  inner
+                )
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.outer-layout', h('h1', 'outer layout'), vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.outer-layout > .inner-layout > .content').shouldExist()
+        })
+
+        it('does not render layout when child model does not render', function () {
+          var inner = {
+            routes: function () {
+              return [
+                router.use(function (location, next) {
+                })
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.inner-layout', h('h1', 'inner layout'), vdom)
+            }
+          }
+
+          var app = {
+            routes: function () {
+              return [
+                router.use(
+                  function (location, next) {
+                    return next()
+                  },
+                  inner
+                ),
+                router.use(function () {
+                  return h('.content', 'content')
+                })
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return h('.outer-layout', h('h1', 'outer layout'), vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.outer-layout > .content').shouldExist()
         })
       })
     })
