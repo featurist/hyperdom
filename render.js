@@ -6,9 +6,10 @@ function runRender (mount, fn) {
   try {
     runRender._currentRender = render
 
-    return fn()
-  } finally {
+    var vdom = fn()
     render.finished.fulfill()
+    return vdom
+  } finally {
     runRender._currentRender = undefined
   }
 }
