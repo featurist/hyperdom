@@ -17,62 +17,6 @@ Router.prototype.reset = function () {
   this.history.stop()
 }
 
-function walkRoutes (location, model, visit, options) {
-  function walk (model, parentModels) {
-    if (model) {
-      if (typeof model.routes === 'function') {
-        runRender.currentRender().mount.setupModelComponent(model)
-
-        return walk(model.routes(location), [model].concat(parentModels))
-      } else if (model instanceof Array) {
-        var routes = model
-        for (var r = 0, l = routes.length; r < l; r++) {
-          var route = routes[r]
-
-          var vdom = walk(route, parentModels)
-
-          if (vdom) {
-            return vdom
-          }
-        }
-
-        return
-      } else if (typeof model.renderRoute === 'function' || model.notFound) {
-        return visit(model, parentModels)
-      } else if (typeof model === 'function') {
-        return visit({
-          renderRoute: model
-        }, parentModels)
-      }
-    }
-
-    throw new Error('expected a route to be a function, an array, or a model. see https://github.com/featurist/hyperdom#routing')
-  }
-
-  return walk(model, options.parentModels || [])
-}
-
-function findRoutes (location, model, options) {
-  var routes = []
-  var notFound
-
-  walkRoutes(location, model, function (route, models) {
-    if (route.notFound) {
-      notFound = route
-    } else {
-      routes.push({
-        route: route,
-        models: models
-      })
-    }
-  }, options)
-
-  return {
-    routes: routes,
-    notFound: notFound
-  }
-}
-
 function layoutVdom (vdom, models) {
   return models.reduce(function (vdom, model) {
     if (typeof model.renderLayout === 'function') {
@@ -88,87 +32,110 @@ Router.prototype.url = function () {
   return removeBaseUrl(this.baseUrl, url)
 }
 
-Router.prototype.redirect = function (redirectUrl) {
-  this.replace(redirectUrl)
-  throw this._redirectError
-}
-
 function Location (router, url) {
   this.url = url
   this.lastUrl = router.lastUrl
   this.isNewUrl = url !== this.lastUrl
   this.router = router
-}
-
-Location.prototype.redirect = function (redirectUrl) {
-  return this.router.redirect(redirectUrl)
+  this.currentParentModels = []
+  this.routesAttempted = []
 }
 
 Location.prototype.push = function (url) {
-  this.url = url
-  this.router.push(url)
+  this.redirect(url, true)
 }
 
 Location.prototype.replace = function (url) {
-  this.url = url
-  this.router.replace(url)
+  this.redirect(url, false)
 }
 
-function renderRoutes (location, model, next, options) {
-  var routes = findRoutes(location, model, options)
-
-  var vdom = routes.routes.reduceRight(function (next, routeModels) {
-    return function (routes) {
-      if (routeModels.executed) {
-        return
-      }
-      routeModels.executed = true
-      location.lastParentModels = routeModels.models
-      return routeModels.route.renderRoute(location, function (routes) {
-        if (routes) {
-          return renderRoutes(location, routes, next, {parentModels: location.lastParentModels}) || next()
-        } else {
-          return next()
-        }
-      })
+Location.prototype.redirect = function (url, push) {
+  if (url !== this.url) {
+    this.currentRedirect = {
+      isRedirect: true,
+      push: push,
+      url: url
     }
-  }, next || function () {})()
-
-  if (!vdom && options && options.notFound) {
-    var notFound = routes.notFound
-      ? routes.notFound.render
-      : renderNotFound
-
-    return notFound(location.url, routes.routes.map(function (r) {
-      return r.route
-    }))
-  } else {
-    return vdom
   }
+}
+
+Location.prototype.renderRoutes = function (route) {
+  if (route) {
+    if (typeof route.routes === 'function') {
+      runRender.currentRender().mount.setupModelComponent(route)
+
+      var lastParentModels = this.currentParentModels
+      this.currentParentModels = [route].concat(this.currentParentModels)
+      var modelVdom = this.renderRoutes(route.routes())
+      if (!modelVdom) {
+        this.currentParentModels = lastParentModels
+      }
+      return modelVdom
+    } else if (route instanceof Array) {
+      var routes = route
+      for (var r = 0, l = routes.length; r < l; r++) {
+        var arrayVdom = this.renderRoutes(routes[r])
+
+        if (arrayVdom || this.currentRedirect) {
+          return arrayVdom
+        }
+      }
+
+      return
+    } else if (typeof route.renderRoute === 'function') {
+      this.routesAttempted.push(route)
+      return route.renderRoute(this)
+    } else if (route.notFound) {
+      this.notFoundParentModels = this.currentParentModels
+      this.lastNotFound = route.render
+      return
+    } else if (typeof route === 'function') {
+      this.routesAttempted.push(route)
+      return route(this)
+    }
+  }
+
+  throw new Error('expected a route to be a function, an array, or a model. see https://github.com/featurist/hyperdom#routing')
 }
 
 Router.prototype.render = function (model) {
   var self = this
-  this.history.start(model)
+  this.history.start({
+    refresh: function () {
+      if (typeof model.refreshImmediately === 'function') {
+        model.refreshImmediately()
+      }
+    }
+  })
 
   function renderUrl (redirects) {
     var url = self.url()
     var location = new Location(self, url)
 
-    try {
-      var vdom = renderRoutes(location, model, undefined, {notFound: true})
-      self.lastUrl = location.url
-      return location.lastParentModels ? layoutVdom(vdom, location.lastParentModels) : vdom
-    } catch (e) {
-      if (e === self._redirectError) {
-        if (redirects.length > 10) {
-          throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
-        }
-        redirects.push(url)
-        return renderUrl(redirects)
-      } else {
-        throw e
+    var vdom = location.renderRoutes(model)
+
+    if (location.currentRedirect) {
+      var redirect = location.currentRedirect
+      if (redirects.length > 10) {
+        throw new Error('hyperdom: too many redirects:\n  ' + redirects.join('\n  '))
       }
+      redirects.push(redirect.url)
+      if (redirect.push) {
+        self.push(redirect.url)
+      } else {
+        self.replace(redirect.url)
+      }
+      return renderUrl(redirects)
+    }
+
+    self.lastUrl = url
+
+    if (!vdom) {
+      var parentModels = location.notFoundParentModels || []
+      var notFound = location.lastNotFound || renderNotFound
+      return layoutVdom(notFound(location), parentModels)
+    } else {
+      return layoutVdom(vdom, location.currentParentModels)
     }
   }
 
@@ -208,11 +175,13 @@ Router.prototype.replace = function (url) {
   this.history.replace(addBaseUrl(this.baseUrl, url))
 }
 
-function renderNotFound (url, routes) {
-  var routeDescriptions = routes.map(function (r) {
-    return '  ' + r
+function renderNotFound (location) {
+  var routeDescriptions = location.routesAttempted.map(function (r) {
+    if (typeof r !== 'function') {
+      return '  ' + r
+    }
   }).join('\n')
-  return h('pre', h('code', 'no route for: ' + url + '\n\navailable routes:\n\n' + routeDescriptions))
+  return h('pre', h('code', 'no route for: ' + location.url + '\n\navailable routes:\n\n' + routeDescriptions))
 }
 
 Router.prototype.notFound = function (render) {
@@ -253,18 +222,16 @@ function RouteDefinition (pattern, router, options) {
 }
 
 RouteDefinition.prototype.route = function (options) {
-  if (arguments.length === 1 && typeof options === 'object') {
+  var self = this
+  if (typeof options === 'function') {
+    return function (location) {
+      if (self.matchUrl(location.url)) {
+        return options(location)
+      }
+    }
+  } else {
     return new Route(options, this)
   }
-
-  var args = Array.prototype.slice.call(arguments)
-  var lastArgIndex = args.length - 1
-  var lastArg = args[lastArgIndex]
-  if (lastArg && typeof lastArg === 'object') {
-    args[lastArgIndex] = new Route(lastArg, this)
-  }
-
-  return new MiddlewareRoute(args, this)
 }
 
 RouteDefinition.prototype.params = function (_url, _match) {
@@ -283,10 +250,6 @@ RouteDefinition.prototype.params = function (_url, _match) {
 
 RouteDefinition.prototype.matchUrl = function (url, matchBase) {
   return this.regex.exec(url.split('?')[0])
-}
-
-RouteDefinition.prototype.matchBaseUrl = function (url) {
-  return this.baseRegex.exec(url.split('?')[0])
 }
 
 RouteDefinition.prototype.isActive = function (params) {
@@ -340,21 +303,6 @@ RouteDefinition.prototype.url = function (_params) {
   }
 }
 
-function MiddlewareRoute (routes, definition) {
-  this._routes = routes
-  this.definition = definition
-}
-
-MiddlewareRoute.prototype.renderRoute = function (location, next) {
-  if (this.definition) {
-    if (!this.definition.matchUrl(location.url)) {
-      return next()
-    }
-  }
-
-  return next(this._routes)
-}
-
 function Route (model, definition) {
   this.definition = definition
 
@@ -389,28 +337,12 @@ function bindParams (params) {
   return bindings
 }
 
-Router.prototype.hasRoute = function (model, url) {
-  var action = walkRoutes(url, model, function (route, match) {
-    if (!route.notFound && (match = route.matchUrl(url))) {
-      return {}
-    }
-  })
-
-  return !!action
-}
-
-Router.prototype.use = function () {
-  return new MiddlewareRoute(Array.prototype.slice.call(arguments))
-}
-
-Route.prototype.renderRoute = function (location, next) {
+Route.prototype.renderRoute = function (location) {
   var match
   if ((match = this.matchUrl(location.url))) {
     return location.isNewUrl
-      ? this.set(location, next, match)
-      : this.get(location, next, match)
-  } else if (next) {
-    return next()
+      ? this.set(location, match)
+      : this.get(location, match)
   }
 }
 
@@ -418,7 +350,7 @@ Route.prototype.matchUrl = function (url) {
   return this.definition.matchUrl(url)
 }
 
-Route.prototype.set = function (location, next, match) {
+Route.prototype.set = function (location, match) {
   var self = this
   var params = this.definition.params(location.url, match)
 
@@ -427,7 +359,7 @@ Route.prototype.set = function (location, next, match) {
   if (this.model.redirect) {
     var redirectUrl = this.model.redirect(params)
     if (redirectUrl) {
-      return location.redirect(redirectUrl)
+      return location.replace(redirectUrl)
     }
   }
 
@@ -445,10 +377,10 @@ Route.prototype.set = function (location, next, match) {
     refreshAfter(self.model.onload(location))
   }
 
-  return this.render(location, next)
+  return this.render(location)
 }
 
-Route.prototype.get = function (location, next) {
+Route.prototype.get = function (location) {
   var self = this
   var oldParams = this.definition.params(location.url)
 
@@ -470,22 +402,22 @@ Route.prototype.get = function (location, next) {
     location.params = oldParams
   }
 
-  if (newUrl) {
+  if (newUrl && newUrl !== location.url) {
     if (push) {
-      location.push(newUrl)
+      return location.push(newUrl)
     } else {
-      location.replace(newUrl)
+      return location.replace(newUrl)
     }
   }
 
-  return this.render(location, next)
+  return this.render(location)
 }
 
-Route.prototype.render = function (location, next) {
+Route.prototype.render = function (location) {
   if (typeof this.model.routes === 'function') {
-    return next(this.model.routes(location))
+    return location.renderRoutes(this.model.routes(location))
   } else {
-    return this.model.render(location, next)
+    return this.model.render(location)
   }
 }
 
@@ -593,21 +525,19 @@ PushState.prototype.start = function (model) {
   this.started = true
 
   window.addEventListener('popstate', this.listener = function () {
-    if (model) {
-      model.refreshImmediately()
+    model.refresh()
 
-      // hack!
-      // Chrome 56.0.2924.87 (64-bit)
-      // explanation:
-      // when you move back and forward in history the browser will remember the scroll
-      // positions at each URL and then restore those scroll positions when you come
-      // back to that URL, just like in normal navigation
-      // However, the trick is to refresh the page so that it has the correct height
-      // before that scroll takes place, which is what we do with model.refreshImmediately()
-      // also, it seems that its necessary to call document.body.clientHeight to force it
-      // to layout the page before attempting set the scroll position
-      document.body.clientHeight // eslint-disable-line no-unused-expressions
-    }
+    // hack!
+    // Chrome 56.0.2924.87 (64-bit)
+    // explanation:
+    // when you move back and forward in history the browser will remember the scroll
+    // positions at each URL and then restore those scroll positions when you come
+    // back to that URL, just like in normal navigation
+    // However, the trick is to refresh the page so that it has the correct height
+    // before that scroll takes place, which is what we do with model.refreshImmediately()
+    // also, it seems that its necessary to call document.body.clientHeight to force it
+    // to layout the page before attempting set the scroll position
+    document.body.clientHeight // eslint-disable-line no-unused-expressions
   })
 }
 
@@ -633,32 +563,28 @@ PushState.prototype.replace = function (url) {
 }
 
 function Hash () {
+  this.pushed = 0
 }
 
 Hash.prototype.start = function (model) {
-  var self = this
   if (this.started) {
     return
   }
   this.started = true
 
-  this.hashchangeListener = function () {
-    if (self.started) {
-      if (!self.pushed) {
-        if (model) {
-          model.refreshImmediately()
-        }
-      } else {
-        self.pushed = false
-      }
-    }
+  this.hashchangeListener = function (event) {
+    model.refresh()
   }
-  window.addEventListener('hashchange', this.hashchangeListener)
+  hashChangeController().addListener(this.hashchangeListener)
+}
+
+function showUrl (url) {
+  return JSON.stringify(url.indexOf('#') >= 0 ? '#' + url.split('#')[1] : '')
 }
 
 Hash.prototype.stop = function () {
   this.started = false
-  window.removeEventListener('hashchange', this.hashchangeListener)
+  hashChangeController().removeListener(this.hashchangeListener)
 }
 
 Hash.prototype.url = function () {
@@ -671,9 +597,12 @@ Hash.prototype.url = function () {
   return '/' + pathname + (search || '')
 }
 
+Hash.prototype.waitForHashChangeEvents = function () {
+  return hashChangeController().waitForHashChangeEvents()
+}
+
 Hash.prototype.push = function (url) {
-  this.pushed = true
-  window.location.hash = url.replace(/^\//, '')
+  hashChangeController().push(url)
 }
 
 Hash.prototype.state = function () {
@@ -681,6 +610,69 @@ Hash.prototype.state = function () {
 
 Hash.prototype.replace = function (url) {
   return this.push(url)
+}
+
+var _hashChangeController
+
+function hashChangeController () {
+  if (!_hashChangeController) {
+    _hashChangeController = new HashChangeController()
+  }
+
+  return _hashChangeController
+}
+
+function HashChangeController () {
+  var self = this
+
+  this.listeners = []
+  this.pushed = 0
+  this.hashchange = function (event) {
+    if (!self.pushed > 0) {
+      for (var i = 0, l = self.listeners.length; i < l; i++) {
+        self.listeners[i]()
+      }
+    } else {
+      self.pushed--
+
+      if (self.pushed === 0 && self._finished) {
+        self._finished()
+      }
+    }
+  }
+
+  window.addEventListener('hashchange', this.hashchange)
+}
+
+HashChangeController.prototype.removeListener = function (listener) {
+  var index = this.listeners.indexOf(listener)
+
+  if (index >= 0) {
+    this.listeners.splice(index, 1)
+  }
+}
+
+HashChangeController.prototype.addListener = function (listener) {
+  this.listeners.push(listener)
+}
+
+HashChangeController.prototype.push = function (url) {
+  var oldUrl = window.location.href
+
+  window.location.hash = url.replace(/^\//, '')
+
+  if (window.location.href !== oldUrl) {
+    this.pushed++
+  }
+}
+
+HashChangeController.prototype.waitForHashChangeEvents = function () {
+  var self = this
+  return this.pushed === 0
+    ? Promise.resolve()
+    : new Promise(function (resolve) {
+      self._finished = resolve
+    })
 }
 
 function HrefAttribute (routeDefinition, params, options) {
@@ -702,6 +694,44 @@ HrefAttribute.prototype.unhook = function (element) {
   element.onclick = null
 }
 
+function MemoryRouter () {
+  this.history = []
+  this.historyIndex = 0
+}
+
+MemoryRouter.prototype.push = function (url) {
+  this.history.splice(0, this.historyIndex)
+  this.historyIndex = 0
+  this.history.unshift(url)
+}
+
+MemoryRouter.prototype.replace = function (url) {
+  this.history.splice(0, this.historyIndex)
+  this.historyIndex = 0
+  this.history[0] = url
+}
+
+MemoryRouter.prototype.start = function (model) {
+  this.model = model
+}
+
+MemoryRouter.prototype.stop = function () {
+}
+
+MemoryRouter.prototype.back = function () {
+  this.historyIndex++
+  this.model.refresh()
+}
+
+MemoryRouter.prototype.forward = function () {
+  this.historyIndex = Math.max(0, this.historyIndex - 1)
+  this.model.refresh()
+}
+
+MemoryRouter.prototype.url = function () {
+  return this.history[this.historyIndex]
+}
+
 exports = module.exports = new Router()
 
 exports.hash = function () {
@@ -710,6 +740,10 @@ exports.hash = function () {
 
 exports.pushState = function () {
   return new PushState()
+}
+
+exports.memory = function () {
+  return new MemoryRouter()
 }
 
 exports.querystring = function () {

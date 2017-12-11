@@ -32,8 +32,8 @@ window.addEventListener('onload', function () {
 
 module.exports = function (app, options) {
   var testDiv = createTestDiv()
-  if (options && (options.hash || options.url) && options.router) {
-    options.router.push(options.url || options.hash)
+  if (options && options.url && options.router) {
+    options.router.push(options.url)
   }
   hyperdom.append(testDiv, app, extend({ requestRender: setTimeout }, options))
   return browserMonkey.scope(testDiv)
