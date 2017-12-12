@@ -7,6 +7,7 @@ var hyperdomRouter = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
+var pushStateThrottle = require('./pushStateThrottle')
 
 before(function () {
   var a = document.createElement('a')
@@ -19,6 +20,14 @@ var memoryHistoryApiService = {
   name: 'memory',
 
   canReplace: true,
+
+  beforeEach: function () {
+    return Promise.resolve()
+  },
+
+  afterEach: function () {
+    return Promise.resolve()
+  },
 
   historyApi: function () {
     this._historyApi = hyperdomRouter.memory()
@@ -43,6 +52,14 @@ var pushStateHistoryApiService = {
 
   canReplace: true,
 
+  beforeEach: function () {
+    return pushStateThrottle.start()
+  },
+
+  afterEach: function () {
+    return pushStateThrottle.stop()
+  },
+
   historyApi: function () {
     this._historyApi = hyperdomRouter.pushState()
     return this._historyApi
@@ -65,6 +82,14 @@ var hashHistoryApiService = {
   name: 'hash',
 
   isHash: true,
+
+  beforeEach: function () {
+    return Promise.resolve()
+  },
+
+  afterEach: function () {
+    return Promise.resolve()
+  },
 
   historyApi: function () {
     this._historyApi = hyperdomRouter.hash()
@@ -114,13 +139,20 @@ function describeRouter (historyApiService) {
     }
 
     beforeEach(function () {
-      if (historyApi) {
-        return historyApiService.destroy().then(function () {
+      this.timeout(35000)
+      return historyApiService.beforeEach().then(function () {
+        if (historyApi) {
+          return historyApiService.destroy().then(function () {
+            resetRouter()
+          })
+        } else {
           resetRouter()
-        })
-      } else {
-        resetRouter()
-      }
+        }
+      })
+    })
+
+    afterEach(function () {
+      return historyApiService.afterEach()
     })
 
     describe('history api', function () {
