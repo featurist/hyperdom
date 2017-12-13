@@ -187,46 +187,48 @@ function describeRouter (historyApiService) {
         expect(historyApi.url()).to.equal('/a')
       })
 
-      describe('navigating back and forward', function () {
-        it('when push, going back goes to previous url', function () {
-          historyApi.push('/a')
-          historyApi.push('/b')
-          return waitForRefresh(function () {
-            historyApiService.back()
-          }).then(function () {
-            expect(historyApi.url()).to.equal('/a')
-          })
-        })
-
-        it('can go back and forward', function () {
-          historyApi.push('/a')
-          historyApi.push('/b')
-          return waitForRefresh(function () {
-            historyApiService.back()
-          }).then(function () {
-            expect(historyApi.url()).to.equal('/a')
-          }).then(function () {
-            return waitForRefresh(function () {
-              historyApiService.forward()
-            }).then(function () {
-              expect(historyApi.url()).to.equal('/b')
-            })
-          })
-        })
-
-        if (historyApiService.canReplace) {
-          it('when replace, going back goes to previous previous url', function () {
+      if (detect.historyBack) {
+        describe('navigating back and forward', function () {
+          it('when push, going back goes to previous url', function () {
             historyApi.push('/a')
             historyApi.push('/b')
-            historyApi.replace('/c')
             return waitForRefresh(function () {
               historyApiService.back()
             }).then(function () {
               expect(historyApi.url()).to.equal('/a')
             })
           })
-        }
-      })
+
+          it('can go back and forward', function () {
+            historyApi.push('/a')
+            historyApi.push('/b')
+            return waitForRefresh(function () {
+              historyApiService.back()
+            }).then(function () {
+              expect(historyApi.url()).to.equal('/a')
+            }).then(function () {
+              return waitForRefresh(function () {
+                historyApiService.forward()
+              }).then(function () {
+                expect(historyApi.url()).to.equal('/b')
+              })
+            })
+          })
+
+          if (historyApiService.canReplace) {
+            it('when replace, going back goes to previous previous url', function () {
+              historyApi.push('/a')
+              historyApi.push('/b')
+              historyApi.replace('/c')
+              return waitForRefresh(function () {
+                historyApiService.back()
+              }).then(function () {
+                expect(historyApi.url()).to.equal('/a')
+              })
+            })
+          }
+        })
+      }
     })
 
     context('app with two routes', function () {
