@@ -578,10 +578,6 @@ Hash.prototype.start = function (model) {
   hashChangeController().addListener(this.hashchangeListener)
 }
 
-function showUrl (url) {
-  return JSON.stringify(url.indexOf('#') >= 0 ? '#' + url.split('#')[1] : '')
-}
-
 Hash.prototype.stop = function () {
   this.started = false
   hashChangeController().removeListener(this.hashchangeListener)

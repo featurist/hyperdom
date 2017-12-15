@@ -628,7 +628,7 @@ function describeRouter (historyApiService) {
         describe('recursive redirects', function () {
           it('throws error if redirects more than 10 times', function () {
             redirectBack = true
-            var monkey = mount(app, '/')
+            mount(app, '/')
             a.push({b: 'x'})
             expect(function () {
               app.refreshImmediately()
