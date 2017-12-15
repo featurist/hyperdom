@@ -42,8 +42,7 @@
     "lowscore": "1.12.1",
     "mocha": "3.2.0",
     "trytryagain": "1.2.0",
-    "uglify-js": "2.4.16",
-    "vdom-to-html": "2.3.1",
+    "uglify-js": "3.2.2",
     "watchify": "3.9.0",
     "webpack": "2.3.3"
   },
