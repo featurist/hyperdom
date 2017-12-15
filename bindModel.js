@@ -60,7 +60,7 @@ var inputTypeBindings = {
 
       values.push(hasValue ? value : text)
 
-      var selected = value === currentValue || text === currentValue
+      var selected = hasValue ? value === currentValue : text === currentValue
 
       if (selected) {
         selectedIndex = n
