@@ -1229,6 +1229,19 @@ describe('hyperdom', function () {
       })
     })
 
+    it('can set select values', function () {
+      attach(render)
+      function render (model) {
+        return h('select',
+          {binding: [model, 'colour']},
+          h('option.red', {value: 'red'}, 'red')
+        )
+      }
+      return retry(function () {
+        expect(find('option.red').prop('value')).to.equal('red')
+      })
+    })
+
     it('can bind to select with no values on its options', function () {
       function render (model) {
         return h('div',
