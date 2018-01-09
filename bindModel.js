@@ -67,7 +67,6 @@ var inputTypeBindings = {
       }
 
       option.properties.selected = selected
-      option.properties.value = n
     }
 
     if (selectedIndex !== undefined) {
@@ -76,7 +75,7 @@ var inputTypeBindings = {
 
     attachEventHandler(attributes, 'onchange', function (ev) {
       attributes.selectedIndex = ev.target.selectedIndex
-      return binding.set(values[ev.target.value])
+      return binding.set(values[ev.target.selectedIndex])
     }, binding)
   },
 
