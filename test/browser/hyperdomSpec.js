@@ -1170,100 +1170,138 @@ describe('hyperdom', function () {
       })
     })
 
-    it('can bind to select', function () {
-      var blue = { name: 'blue' }
+    describe('select', function () {
+      it('can bind to select', function () {
+        var blue = { name: 'blue' }
 
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', {value: 'red'}, 'red'),
-            h('option.blue', {value: blue}, 'blue')
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
+        var app = {
+          colour: blue,
 
-      attach(render, { colour: blue })
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', {value: 'red'}, 'red'),
+                h('option.blue', {value: blue}, 'blue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
 
-      return retry(function () {
-        expect(find('span').text()).to.equal('{"name":"blue"}')
-        expect(find('option.red').prop('selected')).to.equal(false)
-        expect(find('option.blue').prop('selected')).to.equal(true)
-      }).then(function () {
-        find('select')[0].selectedIndex = 0
-        find('select').change()
+        attach(app)
 
         return retry(function () {
-          expect(find('span').text()).to.equal('"red"')
-          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('span').text()).to.equal('{"name":"blue"}')
+          expect(find('option.red').prop('selected')).to.equal(false)
+          expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 1
+          find('select')[0].selectedIndex = 0
           find('select').change()
 
           return retry(function () {
-            expect(find('span').text()).to.equal('{"name":"blue"}')
-            expect(find('option.blue').prop('selected')).to.equal(true)
+            expect(find('span').text()).to.equal('"red"')
+            expect(find('option.red').prop('selected')).to.equal(true)
+          }).then(function () {
+            find('select')[0].selectedIndex = 1
+            find('select').change()
+
+            return retry(function () {
+              expect(find('span').text()).to.equal('{"name":"blue"}')
+              expect(find('option.blue').prop('selected')).to.equal(true)
+            })
           })
         })
       })
-    })
 
-    it('can render select with text nodes', function () {
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', {value: 'red'}, 'red'),
-            ''
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
+      it('can render select with text nodes', function () {
+        var app = {
+          colour: 'red',
 
-      attach(render, { colour: 'red' })
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', {value: 'red'}, 'red'),
+                ''
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
 
-      return retry(function () {
-        expect(find('span').text()).to.equal('"red"')
-        expect(find('option.red').prop('selected')).to.equal(true)
-      })
-    })
-
-    it('can bind to select with no values on its options', function () {
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', 're', 'd'),
-            h('option.orange'),
-            h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
-            h('option.blue', 'bl', 'ue')
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
-
-      attach(render, { colour: 'blue' })
-
-      return retry(function () {
-        expect(find('span').text()).to.equal('"blue"')
-        expect(find('option.red').prop('selected')).to.equal(false)
-        expect(find('option.blue').prop('selected')).to.equal(true)
-      }).then(function () {
-        find('select')[0].selectedIndex = 0
-        find('select').change()
+        attach(app)
 
         return retry(function () {
           expect(find('span').text()).to.equal('"red"')
           expect(find('option.red').prop('selected')).to.equal(true)
+        })
+      })
+
+      it('can bind to select with no values on its options', function () {
+        var app = {
+          colour: 'blue',
+
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', 're', 'd'),
+                h('option.orange'),
+                h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
+                h('option.blue', 'bl', 'ue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('span').text()).to.equal('"blue"')
+          expect(find('option.red').prop('selected')).to.equal(false)
+          expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 3
+          find('select')[0].selectedIndex = 0
           find('select').change()
 
           return retry(function () {
-            expect(find('span').text()).to.equal('"blue"')
-            expect(find('option.blue').prop('selected')).to.equal(true)
+            expect(find('span').text()).to.equal('"red"')
+            expect(find('option.red').prop('selected')).to.equal(true)
+          }).then(function () {
+            find('select')[0].selectedIndex = 3
+            find('select').change()
+
+            return retry(function () {
+              expect(find('span').text()).to.equal('"blue"')
+              expect(find('option.blue').prop('selected')).to.equal(true)
+            })
           })
+        })
+      })
+
+      it('chooses the first if nothing is selected', function () {
+        var app = {
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', 're', 'd'),
+                h('option.orange'),
+                h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
+                h('option.blue', 'bl', 'ue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('select')[0].selectedIndex).to.equal(0)
         })
       })
     })
