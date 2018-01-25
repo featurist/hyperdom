@@ -339,11 +339,11 @@ class App {
       home({
         render: () => <h2>home</h2>
       }),
-      
+
       this.posts
     ]
   }
-  
+
   renderLayout(content) {
     return <div>
       <h1>our app</h1>
@@ -353,7 +353,7 @@ class App {
 }
 ```
 
-When we're on `/` we render `<h2>home</h2>`, but nest it in a div with `<h1>our app</h1>`. This way we can have a consistent page layout no matter what route we're on. Finally, `App` defers to `Posts` for the remaining rotues:
+When we're on `/` we render `<h2>home</h2>`, but nest it in a div with `<h1>our app</h1>`. This way we can have a consistent page layout no matter what route we're on. Finally, `App` defers to `Posts` for the remaining routes:
 
 ```jsx
 class Posts {
@@ -678,7 +678,7 @@ this.items.map(item => {
 
 ## Joining VDOM Arrays
 
-You may have an array of vdom elements that you want to join together with a separator, something very much like `Array.prototype.join()`, but for vdom. 
+You may have an array of vdom elements that you want to join together with a separator, something very much like `Array.prototype.join()`, but for vdom.
 
 ```jsx
 var items = ['one', 'two', 'three']
@@ -788,7 +788,7 @@ class App {
   constructor() {
     this.colour = blue
   }
-  
+
   render() {
     return <div>
       <select binding="this.colour">
@@ -813,7 +813,7 @@ class App {
     this.filename = '(no file selected)'
     this.contents = ''
   }
-  
+
   render() {
     return <div>
       <input type="file" binding={ { set(file) => this.loadFile(file) } }>
@@ -823,7 +823,7 @@ class App {
       </pre>
     </div>
   }
-  
+
   loadFile(file) {
     return new Promise((resolve) => {
       var reader = new FileReader();
@@ -878,7 +878,7 @@ var integer = {
     // convert the model value to a string for the view
     return model.toString()
   },
-  
+
   model (view) {
     // convert the input value to an integer for the model
     return Number(view)
@@ -888,7 +888,7 @@ var integer = {
 <input binding={mapBinding(this, 'age', integer)}>
 ```
 
-As is often the case, it's possiible that the user enters an invalid value for the model, for example they type `xyz` into a field that should be a number. When this happens, you can throw an exception on the `model(value)` method. When this happens, the model is not modified, and so keeps the old value, but also, crucially, the view continues to be rendered with the invalid value. This way, the user can go from a valid value, they can pass through some invalid values as they type in finally a valid value. For example, when typing the date `2020-02-04`, it's not until the date is fully typed that it becomes valid.
+As is often the case, it's possible that the user enters an invalid value for the model, for example they type `xyz` into a field that should be a number. When this happens, you can throw an exception on the `model(value)` method. When this happens, the model is not modified, and so keeps the old value, but also, crucially, the view continues to be rendered with the invalid value. This way, the user can go from a valid value, they can pass through some invalid values as they type in finally a valid value. For example, when typing the date `2020-02-04`, it's not until the date is fully typed that it becomes valid.
 
 ```js
 var mapBinding = require('hyperdom/mapBinding')
@@ -921,7 +921,7 @@ Components are the basic building blocks of a Hyperdom application. The simplest
 
 There are two types of components in Hyperdom, with the only difference being where they store their state. The first type, and by far the most common, are **model components** and store their state in the model, or quite often, they _are_ the model. The point of **model components** is that the lifetime of their state is completely independent of whether those components are rendered or not. With **model components** the application is entirely in control of its state.
 
-The other type are **view components** and keep their state in the view only, this means that if the component dissapears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
+The other type are **view components** and keep their state in the view only, this means that if the component disappears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
 
 Nevertheless, the API for view and model components is almost entirely the same. They both respond to the same rendering cycle events and have the same rendering and caching logic.
 
@@ -932,7 +932,7 @@ Components allow the following:
 3. **HTML rendering events** - useful for low-level HTML hacking, including jQuery plugins
 4. **VDOM caching** - useful in apps that render very large amounts of HTML
 
-Componnts can implement these methods:
+Components can implement these methods:
 
 * `render()` - returns the VDOM representation of the component, called on each rendering cycle
 * `onload()` (optional) - called when the component is first rendered, this can be used to setup the component, or load resources from AJAX. If this returns a promise, the view will be re-rendered again after the promise is resolved.
@@ -941,9 +941,9 @@ Componnts can implement these methods:
 * `onbeforeadd()` (optional) - called before the component is first added to the VDOM tree
 * `onadd(element)` (optional) - called after the component is first added to the VDOM tree. `element` is the top-most HTML element of the component (the one returned from `render()`).
 * `onbeforeupdate(element)` (optional) - called before the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`).
-* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the componet, and could be the same as `element`.
+* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
 * `onbeforerender([element])` (optional) - called before the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`).
-* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the componet, and could be the same as `element`.
+* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
 
 ## Model Components
 
@@ -1020,7 +1020,7 @@ However, if you want to initialise some state once when the component is first r
     onload() {
       this.name = name
     },
-    
+
     render() {
       return <h1>view component {this.name}</h1>
     }
@@ -1262,25 +1262,25 @@ var attachment = hyperdom.replace(element, component, [options]);
       render();
     }
     ```
-  
+
     Or on the next tick:
-  
+
     ```js
     function requestRender(render) {
       setTimeout(render, 0);
     }
     ```
-  
+
     Or on the next animation frame:
-  
+
     ```js
     function requestRender(render) {
       requestAnimationFrame(render);
     }
     ```
-  
+
     The default is `requestAnimationFrame`, falling back to `setTimeout`.
-  
+
     For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
 ### Detach
