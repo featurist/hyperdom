@@ -34,6 +34,8 @@ This works with [babel-preset-hyperdom](https://github.com/featurist/babel-prese
 
 ### New project
 
+Create a skeleton appilcation with express backend:
+
 ```bash
 npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
 ```
@@ -66,8 +68,6 @@ var hyperdom = require('hyperdom');
 Other browsers are likely to work but aren't routinely tested.
 
 ## sister projects
-
-Get started with a skeleton web app using hyperdom and DOM tests with browser-monkey: [hyperdom-boilerplate](https://github.com/PaulCampbell/hyperdom-boilerplate)
 
 * [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
 * [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
