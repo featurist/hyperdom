@@ -32,7 +32,11 @@ This works with [babel-preset-hyperdom](https://github.com/featurist/babel-prese
 
 # install
 
-## npm
+## New project
+
+    npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
+
+## Add to existing project
 
     npm install hyperdom
 
