@@ -1348,4 +1348,5 @@ You can then use [browserify](https://github.com/substack/node-browserify): `bro
 Alternatively, if you just want to compile `hyperdom.js` and reference it in a `<script src="..."></script>`, you can by running `npm run prepublish` in the hyperdom directory.
 
 ## We're Hiring!
-Featurist provides full stack, feature driven development teams. Want to join us? Check out [our career opportunities](https://www.featurist.co.uk/careers/).
+
+Join our remote team and help us build amazing software. Check out [our career opportunities](https://www.featurist.co.uk/careers/).
