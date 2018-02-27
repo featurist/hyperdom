@@ -14,7 +14,7 @@
     "browserify": "14.1.0",
     "chai": "3.5.0",
     "detect-browser": "1.6.2",
-    "electron": "1.6.2",
+    "electron": "1.8.2",
     "electron-mocha": "3.4.0",
     "eslint": "3.19.0",
     "eslint-config-standard": "10.2.1",
