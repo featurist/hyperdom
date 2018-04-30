@@ -300,6 +300,26 @@ describe('hyperdom', function () {
       expect(find('.haha').text()).to.equal('object {"name":"asdf"}')
     })
 
+    it('can render the result of calling a function', function () {
+      function render () {
+        return h('div.yeah', 'object ', function () { return { thats: 'right' } })
+      }
+
+      attach(render, {})
+
+      expect(find('.yeah').text()).to.equal('object {"thats":"right"}')
+    })
+
+    it('can render the result of calling a function when attributes are specified', function () {
+      function render () {
+        return h('div', { class: 'yeah' }, 'object ', function () { return { thats: 'correct' } })
+      }
+
+      attach(render, {})
+
+      expect(find('.yeah').text()).to.equal('object {"thats":"correct"}')
+    })
+
     describe('class', function () {
       it('accepts a string', function () {
         function render () {

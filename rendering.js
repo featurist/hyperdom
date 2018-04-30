@@ -102,16 +102,15 @@ exports.html = function (hierarchySelector) {
   var attributes = arguments[1]
 
   if (attributes && attributes.constructor === Object && typeof attributes.render !== 'function') {
-    childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 2))
+    childElements = toVdom.recursive(callFunctionsIn(Array.prototype.slice.call(arguments, 2)))
     prepareAttributes(selector, attributes, childElements)
-    tag = parseTag(selector, attributes)
-    vdom = vhtml(tag, attributes, childElements)
   } else {
     attributes = {}
-    childElements = toVdom.recursive(Array.prototype.slice.call(arguments, 1))
-    tag = parseTag(selector, attributes)
-    vdom = vhtml(tag, attributes, childElements)
+    childElements = toVdom.recursive(callFunctionsIn(Array.prototype.slice.call(arguments, 1)))
   }
+
+  tag = parseTag(selector, attributes)
+  vdom = vhtml(tag, attributes, childElements)
 
   if (hasHierarchy) {
     for (var n = selectorElements.length - 2; n >= 0; n--) {
@@ -120,6 +119,13 @@ exports.html = function (hierarchySelector) {
   }
 
   return vdom
+}
+
+function callFunctionsIn (args) {
+  for (var i = 0; i < args.length; i++) {
+    if (typeof args[i] === 'function') args[i] = args[i]()
+  }
+  return args
 }
 
 exports.jsx = function (tag, attributes) {
