@@ -93,7 +93,7 @@ describe('hyperdom', function () {
         var self = this
 
         return retry(function () {
-          expect(self.renderCount).to.equal(oldRefreshCount + 1)
+          expect(self.renderCount, 'renderCount').to.equal(oldRefreshCount + 1)
         })
       }
     }
@@ -1170,100 +1170,151 @@ describe('hyperdom', function () {
       })
     })
 
-    it('can bind to select', function () {
-      var blue = { name: 'blue' }
+    describe('select', function () {
+      it('can bind to select', function () {
+        var blue = { name: 'blue' }
 
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', {value: 'red'}, 'red'),
-            h('option.blue', {value: blue}, 'blue')
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
+        var app = {
+          colour: blue,
 
-      attach(render, { colour: blue })
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', {value: 'red'}, 'red'),
+                h('option.blue', {value: blue}, 'blue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
 
-      return retry(function () {
-        expect(find('span').text()).to.equal('{"name":"blue"}')
-        expect(find('option.red').prop('selected')).to.equal(false)
-        expect(find('option.blue').prop('selected')).to.equal(true)
-      }).then(function () {
-        find('select')[0].selectedIndex = 0
-        find('select').change()
+        attach(app)
 
         return retry(function () {
-          expect(find('span').text()).to.equal('"red"')
-          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('span').text()).to.equal('{"name":"blue"}')
+          expect(find('option.red').prop('selected')).to.equal(false)
+          expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 1
+          find('select')[0].selectedIndex = 0
           find('select').change()
 
           return retry(function () {
-            expect(find('span').text()).to.equal('{"name":"blue"}')
-            expect(find('option.blue').prop('selected')).to.equal(true)
+            expect(find('span').text()).to.equal('"red"')
+            expect(find('option.red').prop('selected')).to.equal(true)
+          }).then(function () {
+            find('select')[0].selectedIndex = 1
+            find('select').change()
+
+            return retry(function () {
+              expect(find('span').text()).to.equal('{"name":"blue"}')
+              expect(find('option.blue').prop('selected')).to.equal(true)
+            })
           })
         })
       })
-    })
 
-    it('can render select with text nodes', function () {
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', {value: 'red'}, 'red'),
-            ''
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
+      it('can render select with text nodes', function () {
+        var app = {
+          colour: 'red',
 
-      attach(render, { colour: 'red' })
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', {value: 'red'}, 'red'),
+                ''
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
 
-      return retry(function () {
-        expect(find('span').text()).to.equal('"red"')
-        expect(find('option.red').prop('selected')).to.equal(true)
-      })
-    })
-
-    it('can bind to select with no values on its options', function () {
-      function render (model) {
-        return h('div',
-          h('select',
-            {binding: [model, 'colour']},
-            h('option.red', 're', 'd'),
-            h('option.orange'),
-            h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
-            h('option.blue', 'bl', 'ue')
-          ),
-          h('span', JSON.stringify(model.colour))
-        )
-      }
-
-      attach(render, { colour: 'blue' })
-
-      return retry(function () {
-        expect(find('span').text()).to.equal('"blue"')
-        expect(find('option.red').prop('selected')).to.equal(false)
-        expect(find('option.blue').prop('selected')).to.equal(true)
-      }).then(function () {
-        find('select')[0].selectedIndex = 0
-        find('select').change()
+        attach(app)
 
         return retry(function () {
           expect(find('span').text()).to.equal('"red"')
           expect(find('option.red').prop('selected')).to.equal(true)
+        })
+      })
+
+      it('can set select values', function () {
+        attach(render)
+        function render (model) {
+          return h('select',
+            {binding: [model, 'colour']},
+            h('option.red', {value: 'red'}, 'red')
+          )
+        }
+        return retry(function () {
+          expect(find('option.red').prop('value')).to.equal('red')
+        })
+      })
+
+      it('can bind to select with no values on its options', function () {
+        var app = {
+          colour: 'blue',
+
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', 're', 'd'),
+                h('option.orange'),
+                h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
+                h('option.blue', 'bl', 'ue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('span').text()).to.equal('"blue"')
+          expect(find('option.red').prop('selected')).to.equal(false)
+          expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 3
+          find('select')[0].selectedIndex = 0
           find('select').change()
 
           return retry(function () {
-            expect(find('span').text()).to.equal('"blue"')
-            expect(find('option.blue').prop('selected')).to.equal(true)
+            expect(find('span').text()).to.equal('"red"')
+            expect(find('option.red').prop('selected')).to.equal(true)
+          }).then(function () {
+            find('select')[0].selectedIndex = 3
+            find('select').change()
+
+            return retry(function () {
+              expect(find('span').text()).to.equal('"blue"')
+              expect(find('option.blue').prop('selected')).to.equal(true)
+            })
           })
+        })
+      })
+
+      it('chooses the first if nothing is selected', function () {
+        var app = {
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('option.red', 're', 'd'),
+                h('option.orange'),
+                h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
+                h('option.blue', 'bl', 'ue')
+              ),
+              h('span', JSON.stringify(this.colour))
+            )
+          }
+        }
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('select')[0].selectedIndex).to.equal(0)
         })
       })
     })
@@ -1483,6 +1534,122 @@ describe('hyperdom', function () {
             element: expectedElement
           }
         ])
+      })
+    })
+
+    it('calls onadd when a component of a different constructor rendered', function () {
+      var events = []
+      var monitor = renderMonitor()
+
+      function ComponentA () {
+        this.text = 'A'
+      }
+
+      ComponentA.prototype.onadd = function () {
+        events.push('onadd a')
+      }
+
+      ComponentA.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      function ComponentB () {
+        this.text = 'B'
+      }
+
+      ComponentB.prototype.onadd = function () {
+        events.push('onadd b')
+      }
+
+      ComponentB.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      var model = {
+        showComponentA: true,
+
+        render: function () {
+          monitor.rendering()
+
+          return h('div',
+            this.showComponentA ? new ComponentA() : new ComponentB(),
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+          )
+        }
+      }
+
+      attach(model)
+
+      expect(events).to.eql([
+        'onadd a'
+      ])
+
+      return monitor.waitForRenderAfter(click('input.swap')).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      }).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b',
+          'onadd a'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      })
+    })
+
+    it('calls onadd when a component of with a different key is rendered', function () {
+      var events = []
+      var monitor = renderMonitor()
+
+      function Component (key) {
+        this.debug = true
+        this.renderKey = key
+        this.text = key || 'a'
+      }
+
+      Component.prototype.onadd = function () {
+        events.push('onadd ' + this.text)
+      }
+
+      Component.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      var model = {
+        showComponentA: true,
+
+        render: function () {
+          monitor.rendering()
+
+          return h('div',
+            new Component(this.showComponentA ? undefined : 'b'),
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+          )
+        }
+      }
+
+      attach(model)
+
+      expect(events).to.eql([
+        'onadd a'
+      ])
+
+      return monitor.waitForRenderAfter(click('input.swap')).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      }).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b',
+          'onadd a'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
       })
     })
 
@@ -2596,7 +2763,7 @@ describe('hyperdom', function () {
                     expect(find('button.activate').length).to.equal(1)
                   }).then(function () {
                     return click('div.click').then(function () {
-                      wait(30).then(function () {
+                      return wait(30).then(function () {
                         return retry(function () {
                           expect(find('div.clicks').text()).to.equal('1')
                         })
