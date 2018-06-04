@@ -7,11 +7,7 @@ var hyperdomRouter = require('../../router')
 var h = require('../..').html
 var expect = require('chai').expect
 var detect = require('./detect')
-
-describeRouter('hash')
-if (detect.pushState) {
-  describeRouter('pushState')
-}
+var pushStateThrottle = require('./pushStateThrottle')
 
 before(function () {
   var a = document.createElement('a')
@@ -20,19 +16,114 @@ before(function () {
   document.body.appendChild(a)
 })
 
-function describeRouter (historyApiType) {
-  describe('router (' + historyApiType + ')', function () {
+var memoryHistoryApiService = {
+  name: 'memory',
+
+  canReplace: true,
+
+  beforeEach: function () {
+    return Promise.resolve()
+  },
+
+  afterEach: function () {
+    return Promise.resolve()
+  },
+
+  historyApi: function () {
+    this._historyApi = hyperdomRouter.memory()
+    return this._historyApi
+  },
+
+  forward: function () {
+    this._historyApi.forward()
+  },
+
+  back: function () {
+    this._historyApi.back()
+  },
+
+  destroy: function () {
+    return Promise.resolve()
+  }
+}
+
+var pushStateHistoryApiService = {
+  name: 'pushState',
+
+  canReplace: true,
+
+  beforeEach: function () {
+    return pushStateThrottle.start()
+  },
+
+  afterEach: function () {
+    return pushStateThrottle.stop()
+  },
+
+  historyApi: function () {
+    this._historyApi = hyperdomRouter.pushState()
+    return this._historyApi
+  },
+
+  forward: function () {
+    window.history.forward()
+  },
+
+  back: function () {
+    window.history.back()
+  },
+
+  destroy: function () {
+    return Promise.resolve()
+  }
+}
+
+var hashHistoryApiService = {
+  name: 'hash',
+
+  isHash: true,
+
+  beforeEach: function () {
+    return Promise.resolve()
+  },
+
+  afterEach: function () {
+    return Promise.resolve()
+  },
+
+  historyApi: function () {
+    this._historyApi = hyperdomRouter.hash()
+    return this._historyApi
+  },
+
+  forward: function () {
+    window.history.forward()
+  },
+
+  back: function () {
+    window.history.back()
+  },
+
+  destroy: function () {
+    return this._historyApi.waitForHashChangeEvents()
+  }
+}
+
+describeRouter(hashHistoryApiService)
+if (detect.pushState) {
+  describeRouter(pushStateHistoryApiService)
+}
+describeRouter(memoryHistoryApiService)
+
+function describeRouter (historyApiService) {
+  describe('router (' + historyApiService.name + ')', function () {
     var router
     var historyApi
 
     function mount (app, url) {
       var options = {router: router}
 
-      if (historyApiType === 'hash') {
-        options.hash = url
-      } else {
-        options.url = url
-      }
+      options.url = url
 
       return mountHyperdom(app, options)
     }
@@ -42,15 +133,102 @@ function describeRouter (historyApiType) {
         router.reset()
       }
 
-      historyApi = historyApiType === 'hash'
-        ? hyperdomRouter.hash()
-        : hyperdomRouter.pushState()
+      historyApi = historyApiService.historyApi()
 
       router = hyperdomRouter.router({history: historyApi})
     }
 
     beforeEach(function () {
-      resetRouter()
+      this.timeout(35000)
+      return historyApiService.beforeEach().then(function () {
+        if (historyApi) {
+          return historyApiService.destroy().then(function () {
+            resetRouter()
+          })
+        } else {
+          resetRouter()
+        }
+      })
+    })
+
+    afterEach(function () {
+      return historyApiService.afterEach()
+    })
+
+    describe('history api', function () {
+      var refresh
+
+      function waitForRefresh (fn) {
+        var promise = new Promise(function (resolve) {
+          refresh = resolve
+        })
+
+        fn()
+
+        return promise
+      }
+
+      beforeEach(function () {
+        historyApi.push('/')
+        historyApi.start({
+          refresh: function () {
+            refresh()
+          }
+        })
+      })
+
+      it('can push a url', function () {
+        historyApi.push('/a')
+        expect(historyApi.url()).to.equal('/a')
+      })
+
+      it('can replace a url', function () {
+        historyApi.replace('/a')
+        expect(historyApi.url()).to.equal('/a')
+      })
+
+      if (detect.historyBack) {
+        describe('navigating back and forward', function () {
+          it('when push, going back goes to previous url', function () {
+            historyApi.push('/a')
+            historyApi.push('/b')
+            return waitForRefresh(function () {
+              historyApiService.back()
+            }).then(function () {
+              expect(historyApi.url()).to.equal('/a')
+            })
+          })
+
+          it('can go back and forward', function () {
+            historyApi.push('/a')
+            historyApi.push('/b')
+            return waitForRefresh(function () {
+              historyApiService.back()
+            }).then(function () {
+              expect(historyApi.url()).to.equal('/a')
+            }).then(function () {
+              return waitForRefresh(function () {
+                historyApiService.forward()
+              }).then(function () {
+                expect(historyApi.url()).to.equal('/b')
+              })
+            })
+          })
+
+          if (historyApiService.canReplace) {
+            it('when replace, going back goes to previous previous url', function () {
+              historyApi.push('/a')
+              historyApi.push('/b')
+              historyApi.replace('/c')
+              return waitForRefresh(function () {
+                historyApiService.back()
+              }).then(function () {
+                expect(historyApi.url()).to.equal('/a')
+              })
+            })
+          }
+        })
+      }
     })
 
     context('app with two routes', function () {
@@ -110,10 +288,10 @@ function describeRouter (historyApiType) {
           }).then(function () {
             return monkey.find('h1').shouldHave({text: 'b'})
           }).then(function () {
-            window.history.back()
+            historyApiService.back()
             return monkey.find('h1').shouldHave({text: 'a'})
           }).then(function () {
-            window.history.forward()
+            historyApiService.forward()
             return monkey.find('h1').shouldHave({text: 'b'})
           })
         })
@@ -207,7 +385,7 @@ function describeRouter (historyApiType) {
       })
     })
 
-    if (historyApiType === 'pushState') {
+    if (historyApiService.canReplace) {
       describe('push replace', function () {
         context('app with bindings', function () {
           var app
@@ -258,11 +436,11 @@ function describeRouter (historyApiType) {
                 app.refresh()
                 return monkey.find('h1').shouldHave({text: 'a = b'})
               }).then(function () {
-                expect(window.location.pathname).to.equal('/b')
-                window.history.back()
+                expect(historyApi.url()).to.equal('/b')
+                historyApiService.back()
                 return monkey.find('h1').shouldHave({text: 'a = a'})
               }).then(function () {
-                expect(window.location.pathname).to.equal('/a')
+                expect(historyApi.url()).to.equal('/a')
               })
             })
           })
@@ -285,7 +463,7 @@ function describeRouter (historyApiType) {
                 app.refresh()
                 return monkey.find('h1').shouldHave({text: 'a = b'})
               }).then(function () {
-                window.history.back()
+                historyApiService.back()
                 return monkey.find('h1').shouldHave({text: 'home'})
               })
             })
@@ -321,7 +499,7 @@ function describeRouter (historyApiType) {
               }).then(function () {
                 expect(oldParams).to.eql({a: 'a'})
                 expect(newParams).to.eql({a: 'b'})
-                window.history.back()
+                historyApiService.back()
                 return monkey.find('h1').shouldHave({text: 'a = a'})
               }).then(function () {
                 app.a = 'b'
@@ -331,7 +509,7 @@ function describeRouter (historyApiType) {
               }).then(function () {
                 expect(oldParams).to.eql({a: 'a'})
                 expect(newParams).to.eql({a: 'b'})
-                window.history.back()
+                historyApiService.back()
                 return monkey.find('h1').shouldHave({text: 'home'})
               })
             })
@@ -356,8 +534,8 @@ function describeRouter (historyApiType) {
 
               return [
                 route({
-                  onload: function (params) {
-                    return self.article.load(params.id)
+                  onload: function (location) {
+                    return self.article.load(location.params.id)
                   },
 
                   render: function () {
@@ -450,13 +628,14 @@ function describeRouter (historyApiType) {
         describe('recursive redirects', function () {
           it('throws error if redirects more than 10 times', function () {
             redirectBack = true
-            var monkey = mount(app, '/')
+            mount(app, '/')
             a.push({b: 'x'})
             expect(function () {
               app.refreshImmediately()
             }).to.throw(/too many redirects(\n|.)*\/a\?b=x(\n|.)*\/b\?b=x/m)
 
-            if (historyApiType === 'hash') {
+            /*
+            if (historyApiService.isHash) {
               // the recursive redirects test pushes a lot of URLs
               // in the hash form, this generates a lot of hashchange
               // events, which disrupts the next test
@@ -468,6 +647,7 @@ function describeRouter (historyApiType) {
               a.push({b: 'y'})
               return monkey.find('h1').shouldHave({text: 'b = y'})
             }
+            */
           })
         })
       })
@@ -573,6 +753,294 @@ function describeRouter (historyApiType) {
               monkey.find('h3').shouldHave({text: 'route b: a = a, b = c'})
             ])
           })
+        })
+      })
+    })
+
+    describe('middleware', function () {
+      describe('rendering routes in models', function () {
+        it('models can return a single route', function () {
+          var app = {
+            routes: function () {
+              return function () {
+                return container('model')
+              }
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.model').shouldExist()
+        })
+
+        it('models can return an array of routes', function () {
+          var app = {
+            routes: function () {
+              return [
+                function () {
+                },
+                function () {
+                  return container('model')
+                }
+              ]
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.model').shouldExist()
+        })
+
+        it('models can return a model, that model has its onload called', function () {
+          var component = {
+            onload: function () {
+              this.state = 'state'
+            },
+
+            routes: function () {
+              var self = this
+              return function () {
+                return container(self.state)
+              }
+            }
+          }
+          var app = {
+            routes: function () {
+              return component
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.state').shouldExist()
+        })
+      })
+
+      describe('rendering arrays of routes', function () {
+        it('renders the first route', function () {
+          var app = {
+            routes: function () {
+              return [
+                function () {
+                  return container('first')
+                },
+                function () {
+                  return container('second')
+                }
+              ]
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.first').shouldExist()
+        })
+
+        it('renders the second route', function () {
+          var app = {
+            routes: function () {
+              return [
+                function () {
+                },
+                function () {
+                  return container('second')
+                }
+              ]
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.second').shouldExist()
+        })
+      })
+
+      describe('rendering a sequence of routes', function () {
+        it('the outer can wrap the inner', function () {
+          var app = {
+            routes: function () {
+              return function (location) {
+                return container('outer', location.renderRoutes(function (location) {
+                  return container('inner', location.renderRoutes(function () {
+                    return container('inner-inner')
+                  }))
+                }))
+              }
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.outer > .inner > .inner-inner').shouldExist()
+        })
+
+        it('the outer can prevent the inner from rendering', function () {
+          var app = {
+            routes: function () {
+              return function () {
+                return container('outer')
+              }
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.outer').shouldExist()
+        })
+
+        it('the outer can wrap an array of routes', function () {
+          var app = {
+            routes: function () {
+              return function (location) {
+                return container('outer', location.renderRoutes([
+                  function () {
+                  },
+                  function () {
+                    return container('.inner')
+                  }
+                ]))
+              }
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.outer > .inner').shouldExist()
+        })
+
+        it('the outer can wrap a model', function () {
+          var component = {
+            routes: function () {
+              return function () {
+                return container('model')
+              }
+            }
+          }
+
+          var app = {
+            routes: function () {
+              return function (location) {
+                return container('outer', location.renderRoutes(component))
+              }
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.outer > .model').shouldExist()
+        })
+
+        it('throws if nothing is given', function () {
+          var app = {
+            routes: function () {
+              return function (location) {
+                return container('outer', location.renderRoutes())
+              }
+            }
+          }
+          expect(function () {
+            mount(app, '/')
+          }).to.throw('expected a route to be a function, an array, or a model')
+        })
+      })
+
+      describe('rendering routes from routes', function () {
+        it('can setup the model then render sub-routes', function () {
+          var route = router.route('/')
+
+          var app = {
+            routes: function () {
+              return route({
+                onload: function () {
+                  this.state = 'state'
+                },
+
+                routes: function () {
+                  var self = this
+                  return function () {
+                    return container(self.state)
+                  }
+                }
+              })
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.state').shouldExist()
+        })
+
+        it('can run route function behind URL', function () {
+          var routeA = router.route('/a')
+          var routeB = router.route('/b')
+
+          var app = {
+            routes: function () {
+              return [
+                routeA(function () { return container('a') }),
+                routeB(function () { return container('b') })
+              ]
+            }
+          }
+          var monkey = mount(app, '/b')
+          return monkey.find('.b').shouldExist()
+        })
+      })
+
+      describe('redirects', function () {
+        it('can redirect to a route', function () {
+          var lastRouteExecuted = false
+          var app = {
+            routes: function () {
+              return [
+                function (location) {
+                  if (location.url === '/redirect') {
+                    return container('redirect')
+                  }
+                },
+                function (location) {
+                  location.replace('/redirect')
+                },
+                function (location) {
+                  lastRouteExecuted = true
+                }
+              ]
+            }
+          }
+          var monkey = mount(app, '/')
+          return monkey.find('.redirect').shouldExist().then(function () {
+            expect(lastRouteExecuted).to.equal(false)
+          })
+        })
+      })
+
+      describe('renderLayout', function () {
+        it('renders layout from model', function () {
+          var app = {
+            routes: function () {
+              return function (location, next) {
+                return container('content')
+              }
+            },
+
+            renderLayout: function (vdom) {
+              return container('layout', vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.layout > .content').shouldExist()
+        })
+
+        it('renders all layouts from parent models', function () {
+          var inner = {
+            routes: function () {
+              return [
+                function () {
+                  return container('content')
+                }
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return container('inner-layout', vdom)
+            }
+          }
+
+          var app = {
+            routes: function () {
+              return [
+                inner
+              ]
+            },
+
+            renderLayout: function (vdom) {
+              return container('outer-layout', vdom)
+            }
+          }
+
+          var monkey = mount(app, '/')
+          return monkey.find('.outer-layout > .inner-layout > .content').shouldExist()
         })
       })
     })
@@ -705,9 +1173,9 @@ function describeRouter (historyApiType) {
             return [
               routes.a({render: function () { return 'a' }}),
               routes.b({render: function () { return 'b' }}),
-              router.notFound(function (url, routesTried) {
-                var routes = routesTried.map(function (r) { return r.definition.pattern }).join(', ')
-                return 'route ' + url + ' custom not found, tried ' + routes
+              router.notFound(function (location) {
+                var routes = location.routesAttempted.map(function (r) { return r.definition.pattern }).join(', ')
+                return 'route ' + location.url + ' custom not found, tried ' + routes
               })
             ]
           }
@@ -716,6 +1184,48 @@ function describeRouter (historyApiType) {
         var monkey = mount(app, '/c')
 
         return monkey.shouldHave({text: 'route /c custom not found, tried /a, /b'})
+      })
+
+      it('can render custom 404 page with corresponding layout', function () {
+        var component1 = {
+          routes: function () {
+            return [
+              router.notFound(function (location) {
+                return container('not-found')
+              })
+            ]
+          },
+
+          renderLayout: function (vdom) {
+            return container('component-1-layout', vdom)
+          }
+        }
+
+        var component2 = {
+          routes: function () {
+            return [
+              function () {
+              }
+            ]
+          },
+
+          renderLayout: function (vdom) {
+            return container('component-2-layout', vdom)
+          }
+        }
+
+        var app = {
+          routes: function () {
+            return [
+              component1,
+              component2
+            ]
+          }
+        }
+
+        var monkey = mount(app, '/c')
+
+        return monkey.find('.component-1-layout > .not-found').shouldExist()
       })
     })
 
@@ -803,5 +1313,12 @@ function describeRouter (historyApiType) {
         })
       }
     })
+
+    function container (name, child) {
+      return h('.' + name,
+        h('h1', name),
+        child
+      )
+    }
   })
 }

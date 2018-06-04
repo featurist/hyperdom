@@ -111,7 +111,7 @@ var browsers = {
   'browserstack-edge': {
     base: 'BrowserStack',
     browser: 'Edge',
-    browser_version: '13.0',
+    browser_version: '16.0',
     os: 'Windows',
     os_version: '10',
     resolution: '1024x768'
@@ -119,7 +119,7 @@ var browsers = {
   'browserstack-firefox': {
     base: 'BrowserStack',
     browser: 'Firefox',
-    browser_version: '47.0',
+    browser_version: '57.0',
     os: 'Windows',
     os_version: '10',
     resolution: '1024x768'
@@ -127,21 +127,21 @@ var browsers = {
   'browserstack-safari': {
     base: 'BrowserStack',
     browser: 'Safari',
-    browser_version: '9.1',
+    browser_version: '11',
     os: 'OS X',
-    os_version: 'El Capitan',
+    os_version: 'High Sierra',
     resolution: '1024x768'
   },
   'browserstack-safari-ios': {
     base: 'BrowserStack',
-    device: 'iPhone 6S',
+    device: 'iPhone 8',
     os: 'ios',
-    os_version: '9.1'
+    os_version: '11.0'
   },
   'browserstack-chrome': {
     base: 'BrowserStack',
     browser: 'Chrome',
-    browser_version: '52.0',
+    browser_version: '62.0',
     os: 'Windows',
     os_version: '10',
     resolution: '1024x768'
