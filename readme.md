@@ -34,7 +34,7 @@ This works with [babel-preset-hyperdom](https://github.com/featurist/babel-prese
 
 ### New project
 
-Create a skeleton appilcation with express backend:
+Create a skeleton application with express backend:
 
 ```bash
 npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
