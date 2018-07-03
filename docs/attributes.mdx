@@ -1,0 +1,127 @@
+---
+name: Attributes
+order: 7
+---
+
+## Add HTML Attributes
+
+JS
+
+```js
+h('span', { style: { color: 'red' } }, 'name: ', this.name);
+```
+
+JSX
+
+```jsx
+<span style={{color: 'red'}}>name: {this.name}</span>
+<span style="color: red">name: {this.name}</span>
+```
+
+[virtual-dom](https://github.com/Matt-Esch/virtual-dom) uses JavaScript names for HTML attributes like `className`, `htmlFor` and `tabIndex`. Hyperdom supports these, but also allows regular HTML names so you can use `class`, `for` and `tabindex`. These are much more familiar to people and you don't have to learn anything new.
+
+Non-standard HTML attribtes can be placed in the `attributes` key:
+
+```js
+h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
+```
+
+## Keys
+
+Hyperdom (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
+
+```jsx
+<ul>
+  <li>one</li>
+  <li>two</li>
+  <li>three</li>
+</ul>
+```
+
+And then, followed by:
+
+```jsx
+<ul>
+  <li>zero</li>
+  <li>one</li>
+  <li>two</li>
+  <li>three</li>
+</ul>
+```
+
+The lists will be compared like this, and lots of work will be done to change the DOM:
+
+```html
+<li>one</li>   => <li>zero</li>  (change)
+<li>two</li>   => <li>one</li>   (change)
+<li>three</li> => <li>two</li>   (change)
+                  <li>three</li> (new)
+```
+
+If we put a unique `key` (String or Number) into the attributes, then we can avoid all that extra work, and just insert the `<li>zero</li>`.
+
+```jsx
+<ul>
+  <li key="one">one</li>
+  <li key="two">two</li>
+  <li key="three">three</li>
+</ul>
+```
+
+And:
+
+```jsx
+<ul>
+  <li key="zero">zero</li>
+  <li key="one">one</li>
+  <li key="two">two</li>
+  <li key="three">three</li>
+</ul>
+```
+
+It will be compared like this, and is much faster:
+
+```html
+                  <li>zero</li>  (new)
+<li>one</li>   => <li>one</li>
+<li>two</li>   => <li>two</li>
+<li>three</li> => <li>three</li>
+```
+
+Its not all about performance, there are other things that can be affected by this too, including CSS transitions when CSS classes or style is changed.
+
+## Classes
+
+Classes have some additional features:
+
+* a string, e.g. `'item selected'`.
+* an array - the classes will be all the items space delimited, e.g. `['item', 'selected']`.
+* an object - the classes will be all the keys with truthy values, space delimited, e.g. `{item: true, selected: item.selected}`.
+
+JS
+
+```js
+this.items.map(item => {
+  return h('span', { class: { selected: item == this.selectedItem } }, item.name)
+})
+```
+
+JSX
+
+```jsx
+this.items.map(item => {
+  return <li class={{ selected: item == this.selectedItem }}>{item.name}</li>
+})
+```
+
+## Data Attributes
+
+You can use either `data-*` attributes or set the `data` attribute to an object:
+
+```jsx
+h('div', {'data-stuff': 'something'})
+h('div', {dataset: {stuff: 'something'}})
+<div data-stuff="something"/>
+<div data={{stuff: 'something'}}/>
+```
+

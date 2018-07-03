@@ -1,0 +1,18 @@
+---
+name: Unescaped/Raw HTML
+order: 7
+---
+
+# Raw HTML
+
+Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
+
+```js
+hyperdom.rawHtml('div',
+  {style: { color: 'red' } },
+  'some dangerous <script>doTerribleThings()</script> HTML'
+)
+```
+
+This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `hyperdom.rawHtml('td', '&nbsp;')`.
+

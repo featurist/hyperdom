@@ -1,0 +1,26 @@
+---
+name: Server-side Rendering
+order: 13
+---
+
+# Server-side Rendering
+
+You can render HTML as text, for example on the server, by using `toHtml`:
+
+```js
+var hyperdom = require('hyperdom')
+var h = hyperdom.html;
+var toHtml = require('hyperdom/toHtml');
+
+var vdom = h('html',
+  h('head',
+    h('link', {rel: 'stylesheet', href: '/style.css'})
+  ),
+  h('body',
+    h('h1', 'hyperdom!')
+  )
+);
+
+var html = toHtml(vdom);
+console.log(html);
+```

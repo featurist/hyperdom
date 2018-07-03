@@ -1,0 +1,29 @@
+---
+name: Common Errors
+order: 16
+---
+
+# Common Errors
+
+## Outside Render Cycle
+
+> You cannot create virtual-dom event handlers outside a render function
+
+This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
+
+Another cause of this error is if you have more than one instance of the hyperdom module loaded. This can occur if you have an NPM listing like this:
+
+```
+my-app@1.0.0 /Users/bob/dev/my-app
+├── hyperdom@1.19.1
+├── my-hyperdom-component@1.0.0
+│ ├── hyperdom@1.19.1
+```
+
+With `my-hyperdom-component` depending on another `hyperdom`. Better to have `my-hyperdom-component` have a `peerDependency` on hyperdom, allowing it to use the `hyperdom` under `my-app`.
+
+## Refresh Outside Render Cycle
+
+> Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers
+
+This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).

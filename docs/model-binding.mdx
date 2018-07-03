@@ -1,0 +1,124 @@
+---
+name: Model Binding
+order: 8
+---
+
+# Model Binding
+
+## Binding the Inputs
+
+This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
+
+The `binding` attribute can be used to bind an input to a model field. You can pass either an array `[model, 'fieldName']`, or an object containing `get` and `set` methods: `{get(), set(value)}`. See [bindings](#the_binding_attribute) for more details.
+
+```jsx
+class App {
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding={[this, 'name']} />
+      <div>hi {this.name}</div>
+    </div>
+  }
+}
+```
+## Radio Buttons
+
+Bind the model to each radio button. The buttons can be bound to complex (non-string) values, such as the `blue` object below.
+
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  constructor() {
+    this.colour: blue
+  }
+
+  render() {
+    return <div>
+      <input class="red" type="radio" name="colour" binding="this.colour" value="red" />
+      <input class="blue" type="radio" name="colour" binding="this.colour" value={blue} />
+      <div>
+        colour: {JSON.stringify(this.colour)}
+      </div>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+## Select Dropdowns
+
+Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
+
+```jsx
+var blue = { name: 'blue' };
+
+class App {
+  constructor() {
+    this.colour = blue
+  }
+
+  render() {
+    return <div>
+      <select binding="this.colour">
+        <option value="red">red</option>
+        <option value={blue}>blue</option>
+      </select>
+      <code>{JSON.stringify(this.colour)}</code>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+## File Inputs
+
+The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
+
+```js
+class App {
+  constructor () {
+    this.filename = '(no file selected)'
+    this.contents = ''
+  }
+
+  render() {
+    return <div>
+      <input type="file" binding={ { set(file) => this.loadFile(file) } }>
+      <h1>{this.filename}</h1>
+      <pre>
+        <code>{this.contents}</code>
+      </pre>
+    </div>
+  }
+
+  loadFile(file) {
+    return new Promise((resolve) => {
+      var reader = new FileReader();
+      reader.readAsText(file);
+
+      reader.onloadend = () => {
+        this.filename = file.name;
+        this.contents = reader.result;
+        resolve();
+      };
+    });
+  }
+}
+
+hyperdom.append(document.body, new App())
+```
+
+# Custom Binding
+
+You can customise how bindings refresh the page by using `hyperdom.html.binding()`.
+
+```js
+var binding = hyperdom.html.binding(binding, options);
+```
+
+* `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
+* `options` - options that are passed directly to [refreshify](#refreshify).

@@ -1,0 +1,26 @@
+---
+name: Debugging
+order: 14
+---
+
+# Debugging
+
+## Chrome Plugin
+
+[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
+
+## File Names and Line Numbers
+
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+
+```jsx
+render() {
+  return <h1>{this.title}</h1>
+}
+```
+
+Will generate
+
+```html
+<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
+```

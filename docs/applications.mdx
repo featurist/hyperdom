@@ -1,0 +1,126 @@
+---
+name: Hyperdom Applications
+order: 3
+---
+
+# Hyperdom Applications
+
+A Hyperdom application is simply an object that contains a `render()` method which returns the desired HTML for your application in its current state. This HTML can contain event handlers which modify the application state, after which `render()` is called again to reflect the new HTML. Underneath we use virtual-dom, which ensures that the DOM is updated incrementally, applying only the changes since the last render so it's incredibly fast.
+
+The result is that we can write applications that have a simple relationship between our application data, the HTML on the page and how the page changes when the user interacts with it.
+
+Here's an example:
+
+```jsx
+var hyperdom = require('hyperdom');
+
+class App {
+  constructor() {
+    this.name = 'Sally'
+  }
+
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding="this.name" />
+      <div>hi {this.name}</div>
+    </div>;
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
+
+Here we have a class `App`, that contains a `render()` method. We define the HTML (or virtual-dom), including an `input` element that is bound onto the model with `binding="this.name"`, this means that the app's `name` property is used to populate the `<input>`, and conversely, whenever the user types something into the `<input>`, they change `name`. The name is constantly rendered into the HTML with `hi {this.name}`.
+
+Finally, we attach the application onto the DOM using `hyperdom.append`, which appends the application's top-level DOM element to the HTML document's body.
+
+Larger applications will typically have several classes or objects like this in a hierarchical structure to handle different parts of the page, or to encapsulate different application logic. Here we have an application that shows an article and a login component:
+
+```jsx
+var hyperdom = require('hyperdom');
+var httpism = require('httpism');
+
+class App {
+  constructor() {
+    this.article = new Article()
+    this.login = new Login()
+  }
+
+  render() {
+    return <div>
+      {this.login}
+      {this.article}
+    </div>
+  }
+}
+
+class Article {
+  onload() {
+    return httpism.get('/content').then(content => {
+      this.content = content
+    })
+  }
+
+  render() {
+    if (this.content) {
+      return <div class="article">{this.content}</div>
+    } else {
+      return <div class="article loading"></div>
+    }
+  }
+}
+
+class Login {
+  login() {
+    ...
+  }
+
+  logout() {
+    ...
+  }
+
+  render() {
+    if (this.user) {
+      <div class="user">
+        <div class="user_name">{this.user.name}</div>
+        <button onclick={() => this.logout()}>logout</button>
+      </div>
+    } else {
+      return <div>
+        <input type="text" binding={[this, 'username']} />
+        <input type="password" binding={[this, 'password']} />
+        <button onclick={() => this.login()}>login</button>
+      </div>
+    }
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
+
+# The Render Method
+
+The `render` method returns a virtual DOM fragment. As a general rule, the render method does not modify the state of the model and returns the same VDOM fragment for the same model state.
+
+The virtual-dom can be generated using regular JavaScript or JSX
+
+## JS
+
+The JavaScript virtual-dom API has some niceties for generating classes and IDs.
+
+```js
+var h = require('hyperdom').html
+
+class App {
+  render() {
+    return h('div.content',
+  	   h('h1', 'hello!')
+    )
+  }
+}
+```

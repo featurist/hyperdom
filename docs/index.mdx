@@ -1,0 +1,33 @@
+---
+name: Hyperdom
+route: /
+order: 1
+---
+
+# hyperdom [![npm version](https://img.shields.io/npm/v/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![npm](https://img.shields.io/npm/dm/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![Build Status](https://travis-ci.org/featurist/hyperdom.svg?branch=master)](https://travis-ci.org/featurist/hyperdom)
+
+A fast, feature rich virtual-dom framework for building dynamic browser applications.
+
+Hyperdom applications are made of regular JavaScript objects that represent application state with `render()` methods that define how that state is represented in HTML. Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, client-side routing, SVG, two-way data binding, and optimises for performance, developer usability and simplicity of application architecture.
+
+Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
+
+## An Example
+
+```jsx
+var hyperdom = require('hyperdom');
+
+class App {
+  render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding="this.name" />
+      <div>hi {this.name}</div>
+    </div>;
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.

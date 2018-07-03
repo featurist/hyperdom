@@ -14,6 +14,7 @@
     "browserify": "14.1.0",
     "chai": "3.5.0",
     "detect-browser": "1.6.2",
+    "docz": "^0.5.1",
     "electron": "1.8.2",
     "electron-mocha": "3.4.0",
     "eslint": "3.19.0",
@@ -44,7 +45,8 @@
     "trytryagain": "1.2.0",
     "uglify-js": "3.2.2",
     "watchify": "3.9.0",
-    "webpack": "2.3.3"
+    "webpack": "2.3.3",
+    "webpack-hot-client": "^4.0.4"
   },
   "scripts": {
     "test": "npm run karma && npm run mocha && eslint .",
@@ -52,7 +54,9 @@
     "karma": "karma start --single-run",
     "mocha": "mocha test/server/*Spec.js",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
-    "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*"
+    "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
+    "docz:dev": "docz dev",
+    "postinstall": "docz build"
   },
   "keywords": [
     "virtual-dom",

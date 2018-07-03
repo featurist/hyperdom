@@ -1,0 +1,128 @@
+---
+name: API
+order: 17
+---
+
+# API
+
+## Rendering the Virtual DOM
+
+```js
+var vdomFragment = hyperdom.html(selector, [attributes], children, ...);
+```
+
+* `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
+* `selector` - (almost) any selector, containing element names, classes and ids: `tag.class#id`, or small hierarchies `pre code`.
+* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
+* `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
+
+### The `binding` Attribute
+
+Form input elements can be passed a `binding` attribute, which is expected to be either:
+
+* An array with two items, the first being the model and second the field name, the third being an optional function that is called when the binding is set, for examle, you can initiate some further processing when the value changes.
+
+  ```js
+  [object, fieldName, setter(value)]
+  ```
+
+* `object` - an object
+* `fieldName` - the name of a field on `object`
+* `setter(value)` (optional) - a function called with the value when setting the model.
+
+* An object with two methods, `get` and `set`, to get and set the new value, respectively.
+
+  ```js
+  {
+    get: function () {
+      return model.property;
+    },
+    set: function (value) {
+      model.property = value;
+    },
+    options: {
+      // options passed directly to `hyperdom.binding()`
+    }
+  }
+  ```
+
+### Event Handler `on*` Attributes
+
+Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
+
+When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
+
+### Promises
+
+If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
+
+## Raw HTML
+
+**Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
+
+```js
+var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
+```
+
+* `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
+* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
+* `html` - the element's inner HTML.
+
+## Attaching to the DOM
+
+```js
+var attachment = hyperdom.append(element, component, [options]);
+var attachment = hyperdom.replace(element, component, [options]);
+```
+
+* `attachment` - the instance of the hyperdom attachment, see below.
+* `element` - any HTML element.
+  * in the case of `hyperdom.append` the view is added as a child via `element.appendChild(view)`
+  * in the case of `hyperdom.replace` the view replaces `element` via `element.parentNode.replaceChild(view, element)`
+* `component` - a component: an object with a `.render()` method.
+* `options`
+  * `requestRender` - function that is passed a function that should be called when the rendering should take place. This is used to batch several render requests into one at the right time.
+
+    For example, immediately:
+
+    ```js
+    function requestRender(render) {
+      render();
+    }
+    ```
+
+    Or on the next tick:
+
+    ```js
+    function requestRender(render) {
+      setTimeout(render, 0);
+    }
+    ```
+
+    Or on the next animation frame:
+
+    ```js
+    function requestRender(render) {
+      requestAnimationFrame(render);
+    }
+    ```
+
+    The default is `requestAnimationFrame`, falling back to `setTimeout`.
+
+    For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
+
+### Detach
+
+```js
+attachment.detach();
+```
+
+Detaches the rendering engine from the DOM. Note that this doesn't remove the DOM, just prevents any hyperdom rendering events from modifying the DOM.
+
+### Remove
+
+```js
+attachment.remove();
+```
+
+Destroys the DOM, running any `onremove` handlers found in components. This will remove the DOM element.

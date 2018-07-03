@@ -1,0 +1,96 @@
+---
+name: Events
+order: 5
+---
+
+# Events
+
+There are two primary ways to respond to user events in Hyperdom, the first most basic form is to set an `on*` event handler such as `onclick` on a VDOM element, just as you would in HTML. For example, to handle a button click, you can write:
+
+```jsx
+<button onclick={() => this.doSomething()}>do something</button>
+```
+
+The event handler can then modify the model, or start an AJAX download, or whatever is required to respond to the user. Immediately after the event handler has run, the page is re-rendered to reflect the new state of the application. In the case of asynchronous operations, like AJAX, you can return a promise from the event handler, and the page will re-render once more when the promise is resolved.
+
+A common scenario works like this:
+
+1. Render the VDOM with an event handler on `onclick`
+2. The VDOM is patched into the HTML
+3. The user clicks on the element
+4. The event handler is executed, modifies the model as necessary and optionally returns a promise of an asynchronous operation (for example, if the event handler performs AJAX)
+5. The view is re-rendered reflecting the new changes to the model
+6. If the event handler returns a promise, wait for it to resolve
+7. Re-render the model once more to reflect the changes from the asynchronous operation
+
+## Re-rendering the view
+
+Notice that the whole view is re-rendered after each event. This is because it's common for one part of the page to modify the model in such a way that other parts of the page change too, and you shouldn't have to think about which parts of the view need to be re-rendered after a model change. It's possible to do this because Hyeprdom is extremely quick and it's very rare for this approach to cause performance issues, even on mobile, and even for large complex applications, but for some types of application where there is a lot of data on a page, it can be useful to look for performance optimisations, see [performance](#performance) for details.
+
+## Bindings
+
+The second mechanism for handling events is more specialised and represents a very typical usecase for `<input>` elements. You want the input's value to represent the model, but you also want to change the model if the user interacts with the input. For this we introduce a `binding` attribute:
+
+```jsx
+<input type="text" binding="this.name"/>
+```
+
+which is shorthand for:
+
+```jsx
+<input type="text" binding={[this, 'name']}/>
+```
+
+The binding attribute does two things, it allows the VDOM to get the current value of the model (the model's `name` in this case), but also set it when the user types something in the text box. Both of these syntaxes above actually end up resolving to an object with two methods: `set` and `get`, and so are equivalent to:
+
+```jsx
+<input type="text" binding={
+  {
+    get: () => this.name,
+    set: (value) => this.name = value
+  }
+}/>
+```
+
+This binding object with `set` and `get` can be used to to handle additional logic when the model is read or written to by a binding. The `get` method is called when rendering the VDOM, the `set` method is called with the new value when the user interacts with the input.
+
+Alternatively you can implement the binding logic yourself, by setting the input's value and responding to `onchange` event:
+
+```jsx
+<input type="text" value={this.name} onchange={e => this.name = e.target.value}/>
+```
+
+Hyperdom bindings handle `onchange` events like this of course, but also other events such as those for copy and paste, and work across a variety of browsers, so it's recommended to use bindings where possible.
+
+
+# Not sure we need this:??
+## Responding to Events
+
+Pass a function to any regular HTML `on*` event handler in, such as `onclick`. That event handler can modify the state of the application, and once finished, the HTML will be re-rendered to reflect the new state.
+
+If you return a promise from your event handler then the HTML will be re-rendered twice: once when the event handler initially returns, and again when the promise resolves.
+
+```jsx
+class App {
+  constructor() {
+    this.people = []
+  }
+
+  addPerson() {
+    this.people.push({name: 'Person ' + (this.people.length + 1)})
+  }
+
+  render() {
+    return <div>
+      <ul>
+        {
+          this.people.map(person => <li>{person.name}</li>)
+        }
+      </ul>
+      <button onclick={() => this.addPerson()}>Add Person</button>
+    </div>
+  }
+}
+
+hyperdom.append(document.body, new App())
+```

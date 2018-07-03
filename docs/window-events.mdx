@@ -1,0 +1,27 @@
+---
+name: Window Events
+order: 9
+---
+
+# Window Events
+
+You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `windowEvents()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
+
+E.g. to add an `onresize` handler:
+
+```js
+var windowEvents = require('hyperdom/windowEvents');
+
+class App {
+  render() {
+    return <div>
+      width = {window.innerWidth}, height = {window.innerHeight}
+      {
+        windowEvents({
+          onresize: () => console.log('resizing')
+        })
+      }
+    )
+  }
+}
+```

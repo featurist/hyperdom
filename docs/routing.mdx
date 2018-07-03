@@ -1,0 +1,256 @@
+---
+name: Routing
+order: 6
+---
+
+# Routing
+
+The router for Hyperdom supports History API or Hash URLs, and is capable of two-way binding with route parameters, and supports nesting of views.
+
+First we define some routes:
+
+```js
+var router = require('hyperdom/router')
+
+var routes = {
+  home: router.route('/'),
+  posts: router.route('/posts'),
+  post: router.route('/posts/:id')
+}
+```
+
+These routes can be used in various places, including as `hrefs` in anchors:
+
+```jsx
+<a href={routes.post.href({id: post.id})}>{post.title}</a>
+```
+
+The application can render the routes by implementing a `routes()` function, which returns an array of route definitions:
+
+```jsx
+class App {
+  routes() {
+    return [
+      home({
+        render: () => <h2>home</h2>
+      })
+    ]
+  }
+}
+```
+
+And finally start the application with the router:
+
+```js
+hyperdom.append(document.body, new App(), {router: router})
+```
+
+Here's a slightly more realistic application that renders all three routes:
+
+```jsx
+class App {
+  constructor() {
+    this.posts = new Posts()
+  }
+
+  routes() {
+    return [
+      home({
+        render: () => <h2>home</h2>
+      }),
+
+      this.posts
+    ]
+  }
+
+  renderLayout(content) {
+    return <div>
+      <h1>our app</h1>
+      {content}
+    </div>
+  }
+}
+```
+
+When we're on `/` we render `<h2>home</h2>`, but nest it in a div with `<h1>our app</h1>`. This way we can have a consistent page layout no matter what route we're on. Finally, `App` defers to `Posts` for the remaining routes:
+
+```jsx
+class Posts {
+  constructor() {
+    this.posts = []
+  }
+
+  async onload() {
+    this.posts = await httpism.get('/posts')
+  }
+
+  routes() {
+    return [
+      posts({
+        render: () => <div>
+          {
+            this.posts.map(post => (
+              <a href={routes.post.href({id: post.id})}>{post.title}</a>
+            ))
+          }
+        </div>
+      }),
+
+      post({
+        bindings: {
+          id: [this, 'postId']
+        },
+
+        render: () => {
+          var post = this.posts[this.postId]
+
+          if (post) {
+            return <article>
+              <h1>{post.title}</h1>
+              {post.content}
+            </article>
+          } else {
+            <div>loading...</div>
+          }
+        }
+      })
+    ]
+  }
+}
+```
+
+Here `Posts` defines two routes, the first one simply lists the posts available with links, the second displays the post selected. We use `bindings` to define how the route parameter in `/posts/:id` is mapped onto the model as `this.postId`. We also have some conditional logic to render either a loading page or the article itself.
+
+## Component Methods
+
+* `routes()` returns an array of routes or components. Routes define how the route is rendered, components can themselves have `routes()` methods defining more routes.
+* `renderLayout(content)` - can be used to wrap HTML around what is returned by the rendered route, such as headers and footers. `content` is the VDOM returned by rendering the route.
+
+## Route Definitions
+
+### isActive
+
+You can check whether the current URL is on a route by using `route.isActive(params)`. This comes in two forms: if you pass parameters to `isActive()` then those parameters must match the current URL, if you don't pass params then any URL that matches the route's pattern is considered active.
+
+```js
+var article = router.route('/article/:id')
+var home = router.route('/')
+
+// while on /article/5
+article.isActive() === true
+article.isActive({id: 5}) === true
+
+article.isActive({id: 10}) === false
+home.isActive() === false
+```
+
+### url
+
+```js
+var article = router.route('/article/:id')
+article.url({id: 5, page: 3}) === '/article/5?page=3'
+```
+
+### params
+
+```js
+var article = router.route('/article/:id')
+
+// when on /article/5?page=3
+article.params() === {id: '5', page: '3'}
+
+// when on /elsewhere
+article.params() === undefined
+
+article.params('/article/10') === {id: '10'}
+```
+
+### push
+
+```js
+var article = router.route('/article/:id')
+
+// push history, resetting scroll to 0, 0
+article.push({id: 5})
+
+// push history, without scroll reset
+article.push({id: 5}, {resetScroll: false})
+```
+
+### replace
+
+```js
+var article = router.route('/article/:id')
+
+// replace history, only in push state
+article.replace({id: 5})
+```
+
+## Route Options
+
+```js
+var article = router.route('/article/:id')
+
+class App {
+  routes() {
+    return [
+      article({
+        render: () => ...,
+        onload: (params) => ...,
+        push: { ... },
+        push: (oldParams, newParams) => ...,
+        bindings: { ... },
+        redirect: (params) => ...,
+      })
+    ]
+  }
+}
+```
+
+Each route definition can contain the following methods:
+
+* `render()` - renders the route. If the component contains `renderLayout(content)`, then the output from the route `render()` will be passed as `content` to the component's `renderLayout(content)` method.
+* `onload(params)` - is called when the user navigates to the route, `params` is an object containing the parameters extracted from the route.
+* `bindings` - an object containing bindings keyed on the parameter names in the route. These two-way bindings are used to update the URL when the model changes, or to change the model if the URL changes.
+* `push` - an object containing parameter names set to `true` if changes to those parameters should cause a new URL to be set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.
+
+    For example: `push: {id: true}` would cause a new URL to be pushed on to history if the model changes in such a way that `:id` changes in the route.
+
+* `push(oldParams, newParams)` - a function that is called if any of the bindings cause the URL to change, if the function returns true, then the new URL is set using `history.pushState`, otherwise the new URL is set using `history.replaceState`.
+* `redirect(params)` - return a URL to redirect to, `params` is an object containing the parameters extracted from the route.
+
+## Router Options
+
+You can create new router with different options:
+
+```js
+var hyperdomRouter = require('hyperdom/router')
+var router = hyperdomRouter.router(options)
+```
+
+Where `options` can contain:
+
+* `querystring` - an object that contains `stringify(params)` and `parse(querystring)` methods, the `qs` module or Node's `querystring` module are good options. By default Hyperdom uses a very simple (and small) query string parser and stringifier that works for basic values like strings and numbers, but for complex objects you'll see `%5Bobject%20Object%5D` in your query string.
+* `history` - can be either `router.hash()` for hash-style routing, or `router.pushState()` for regular History API routing.
+* `baseUrl` - can be used to make all routes relative to this base URL path
+
+## Not Found
+
+You can render something if none of the routes match the URL by using `router.notFound()`:
+
+```jsx
+class App {
+  routes() {
+    return [
+      routes ...
+
+      router.notFound((path, routes) => ...)
+    ]
+  }
+}
+```
+
+Where
+
+* `path` - the current path as found in the address bar
+* `routes` - the list of routes found in the application, these can be used to show which routes are available

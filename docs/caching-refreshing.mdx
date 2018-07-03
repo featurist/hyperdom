@@ -1,0 +1,53 @@
+---
+name: Caching & Refreshing
+order: 10
+---
+
+# Caching
+
+To cache the output from `render()`, return a non-undefined cache key from `renderCacheKey()`. This is useful if the component renders something large, for example, in the 10s of thousands of HTML nodes. For example, the following will only re-render when `this.version` changes:
+
+```jsx
+var component = {
+  constructor () {
+    this.version = 0
+  }
+
+  renderCacheKey () {
+    return this.version
+  }
+
+  render () {
+    return <div>
+      ...
+    </div>
+  }
+}
+```
+
+# Not Refreshing
+
+By default the view will refresh after an event handler has run, however you can return `hyperdom.norefresh()` from an event handler to prevent this.
+
+# Refreshing the view explicitly
+
+Sometimes you want to refresh the view but not just after a UI event. For this, a component has a small handful of methods
+
+* `component.refresh()` - can be called to queue up a refresh of the entire view. Calling this multiple times will only invoke one refresh, normally on the next animation frame.
+* `component.refreshImmediately()` - can be called to refresh the view immediately.
+* `component.refreshComponent()` - can be called to queue up a refresh of just this component.
+
+# Refreshify
+
+Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `hyperdom.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
+
+```js
+var refreshHandler = h.refreshify(handler, [options]);
+```
+
+* `handler` - a function that handles some event, can return a promise.
+* `options.refresh` - one of these values:
+  * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
+  * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
+  * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
+* `options.component` - only refresh this [component](#components)

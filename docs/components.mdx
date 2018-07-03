@@ -1,0 +1,117 @@
+---
+name: Components
+order: 10
+---
+
+# Components
+
+Components are the basic building blocks of a Hyperdom application. The simplest component is an object that contains just a `render()` method. However, components can be used to interact with HTML at a more basic level, such as when using jQuery plugins, or to cache rendering output for performance.
+
+There are two types of components in Hyperdom, with the only difference being where they store their state. The first type, and by far the most common, are **model components** and store their state in the model, or quite often, they _are_ the model. The point of **model components** is that the lifetime of their state is completely independent of whether those components are rendered or not. With **model components** the application is entirely in control of its state.
+
+The other type are **view components** and keep their state in the view only, this means that if the component disappears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
+
+Nevertheless, the API for view and model components is almost entirely the same. They both respond to the same rendering cycle events and have the same rendering and caching logic.
+
+Components allow the following:
+
+1. **Rendering VDOM** - essential to any Hyperdom application
+2. **Model Loading** - asynchronously loading model resources
+3. **HTML rendering events** - useful for low-level HTML hacking, including jQuery plugins
+4. **VDOM caching** - useful in apps that render very large amounts of HTML
+
+Components can implement these methods:
+
+* `render()` - returns the VDOM representation of the component, called on each rendering cycle
+* `onload()` (optional) - called when the component is first rendered, this can be used to setup the component, or load resources from AJAX. If this returns a promise, the view will be re-rendered again after the promise is resolved.
+* `renderKey` (optional) - used for efficient diffing of virtual-dom elements, see [keys](#keys).
+* `renderCacheKey()` (optional) - returns the cache key for the component. If the cache key hasn't changed since the last render, then the VDOM from the last render is used, otherwise, if the cache key has changed, `render()` is called for the latest VDOM.
+* `onbeforeadd()` (optional) - called before the component is first added to the VDOM tree
+* `onadd(element)` (optional) - called after the component is first added to the VDOM tree. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onbeforeupdate(element)` (optional) - called before the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
+* `onbeforerender([element])` (optional) - called before the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`).
+* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
+
+## Model Components
+
+Model components are simply just plain objects that implement `render()` and some of the methods above. They are rendered by simply placing them in the VDOM:
+
+```jsx
+var component = {
+  render() {
+    return <h1>model component</h1>
+  }
+}
+
+<div>{component}</div>
+```
+
+## View Components
+
+View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`. You can also declare a class containing a `render()` method, and refer to it in JSX.
+
+Using `hyperdom.viewComponent()`:
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    render() {
+      return <h1>view component</h1>
+    }
+  })
+}</div>
+```
+
+Using a view component class in JSX:
+
+```jsx
+class MyComponent {
+  constructor(properties, children) {
+    this.title = properties.title
+    this.children = children
+  }
+
+  render() {
+    return <div>
+      <h1>{this.title}</h1>
+      {this.children}
+    </div>
+  }
+}
+
+<div>
+  <MyComponent title="value">
+    <div>child element</div>
+  </MyComponent>
+</div>
+```
+
+If you define fields on the object, these fields are present on each render: `this.name` is the latest value of `name`.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    name: name,
+    render() {
+      return <h1>view component {this.name}</h1>
+    }
+  })
+}</div>
+```
+
+However, if you want to initialise some state once when the component is first rendered, then use it and update it during the lifetime of the component, use `onload()`, in this case `this.name` is the value of `name` when the component was first rendered.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    onload() {
+      this.name = name
+    },
+
+    render() {
+      return <h1>view component {this.name}</h1>
+    }
+  })
+}</div>
+```
