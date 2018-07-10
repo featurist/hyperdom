@@ -134,9 +134,10 @@ var browsers = {
   },
   'browserstack-safari-ios': {
     base: 'BrowserStack',
-    device: 'iPhone 6S',
+    device: 'iPhone X',
+    realMobile: 'true',
     os: 'ios',
-    os_version: '9.1'
+    os_version: '11.0'
   },
   'browserstack-chrome': {
     base: 'BrowserStack',
