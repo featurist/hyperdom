@@ -15,6 +15,8 @@ function toVdom (object) {
     return object
   } else if (typeof object.render === 'function') {
     return new Component(object)
+  } else if (typeof object.toString === 'function' && object.constructor !== Object) {
+    return new Vtext(String(object.toString()))
   } else {
     return new Vtext(JSON.stringify(object))
   }

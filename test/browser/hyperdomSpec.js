@@ -300,6 +300,19 @@ describe('hyperdom', function () {
       expect(find('.haha').text()).to.equal('object {"name":"asdf"}')
     })
 
+    it('can render an object that implements toString()', function () {
+      function Foo () {}
+      Foo.prototype.toString = function () { return '[sausages]' }
+
+      function render () {
+        return h('div.haha', 'object ', new Foo())
+      }
+
+      attach(render, {})
+
+      expect(find('.haha').text()).to.equal('object [sausages]')
+    })
+
     describe('class', function () {
       it('accepts a string', function () {
         function render () {
