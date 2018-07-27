@@ -1,8 +1,11 @@
 var simplePromise = require('./simplePromise')
 
 function runRender (mount, fn) {
-  var render = new Render(mount)
+  if (runRender._currentRender) {
+    return
+  }
 
+  var render = new Render(mount)
   try {
     runRender._currentRender = render
 

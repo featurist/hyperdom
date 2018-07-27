@@ -52,26 +52,30 @@ function afterUpdate (model, element, oldElement) {
 }
 
 Component.prototype.update = function (previous) {
-  var self = this
-
-  if (this.isViewComponent) {
-    var keys = Object.keys(this.model)
-    for (var n = 0; n < keys.length; n++) {
-      var key = keys[n]
-      previous.model[key] = self.model[key]
-    }
-    this.model = previous.model
-  }
-
-  this.component = previous.component
-  var oldElement = this.component.element
-
-  var element = this.component.update(this.render(oldElement))
-
-  if (self.model.detached) {
-    return document.createTextNode('')
+  if (previous.key !== this.key || this.model.constructor !== previous.model.constructor) {
+    return this.init()
   } else {
-    return element
+    var self = this
+
+    if (this.isViewComponent) {
+      var keys = Object.keys(this.model)
+      for (var n = 0; n < keys.length; n++) {
+        var key = keys[n]
+        previous.model[key] = self.model[key]
+      }
+      this.model = previous.model
+    }
+
+    this.component = previous.component
+    var oldElement = this.component.element
+
+    var element = this.component.update(this.render(oldElement))
+
+    if (self.model.detached) {
+      return document.createTextNode('')
+    } else {
+      return element
+    }
   }
 }
 
