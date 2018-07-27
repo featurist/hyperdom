@@ -1917,6 +1917,18 @@ describe('hyperdom', function () {
         })
       })
     })
+
+    it('calling refreshImmediately inside a render does nothing', function () {
+      var model = {
+        render: function () {
+          this.refreshImmediately()
+          return h('h1', 'hi')
+        }
+      }
+
+      attach(model)
+      expect(find('h1').text()).to.equal('hi')
+    })
   })
 
   describe('hyperdom.binding', function () {
@@ -1952,6 +1964,10 @@ describe('hyperdom', function () {
           }
         }
       }
+    })
+
+    afterEach(function () {
+      runRender._currentRender = undefined
     })
 
     function expectToRefresh (options, v) {
