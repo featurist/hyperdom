@@ -1,0 +1,16 @@
+{
+  "defaultSeverity": "error",
+  "linterOptions": {
+    "exclude": [
+      "**/*.json"
+    ]
+  },
+  "extends": [
+    "tslint:latest"
+  ],
+  "rules": {
+    "semicolon": [true, "never"],
+    "only-arrow-functions": false,
+    "quotemark": false
+  }
+}

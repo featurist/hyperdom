@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom", "esnext"],
+    "types": ["mocha"],
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  },
+  "include": [
+    "**/*"
+  ]
+}
