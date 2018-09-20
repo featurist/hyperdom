@@ -13,13 +13,13 @@ describe('it works with typescript', function() {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   })
 
-  it('appends', function() {
+  it('appends', async function() {
     const app = {
       render() {
         return html('div.app', 'hello ts')
       },
     }
     append(div, app)
-    browser.find('.app').shouldHave({text: 'hello ts'})
+    await browser.find('.app').shouldHave({text: 'hello ts'})
   })
 })

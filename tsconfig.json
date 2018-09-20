@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
     "lib": ["es6", "dom", "esnext"],
     "types": ["mocha"],
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": true
+    "baseUrl": ".",
+    "paths": {
+      "browser-monkey": ["test/ts/browserMonkey.d.ts"]
+    }
   },
   "include": [
-    "**/*"
+    "test/ts/**/*.ts"
   ]
 }

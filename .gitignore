@@ -9,3 +9,4 @@ test/ts/**/*.js
 test/ts/**/*.js.map
 tags
 package-lock.json
+.DS_Store
