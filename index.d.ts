@@ -1,3 +1,4 @@
+// tslint:disable-next-line
 declare namespace hyperdom {
   export type VdomFragment = object
   export type TextContent = string
@@ -7,7 +8,7 @@ declare namespace hyperdom {
     render(): VdomFragment
   }
 
-  interface Attachement {
+  interface IAttachement {
     remove(): void
     detach(): void
   }
@@ -19,13 +20,14 @@ declare namespace hyperdom {
     // TODO router?: Router
   }
 
-  export function append(root: HTMLElement, app: IApp, opts?: IMountOpts): Attachement
+  export function append(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
+  export function replace(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
   export function html(
     tag: string, ...children: Array<VdomFragment | TextContent>,
   ): VdomFragment
-  export function html(
-    tag: string, opts: NodeAttributes, ...children: Array<VdomFragment | TextContent>,
-  ): VdomFragment
+  // export function html(
+  //   tag: string, opts: NodeAttributes, ...children: Array<VdomFragment | TextContent>,
+  // ): VdomFragment
   // TODO:
   // exports.html.refreshify = render.refreshify
   // exports.rawHtml = rendering.rawHtml
