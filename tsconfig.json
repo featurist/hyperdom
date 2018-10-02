@@ -5,6 +5,7 @@
     "lib": ["es6", "dom", "esnext"],
     "types": ["mocha"],
     "noImplicitAny": true,
+    "strictNullChecks": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "baseUrl": ".",

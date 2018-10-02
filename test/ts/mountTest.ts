@@ -33,4 +33,26 @@ describe('it works with typescript', function() {
     replace($appContainer, app)
     await browser.find('.app').shouldHave({text: 'hello ts'})
   })
+
+  describe('#html', function() {
+    it('makes vdom out of VdomFragment', async function() {
+      const app = {
+        render() {
+          return html('div.app', html('div', 'hello ts'))
+        },
+      }
+      append($appContainer, app)
+      await browser.find('.app').shouldHave({text: 'hello ts'})
+    })
+
+    it('makes vdom out of undefined', async function() {
+      const app = {
+        render() {
+          return html('div.app', undefined)
+        },
+      }
+      append($appContainer, app)
+      await browser.find('.app').shouldHave({exactText: ''})
+    })
+  })
 })

@@ -23,7 +23,7 @@ declare namespace hyperdom {
   export function append(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
   export function replace(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
   export function html(
-    tag: string, ...children: Array<VdomFragment | TextContent>,
+    tag: string, ...children: Array<VdomFragment | TextContent | undefined>,
   ): VdomFragment
   // export function html(
   //   tag: string, opts: NodeAttributes, ...children: Array<VdomFragment | TextContent>,
