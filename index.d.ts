@@ -1,11 +1,15 @@
 // tslint:disable-next-line
 declare namespace hyperdom {
-  export type VdomFragment = object
   export type TextContent = string
   export type NodeAttributes = object
+  type ComponentWidget = object
+
+  export interface IVdomFragment {
+    children: any[]
+  }
 
   export interface IApp {
-    render(): VdomFragment
+    render(): IVdomFragment
   }
 
   interface IAttachement {
@@ -14,33 +18,37 @@ declare namespace hyperdom {
   }
 
   export interface IMountOpts {
-    requestRenderer?: () => void
+    requestRender?: (render: () => void) => void
     window?: Window
     document?: Document
-    // TODO router?: Router
+  }
+
+  export interface INodeProps {
+    onclick(): void
   }
 
   export function append(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
   export function replace(root: HTMLElement, app: IApp, opts?: IMountOpts): IAttachement
-  export function html(
-    tag: string, ...children: Array<VdomFragment | TextContent | undefined>,
-  ): VdomFragment
-  // export function html(
-  //   tag: string, opts: NodeAttributes, ...children: Array<VdomFragment | TextContent>,
-  // ): VdomFragment
-  // TODO:
-  // exports.html.refreshify = render.refreshify
-  // exports.rawHtml = rendering.rawHtml
-  // exports.jsx = rendering.jsx
-  // exports.replace = rendering.replace
-  // exports.append = rendering.append
-  // exports.appendVDom = rendering.appendVDom
-  // exports.binding = require('./binding')
-  // exports.meta = require('./meta')
-  // exports.refreshify = render.refreshify
-  // exports.norefresh = require('./refreshEventResult').norefresh
-  // exports.join = require('./join')
-  // exports.viewComponent = viewComponent
+
+  const html: {
+    (
+      tag: string,
+      nodeProps: INodeProps,
+      ...children: Array<ComponentWidget | IVdomFragment | TextContent | undefined>,
+    ): IVdomFragment,
+    (
+      tag: string,
+      ...children: Array<ComponentWidget | IVdomFragment | TextContent | undefined>,
+    ): IVdomFragment,
+
+    rawHtml(
+      tag: string,
+      ...children: Array<ComponentWidget | IVdomFragment | TextContent | undefined>,
+    ): IVdomFragment,
+  }
+  export {html}
+
+  export function viewComponent(app: IApp): any
 }
 
 export = hyperdom

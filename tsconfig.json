@@ -2,18 +2,20 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "lib": ["es6", "dom", "esnext"],
+    "lib": ["es6", "es2015", "dom", "esnext"],
     "types": ["mocha"],
+    "allowJs": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "baseUrl": ".",
     "paths": {
-      "browser-monkey": ["test/ts/browserMonkey.d.ts"]
+      "browser-monkey": ["test/ts/browserMonkey.d.ts"],
+      "vdom-to-html": ["test/ts/vdomToHtml.d.ts"]
     }
   },
   "include": [
-    "test/ts/**/*.ts"
+    "test/**/*.ts"
   ]
 }
