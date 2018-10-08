@@ -57,7 +57,7 @@
     "test": "npm run karma && npm run mocha && eslint .",
     "test-all": "BROWSERS=all npm test",
     "test-ts": "electron-mocha --renderer -r ts-node/register test/ts/**/*Test.ts",
-    "tslint": "tslint -p test/ts",
+    "tslint": "tslint test/**/*.ts",
     "karma": "karma start --single-run",
     "mocha": "mocha -r ts-node/register test/server/*Spec.ts",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",

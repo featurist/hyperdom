@@ -6,7 +6,7 @@
     ]
   },
   "extends": [
-    "tslint:latest"
+    "tslint:recommended"
   ],
   "rules": {
     "semicolon": [true, "never"],
