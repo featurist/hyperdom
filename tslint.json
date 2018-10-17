@@ -12,6 +12,11 @@
     "semicolon": [true, "never"],
     "ordered-imports": false,
     "only-arrow-functions": false,
+    "object-literal-sort-keys": false,
+    "max-classes-per-file": false,
+    "no-unused-expression": false,
+    "no-empty": false,
+    "no-shadowed-variable": false,
     "quotemark": false
   }
 }

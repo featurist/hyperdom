@@ -9,10 +9,11 @@ module.exports = function (config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['browserify', 'mocha'],
+    frameworks: ['mocha'],
 
     // list of files / patterns to load in the browser
     files: [
+      'test/browser/**/*Spec.ts',
       'test/browser/**/*Spec.js'
     ],
 
@@ -24,11 +25,34 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'test/**/*Spec.js': ['browserify']
+      'test/browser/**/*Spec.js': ['webpack', 'sourcemap'],
+      'test/browser/**/*Spec.ts': ['webpack', 'sourcemap']
     },
 
-    browserify: {
-      debug: true
+    webpack: {
+      mode: 'development',
+      optimization: {
+        nodeEnv: false
+      },
+      devtool: 'inline-source-map',
+      resolve: {
+        extensions: ['.js', '.ts']
+      },
+      module: {
+        rules: [
+          {
+            test: /\.ts$/,
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                target: 'es5'
+              }
+            },
+            include: process.cwd() + '/test/browser',
+            exclude: process.cwd() + '/node_modules'
+          }
+        ]
+      }
     },
 
     // test results reporter to use
