@@ -106,7 +106,9 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
-same with Typescript:
+This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
+
+Same example in Typescript:
 
 ```tsx
 import {append, HyperdomApp} from 'hyperdom'
@@ -125,8 +127,6 @@ class App extends HyperdomApp {
 
 append(document.body, new App())
 ```
-
-This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
 ## install
 

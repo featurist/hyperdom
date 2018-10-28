@@ -1,2 +1,2 @@
-declare function windowEVents(...args: any[]): any
+declare function windowEVents (...args: any[]): any
 export = windowEVents

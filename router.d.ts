@@ -10,21 +10,21 @@ export interface RouteDefinition {
 export type NotFound = object
 
 export interface Router {
-  push(url: string): void
+  push (url: string): void
 
-  reset(): void
+  reset (): void
 
-  route(path: string): RouteHandler
+  route (path: string): RouteHandler
 
-  url(): string
+  url (): string
 
-  notFound(handler: (url: string, routesTried: RouteDefinition[]) => string): NotFound
+  notFound (handler: (url: string, routesTried: RouteDefinition[]) => string): NotFound
 }
 
 export interface RouteHistory {
-  push(url: string): void
+  push (url: string): void
 
-  url(): string
+  url (): string
 }
 
 export interface ParamsToPushMap {
@@ -42,25 +42,25 @@ export interface RoutableComponent {
   bindings?: ParamsBindings
   push?: ParamsToPush
 
-  redirect?(params: object): string | undefined
+  redirect? (params: object): string | undefined
 
-  render?(): VdomFragment | App | string // TODO add `render() => string` test to hyperdomSpec
+  render? (): VdomFragment | App | string // TODO add `render() => string` test to hyperdomSpec
   // TODO: Promise<void> ?
-  onload?(params: object): void
+  onload? (params: object): void
 }
 
 export interface RouteHandler {
   (component: RoutableComponent): Route
 
-  isActive(params?: object): boolean
+  isActive (params?: object): boolean
 
-  push(options?: object): void
+  push (options?: object): void
 
-  url(params: object): string
+  url (params: object): string
 
-  href(): string
+  href (): string
 
-  replace(): void
+  replace (): void
 }
 
 export interface Routes {
@@ -69,12 +69,12 @@ export interface Routes {
 
 export type Route = object
 
-export function reset(): void
+export function reset (): void
 
-export function route(path: string): RouteHandler
+export function route (path: string): RouteHandler
 
-export function router(options: object): Router
+export function router (options: object): Router
 
-export function hash(): RouteHistory
+export function hash (): RouteHistory
 
-export function pushState(): RouteHistory
+export function pushState (): RouteHistory

@@ -2,16 +2,16 @@ import * as hyperdom from '../..'
 import {JSDOM} from 'jsdom'
 import {expect} from 'chai'
 
-describe('hyperdom', function() {
-  describe('.append()', function() {
-    it('renders elements in jsdom', function() {
+describe('hyperdom', function () {
+  describe('.append()', function () {
+    it('renders elements in jsdom', function () {
       const {window} = new JSDOM(``)
       const app = {
-        render() {
+        render () {
           return hyperdom.html('p', 'hello')
         },
       }
-      function requestRender(render: any) {
+      function requestRender (render: any) {
         render()
       }
 

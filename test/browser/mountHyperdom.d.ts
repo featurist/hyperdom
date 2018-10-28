@@ -1,2 +1,2 @@
-declare function mountHyperdom(...args: any[]): any
+declare function mountHyperdom (...args: any[]): any
 export = mountHyperdom

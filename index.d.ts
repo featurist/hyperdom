@@ -8,27 +8,27 @@ declare namespace hyperdom {
   }
 
   export interface RenderApp {
-    render(): VdomFragment | App
+    render (): VdomFragment | App
   }
 
   export interface RoutesApp {
-    routes(): router.Route[]
+    routes (): router.Route[]
 
-    renderLayout?(content: any): VdomFragment | App
+    renderLayout? (content: any): VdomFragment | App
   }
 
   export type App = RoutesApp | RenderApp
 
   export class HyperdomApp {
-    public refreshImmediately(): void
-    public refreshComponent(): void
-    public refresh(): void
+    public refreshImmediately (): void
+    public refreshComponent (): void
+    public refresh (): void
   }
 
-  interface Attachement {
-    remove(): void
+  interface DomAttachement {
+    remove (): void
 
-    detach(): void
+    detach (): void
   }
 
   export interface MountOpts {
@@ -39,9 +39,9 @@ declare namespace hyperdom {
   }
 
   export interface ObjectBinding {
-    get(): any
+    get (): any
 
-    set(value: any): void
+    set (value: any): void
   }
 
   // TODO what about Promise<void> ?
@@ -54,14 +54,23 @@ declare namespace hyperdom {
 
     binding?: Binding
 
-    onclick?(): void
+    onclick? (): void
   }
 
-  export type AppFn = (model?: any) => VdomFragment
+  // This is to support hyperdom-babel-preset string binding. Not covered by tests.
+  export interface JsxNodeProps {
+    [key: string]: any
 
-  export function append(root: HTMLElement, app: App | AppFn, opts?: MountOpts): Attachement
+    binding?: Binding | string
 
-  export function replace(root: HTMLElement, app: App | AppFn, opts?: MountOpts): Attachement
+    onclick? (): void
+  }
+
+  export type AppFn = (model?: object) => VdomFragment
+
+  export function append (root: HTMLElement, app: App | AppFn, opts?: MountOpts): DomAttachement
+
+  export function replace (root: HTMLElement, app: App | AppFn, opts?: MountOpts): DomAttachement
 
   interface ModelMeta {
     error: {
@@ -76,33 +85,33 @@ declare namespace hyperdom {
     (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment,
     (tag: string, ...children: Renderable[]): VdomFragment,
 
-    rawHtml(tag: string, ...children: Renderable[]): VdomFragment,
-    refresh(component?: any): void
-    refreshAfter(promise?: Promise<any>): void
-    meta(model: any, property: string): ModelMeta,
+    rawHtml (tag: string, ...children: Renderable[]): VdomFragment,
+    refresh (component?: object): void
+    refreshAfter (promise?: Promise<any>): void
+    meta (model: object, property: string): ModelMeta,
   }
   export {html}
 
   // TODO combine with the one above
-  export function rawHtml(tag: string, ...children: Renderable[]): VdomFragment
-  export function rawHtml(tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment
+  export function rawHtml (tag: string, ...children: Renderable[]): VdomFragment
+  export function rawHtml (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment
 
-  export function viewComponent(app: App): any
+  export function viewComponent (app: App): VdomFragment
 
-  export function appendVDom(root: VdomFragment, app: App | AppFn): Attachement
+  export function appendVDom (root: VdomFragment, app: App | AppFn): DomAttachement
 
   const jsx: (
     tag: string | { new(...params: any[]): App },
-    nodeProps: NodeProps | undefined,
+    nodeProps: JsxNodeProps | undefined,
     children?: Renderable | Renderable[],
   ) => VdomFragment
   export {jsx}
 
-  export function norefresh(): void
+  export function norefresh (): void
 
-  export function refreshify(fn: () => void, opts?: object): () => void
+  export function refreshify (fn: () => void, opts?: object): () => void
 
-  export function binding(opts: object): void
+  export function binding (opts: object): void
 }
 
 export = hyperdom

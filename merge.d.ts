@@ -1,2 +1,2 @@
-declare function merge(...args: any[]): any
+declare function merge (...args: any[]): any
 export = merge

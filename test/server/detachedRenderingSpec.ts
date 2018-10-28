@@ -5,17 +5,17 @@ import * as vdomToHtml from 'vdom-to-html'
 import {expect} from 'chai'
 import hyperdomComponent = require('../../componentWidget')
 
-describe('hyperdom', function() {
-  describe('.html(), detached from a real DOM', function() {
-    it('creates a virtual dom with event handlers', function() {
+describe('hyperdom', function () {
+  describe('.html(), detached from a real DOM', function () {
+    it('creates a virtual dom with event handlers', function () {
       const model = { counter: 0 }
       const vdom = h('.outer',
         h('.inner', {
-          onclick() {
+          onclick () {
             model.counter++
           },
         }),
-        hyperdomComponent(function() {
+        hyperdomComponent(function () {
           return h('.component')
         }),
         h.rawHtml('div', '<span>some raw HTML</span>'),

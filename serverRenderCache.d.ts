@@ -1,2 +1,2 @@
-declare function serverRenderCache(...args: any[]): any
+declare function serverRenderCache (...args: any[]): any
 export = serverRenderCache

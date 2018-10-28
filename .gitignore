@@ -5,8 +5,6 @@
 /hyperdom.min.js
 /hyperdom.min.js.gz
 /npm-debug.log
-test/ts/**/*.js
-test/ts/**/*.js.map
 tags
 package-lock.json
 .DS_Store

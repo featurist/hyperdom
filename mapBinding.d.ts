@@ -1,7 +1,7 @@
 interface IConversion {
-  view(model: any): string
+  view (model: any): string
 
-  model(view: string): any
+  model (view: string): any
 }
 
 type ConversionFn = (view: string) => any

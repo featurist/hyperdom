@@ -18,6 +18,8 @@
     "no-empty": false,
     "no-shadowed-variable": false,
     "interface-name": false,
+    "space-before-function-paren": true,
+    "object-literal-key-quotes": false,
     "quotemark": false
   }
 }

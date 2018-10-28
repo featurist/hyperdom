@@ -3,8 +3,8 @@ import toHtml = require('../../toHtml')
 const h = hyperdom.html
 import {expect} from 'chai'
 
-describe('to html', function() {
-  it('can render regular virtual dom to HTML', function() {
+describe('to html', function () {
+  it('can render regular virtual dom to HTML', function () {
     const vdom = h('div.class', {'data-something': 'something'},
       h('div', 'child'),
     )
@@ -14,10 +14,10 @@ describe('to html', function() {
     )
   })
 
-  it('can render model components to HTML', function() {
+  it('can render model components to HTML', function () {
     const vdom = h('div',
       {
-        render() {
+        render () {
           return h('div', 'component')
         },
       },
@@ -27,9 +27,9 @@ describe('to html', function() {
     )
   })
 
-  it('can render top-level model components to HTML', function() {
+  it('can render top-level model components to HTML', function () {
     const vdom = {
-      render() {
+      render () {
         return h('div', 'component')
       },
     }
@@ -39,10 +39,10 @@ describe('to html', function() {
     )
   })
 
-  it('can render view components to HTML', function() {
+  it('can render view components to HTML', function () {
     const vdom = h('div',
       hyperdom.viewComponent({
-        render() {
+        render () {
           return h('div', 'component')
         },
       }),
@@ -52,9 +52,9 @@ describe('to html', function() {
     )
   })
 
-  it('can render top-level view components to HTML', function() {
+  it('can render top-level view components to HTML', function () {
     const vdom = hyperdom.viewComponent({
-      render() {
+      render () {
         return h('div', 'component')
       },
     })

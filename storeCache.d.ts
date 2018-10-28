@@ -1,4 +1,4 @@
 declare class StoreCache {
-  public refreshify(): void
+  public refreshify (): void
 }
 export = StoreCache
