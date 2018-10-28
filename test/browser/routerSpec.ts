@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'lie/polyfill'
-import { html as h, IApp, IVdomFragment } from '../..'
+import {html as h, IApp, IVdomFragment, HyperdomApp} from '../..'
 import * as hyperdomRouter from '../../router'
 import * as detect from './detect'
 
@@ -122,7 +122,9 @@ function describeRouter(historyApiType: string) {
 
     function articleComponent() {
       return {
-        load(id: string) {
+        id: undefined,
+
+        load(id: string | number) {
           this.id = id
           this.article = undefined
           return new Promise((resolve) => {
@@ -150,7 +152,38 @@ function describeRouter(historyApiType: string) {
     }
 
     context('routes with bindings', function() {
-      let app: IApp
+      class MyApp extends HyperdomApp {
+        public article = articleComponent()
+
+        public routes() {
+          const self = this
+
+          return [
+            routes.home({
+              render() {
+                return h('div',
+                  h('h1', 'home'),
+                  h('button', { onclick() { routes.article.push({id: 1}) } }, 'article 1'),
+                )
+              },
+            }),
+
+            routes.article({
+              bindings: {
+                id: [this.article, 'id', function(id: number) { return self.article.load(id) }],
+              },
+              render() {
+                return h('div',
+                  h('h1', 'article ' + self.article.id),
+                  self.article,
+                  h('button', { onclick() { return self.article.load(2) } }, 'next'),
+                )
+              },
+            }),
+          ]
+        }
+      }
+      let app: MyApp
       let routes: {
         [key: string]: hyperdomRouter.IRouteHandler,
       }
@@ -161,37 +194,7 @@ function describeRouter(historyApiType: string) {
           article: router.route('/articles/:id'),
         }
 
-        app = {
-          article: articleComponent(),
-
-          routes() {
-            const self = this
-
-            return [
-              routes.home({
-                render() {
-                  return h('div',
-                    h('h1', 'home'),
-                    h('button', { onclick() { routes.article.push({id: 1}) } }, 'article 1'),
-                  )
-                },
-              }),
-
-              routes.article({
-                bindings: {
-                  id: [this.article, 'id', function(id: number) { return self.article.load(id) }],
-                },
-                render() {
-                  return h('div',
-                    h('h1', 'article ' + self.articleId),
-                    self.article,
-                    h('button', { onclick() { return self.article.load(2) } }, 'next'),
-                  )
-                },
-              }),
-            ]
-          },
-        }
+        app = new MyApp()
       })
 
       it('loads article on navigation', function() {
@@ -210,7 +213,33 @@ function describeRouter(historyApiType: string) {
     if (historyApiType === 'pushState') {
       describe('push replace', function() {
         context('app with bindings', function() {
-          let app: IApp
+          class MyApp extends HyperdomApp {
+            public a: string
+
+            public routes() {
+              const self = this
+
+              return [
+                home({
+                  render() {
+                    return h('h1', 'home')
+                  },
+                }),
+                route({
+                  bindings: {
+                    a: [this, 'a'],
+                  },
+
+                  push,
+
+                  render() {
+                    return h('h1', 'a = ' + self.a)
+                  },
+                }),
+              ]
+            }
+          }
+          let app: MyApp
           let route: hyperdomRouter.IRouteHandler
           let home: hyperdomRouter.IRouteHandler
           let push: hyperdomRouter.ParamsToPush
@@ -219,30 +248,7 @@ function describeRouter(historyApiType: string) {
             route = router.route('/:a')
             home = router.route('/')
 
-            app = {
-              routes() {
-                const self = this
-
-                return [
-                  home({
-                    render() {
-                      return h('h1', 'home')
-                    },
-                  }),
-                  route({
-                    bindings: {
-                      a: [this, 'a'],
-                    },
-
-                    push,
-
-                    render() {
-                      return h('h1', 'a = ' + self.a)
-                    },
-                  }),
-                ]
-              },
-            }
+            app = new MyApp()
           })
 
           context('when a is always push', function() {
@@ -342,33 +348,33 @@ function describeRouter(historyApiType: string) {
 
     describe('onload', function() {
       context('app with onload', function() {
-        let app: IApp
+        class MyApp extends HyperdomApp {
+          public article = articleComponent()
+
+          public routes() {
+            const self = this
+
+            return [
+              route({
+                onload(params: {id: number}) {
+                  return self.article.load(params.id)
+                },
+
+                render() {
+                  return h('div',
+                    self.article,
+                  )
+                },
+              }),
+            ]
+          }
+        }
+        let app: MyApp
         let route: hyperdomRouter.IRouteHandler
 
         beforeEach(function() {
           route = router.route('/:id')
-
-          app = {
-            article: articleComponent(),
-
-            routes() {
-              const self = this
-
-              return [
-                route({
-                  onload(params: {id: number}) {
-                    return self.article.load(params.id)
-                  },
-
-                  render() {
-                    return h('div',
-                      self.article,
-                    )
-                  },
-                }),
-              ]
-            },
-          }
+          app = new MyApp()
         })
 
         it('loads the article each time the URL changes', function() {
@@ -388,13 +394,54 @@ function describeRouter(historyApiType: string) {
     })
 
     describe('redirect', function() {
-      let app: IApp
+      let redirectBack: boolean
       let a: hyperdomRouter.IRouteHandler
       let b: hyperdomRouter.IRouteHandler
 
-      context('app with redirect', function() {
-        let redirectBack: boolean
+      class MyApp extends HyperdomApp {
+        public b: string
 
+        constructor(readonly home: hyperdomRouter.IRouteHandler) {
+          super()
+        }
+
+        public routes() {
+          const self = this
+
+          return [
+            this.home({
+              render() {
+                return h('h1', 'home')
+              },
+            }),
+
+            a({
+              redirect(params) {
+                return b.url(params)
+              },
+            }),
+
+            b({
+              bindings: {
+                b: [this, 'b'],
+              },
+
+              redirect(params) {
+                if (redirectBack) {
+                  return a.url(params)
+                }
+              },
+
+              render() {
+                return h('h1', 'b = ' + self.b)
+              },
+            }),
+          ]
+        }
+      }
+      let app: MyApp
+
+      context('app with redirect', function() {
         beforeEach(function() {
           redirectBack = false
 
@@ -402,41 +449,7 @@ function describeRouter(historyApiType: string) {
           a = router.route('/a')
           b = router.route('/b')
 
-          app = {
-            routes() {
-              const self = this
-
-              return [
-                home({
-                  render() {
-                    return h('h1', 'home')
-                  },
-                }),
-
-                a({
-                  redirect(params) {
-                    return b.url(params)
-                  },
-                }),
-
-                b({
-                  bindings: {
-                    b: [this, 'b'],
-                  },
-
-                  redirect(params) {
-                    if (redirectBack) {
-                      return a.url(params)
-                    }
-                  },
-
-                  render() {
-                    return h('h1', 'b = ' + self.b)
-                  },
-                }),
-              ]
-            },
-          }
+          app = new MyApp(home)
         })
 
         it('redirects from one route to another', function() {
@@ -475,7 +488,35 @@ function describeRouter(historyApiType: string) {
 
     describe('sub routes', function() {
       context('app with sub routes', function() {
-        let app: IApp
+        class MyApp extends HyperdomApp {
+          public a = aComponent()
+
+          constructor(readonly routeTable: hyperdomRouter.Routes) {
+            super()
+          }
+
+          public routes() {
+            const self = this
+
+            return [
+              this.routeTable.home({
+                render() {
+                  return h('h2', 'route home')
+                },
+              }),
+
+              self.a,
+            ]
+          }
+
+          public renderLayout(vdom: IVdomFragment) {
+            return h('div',
+              h('h1', 'app'),
+              vdom,
+            )
+          }
+        }
+        let app: MyApp
         let routes: hyperdomRouter.Routes
 
         function aComponent() {
@@ -521,31 +562,7 @@ function describeRouter(historyApiType: string) {
             a: router.route('/:a'),
             b: router.route('/:a/:b'),
           }
-
-          app = {
-            a: aComponent(),
-
-            routes() {
-              const self = this
-
-              return [
-                routes.home({
-                  render() {
-                    return h('h2', 'route home')
-                  },
-                }),
-
-                self.a,
-              ]
-            },
-
-            renderLayout(vdom) {
-              return h('div',
-                h('h1', 'app'),
-                vdom,
-              )
-            },
-          }
+          app = new MyApp(routes)
         })
 
         it('renders subroutes wrapping in outer component renders', function() {
@@ -578,7 +595,22 @@ function describeRouter(historyApiType: string) {
     })
 
     describe('base url', function() {
-      let app: IApp
+      class MyApp extends HyperdomApp {
+        constructor(readonly routeTable: hyperdomRouter.Routes) {
+          super()
+        }
+        public routes() {
+          return [
+            routes.home({
+              render() {
+                return h('div', h('h1', 'route: home'), h('a', {href: routes.a.href()}, 'link: a'))
+              },
+            }),
+            routes.a({render() { return 'route: a' }}),
+          ]
+        }
+      }
+      let app: MyApp
       let routes: hyperdomRouter.Routes
 
       function withBaseUrl(baseUrl: string) {
@@ -591,18 +623,7 @@ function describeRouter(historyApiType: string) {
               a: router.route('/a'),
             }
 
-            app = {
-              routes() {
-                return [
-                  routes.home({
-                    render() {
-                      return h('div', h('h1', 'route: home'), h('a', {href: routes.a.href()}, 'link: a'))
-                    },
-                  }),
-                  routes.a({render() { return 'route: a' }}),
-                ]
-              },
-            }
+            app = new MyApp(routes)
           })
 
           it('URL /baseurl is recognised by route /', function() {

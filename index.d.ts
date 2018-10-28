@@ -9,19 +9,21 @@ declare namespace hyperdom {
 
   export interface IRenderApp {
     render(): IVdomFragment | IApp
-
-    [key: string]: any
   }
 
   export interface IRoutesApp {
     routes(): router.IRoute[]
 
     renderLayout?(content: any): IVdomFragment | IApp
-
-    [key: string]: any
   }
 
   export type IApp = IRoutesApp | IRenderApp
+
+  export class HyperdomApp {
+    public refreshImmediately(): void
+    public refreshComponent(): void
+    public refresh(): void
+  }
 
   interface IAttachement {
     remove(): void

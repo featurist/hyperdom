@@ -19,7 +19,7 @@ import windowEvents = require('../../windowEvents')
 import merge = require('../../merge')
 import runRender = require('../../render')
 import Mount = require('../../mount')
-import {IApp, AppFn, INodeProps} from '../..'
+import {IApp, AppFn, HyperdomApp, IVdomFragment} from '../..'
 
 const detect = {
   dataset: typeof document.body.dataset === 'object',
@@ -180,31 +180,33 @@ describe('hyperdom', function() {
     })
 
     describe('server-side rendering', function() {
-      let app: IApp
+      class MyApp extends HyperdomApp {
+        public name: string = 'server render'
+
+        public render() {
+          const self = this
+          return h('div.static',
+            h('h1', self.name),
+            h('button.update',
+              {
+                onclick() {
+                  events.push('click')
+                  self.name = 'client render'
+                },
+              },
+              'update',
+            ),
+          )
+        }
+      }
+
+      let app: MyApp
       let events: string[]
 
       beforeEach(function() {
         events = []
 
-        app = {
-          name: 'server render',
-
-          render() {
-            const self = this
-            return h('div.static',
-              h('h1', self.name),
-              h('button.update',
-                {
-                  onclick() {
-                    events.push('click')
-                    self.name = 'client render'
-                  },
-                },
-                'update',
-              ),
-            )
-          },
-        }
+        app = new MyApp()
       })
 
       it('can merge onto an existing DOM', async function() {
@@ -571,15 +573,15 @@ describe('hyperdom', function() {
       it('no change to HTML if there is a rendering error', function() {
         let error: Error
 
-        const app: IApp = {
-          render() {
+        const app = new (class extends HyperdomApp {
+          public render() {
             if (error) {
               throw error
             } else {
               return h('h1', 'first render')
             }
-          },
-        }
+          }
+        })()
 
         attach(app)
         error = new Error('oops')
@@ -800,20 +802,21 @@ describe('hyperdom', function() {
     })
 
     it('can define event handlers outside of the render loop', function() {
-      const app: IApp = {
-        button: h('button', {
+      const app = new (class extends HyperdomApp {
+        public button: IVdomFragment = h('button', {
           onclick() {
             app.on = true
           },
-        }),
+        })
+        public on: boolean
 
-        render() {
+        public render() {
           return h('div',
             this.button,
-            app.on ? h('span', 'on') : undefined,
+            this.on ? h('span', 'on') : undefined,
           )
-        },
-      }
+        }
+      })()
 
       attach(app)
 
@@ -825,26 +828,26 @@ describe('hyperdom', function() {
     })
 
     it('can render components outside of the render loop', function() {
-      const app: IApp = {
-        button: h('div',
-          {
-            render() {
-              return h('button', {
-                onclick() {
-                  app.on = true
-                },
-              })
-            },
-          },
-        ),
+      const app = new class extends HyperdomApp {
+        public on: boolean
 
-        render() {
+        private readonly button: IVdomFragment = h('div', {
+          render() {
+            return h('button', {
+              onclick() {
+                app.on = true
+              },
+            })
+          },
+        })
+
+        public render() {
           return h('div',
             this.button,
-            app.on ? h('span', 'on') : undefined,
+            this.on ? h('span', 'on') : undefined,
           )
-        },
-      }
+        }
+      }()
 
       attach(app)
 
@@ -856,16 +859,17 @@ describe('hyperdom', function() {
     })
 
     it('can render bindings outside of the render loop', function() {
-      const app: IApp = {
-        text: '',
+      const app = new class extends HyperdomApp {
+        public text: string
+        public input: IVdomFragment
 
-        render() {
+        public render() {
           return h('div',
             this.input,
             h('span', app.text),
           )
-        },
-      }
+        }
+      }()
 
       app.input = h('input', {binding: [app, 'text'], type: 'text'})
 
@@ -1636,7 +1640,6 @@ describe('hyperdom', function() {
       const monitor = renderMonitor()
 
       class Component {
-        public debug = true
         public text: string
         public renderKey: string | undefined
 
@@ -1777,13 +1780,13 @@ describe('hyperdom', function() {
     })
 
     it('the component can refresh the view', function() {
-      const model: IApp = {
-        name: 'Njord',
+      const model = new class extends HyperdomApp {
+        public name = 'Njord'
 
-        render() {
+        public render() {
           return h('h1', 'hi ' + this.name)
-        },
-      }
+        }
+      }()
 
       attach(model)
 
@@ -1798,23 +1801,23 @@ describe('hyperdom', function() {
     })
 
     it('can refresh several components without refreshing the whole page', function() {
-      const model = {
-        model1: innerModel('model1', 'one'),
-        model2: innerModel('model2', 'xxx'),
+      const model = new class extends HyperdomApp {
+        public model1 = innerModel('model1', 'one')
+        public model2 = innerModel('model2', 'xxx')
 
-        render() {
+        public render() {
           return h('div', this.model1, this.model2)
-        },
-      }
-
-      function innerModel(klass: string, name: string): IApp {
-        return {
-          name,
-
-          render() {
-            return h('h1' + '.' + klass, 'hi ' + this.name)
-          },
         }
+      }()
+
+      function innerModel(klass: string, name: string) {
+        return new class extends HyperdomApp {
+          public name = name
+
+          public render() {
+            return h('h1' + '.' + klass, 'hi ' + this.name)
+          }
+        }()
       }
 
       attach(model)
@@ -1851,25 +1854,25 @@ describe('hyperdom', function() {
     })
 
     it('does not refresh if the component was not rendered', function() {
-      const model: IApp = {
-        showModel: 1,
+      const model = new class extends HyperdomApp {
+        public showModel = 1
 
-        model1: innerModel('one'),
-        model2: innerModel('two'),
+        public model1 = innerModel('one')
+        public model2 = innerModel('two')
 
-        render() {
+        public render() {
           return h('div', this.showModel === 1 ? this.model1 : this.model2)
-        },
-      }
+        }
+      }()
 
       function innerModel(name: string) {
-        return {
-          name,
+        return new class extends HyperdomApp {
+          public name = name
 
-          render() {
+          public render() {
             return h('h1', 'hi ' + this.name)
-          },
-        }
+          }
+        }()
       }
 
       attach(model)
@@ -1894,25 +1897,23 @@ describe('hyperdom', function() {
     })
 
     it('a component can be represented several times and be refreshed', function() {
-      const model: IApp = {
-        models: 1,
+      const model = new class extends HyperdomApp {
+        public models = 1
 
-        innerModel: {
-          name: 'Jack',
+        public innerModel = new class extends HyperdomApp {
+          public name = 'Jack'
 
-          render() {
+          public render() {
             return h('li', this.name)
-          },
-        } as IApp,
+          }
+        }()
 
-        render() {
-          const self = this
-
-          return h('ul', times(this.models, function() {
-            return self.innerModel
+        public render() {
+          return h('ul', times(this.models, () => {
+            return this.innerModel
           }))
-        },
-      }
+        }
+      }()
 
       attach(model)
 
@@ -2568,13 +2569,13 @@ describe('hyperdom', function() {
   describe('keys', function() {
     it('keeps HTML elements for same keys', function() {
       const items = range(1, 11)
-      const app: IApp = {
-        render() {
+      const app = new class extends HyperdomApp {
+        public render() {
           return h('div', items.map(function(item: any) {
             return h('div.item', {key: item}, item)
           }))
-        },
-      }
+        }
+      }()
 
       attach(app)
 

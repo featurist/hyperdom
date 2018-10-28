@@ -23,3 +23,4 @@ exports.component = function (model) {
 }
 
 exports.currentRender = render.currentRender
+exports.HyperdomApp = function () {} // placeholder for typescript
