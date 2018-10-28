@@ -3,21 +3,21 @@ import * as router from "router"
 // tslint:disable-next-line
 declare namespace hyperdom {
 
-  export interface IVdomFragment {
+  export interface VdomFragment {
     children: any[]
   }
 
-  export interface IRenderApp {
-    render(): IVdomFragment | IApp
+  export interface RenderApp {
+    render(): VdomFragment | App
   }
 
-  export interface IRoutesApp {
-    routes(): router.IRoute[]
+  export interface RoutesApp {
+    routes(): router.Route[]
 
-    renderLayout?(content: any): IVdomFragment | IApp
+    renderLayout?(content: any): VdomFragment | App
   }
 
-  export type IApp = IRoutesApp | IRenderApp
+  export type App = RoutesApp | RenderApp
 
   export class HyperdomApp {
     public refreshImmediately(): void
@@ -25,13 +25,13 @@ declare namespace hyperdom {
     public refresh(): void
   }
 
-  interface IAttachement {
+  interface Attachement {
     remove(): void
 
     detach(): void
   }
 
-  export interface IMountOpts {
+  export interface MountOpts {
     requestRender?: (render: () => void) => void
     window?: Window
     document?: Document
@@ -49,7 +49,7 @@ declare namespace hyperdom {
 
   export type Binding = ObjectBinding | SimpleBinding
 
-  export interface INodeProps {
+  export interface NodeProps {
     [key: string]: any
 
     binding?: Binding
@@ -57,45 +57,45 @@ declare namespace hyperdom {
     onclick?(): void
   }
 
-  export type AppFn = (model?: any) => IVdomFragment
+  export type AppFn = (model?: any) => VdomFragment
 
-  export function append(root: HTMLElement, app: IApp | AppFn, opts?: IMountOpts): IAttachement
+  export function append(root: HTMLElement, app: App | AppFn, opts?: MountOpts): Attachement
 
-  export function replace(root: HTMLElement, app: IApp | AppFn, opts?: IMountOpts): IAttachement
+  export function replace(root: HTMLElement, app: App | AppFn, opts?: MountOpts): Attachement
 
-  interface IModelMeta {
+  interface ModelMeta {
     error: {
       message: string,
     }
   }
 
   // TODO Date?
-  export type Renderable = string | number | boolean | undefined | null | IVdomFragment | IApp
+  export type Renderable = string | number | boolean | undefined | null | VdomFragment | App
 
   const html: {
-    (tag: string, nodeProps: INodeProps, ...children: Renderable[]): IVdomFragment,
-    (tag: string, ...children: Renderable[]): IVdomFragment,
+    (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment,
+    (tag: string, ...children: Renderable[]): VdomFragment,
 
-    rawHtml(tag: string, ...children: Renderable[]): IVdomFragment,
+    rawHtml(tag: string, ...children: Renderable[]): VdomFragment,
     refresh(component?: any): void
     refreshAfter(promise?: Promise<any>): void
-    meta(model: any, property: string): IModelMeta,
+    meta(model: any, property: string): ModelMeta,
   }
   export {html}
 
   // TODO combine with the one above
-  export function rawHtml(tag: string, ...children: Renderable[]): IVdomFragment
-  export function rawHtml(tag: string, nodeProps: INodeProps, ...children: Renderable[]): IVdomFragment
+  export function rawHtml(tag: string, ...children: Renderable[]): VdomFragment
+  export function rawHtml(tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment
 
-  export function viewComponent(app: IApp): any
+  export function viewComponent(app: App): any
 
-  export function appendVDom(root: IVdomFragment, app: IApp | AppFn): IAttachement
+  export function appendVDom(root: VdomFragment, app: App | AppFn): Attachement
 
   const jsx: (
-    tag: string | { new(...params: any[]): IApp },
-    nodeProps: INodeProps | undefined,
+    tag: string | { new(...params: any[]): App },
+    nodeProps: NodeProps | undefined,
     children?: Renderable | Renderable[],
-  ) => IVdomFragment
+  ) => VdomFragment
   export {jsx}
 
   export function norefresh(): void

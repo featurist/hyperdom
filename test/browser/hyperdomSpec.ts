@@ -19,7 +19,7 @@ import windowEvents = require('../../windowEvents')
 import merge = require('../../merge')
 import runRender = require('../../render')
 import Mount = require('../../mount')
-import {IApp, AppFn, HyperdomApp, IVdomFragment} from '../..'
+import {App, AppFn, HyperdomApp, VdomFragment} from '../..'
 
 const detect = {
   dataset: typeof document.body.dataset === 'object',
@@ -33,7 +33,7 @@ describe('hyperdom', function() {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   })
 
-  function attach(app: IApp | AppFn, model?: any) {
+  function attach(app: App | AppFn, model?: any) {
     const opts = [{
       requestRender: setTimeout,
     }]
@@ -803,7 +803,7 @@ describe('hyperdom', function() {
 
     it('can define event handlers outside of the render loop', function() {
       const app = new (class extends HyperdomApp {
-        public button: IVdomFragment = h('button', {
+        public button: VdomFragment = h('button', {
           onclick() {
             app.on = true
           },
@@ -831,7 +831,7 @@ describe('hyperdom', function() {
       const app = new class extends HyperdomApp {
         public on: boolean
 
-        private readonly button: IVdomFragment = h('div', {
+        private readonly button: VdomFragment = h('div', {
           render() {
             return h('button', {
               onclick() {
@@ -861,7 +861,7 @@ describe('hyperdom', function() {
     it('can render bindings outside of the render loop', function() {
       const app = new class extends HyperdomApp {
         public text: string
-        public input: IVdomFragment
+        public input: VdomFragment
 
         public render() {
           return h('div',
@@ -2516,7 +2516,7 @@ describe('hyperdom', function() {
 
       const home = router.route('**')
 
-      const outer: IApp = {
+      const outer: App = {
         routes() {
           return [
             home({

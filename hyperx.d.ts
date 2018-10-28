@@ -1,4 +1,4 @@
-import {IVdomFragment} from "./index"
+import {VdomFragment} from "./index"
 
-declare function hx(strings: TemplateStringsArray, ...keys: any[]): IVdomFragment
+declare function hx(strings: TemplateStringsArray, ...keys: any[]): VdomFragment
 export = hx

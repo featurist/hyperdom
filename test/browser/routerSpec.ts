@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'lie/polyfill'
-import {html as h, IApp, IVdomFragment, HyperdomApp} from '../..'
+import {html as h, App, VdomFragment, HyperdomApp} from '../..'
 import * as hyperdomRouter from '../../router'
 import * as detect from './detect'
 
@@ -20,10 +20,10 @@ before(function() {
 
 function describeRouter(historyApiType: string) {
   describe('router (' + historyApiType + ')', function() {
-    let router: hyperdomRouter.IRouter
-    let historyApi: hyperdomRouter.IHistory
+    let router: hyperdomRouter.Router
+    let historyApi: hyperdomRouter.RouteHistory
 
-    function mount(app: IApp, url?: string) {
+    function mount(app: App, url?: string) {
       const options: any = {router}
 
       if (historyApiType === 'hash') {
@@ -52,9 +52,9 @@ function describeRouter(historyApiType: string) {
     })
 
     context('app with two routes', function() {
-      let app: IApp
+      let app: App
       let routes: {
-        [key: string]: hyperdomRouter.IRouteHandler,
+        [key: string]: hyperdomRouter.RouteHandler,
       }
 
       beforeEach(function() {
@@ -185,7 +185,7 @@ function describeRouter(historyApiType: string) {
       }
       let app: MyApp
       let routes: {
-        [key: string]: hyperdomRouter.IRouteHandler,
+        [key: string]: hyperdomRouter.RouteHandler,
       }
 
       beforeEach(function() {
@@ -240,8 +240,8 @@ function describeRouter(historyApiType: string) {
             }
           }
           let app: MyApp
-          let route: hyperdomRouter.IRouteHandler
-          let home: hyperdomRouter.IRouteHandler
+          let route: hyperdomRouter.RouteHandler
+          let home: hyperdomRouter.RouteHandler
           let push: hyperdomRouter.ParamsToPush
 
           beforeEach(function() {
@@ -370,7 +370,7 @@ function describeRouter(historyApiType: string) {
           }
         }
         let app: MyApp
-        let route: hyperdomRouter.IRouteHandler
+        let route: hyperdomRouter.RouteHandler
 
         beforeEach(function() {
           route = router.route('/:id')
@@ -395,13 +395,13 @@ function describeRouter(historyApiType: string) {
 
     describe('redirect', function() {
       let redirectBack: boolean
-      let a: hyperdomRouter.IRouteHandler
-      let b: hyperdomRouter.IRouteHandler
+      let a: hyperdomRouter.RouteHandler
+      let b: hyperdomRouter.RouteHandler
 
       class MyApp extends HyperdomApp {
         public b: string
 
-        constructor(readonly home: hyperdomRouter.IRouteHandler) {
+        constructor(readonly home: hyperdomRouter.RouteHandler) {
           super()
         }
 
@@ -509,7 +509,7 @@ function describeRouter(historyApiType: string) {
             ]
           }
 
-          public renderLayout(vdom: IVdomFragment) {
+          public renderLayout(vdom: VdomFragment) {
             return h('div',
               h('h1', 'app'),
               vdom,
@@ -547,7 +547,7 @@ function describeRouter(historyApiType: string) {
               ]
             },
 
-            renderLayout(vdom: IVdomFragment) {
+            renderLayout(vdom: VdomFragment) {
               return h('div',
                 h('h2', 'component a'),
                 vdom,

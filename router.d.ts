@@ -1,4 +1,4 @@
-import {IVdomFragment, Binding, IApp} from "index"
+import {VdomFragment, Binding, App} from "index"
 
 // TODO: what else is there?
 export interface RouteDefinition {
@@ -9,19 +9,19 @@ export interface RouteDefinition {
 
 export type NotFound = object
 
-export interface IRouter {
+export interface Router {
   push(url: string): void
 
   reset(): void
 
-  route(path: string): IRouteHandler
+  route(path: string): RouteHandler
 
   url(): string
 
   notFound(handler: (url: string, routesTried: RouteDefinition[]) => string): NotFound
 }
 
-export interface IHistory {
+export interface RouteHistory {
   push(url: string): void
 
   url(): string
@@ -38,19 +38,19 @@ export interface ParamsBindings {
   [param: string]: Binding
 }
 
-export interface IRoutableComponent {
+export interface RoutableComponent {
   bindings?: ParamsBindings
   push?: ParamsToPush
 
   redirect?(params: object): string | undefined
 
-  render?(): IVdomFragment | IApp | string // TODO add `render() => string` test to hyperdomSpec
+  render?(): VdomFragment | App | string // TODO add `render() => string` test to hyperdomSpec
   // TODO: Promise<void> ?
   onload?(params: object): void
 }
 
-export interface IRouteHandler {
-  (component: IRoutableComponent): IRoute
+export interface RouteHandler {
+  (component: RoutableComponent): Route
 
   isActive(params?: object): boolean
 
@@ -64,17 +64,17 @@ export interface IRouteHandler {
 }
 
 export interface Routes {
-  [route: string]: IRouteHandler
+  [route: string]: RouteHandler
 }
 
-export type IRoute = object
+export type Route = object
 
 export function reset(): void
 
-export function route(path: string): IRouteHandler
+export function route(path: string): RouteHandler
 
-export function router(options: object): IRouter
+export function router(options: object): Router
 
-export function hash(): IHistory
+export function hash(): RouteHistory
 
-export function pushState(): IHistory
+export function pushState(): RouteHistory

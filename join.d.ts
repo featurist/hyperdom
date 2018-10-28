@@ -1,4 +1,4 @@
-import {IVdomFragment} from "./index"
+import {VdomFragment} from "./index"
 
-declare function join(fragments: IVdomFragment[], separator: string): IVdomFragment
+declare function join(fragments: VdomFragment[], separator: string): VdomFragment
 export = join
