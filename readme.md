@@ -4,16 +4,94 @@ A fast, feature rich virtual-dom framework for building dynamic browser applicat
 
 Hyperdom applications are made of regular JavaScript objects that represent application state with `render()` methods that define how that state is represented in HTML. Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, client-side routing, SVG, two-way data binding, and optimises for performance, developer usability and simplicity of application architecture.
 
+Hyperdom includes Typescript type definitions.
+
 Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
 Sponsored by:
 
 [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
+## Table of Contents
+
+  * [Example](#an-example)
+  * [Install](#install)
+     * [New project](#new-project)
+     * [Add to existing project](#add-to-existing-project)
+  * [Size](#size)
+  * [Browser support](#browser-support)
+  * [Sister projects](#sister-projects)
+  * [Hyperdom Applications](#hyperdom-applications)
+  * [The Render Method](#the-render-method)
+     * [JS](#js)
+     * [JSX](#jsx)
+     * [SVG (or XML more generally)](#svg-or-xml-more-generally)
+  * [Events](#events)
+     * [Re-rendering the view](#re-rendering-the-view)
+     * [Bindings](#bindings)
+  * [Routing](#routing)
+     * [Component Methods](#component-methods)
+     * [Route Definitions](#route-definitions)
+        * [isActive](#isactive)
+        * [url](#url)
+        * [params](#params)
+        * [push](#push)
+        * [replace](#replace)
+     * [Route Options](#route-options)
+     * [Router Options](#router-options)
+     * [Not Found](#not-found)
+  * [virtual-dom API](#virtual-dom-api)
+     * [Selectors (hyperdom.html only)](#selectors-hyperdomhtml-only)
+     * [Add HTML Attributes](#add-html-attributes)
+     * [Keys](#keys)
+     * [Raw HTML](#raw-html)
+     * [Classes](#classes)
+     * [Joining VDOM Arrays](#joining-vdom-arrays)
+     * [Data Attributes](#data-attributes)
+     * [Responding to Events](#responding-to-events)
+     * [Binding the Inputs](#binding-the-inputs)
+     * [Radio Buttons](#radio-buttons)
+     * [Select Dropdowns](#select-dropdowns)
+     * [File Inputs](#file-inputs)
+     * [Window Events](#window-events)
+     * [Mapping the model to the view](#mapping-the-model-to-the-view)
+  * [Components](#components)
+     * [Model Components](#model-components)
+     * [View Components](#view-components)
+     * [Caching](#caching)
+     * [Not Refreshing](#not-refreshing)
+     * [Refreshing the view explicitly](#refreshing-the-view-explicitly)
+     * [Refreshify](#refreshify)
+     * [Binding](#binding)
+     * [Performance](#performance)
+     * [Server-side Rendering](#server-side-rendering)
+  * [Debugging](#debugging)
+     * [Chrome Plugin](#chrome-plugin)
+     * [File Names and Line Numbers](#file-names-and-line-numbers)
+  * [Production Build](#production-build)
+  * [Common Errors](#common-errors)
+     * [Outside Render Cycle](#outside-render-cycle)
+     * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
+  * [API](#api)
+     * [Rendering the Virtual DOM](#rendering-the-virtual-dom)
+        * [The binding Attribute](#the-binding-attribute)
+        * [Event Handler on* Attributes](#event-handler-on-attributes)
+        * [Promises](#promises)
+     * [Raw HTML](#raw-html-1)
+     * [Attaching to the DOM](#attaching-to-the-dom)
+        * [Detach](#detach)
+        * [Remove](#remove)
+  * [Development](#development)
+     * [Building](#building)
+     * [Automated Testing](#automated-testing)
+     * [Manual Testing](#manual-testing)
+  * [We're Hiring!](#were-hiring)
+
+
 ## An Example
 
 ```jsx
-var hyperdom = require('hyperdom');
+const hyperdom = require('hyperdom');
 
 class App {
   render() {
@@ -26,6 +104,26 @@ class App {
 }
 
 hyperdom.append(document.body, new App());
+```
+
+same with Typescript:
+
+```tsx
+import {append, HyperdomApp} from 'hyperdom'
+
+class App extends HyperdomApp {
+  private name: string
+  
+  public render() {
+    return <div>
+      <label>what's your name?</label>
+      <input type="text" binding="this.name" />
+      <div>hi {this.name}</div>
+    </div>
+  }
+}
+
+append(document.body, new App())
 ```
 
 This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
@@ -47,7 +145,7 @@ npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
 Use with browserify or webpack:
 
 ```javascript
-var hyperdom = require('hyperdom');
+const hyperdom = require('hyperdom');
 ```
 
 ## size
@@ -86,7 +184,7 @@ The result is that we can write applications that have a simple relationship bet
 Here's an example:
 
 ```jsx
-var hyperdom = require('hyperdom');
+const hyperdom = require('hyperdom');
 
 class App {
   constructor() {
@@ -114,8 +212,8 @@ Finally, we attach the application onto the DOM using `hyperdom.append`, which a
 Larger applications will typically have several classes or objects like this in a hierarchical structure to handle different parts of the page, or to encapsulate different application logic. Here we have an application that shows an article and a login component:
 
 ```jsx
-var hyperdom = require('hyperdom');
-var httpism = require('httpism');
+const hyperdom = require('hyperdom');
+const httpism = require('httpism');
 
 class App {
   constructor() {
@@ -188,7 +286,7 @@ The virtual-dom can be generated using regular JavaScript or JSX
 The JavaScript virtual-dom API has some niceties for generating classes and IDs.
 
 ```js
-var h = require('hyperdom').html
+const h = require('hyperdom').html
 
 class App {
   render() {
@@ -204,7 +302,7 @@ class App {
 You can write JSX using [babel](https://babeljs.io/) with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom). This uses `hyperdom.jsx` as the JSX pragma and [babel-plugin-transform-jsx-hyperdom-binding](https://github.com/featurist/babel-plugin-transform-jsx-hyperdom-binding) for binding syntax. JSX actually performs faster than `hyperdom.html` because JSX is a slightly less flexible form of virtual-dom.
 
 ```jsx
-var hyperdom = require('hyperdom');
+const hyperdom = require('hyperdom');
 
 class App {
   render() {
@@ -220,7 +318,7 @@ class App {
 Hyperdom will interpret XML if it contains an `xmlns` attribute. This includes regular XML behaviour like declaring and using namespaces. Note that JSX itself doesn't support `namespace:tag` syntax, so you can use an alternative syntax with `--` instead, for e.g. `namespace--tag`.
 
 ```jsx
-var hyperdom = require('hyperdom')
+const hyperdom = require('hyperdom')
 
 class Circle {
   render() {
@@ -290,7 +388,7 @@ Alternatively you can implement the binding logic yourself, by setting the input
 <input type="text" value={this.name} onchange={e => this.name = e.target.value}/>
 ```
 
-Hyperdom bindings handle `onchange` events like this of course, but also other events such as those for copy and paste, and work across a variety of browsers, so it's recommended to use bindings where possible.
+Hyperdom bindings handle `onchange` events like this of course, but also other events such as those for copy and paste, and work across a constiety of browsers, so it's recommended to use bindings where possible.
 
 ## Routing
 
@@ -299,16 +397,16 @@ The router for Hyperdom supports History API or Hash URLs, and is capable of two
 First we define some routes:
 
 ```js
-var router = require('hyperdom/router')
+const router = require('hyperdom/router')
 
-var routes = {
+const routes = {
   home: router.route('/'),
   posts: router.route('/posts'),
   post: router.route('/posts/:id')
 }
 ```
 
-These routes can be used in various places, including as `hrefs` in anchors:
+These routes can be used in constious places, including as `hrefs` in anchors:
 
 ```jsx
 <a href={routes.post.href({id: post.id})}>{post.title}</a>
@@ -391,7 +489,7 @@ class Posts {
         },
 
         render: () => {
-          var post = this.posts[this.postId]
+          const post = this.posts[this.postId]
 
           if (post) {
             return <article>
@@ -422,8 +520,8 @@ Here `Posts` defines two routes, the first one simply lists the posts available 
 You can check whether the current URL is on a route by using `route.isActive(params)`. This comes in two forms: if you pass parameters to `isActive()` then those parameters must match the current URL, if you don't pass params then any URL that matches the route's pattern is considered active.
 
 ```js
-var article = router.route('/article/:id')
-var home = router.route('/')
+const article = router.route('/article/:id')
+const home = router.route('/')
 
 // while on /article/5
 article.isActive() === true
@@ -436,14 +534,14 @@ home.isActive() === false
 #### url
 
 ```js
-var article = router.route('/article/:id')
+const article = router.route('/article/:id')
 article.url({id: 5, page: 3}) === '/article/5?page=3'
 ```
 
 #### params
 
 ```js
-var article = router.route('/article/:id')
+const article = router.route('/article/:id')
 
 // when on /article/5?page=3
 article.params() === {id: '5', page: '3'}
@@ -457,7 +555,7 @@ article.params('/article/10') === {id: '10'}
 #### push
 
 ```js
-var article = router.route('/article/:id')
+const article = router.route('/article/:id')
 
 // push history, resetting scroll to 0, 0
 article.push({id: 5})
@@ -469,7 +567,7 @@ article.push({id: 5}, {resetScroll: false})
 #### replace
 
 ```js
-var article = router.route('/article/:id')
+const article = router.route('/article/:id')
 
 // replace history, only in push state
 article.replace({id: 5})
@@ -478,7 +576,7 @@ article.replace({id: 5})
 ### Route Options
 
 ```js
-var article = router.route('/article/:id')
+const article = router.route('/article/:id')
 
 class App {
   routes() {
@@ -513,8 +611,8 @@ Each route definition can contain the following methods:
 You can create new router with different options:
 
 ```js
-var hyperdomRouter = require('hyperdom/router')
-var router = hyperdomRouter.router(options)
+const hyperdomRouter = require('hyperdom/router')
+const router = hyperdomRouter.router(options)
 ```
 
 Where `options` can contain:
@@ -689,7 +787,7 @@ this.items.map(item => {
 You may have an array of vdom elements that you want to join together with a separator, something very much like `Array.prototype.join()`, but for vdom.
 
 ```jsx
-var items = ['one', 'two', 'three']
+const items = ['one', 'two', 'three']
 hyperdom.join(items.map(i => <code>{i}</code>), ', ')
 ```
 
@@ -764,7 +862,7 @@ class App {
 Bind the model to each radio button. The buttons can be bound to complex (non-string) values, such as the `blue` object below.
 
 ```jsx
-var blue = { name: 'blue' };
+const blue = { name: 'blue' };
 
 class App {
   constructor() {
@@ -790,7 +888,7 @@ hyperdom.append(document.body, new App());
 Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
 
 ```jsx
-var blue = { name: 'blue' };
+const blue = { name: 'blue' };
 
 class App {
   constructor() {
@@ -834,7 +932,7 @@ class App {
 
   loadFile(file) {
     return new Promise((resolve) => {
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.readAsText(file);
 
       reader.onloadend = () => {
@@ -856,7 +954,7 @@ You can attach event handlers to `window`, such as `window.onscroll` and `window
 E.g. to add an `onresize` handler:
 
 ```js
-var windowEvents = require('hyperdom/windowEvents');
+const windowEvents = require('hyperdom/windowEvents');
 
 class App {
   render() {
@@ -879,9 +977,9 @@ Sometimes you have an input that doesn't map cleanly to a view, this is often ju
 For this you can use a `mapBinding`, found in `hyperdom/mapBinding`.
 
 ```jsx
-var mapBinding = require('hyperdom/mapBinding')
+const mapBinding = require('hyperdom/mapBinding')
 
-var integer = {
+const integer = {
   view (model) {
     // convert the model value to a string for the view
     return model.toString()
@@ -899,9 +997,9 @@ var integer = {
 As is often the case, it's possible that the user enters an invalid value for the model, for example they type `xyz` into a field that should be a number. When this happens, you can throw an exception on the `model(value)` method. When this happens, the model is not modified, and so keeps the old value, but also, crucially, the view continues to be rendered with the invalid value. This way, the user can go from a valid value, they can pass through some invalid values as they type in finally a valid value. For example, when typing the date `2020-02-04`, it's not until the date is fully typed that it becomes valid.
 
 ```js
-var mapBinding = require('hyperdom/mapBinding')
+const mapBinding = require('hyperdom/mapBinding')
 
-var date = {
+const date = {
   view (date) {
     // convert the model value into the user input value
     return `${date.getFullYear()}-${date.getUTCMonth() + 1}-${date.getUTCDate()}`
@@ -958,7 +1056,7 @@ Components can implement these methods:
 Model components are simply just plain objects that implement `render()` and some of the methods above. They are rendered by simply placing them in the VDOM:
 
 ```jsx
-var component = {
+const component = {
   render() {
     return <h1>model component</h1>
   }
@@ -1041,7 +1139,7 @@ However, if you want to initialise some state once when the component is first r
 To cache the output from `render()`, return a non-undefined cache key from `renderCacheKey()`. This is useful if the component renders something large, for example, in the 10s of thousands of HTML nodes. For example, the following will only re-render when `this.version` changes:
 
 ```jsx
-var component = {
+const component = {
   constructor () {
     this.version = 0
   }
@@ -1075,7 +1173,7 @@ Sometimes you want to refresh the view but not just after a UI event. For this, 
 Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `hyperdom.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
 
 ```js
-var refreshHandler = h.refreshify(handler, [options]);
+const refreshHandler = h.refreshify(handler, [options]);
 ```
 
 * `handler` - a function that handles some event, can return a promise.
@@ -1090,7 +1188,7 @@ var refreshHandler = h.refreshify(handler, [options]);
 You can customise how bindings refresh the page by using `hyperdom.html.binding()`.
 
 ```js
-var binding = hyperdom.html.binding(binding, options);
+const binding = hyperdom.html.binding(binding, options);
 ```
 
 * `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
@@ -1111,11 +1209,11 @@ Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Ma
 You can render HTML as text, for example on the server, by using `toHtml`:
 
 ```js
-var hyperdom = require('hyperdom')
-var h = hyperdom.html;
-var toHtml = require('hyperdom/toHtml');
+const hyperdom = require('hyperdom')
+const h = hyperdom.html;
+const toHtml = require('hyperdom/toHtml');
 
-var vdom = h('html',
+const vdom = h('html',
   h('head',
     h('link', {rel: 'stylesheet', href: '/style.css'})
   ),
@@ -1124,7 +1222,7 @@ var vdom = h('html',
   )
 );
 
-var html = toHtml(vdom);
+const html = toHtml(vdom);
 console.log(html);
 ```
 
@@ -1152,7 +1250,7 @@ Will generate
 
 ## Production Build
 
-Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment variable, and when set to `production` will turn these features off.
+Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment constiable, and when set to `production` will turn these features off.
 
 To make a production build with webpack, use `webpack -p`.
 
@@ -1188,7 +1286,7 @@ This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a r
 ### Rendering the Virtual DOM
 
 ```js
-var vdomFragment = hyperdom.html(selector, [attributes], children, ...);
+const vdomFragment = hyperdom.html(selector, [attributes], children, ...);
 ```
 
 * `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
@@ -1241,7 +1339,7 @@ If the event handler returns a [Promise](https://promisesaplus.com/), then the v
 **Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
 
 ```js
-var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
+const vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 ```
 
 * `selector` - (almost) any selector, containing element names, classes and ids. E.g. `tag.class#id`
@@ -1251,8 +1349,8 @@ var vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 ### Attaching to the DOM
 
 ```js
-var attachment = hyperdom.append(element, component, [options]);
-var attachment = hyperdom.replace(element, component, [options]);
+const attachment = hyperdom.append(element, component, [options]);
+const attachment = hyperdom.replace(element, component, [options]);
 ```
 
 * `attachment` - the instance of the hyperdom attachment, see below.
