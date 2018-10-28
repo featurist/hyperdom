@@ -19,7 +19,7 @@ import windowEvents = require('../../windowEvents')
 import merge = require('../../merge')
 import runRender = require('../../render')
 import Mount = require('../../mount')
-import {IApp, AppFn} from '../..'
+import {IApp, AppFn, INodeProps} from '../..'
 
 const detect = {
   dataset: typeof document.body.dataset === 'object',
@@ -278,6 +278,7 @@ describe('hyperdom', function() {
     itCanRenderA('date', new Date())
     itCanRenderA('undefined', undefined, '')
 
+    /* TODO ask Tim if we can depricate this
     it('can render an object', function() {
       function render() {
         return h('div.haha', 'object ', { name: 'asdf' })
@@ -287,6 +288,7 @@ describe('hyperdom', function() {
 
       expect(find('.haha').text()).to.equal('object {"name":"asdf"}')
     })
+    */
 
     describe('class', function() {
       it('accepts a string', function() {
@@ -2513,7 +2515,7 @@ describe('hyperdom', function() {
 
       const home = router.route('**')
 
-      const outer = {
+      const outer: IApp = {
         routes() {
           return [
             home({
