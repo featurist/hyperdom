@@ -7,8 +7,7 @@ export interface RouteDefinition {
   }
 }
 
-export interface NotFound {
-}
+export type NotFound = object
 
 export interface IRouter {
   push(url: string): void
