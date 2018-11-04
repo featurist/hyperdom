@@ -658,6 +658,12 @@ describe('hyperdom', function () {
 
       expect(find('div button span.title').text()).to.equal('no title')
     })
+
+    // xit is intentional - this test only exercies type checking
+    xit('compiles with string binding', function () {
+      jsx('button', {binding: 'this.stuff'})
+      jsx('button', {binding: 'this.stuff'}, h('span'))
+    })
   })
 
   describe('xml', function () {
