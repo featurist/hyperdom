@@ -29,6 +29,15 @@ describe('to html', function () {
     )
   })
 
+  it('does not render false', function () {
+    var vdom = {
+      render: function () {
+        return h('div', false && h('h1', 'haha'))
+      }
+    }
+    expect(toHtml(vdom)).to.equal('<div></div>')
+  })
+
   it('can render top-level model components to HTML', function () {
     var vdom = {
       render: function () {

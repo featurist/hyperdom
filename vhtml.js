@@ -8,9 +8,11 @@ var softSetHook = require('virtual-dom/virtual-hyperscript/hooks/soft-set-hook.j
 
 module.exports = h
 
-function h (tagName, props, children) {
+function h (tagName, props, childElements) {
   var tag = tagName
-
+  var children = childElements.filter(function (element) {
+    return element.text !== 'false'
+  })
   // support keys
   if (props.hasOwnProperty('key')) {
     var key = props.key
