@@ -7,23 +7,23 @@ declare namespace hyperdom {
     children: any[]
   }
 
-  export interface RenderApp {
-    render (): VdomFragment | App
-  }
-
-  export interface RoutesApp {
-    routes (): router.Route[]
-
-    renderLayout? (content: any): VdomFragment | App
-  }
-
-  export type App = RoutesApp | RenderApp
-
-  export class HyperdomApp {
+  abstract class HyperdomApp {
     public refreshImmediately (): void
     public refreshComponent (): void
     public refresh (): void
   }
+
+  export abstract class RenderApp extends HyperdomApp {
+    public abstract render (): VdomFragment | App
+  }
+
+  export abstract class RoutesApp extends HyperdomApp {
+    public abstract routes (): router.Route[]
+
+    protected renderLayout (content: any): VdomFragment | App
+  }
+
+  export type App = RoutesApp | RenderApp
 
   interface DomAttachement {
     remove (): void
@@ -45,28 +45,11 @@ declare namespace hyperdom {
   }
 
   // TODO what about Promise<void> ?
-  export type SimpleBinding = [object, string] | [object, string, (param: string | number) => void]
+  export type SimpleBinding = [object, string] | [object, string, (param: string | number) => any]
 
   export type Binding = ObjectBinding | SimpleBinding
 
-  export interface NodeProps {
-    [key: string]: any
-
-    binding?: Binding
-
-    onclick? (): void
-  }
-
-  // This is to support hyperdom-babel-preset string binding. Not covered by tests.
-  export interface JsxNodeProps {
-    [key: string]: any
-
-    binding?: Binding | string
-
-    onclick? (): void
-  }
-
-  export type AppFn = (model?: object) => VdomFragment
+  export type AppFn = (model?: any) => VdomFragment
 
   export function append (root: HTMLElement, app: App | AppFn, opts?: MountOpts): DomAttachement
 
@@ -76,6 +59,24 @@ declare namespace hyperdom {
     error: {
       message: string,
     }
+  }
+
+  export interface NodeProps {
+    // TODO: enumarate all possible keys instead
+    [key: string]: string | number | object | boolean | undefined | null
+
+    binding?: Binding
+
+    onclick? (): void
+  }
+
+  // This is to support hyperdom-babel-preset string binding. Not covered by tests.
+  export interface JsxNodeProps {
+    [key: string]: string | number | object | boolean | undefined | null
+
+    binding?: Binding | string
+
+    onclick? (): void
   }
 
   // TODO Date?

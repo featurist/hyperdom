@@ -2,6 +2,7 @@ import * as hyperdom from '../..'
 import toHtml = require('../../toHtml')
 const h = hyperdom.html
 import {expect} from 'chai'
+import {RenderApp} from "../../index"
 
 describe('to html', function () {
   it('can render regular virtual dom to HTML', function () {
@@ -28,11 +29,11 @@ describe('to html', function () {
   })
 
   it('can render top-level model components to HTML', function () {
-    const vdom = {
-      render () {
+    const vdom = new class extends RenderApp {
+      public render () {
         return h('div', 'component')
-      },
-    }
+      }
+    }()
 
     expect(toHtml(vdom)).to.equal(
       '<div>component</div>',
@@ -41,11 +42,11 @@ describe('to html', function () {
 
   it('can render view components to HTML', function () {
     const vdom = h('div',
-      hyperdom.viewComponent({
-        render () {
+      hyperdom.viewComponent(new class extends RenderApp {
+        public render () {
           return h('div', 'component')
-        },
-      }),
+        }
+      }()),
     )
     expect(toHtml(vdom)).to.equal(
       '<div><div>component</div></div>',
@@ -53,11 +54,11 @@ describe('to html', function () {
   })
 
   it('can render top-level view components to HTML', function () {
-    const vdom = hyperdom.viewComponent({
-      render () {
+    const vdom = hyperdom.viewComponent(new class extends RenderApp {
+      public render () {
         return h('div', 'component')
-      },
-    })
+      }
+    }())
 
     expect(toHtml(vdom)).to.equal(
       '<div>component</div>',

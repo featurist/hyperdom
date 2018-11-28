@@ -6,6 +6,8 @@
     "types": ["mocha"],
     "noImplicitAny": true,
     "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "baseUrl": "."
