@@ -55,7 +55,7 @@
     "webpack": "4.20.2"
   },
   "scripts": {
-    "test": "npm run karma && npm run mocha && eslint . && npm run tslint",
+    "test": "./node_modules/.bin/tsc && npm run karma && npm run mocha && eslint . && npm run tslint",
     "test-all": "BROWSERS=all npm test",
     "tslint": "tslint --project . *.d.ts test/**/*.ts",
     "karma": "karma start --single-run",

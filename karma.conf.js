@@ -42,7 +42,10 @@ module.exports = function (config) {
             test: /\.ts$/,
             loader: 'ts-loader',
             options: {
+              // karma does not fail on compilation errors - so get rid of typechecking to save few seconds.
+              transpileOnly: true,
               compilerOptions: {
+                noEmit: false,
                 target: 'es5'
               }
             },

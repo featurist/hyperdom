@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
     "lib": ["es6", "dom", "esnext"],
     "types": ["mocha"],
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
-    "removeComments": true,
     "preserveConstEnums": true,
+    "sourceMap": true,
+    "noEmit": true,
     "baseUrl": "."
   },
   "exclude": [
