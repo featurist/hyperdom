@@ -9,6 +9,13 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "noEmit": true,
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin",
+        "ignoreDefinitionFiles": true,
+        "configFile": "./tslint.json"
+      }
+    ],
     "baseUrl": "."
   },
   "exclude": [

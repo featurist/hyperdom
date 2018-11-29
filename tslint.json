@@ -2,7 +2,8 @@
   "defaultSeverity": "error",
   "linterOptions": {
     "exclude": [
-      "**/*.json"
+      "**/*.json",
+      "node_modules"
     ]
   },
   "extends": [
