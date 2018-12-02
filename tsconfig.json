@@ -8,6 +8,8 @@
     "noImplicitThis": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx",
     "noEmit": true,
     "plugins": [
       {

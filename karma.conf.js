@@ -13,7 +13,8 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/browser/**/*Spec.ts'
+      'test/browser/**/*Spec.ts',
+      'test/browser/**/*Spec.tsx'
     ],
 
     // list of files to exclude
@@ -24,7 +25,8 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'test/browser/**/*Spec.ts': ['webpack', 'sourcemap']
+      'test/browser/**/*Spec.ts': ['webpack', 'sourcemap'],
+      'test/browser/**/*Spec.tsx': ['webpack', 'sourcemap']
     },
 
     webpack: {
@@ -34,12 +36,12 @@ module.exports = function (config) {
       },
       devtool: 'inline-source-map',
       resolve: {
-        extensions: ['.js', '.ts']
+        extensions: ['.js', '.ts', '.tsx']
       },
       module: {
         rules: [
           {
-            test: /\.ts$/,
+            test: /\.tsx?$/,
             loader: 'ts-loader',
             options: {
               // karma does not fail on compilation errors - so get rid of typechecking to save few seconds.
