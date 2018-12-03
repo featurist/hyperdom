@@ -24,6 +24,22 @@ describe('tsx integration', function () {
     await browser.find('div').shouldHave({text: 'Blue'})
   })
 
+  // just checking compilation errors here - hence xit
+  xit('supports hyperdom specific node attributes', function () {
+    function render (this: hyperdom.AppFn) {
+      return (
+        <div>
+          <button binding={[this, 'name']}></button>
+          <ul>
+            <li key="one">one</li>
+            <li key="two">two</li>
+            <li key="three">three</li>
+          </ul>
+        </div>
+      )
+    }
+  })
+
   it('renders hyperdom viewComponent', async function () {
     class Blue extends hyperdom.RenderApp {
       private readonly title: string

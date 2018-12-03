@@ -61,13 +61,19 @@ declare namespace hyperdom {
     }
   }
 
-  export interface NodeProps {
+  export interface HtmlNodeProps {
     [key: string]: string | number | object | boolean | undefined | null
+  }
 
+  export interface HyperdomNodeProps {
     binding?: Binding
+
+    key?: string | number
 
     onclick? (): void
   }
+
+  export type NodeProps = HtmlNodeProps & HyperdomNodeProps
 
   // TODO Date?
   export type Renderable = string | number | boolean | undefined | null | VdomFragment | App
@@ -109,180 +115,180 @@ export = hyperdom
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      // HTML
-      a: Partial<HTMLAnchorElement>
-      abbr: Partial<HTMLElement>
-      address: Partial<HTMLElement>
-      area: Partial<HTMLAreaElement>
-      article: Partial<HTMLElement>
-      aside: Partial<HTMLElement>
-      audio: Partial<HTMLAudioElement>
-      b: Partial<HTMLElement>
-      base: Partial<HTMLBaseElement>
-      bdi: Partial<HTMLElement>
-      bdo: Partial<HTMLElement>
-      big: Partial<HTMLElement>
-      blockquote: Partial<HTMLElement>
-      body: Partial<HTMLBodyElement>
-      br: Partial<HTMLBRElement>
-      button: Partial<HTMLButtonElement>
-      canvas: Partial<HTMLCanvasElement>
-      caption: Partial<HTMLElement>
-      cite: Partial<HTMLElement>
-      code: Partial<HTMLElement>
-      col: Partial<HTMLTableColElement>
-      colgroup: Partial<HTMLTableColElement>
-      data: Partial<HTMLElement>
-      datalist: Partial<HTMLDataListElement>
-      dd: Partial<HTMLElement>
-      del: Partial<HTMLElement>
-      details: Partial<HTMLElement>
-      dfn: Partial<HTMLElement>
-      dialog: Partial<HTMLDialogElement>
-      div: Partial<HTMLDivElement>
-      dl: Partial<HTMLDListElement>
-      dt: Partial<HTMLElement>
-      em: Partial<HTMLElement>
-      embed: Partial<HTMLEmbedElement>
-      fieldset: Partial<HTMLFieldSetElement>
-      figcaption: Partial<HTMLElement>
-      figure: Partial<HTMLElement>
-      footer: Partial<HTMLElement>
-      form: Partial<HTMLFormElement>
-      h1: Partial<HTMLHeadingElement>
-      h2: Partial<HTMLHeadingElement>
-      h3: Partial<HTMLHeadingElement>
-      h4: Partial<HTMLHeadingElement>
-      h5: Partial<HTMLHeadingElement>
-      h6: Partial<HTMLHeadingElement>
-      head: Partial<HTMLHeadElement>
-      header: Partial<HTMLElement>
-      hgroup: Partial<HTMLElement>
-      hr: Partial<HTMLHRElement>
-      html: Partial<HTMLHtmlElement>
-      i: Partial<HTMLElement>
-      iframe: Partial<HTMLIFrameElement>
-      img: Partial<HTMLImageElement>
-      input: Partial<HTMLInputElement>
-      ins: Partial<HTMLModElement>
-      kbd: Partial<HTMLElement>
-      keygen: Partial<HTMLElement>
-      label: Partial<HTMLLabelElement>
-      legend: Partial<HTMLLegendElement>
-      li: Partial<HTMLLIElement>
-      link: Partial<HTMLLinkElement>
-      main: Partial<HTMLElement>
-      map: Partial<HTMLMapElement>
-      mark: Partial<HTMLElement>
-      menu: Partial<HTMLElement>
-      menuitem: Partial<HTMLElement>
-      meta: Partial<HTMLMetaElement>
-      meter: Partial<HTMLElement>
-      nav: Partial<HTMLElement>
-      noindex: Partial<HTMLElement>
-      noscript: Partial<HTMLElement>
-      object: Partial<HTMLObjectElement>
-      ol: Partial<HTMLOListElement>
-      optgroup: Partial<HTMLOptGroupElement>
-      option: Partial<HTMLOptionElement>
-      output: Partial<HTMLElement>
-      p: Partial<HTMLParagraphElement>
-      param: Partial<HTMLParamElement>
-      picture: Partial<HTMLElement>
-      pre: Partial<HTMLPreElement>
-      progress: Partial<HTMLProgressElement>
-      q: Partial<HTMLQuoteElement>
-      rp: Partial<HTMLElement>
-      rt: Partial<HTMLElement>
-      ruby: Partial<HTMLElement>
-      s: Partial<HTMLElement>
-      samp: Partial<HTMLElement>
-      script: Partial<HTMLScriptElement>
-      section: Partial<HTMLElement>
-      select: Partial<HTMLSelectElement>
-      small: Partial<HTMLElement>
-      source: Partial<HTMLSourceElement>
-      span: Partial<HTMLSpanElement>
-      strong: Partial<HTMLElement>
-      style: Partial<HTMLStyleElement>
-      sub: Partial<HTMLElement>
-      summary: Partial<HTMLElement>
-      sup: Partial<HTMLElement>
-      table: Partial<HTMLTableElement>
-      tbody: Partial<HTMLTableSectionElement>
-      td: Partial<HTMLTableDataCellElement>
-      textarea: Partial<HTMLTextAreaElement>
-      tfoot: Partial<HTMLTableSectionElement>
-      th: Partial<HTMLTableHeaderCellElement>
-      thead: Partial<HTMLTableSectionElement>
-      time: Partial<HTMLElement>
-      title: Partial<HTMLTitleElement>
-      tr: Partial<HTMLTableRowElement>
-      track: Partial<HTMLTrackElement>
-      u: Partial<HTMLElement>
-      ul: Partial<HTMLUListElement>
-      "var": Partial<HTMLElement>
-      video: Partial<HTMLVideoElement>
-      wbr: Partial<HTMLElement>
-      // webview: Partial<HTMLWebViewElement>
-
-      // Partial<SVG>
-      svg: Partial<SVGSVGElement>
-
-      animate: Partial<SVGElement>
-      animateTransform: Partial<SVGElement>
-      circle: Partial<SVGCircleElement>
-      clipPath: Partial<SVGClipPathElement>
-      defs: Partial<SVGDefsElement>
-      desc: Partial<SVGDescElement>
-      ellipse: Partial<SVGEllipseElement>
-      feBlend: Partial<SVGFEBlendElement>
-      feColorMatrix: Partial<SVGFEColorMatrixElement>
-      feComponentTransfer: Partial<SVGFEComponentTransferElement>
-      feComposite: Partial<SVGFECompositeElement>
-      feConvolveMatrix: Partial<SVGFEConvolveMatrixElement>
-      feDiffuseLighting: Partial<SVGFEDiffuseLightingElement>
-      feDisplacementMap: Partial<SVGFEDisplacementMapElement>
-      feDistantLight: Partial<SVGFEDistantLightElement>
-      feFlood: Partial<SVGFEFloodElement>
-      feFuncA: Partial<SVGFEFuncAElement>
-      feFuncB: Partial<SVGFEFuncBElement>
-      feFuncG: Partial<SVGFEFuncGElement>
-      feFuncR: Partial<SVGFEFuncRElement>
-      feGaussianBlur: Partial<SVGFEGaussianBlurElement>
-      feImage: Partial<SVGFEImageElement>
-      feMerge: Partial<SVGFEMergeElement>
-      feMergeNode: Partial<SVGFEMergeNodeElement>
-      feMorphology: Partial<SVGFEMorphologyElement>
-      feOffset: Partial<SVGFEOffsetElement>
-      fePointLight: Partial<SVGFEPointLightElement>
-      feSpecularLighting: Partial<SVGFESpecularLightingElement>
-      feSpotLight: Partial<SVGFESpotLightElement>
-      feTile: Partial<SVGFETileElement>
-      feTurbulence: Partial<SVGFETurbulenceElement>
-      filter: Partial<SVGFilterElement>
-      foreignObject: Partial<SVGForeignObjectElement>
-      g: Partial<SVGGElement>
-      image: Partial<SVGImageElement>
-      line: Partial<SVGLineElement>
-      linearGradient: Partial<SVGLinearGradientElement>
-      marker: Partial<SVGMarkerElement>
-      mask: Partial<SVGMaskElement>
-      metadata: Partial<SVGMetadataElement>
-      path: Partial<SVGPathElement>
-      pattern: Partial<SVGPatternElement>
-      polygon: Partial<SVGPolygonElement>
-      polyline: Partial<SVGPolylineElement>
-      radialGradient: Partial<SVGRadialGradientElement>
-      rect: Partial<SVGRectElement>
-      stop: Partial<SVGStopElement>
-      switch: Partial<SVGSwitchElement>
-      symbol: Partial<SVGSymbolElement>
-      text: Partial<SVGTextElement>
-      textPath: Partial<SVGTextPathElement>
-      tspan: Partial<SVGTSpanElement>
-      use: Partial<SVGUseElement>
-      view: Partial<SVGViewElement>
+      // HTML & hyperdom.HyperdomNodeProps
+      a: Partial<HTMLAnchorElement> & hyperdom.HyperdomNodeProps
+      abbr: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      address: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      area: Partial<HTMLAreaElement> & hyperdom.HyperdomNodeProps
+      article: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      aside: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      audio: Partial<HTMLAudioElement> & hyperdom.HyperdomNodeProps
+      b: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      base: Partial<HTMLBaseElement> & hyperdom.HyperdomNodeProps
+      bdi: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      bdo: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      big: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      blockquote: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      body: Partial<HTMLBodyElement> & hyperdom.HyperdomNodeProps
+      br: Partial<HTMLBRElement> & hyperdom.HyperdomNodeProps
+      button: Partial<HTMLButtonElement> & hyperdom.HyperdomNodeProps
+      canvas: Partial<HTMLCanvasElement> & hyperdom.HyperdomNodeProps
+      caption: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      cite: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      code: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      col: Partial<HTMLTableColElement> & hyperdom.HyperdomNodeProps
+      colgroup: Partial<HTMLTableColElement> & hyperdom.HyperdomNodeProps
+      data: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      datalist: Partial<HTMLDataListElement> & hyperdom.HyperdomNodeProps
+      dd: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      del: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      details: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      dfn: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      dialog: Partial<HTMLDialogElement> & hyperdom.HyperdomNodeProps
+      div: Partial<HTMLDivElement> & hyperdom.HyperdomNodeProps
+      dl: Partial<HTMLDListElement> & hyperdom.HyperdomNodeProps
+      dt: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      em: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      embed: Partial<HTMLEmbedElement> & hyperdom.HyperdomNodeProps
+      fieldset: Partial<HTMLFieldSetElement> & hyperdom.HyperdomNodeProps
+      figcaption: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      figure: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      footer: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      form: Partial<HTMLFormElement> & hyperdom.HyperdomNodeProps
+      h1: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      h2: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      h3: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      h4: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      h5: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      h6: Partial<HTMLHeadingElement> & hyperdom.HyperdomNodeProps
+      head: Partial<HTMLHeadElement> & hyperdom.HyperdomNodeProps
+      header: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      hgroup: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      hr: Partial<HTMLHRElement> & hyperdom.HyperdomNodeProps
+      html: Partial<HTMLHtmlElement> & hyperdom.HyperdomNodeProps
+      i: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      iframe: Partial<HTMLIFrameElement> & hyperdom.HyperdomNodeProps
+      img: Partial<HTMLImageElement> & hyperdom.HyperdomNodeProps
+      input: Partial<HTMLInputElement> & hyperdom.HyperdomNodeProps
+      ins: Partial<HTMLModElement> & hyperdom.HyperdomNodeProps
+      kbd: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      keygen: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      label: Partial<HTMLLabelElement> & hyperdom.HyperdomNodeProps
+      legend: Partial<HTMLLegendElement> & hyperdom.HyperdomNodeProps
+      li: Partial<HTMLLIElement> & hyperdom.HyperdomNodeProps
+      link: Partial<HTMLLinkElement> & hyperdom.HyperdomNodeProps
+      main: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      map: Partial<HTMLMapElement> & hyperdom.HyperdomNodeProps
+      mark: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      menu: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      menuitem: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      meta: Partial<HTMLMetaElement> & hyperdom.HyperdomNodeProps
+      meter: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      nav: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      noindex: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      noscript: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      object: Partial<HTMLObjectElement> & hyperdom.HyperdomNodeProps
+      ol: Partial<HTMLOListElement> & hyperdom.HyperdomNodeProps
+      optgroup: Partial<HTMLOptGroupElement> & hyperdom.HyperdomNodeProps
+      option: Partial<HTMLOptionElement> & hyperdom.HyperdomNodeProps
+      output: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      p: Partial<HTMLParagraphElement> & hyperdom.HyperdomNodeProps
+      param: Partial<HTMLParamElement> & hyperdom.HyperdomNodeProps
+      picture: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      pre: Partial<HTMLPreElement> & hyperdom.HyperdomNodeProps
+      progress: Partial<HTMLProgressElement> & hyperdom.HyperdomNodeProps
+      q: Partial<HTMLQuoteElement> & hyperdom.HyperdomNodeProps
+      rp: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      rt: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      ruby: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      s: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      samp: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      script: Partial<HTMLScriptElement> & hyperdom.HyperdomNodeProps
+      section: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      select: Partial<HTMLSelectElement> & hyperdom.HyperdomNodeProps
+      small: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      source: Partial<HTMLSourceElement> & hyperdom.HyperdomNodeProps
+      span: Partial<HTMLSpanElement> & hyperdom.HyperdomNodeProps
+      strong: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      style: Partial<HTMLStyleElement> & hyperdom.HyperdomNodeProps
+      sub: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      summary: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      sup: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      table: Partial<HTMLTableElement> & hyperdom.HyperdomNodeProps
+      tbody: Partial<HTMLTableSectionElement> & hyperdom.HyperdomNodeProps
+      td: Partial<HTMLTableDataCellElement> & hyperdom.HyperdomNodeProps
+      textarea: Partial<HTMLTextAreaElement> & hyperdom.HyperdomNodeProps
+      tfoot: Partial<HTMLTableSectionElement> & hyperdom.HyperdomNodeProps
+      th: Partial<HTMLTableHeaderCellElement> & hyperdom.HyperdomNodeProps
+      thead: Partial<HTMLTableSectionElement> & hyperdom.HyperdomNodeProps
+      time: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      title: Partial<HTMLTitleElement> & hyperdom.HyperdomNodeProps
+      tr: Partial<HTMLTableRowElement> & hyperdom.HyperdomNodeProps
+      track: Partial<HTMLTrackElement> & hyperdom.HyperdomNodeProps
+      u: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      ul: Partial<HTMLUListElement> & hyperdom.HyperdomNodeProps
+      "var": Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      video: Partial<HTMLVideoElement> & hyperdom.HyperdomNodeProps
+      wbr: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+      webview: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
+ & hyperdom.HyperdomNodeProps
+      // SVG
+      svg: Partial<SVGSVGElement> & hyperdom.HyperdomNodeProps
+ & hyperdom.HyperdomNodeProps
+      animate: Partial<SVGElement> & hyperdom.HyperdomNodeProps
+      animateTransform: Partial<SVGElement> & hyperdom.HyperdomNodeProps
+      circle: Partial<SVGCircleElement> & hyperdom.HyperdomNodeProps
+      clipPath: Partial<SVGClipPathElement> & hyperdom.HyperdomNodeProps
+      defs: Partial<SVGDefsElement> & hyperdom.HyperdomNodeProps
+      desc: Partial<SVGDescElement> & hyperdom.HyperdomNodeProps
+      ellipse: Partial<SVGEllipseElement> & hyperdom.HyperdomNodeProps
+      feBlend: Partial<SVGFEBlendElement> & hyperdom.HyperdomNodeProps
+      feColorMatrix: Partial<SVGFEColorMatrixElement> & hyperdom.HyperdomNodeProps
+      feComponentTransfer: Partial<SVGFEComponentTransferElement> & hyperdom.HyperdomNodeProps
+      feComposite: Partial<SVGFECompositeElement> & hyperdom.HyperdomNodeProps
+      feConvolveMatrix: Partial<SVGFEConvolveMatrixElement> & hyperdom.HyperdomNodeProps
+      feDiffuseLighting: Partial<SVGFEDiffuseLightingElement> & hyperdom.HyperdomNodeProps
+      feDisplacementMap: Partial<SVGFEDisplacementMapElement> & hyperdom.HyperdomNodeProps
+      feDistantLight: Partial<SVGFEDistantLightElement> & hyperdom.HyperdomNodeProps
+      feFlood: Partial<SVGFEFloodElement> & hyperdom.HyperdomNodeProps
+      feFuncA: Partial<SVGFEFuncAElement> & hyperdom.HyperdomNodeProps
+      feFuncB: Partial<SVGFEFuncBElement> & hyperdom.HyperdomNodeProps
+      feFuncG: Partial<SVGFEFuncGElement> & hyperdom.HyperdomNodeProps
+      feFuncR: Partial<SVGFEFuncRElement> & hyperdom.HyperdomNodeProps
+      feGaussianBlur: Partial<SVGFEGaussianBlurElement> & hyperdom.HyperdomNodeProps
+      feImage: Partial<SVGFEImageElement> & hyperdom.HyperdomNodeProps
+      feMerge: Partial<SVGFEMergeElement> & hyperdom.HyperdomNodeProps
+      feMergeNode: Partial<SVGFEMergeNodeElement> & hyperdom.HyperdomNodeProps
+      feMorphology: Partial<SVGFEMorphologyElement> & hyperdom.HyperdomNodeProps
+      feOffset: Partial<SVGFEOffsetElement> & hyperdom.HyperdomNodeProps
+      fePointLight: Partial<SVGFEPointLightElement> & hyperdom.HyperdomNodeProps
+      feSpecularLighting: Partial<SVGFESpecularLightingElement> & hyperdom.HyperdomNodeProps
+      feSpotLight: Partial<SVGFESpotLightElement> & hyperdom.HyperdomNodeProps
+      feTile: Partial<SVGFETileElement> & hyperdom.HyperdomNodeProps
+      feTurbulence: Partial<SVGFETurbulenceElement> & hyperdom.HyperdomNodeProps
+      filter: Partial<SVGFilterElement> & hyperdom.HyperdomNodeProps
+      foreignObject: Partial<SVGForeignObjectElement> & hyperdom.HyperdomNodeProps
+      g: Partial<SVGGElement> & hyperdom.HyperdomNodeProps
+      image: Partial<SVGImageElement> & hyperdom.HyperdomNodeProps
+      line: Partial<SVGLineElement> & hyperdom.HyperdomNodeProps
+      linearGradient: Partial<SVGLinearGradientElement> & hyperdom.HyperdomNodeProps
+      marker: Partial<SVGMarkerElement> & hyperdom.HyperdomNodeProps
+      mask: Partial<SVGMaskElement> & hyperdom.HyperdomNodeProps
+      metadata: Partial<SVGMetadataElement> & hyperdom.HyperdomNodeProps
+      path: Partial<SVGPathElement> & hyperdom.HyperdomNodeProps
+      pattern: Partial<SVGPatternElement> & hyperdom.HyperdomNodeProps
+      polygon: Partial<SVGPolygonElement> & hyperdom.HyperdomNodeProps
+      polyline: Partial<SVGPolylineElement> & hyperdom.HyperdomNodeProps
+      radialGradient: Partial<SVGRadialGradientElement> & hyperdom.HyperdomNodeProps
+      rect: Partial<SVGRectElement> & hyperdom.HyperdomNodeProps
+      stop: Partial<SVGStopElement> & hyperdom.HyperdomNodeProps
+      switch: Partial<SVGSwitchElement> & hyperdom.HyperdomNodeProps
+      symbol: Partial<SVGSymbolElement> & hyperdom.HyperdomNodeProps
+      text: Partial<SVGTextElement> & hyperdom.HyperdomNodeProps
+      textPath: Partial<SVGTextPathElement> & hyperdom.HyperdomNodeProps
+      tspan: Partial<SVGTSpanElement> & hyperdom.HyperdomNodeProps
+      use: Partial<SVGUseElement> & hyperdom.HyperdomNodeProps
+      view: Partial<SVGViewElement> & hyperdom.HyperdomNodeProps
     }
   }
 }
