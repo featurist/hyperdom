@@ -23,4 +23,36 @@ describe('tsx integration', function () {
     mount(render)
     await browser.find('div').shouldHave({text: 'Blue'})
   })
+
+  it('renders hyperdom viewComponent', async function () {
+    class Blue extends hyperdom.RenderApp {
+      private readonly title: string
+
+      constructor (properties: { title: string }, readonly children: unknown) {
+        super()
+        this.title = properties.title
+        this.children = children
+      }
+
+      public render () {
+        return <div>
+          <h1>{this.title}</h1>
+          {this.children}
+        </div>
+      }
+    }
+
+    function render () {
+      return (
+        <div>
+          <Blue title="Blue">
+            <div>Orange</div>
+          </Blue>
+        </div>
+      )
+    }
+    mount(render)
+    await browser.find('div h1').shouldHave({text: 'Blue'})
+    await browser.find('div').shouldHave({text: 'Orange'})
+  })
 })

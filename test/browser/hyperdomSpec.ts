@@ -280,9 +280,10 @@ describe('hyperdom', function () {
     itCanRenderA('date', new Date())
     itCanRenderA('undefined', undefined, '')
 
-    /* TODO ask Tim if we can depricate this
-    it('can render an object', function() {
-      function render() {
+    it('can render an object', function () {
+      function render () {
+        // this is an undocumented feature that probably should be deprecated anyway
+        // @ts-ignore
         return h('div.haha', 'object ', { name: 'asdf' })
       }
 
@@ -290,7 +291,6 @@ describe('hyperdom', function () {
 
       expect(find('.haha').text()).to.equal('object {"name":"asdf"}')
     })
-    */
 
     describe('class', function () {
       it('accepts a string', function () {
@@ -659,12 +659,6 @@ describe('hyperdom', function () {
       attach(app)
 
       expect(find('div button span.title').text()).to.equal('no title')
-    })
-
-    // xit is intentional - this test only exercies type checking
-    xit('compiles with string binding', function () {
-      jsx('button', {binding: 'this.stuff'})
-      jsx('button', {binding: 'this.stuff'}, h('span'))
     })
   })
 

@@ -62,19 +62,9 @@ declare namespace hyperdom {
   }
 
   export interface NodeProps {
-    // TODO: enumarate all possible keys instead
     [key: string]: string | number | object | boolean | undefined | null
 
     binding?: Binding
-
-    onclick? (): void
-  }
-
-  // This is to support hyperdom-babel-preset string binding. Not covered by tests.
-  export interface JsxNodeProps {
-    [key: string]: string | number | object | boolean | undefined | null
-
-    binding?: Binding | string
 
     onclick? (): void
   }
@@ -93,7 +83,6 @@ declare namespace hyperdom {
   }
   export {html}
 
-  // TODO combine with the one above
   export function rawHtml (tag: string, ...children: Renderable[]): VdomFragment
   export function rawHtml (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment
 
@@ -103,7 +92,7 @@ declare namespace hyperdom {
 
   const jsx: (
     tag: string | { new(...params: any[]): App },
-    nodeProps: JsxNodeProps | undefined,
+    nodeProps: NodeProps | undefined,
     children?: Renderable | Renderable[],
   ) => VdomFragment
   export {jsx}
