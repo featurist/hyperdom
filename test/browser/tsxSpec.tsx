@@ -44,17 +44,18 @@ describe('tsx integration', function () {
     class Blue extends hyperdom.RenderApp {
       private readonly title: string
 
-      constructor (properties: { title: string }, readonly children: unknown) {
+      constructor (properties: { title: string }, readonly children: hyperdom.Renderable[]) {
         super()
         this.title = properties.title
-        this.children = children
       }
 
       public render () {
-        return <div>
-          <h1>{this.title}</h1>
-          {this.children}
-        </div>
+        return (
+          <div>
+            <h1>{this.title}</h1>
+            {this.children}
+          </div>
+        )
       }
     }
 
@@ -62,13 +63,15 @@ describe('tsx integration', function () {
       return (
         <div>
           <Blue title="Blue">
-            <div>Orange</div>
+            <div className="orange">Orange</div>
+            <div className="green">Green</div>
           </Blue>
         </div>
       )
     }
     mount(render)
     await browser.find('div h1').shouldHave({text: 'Blue'})
-    await browser.find('div').shouldHave({text: 'Orange'})
+    await browser.find('.orange').shouldHave({text: 'Orange'})
+    await browser.find('.green').shouldHave({text: 'Green'})
   })
 })

@@ -355,17 +355,15 @@ function describeRouter (historyApiType: string) {
           public article = articleComponent()
 
           public routes () {
-            const self = this
-
             return [
               route({
-                onload (params: {id: number}) {
-                  return self.article.load(params.id)
+                onload: (params: {id: number}) => {
+                  return this.article.load(params.id)
                 },
 
-                render () {
+                render: () => {
                   return h('div',
-                    self.article,
+                    this.article,
                   )
                 },
               }),

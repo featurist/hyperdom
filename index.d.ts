@@ -44,7 +44,6 @@ declare namespace hyperdom {
     set (value: any): void
   }
 
-  // TODO what about Promise<void> ?
   export type SimpleBinding = [object, string] | [object, string, (param: string | number) => any]
 
   export type Binding = ObjectBinding | SimpleBinding
@@ -97,7 +96,7 @@ declare namespace hyperdom {
   export function appendVDom (root: VdomFragment, app: App | AppFn): DomAttachement
 
   const jsx: (
-    tag: string | { new(...params: any[]): App },
+    tag: string | { new<T extends object>(props: T, children: Renderable[]): App },
     nodeProps: NodeProps | undefined,
     children?: Renderable | Renderable[],
   ) => VdomFragment
