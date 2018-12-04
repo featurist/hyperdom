@@ -135,7 +135,7 @@ This works with the following in `tsconfig.json`:
 
 ```
 ...
-  "lib": ["dom"], // in addition to whatever else you want there
+  "lib": ["dom"],
   "jsx": "react",
   "jsxFactory": "hyperdom.jsx",
 ...
