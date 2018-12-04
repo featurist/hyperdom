@@ -113,7 +113,7 @@ This works with [babel-preset-hyperdom](https://github.com/featurist/babel-prese
 
 Same example in Typescript:
 
-```tsx
+```typescript
 import * as hyperdom from 'hyperdom'
 
 class App extends hyperdom.RenderComponent {
