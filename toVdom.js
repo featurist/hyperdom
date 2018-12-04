@@ -16,7 +16,7 @@ function toVdom (object) {
   } else if (typeof object.render === 'function') {
     return new Component(object)
   } else {
-    return new Vtext(JSON.stringify(object))
+    return new Vtext(objectAsString(object))
   }
 }
 
@@ -30,6 +30,19 @@ function addChild (children, child) {
   } else {
     children.push(toVdom(child))
   }
+}
+
+function objectAsString (object) {
+  var string
+  if (typeof object.toString === 'function') {
+    string = object.toString()
+  }
+  if (string === '[object Object]') {
+    try {
+      string = JSON.stringify(object)
+    } catch (_) {}
+  }
+  return string
 }
 
 module.exports.recursive = function (child) {
