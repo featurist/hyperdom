@@ -781,6 +781,32 @@ describe('hyperdom', function () {
       })
     })
 
+    it('refreshes the dom after an event handler promise rejects', function () {
+      function render (model) {
+        function onclick (e) {
+          e.preventDefault()
+          return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+              model.mood = 'sad :('
+              reject(new Error('oops'))
+            }, 2)
+          })
+        }
+
+        return h('.app',
+          h('pre', model.mood),
+          h('button', { onclick: onclick }, 'Swing'))
+      }
+
+      attach(render, { mood: 'happy :)' })
+
+      return click('button').then(function () {
+        return retry(function () {
+          expect(find('pre').text()).to.eql('sad :(')
+        })
+      })
+    })
+
     it('can define event handlers outside of the render loop', function () {
       var model = {
         button: h('button', {
