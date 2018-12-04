@@ -93,7 +93,7 @@ describe('hyperdom', function () {
         var self = this
 
         return retry(function () {
-          expect(self.renderCount).to.equal(oldRefreshCount + 1)
+          expect(self.renderCount, 'renderCount').to.equal(oldRefreshCount + 1)
         })
       }
     }
@@ -1563,6 +1563,122 @@ describe('hyperdom', function () {
       })
     })
 
+    it('calls onadd when a component of a different constructor rendered', function () {
+      var events = []
+      var monitor = renderMonitor()
+
+      function ComponentA () {
+        this.text = 'A'
+      }
+
+      ComponentA.prototype.onadd = function () {
+        events.push('onadd a')
+      }
+
+      ComponentA.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      function ComponentB () {
+        this.text = 'B'
+      }
+
+      ComponentB.prototype.onadd = function () {
+        events.push('onadd b')
+      }
+
+      ComponentB.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      var model = {
+        showComponentA: true,
+
+        render: function () {
+          monitor.rendering()
+
+          return h('div',
+            this.showComponentA ? new ComponentA() : new ComponentB(),
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+          )
+        }
+      }
+
+      attach(model)
+
+      expect(events).to.eql([
+        'onadd a'
+      ])
+
+      return monitor.waitForRenderAfter(click('input.swap')).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      }).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b',
+          'onadd a'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      })
+    })
+
+    it('calls onadd when a component of with a different key is rendered', function () {
+      var events = []
+      var monitor = renderMonitor()
+
+      function Component (key) {
+        this.debug = true
+        this.renderKey = key
+        this.text = key || 'a'
+      }
+
+      Component.prototype.onadd = function () {
+        events.push('onadd ' + this.text)
+      }
+
+      Component.prototype.render = function () {
+        return h('h1', this.text)
+      }
+
+      var model = {
+        showComponentA: true,
+
+        render: function () {
+          monitor.rendering()
+
+          return h('div',
+            new Component(this.showComponentA ? undefined : 'b'),
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+          )
+        }
+      }
+
+      attach(model)
+
+      expect(events).to.eql([
+        'onadd a'
+      ])
+
+      return monitor.waitForRenderAfter(click('input.swap')).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      }).then(function () {
+        expect(events).to.eql([
+          'onadd a',
+          'onadd b',
+          'onadd a'
+        ])
+        return monitor.waitForRenderAfter(click('input.swap'))
+      })
+    })
+
     describe('caching', function () {
       it('can update the component only when the renderKey changes', function () {
         var innerRenders = 0
@@ -1827,6 +1943,18 @@ describe('hyperdom', function () {
         })
       })
     })
+
+    it('calling refreshImmediately inside a render does nothing', function () {
+      var model = {
+        render: function () {
+          this.refreshImmediately()
+          return h('h1', 'hi')
+        }
+      }
+
+      attach(model)
+      expect(find('h1').text()).to.equal('hi')
+    })
   })
 
   describe('hyperdom.binding', function () {
@@ -1862,6 +1990,10 @@ describe('hyperdom', function () {
           }
         }
       }
+    })
+
+    afterEach(function () {
+      runRender._currentRender = undefined
     })
 
     function expectToRefresh (options, v) {
@@ -2673,7 +2805,7 @@ describe('hyperdom', function () {
                     expect(find('button.activate').length).to.equal(1)
                   }).then(function () {
                     return click('div.click').then(function () {
-                      wait(30).then(function () {
+                      return wait(30).then(function () {
                         return retry(function () {
                           expect(find('div.clicks').text()).to.equal('1')
                         })

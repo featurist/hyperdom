@@ -132,13 +132,6 @@ var browsers = {
     os_version: 'El Capitan',
     resolution: '1024x768'
   },
-  'browserstack-safari-ios': {
-    base: 'BrowserStack',
-    device: 'iPhone X',
-    realMobile: 'true',
-    os: 'ios',
-    os_version: '11.0'
-  },
   'browserstack-chrome': {
     base: 'BrowserStack',
     browser: 'Chrome',
