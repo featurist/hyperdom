@@ -2,7 +2,7 @@ import * as hyperdom from '../..'
 import toHtml = require('../../toHtml')
 const h = hyperdom.html
 import {expect} from 'chai'
-import {RenderApp} from "../../index"
+import {RenderComponent} from "../../index"
 
 describe('to html', function () {
   it('can render regular virtual dom to HTML', function () {
@@ -29,7 +29,7 @@ describe('to html', function () {
   })
 
   it('can render top-level model components to HTML', function () {
-    const vdom = new class extends RenderApp {
+    const vdom = new class extends RenderComponent {
       public render () {
         return h('div', 'component')
       }
@@ -42,7 +42,7 @@ describe('to html', function () {
 
   it('can render view components to HTML', function () {
     const vdom = h('div',
-      hyperdom.viewComponent(new class extends RenderApp {
+      hyperdom.viewComponent(new class extends RenderComponent {
         public render () {
           return h('div', 'component')
         }
@@ -54,7 +54,7 @@ describe('to html', function () {
   })
 
   it('can render top-level view components to HTML', function () {
-    const vdom = hyperdom.viewComponent(new class extends RenderApp {
+    const vdom = hyperdom.viewComponent(new class extends RenderComponent {
       public render () {
         return h('div', 'component')
       }

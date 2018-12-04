@@ -19,7 +19,7 @@ import windowEvents = require('../../windowEvents')
 import merge = require('../../merge')
 import runRender = require('../../render')
 import Mount = require('../../mount')
-import {App, AppFn, RenderApp, RoutesApp, VdomFragment} from '../..'
+import {Component, FnComponent, RenderComponent, RoutesComponent, VdomFragment} from '../..'
 
 const detect = {
   dataset: typeof document.body.dataset === 'object',
@@ -33,7 +33,7 @@ describe('hyperdom', function () {
     div = $('<div class="test"/>').appendTo(document.body)[0]
   })
 
-  function attach (app: App | AppFn, model?: any) {
+  function attach (app: Component | FnComponent, model?: any) {
     const opts = [{
       requestRender: setTimeout,
     }]
@@ -108,7 +108,7 @@ describe('hyperdom', function () {
     })
 
     it('can pass a model with a render method', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public stuff = 'stuff'
         public render () {
           return h('div.rendered', {onclick () {}}, this.stuff)
@@ -131,7 +131,7 @@ describe('hyperdom', function () {
     })
 
     it('can pass a synchronous reqeustRender function', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public count = 0
 
         public render () {
@@ -180,7 +180,7 @@ describe('hyperdom', function () {
     })
 
     describe('server-side rendering', function () {
-      class MyApp extends RenderApp {
+      class MyApp extends RenderComponent {
         public name: string = 'server render'
 
         public render () {
@@ -559,7 +559,7 @@ describe('hyperdom', function () {
 
     describe('rendering exceptions', function () {
       it("doesn't render anything if an exception is thrown on first render", function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           public render (): VdomFragment {
             throw new Error('oops')
           }
@@ -573,7 +573,7 @@ describe('hyperdom', function () {
       it('no change to HTML if there is a rendering error', function () {
         let error: Error
 
-        const app = new (class extends RenderApp {
+        const app = new (class extends RenderComponent {
           public render () {
             if (error) {
               throw error
@@ -608,7 +608,7 @@ describe('hyperdom', function () {
     })
 
     it('renders view components', function () {
-      class CoolButton extends RenderApp {
+      class CoolButton extends RenderComponent {
         constructor (readonly properties: any, readonly children: any) {
           super()
         }
@@ -618,7 +618,7 @@ describe('hyperdom', function () {
         }
       }
 
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public render () {
           return h('div', jsx(CoolButton, {title: 'button title'}, h('h1', 'contents')))
         }
@@ -642,7 +642,7 @@ describe('hyperdom', function () {
     })
 
     it('renders view components without attributes', function () {
-      class CoolButton extends RenderApp {
+      class CoolButton extends RenderComponent {
         constructor (readonly properties: any, readonly children: any) {super()}
 
         public render () {
@@ -650,7 +650,7 @@ describe('hyperdom', function () {
         }
       }
 
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public render () {
           return h('div', jsx(CoolButton, undefined, h('h1', 'another cool button')))
         }
@@ -804,7 +804,7 @@ describe('hyperdom', function () {
     })
 
     it('can define event handlers outside of the render loop', function () {
-      const app = new (class extends RenderApp {
+      const app = new (class extends RenderComponent {
         public button: VdomFragment = h('button', {
           onclick () {
             app.on = true
@@ -830,7 +830,7 @@ describe('hyperdom', function () {
     })
 
     it('can render components outside of the render loop', function () {
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public on: boolean
 
         private readonly button: VdomFragment = h('div', {
@@ -861,7 +861,7 @@ describe('hyperdom', function () {
     })
 
     it('can render bindings outside of the render loop', function () {
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public text: string
         public input: VdomFragment
 
@@ -1039,7 +1039,7 @@ describe('hyperdom', function () {
           }
         }
 
-        const render: AppFn = (model: {number: number}) => {
+        const render: FnComponent = (model: {number: number}) => {
           return h('div',
             h('input', {type: 'text', binding: mapBinding(model, 'number', number)}),
             h('span', model.number),
@@ -1205,7 +1205,7 @@ describe('hyperdom', function () {
       it('can bind to select', function () {
         const blue = { name: 'blue' }
 
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           public colour = blue
 
           public render () {
@@ -1246,7 +1246,7 @@ describe('hyperdom', function () {
       })
 
       it('can render select with text nodes', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           public colour = 'red'
 
           public render () {
@@ -1283,7 +1283,7 @@ describe('hyperdom', function () {
       })
 
       it('can bind to select with no values on its options', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           public colour = 'blue'
 
           public render () {
@@ -1326,7 +1326,7 @@ describe('hyperdom', function () {
       })
 
       it('chooses the first if nothing is selected', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           private colour: string
 
           public render () {
@@ -1355,7 +1355,7 @@ describe('hyperdom', function () {
 
   describe('components', function () {
     it('calls onload once when HTML appears on page', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         private loaded = 0
         private refreshed = 0
 
@@ -1393,8 +1393,8 @@ describe('hyperdom', function () {
 
     describe('inner components', function () {
       it('calls onload once when HTML appears on page', function () {
-        const model = new class extends RenderApp {
-          private innerModel = new class extends RenderApp {
+        const model = new class extends RenderComponent {
+          private innerModel = new class extends RenderComponent {
             private loaded = 0
             private refreshed = 0
 
@@ -1444,10 +1444,10 @@ describe('hyperdom', function () {
       }> = []
       const monitor = renderMonitor()
 
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         private showComponent = true
 
-        private innerModel = new class extends RenderApp {
+        private innerModel = new class extends RenderComponent {
           public render () {
             return h('h1', 'component')
           }
@@ -1522,7 +1522,7 @@ describe('hyperdom', function () {
       const events: any[] = []
       const monitor = renderMonitor()
 
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public render () {
           monitor.rendering()
 
@@ -1578,7 +1578,7 @@ describe('hyperdom', function () {
       const events: string[] = []
       const monitor = renderMonitor()
 
-      class ComponentA extends RenderApp {
+      class ComponentA extends RenderComponent {
         public text = 'A'
 
         public render () {
@@ -1590,7 +1590,7 @@ describe('hyperdom', function () {
         }
       }
 
-      class ComponentB extends RenderApp {
+      class ComponentB extends RenderComponent {
         public text = 'B'
 
         public render () {
@@ -1602,7 +1602,7 @@ describe('hyperdom', function () {
         }
       }
 
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         private showComponentA = true
 
         public render () {
@@ -1641,7 +1641,7 @@ describe('hyperdom', function () {
       const events: string[] = []
       const monitor = renderMonitor()
 
-      class Component extends RenderApp {
+      class Component extends RenderComponent {
         public text: string
         public renderKey: string | undefined
 
@@ -1660,7 +1660,7 @@ describe('hyperdom', function () {
         }
       }
 
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         private showComponentA = true
 
         public render () {
@@ -1700,8 +1700,8 @@ describe('hyperdom', function () {
         let innerRenders = 0
         let renders = 0
 
-        const model = new class extends RenderApp {
-          public innerModel = new class extends RenderApp {
+        const model = new class extends RenderComponent {
+          public innerModel = new class extends RenderComponent {
             public cacheKey = 1
 
             public render () {
@@ -1745,8 +1745,8 @@ describe('hyperdom', function () {
         let innerRenders = 0
         let renders = 0
 
-        const model = new class extends RenderApp {
-          private innerModel = new class extends RenderApp {
+        const model = new class extends RenderComponent {
+          private innerModel = new class extends RenderComponent {
             public render () {
               innerRenders++
               return h('button', {onclick () {}}, 'refresh')
@@ -1782,7 +1782,7 @@ describe('hyperdom', function () {
     })
 
     it('the component can refresh the view', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public name = 'Njord'
 
         public render () {
@@ -1803,7 +1803,7 @@ describe('hyperdom', function () {
     })
 
     it('can refresh several components without refreshing the whole page', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public model1 = innerModel('model1', 'one')
         public model2 = innerModel('model2', 'xxx')
 
@@ -1813,7 +1813,7 @@ describe('hyperdom', function () {
       }()
 
       function innerModel (klass: string, name: string) {
-        return new class extends RenderApp {
+        return new class extends RenderComponent {
           public name = name
 
           public render () {
@@ -1856,7 +1856,7 @@ describe('hyperdom', function () {
     })
 
     it('does not refresh if the component was not rendered', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public showModel = 1
 
         public model1 = innerModel('one')
@@ -1868,7 +1868,7 @@ describe('hyperdom', function () {
       }()
 
       function innerModel (name: string) {
-        return new class extends RenderApp {
+        return new class extends RenderComponent {
           public name = name
 
           public render () {
@@ -1899,10 +1899,10 @@ describe('hyperdom', function () {
     })
 
     it('a component can be represented several times and be refreshed', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public models = 1
 
-        public innerModel = new class extends RenderApp {
+        public innerModel = new class extends RenderComponent {
           public name = 'Jack'
 
           public render () {
@@ -1958,7 +1958,7 @@ describe('hyperdom', function () {
     })
 
     it('calling refreshImmediately inside a render does nothing', function () {
-      const model = new class extends RenderApp {
+      const model = new class extends RenderComponent {
         public render () {
           this.refreshImmediately()
           return h('h1', 'hi')
@@ -2355,7 +2355,7 @@ describe('hyperdom', function () {
 
     context('model components', function () {
       it('captures lifetime events', function () {
-        const model = new class extends RenderApp {
+        const model = new class extends RenderComponent {
           public show = false
 
           private innerModel = component()
@@ -2380,7 +2380,7 @@ describe('hyperdom', function () {
       })
 
       it('can cache', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           private innerModel = cachingComponent()
 
           public render () {
@@ -2427,7 +2427,7 @@ describe('hyperdom', function () {
 
     context('view components', function () {
       it('captures lifetime events', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           private show = false
           public render () {
             monitor.rendering()
@@ -2448,7 +2448,7 @@ describe('hyperdom', function () {
       })
 
       it('can cache', function () {
-        const app = new class extends RenderApp {
+        const app = new class extends RenderComponent {
           public render () {
             return h('div',
               hyperdom.viewComponent(cachingComponent()),
@@ -2467,13 +2467,13 @@ describe('hyperdom', function () {
   describe('component debugger', function () {
     contextInProduction(function () {
       it('does not set debugging properties', function () {
-        const inner = new class extends RenderApp {
+        const inner = new class extends RenderComponent {
           public render () {
             return h('div.inner', 'inner')
           }
         }()
 
-        const outer = new class extends RenderApp {
+        const outer = new class extends RenderComponent {
           public render () {
             return h('div.outer', 'outer', inner)
           }
@@ -2487,13 +2487,13 @@ describe('hyperdom', function () {
     })
 
     it('sets the component to the element', function () {
-      const inner = new class extends RenderApp {
+      const inner = new class extends RenderComponent {
         public render () {
           return h('div.inner', 'inner')
         }
       }()
 
-      const outer = new class extends RenderApp {
+      const outer = new class extends RenderComponent {
         public render () {
           return h('div.outer', 'outer', inner)
         }
@@ -2510,7 +2510,7 @@ describe('hyperdom', function () {
     })
 
     it('an application with routes sets the component to the element', function () {
-      const inner = new class extends RenderApp {
+      const inner = new class extends RenderComponent {
         public render () {
           return h('div.inner', 'inner')
         }
@@ -2518,7 +2518,7 @@ describe('hyperdom', function () {
 
       const home = router.route('**')
 
-      const outer = new class extends RoutesApp {
+      const outer = new class extends RoutesComponent {
         public routes () {
           return [
             home({
@@ -2537,7 +2537,7 @@ describe('hyperdom', function () {
     })
 
     it('an application with routes sets the component to the element', function () {
-      const inner = new class extends RenderApp {
+      const inner = new class extends RenderComponent {
         public render () {
           return h('div.inner', 'inner')
         }
@@ -2545,7 +2545,7 @@ describe('hyperdom', function () {
 
       const home = router.route('**')
 
-      const outer = new class extends RoutesApp {
+      const outer = new class extends RoutesComponent {
         public routes () {
           return [
             home({
@@ -2571,7 +2571,7 @@ describe('hyperdom', function () {
   describe('keys', function () {
     it('keeps HTML elements for same keys', function () {
       const items = range(1, 11)
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public render () {
           return h('div', items.map(function (item: any) {
             return h('div.item', {key: item}, item)

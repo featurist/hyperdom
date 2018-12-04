@@ -7,7 +7,7 @@ const browser = browserMonkey.find('.test')
 describe('tsx integration', function () {
   let $div: HTMLElement
 
-  function mount (app: hyperdom.App | hyperdom.AppFn) {
+  function mount (app: hyperdom.Component | hyperdom.FnComponent) {
     hyperdom.append($div, app)
   }
 
@@ -26,7 +26,7 @@ describe('tsx integration', function () {
 
   // just checking compilation errors here - hence xit
   xit('supports hyperdom specific node attributes', function () {
-    function render (this: hyperdom.AppFn) {
+    function render (this: hyperdom.FnComponent) {
       return (
         <div>
           <button binding={[this, 'name']}></button>
@@ -41,7 +41,7 @@ describe('tsx integration', function () {
   })
 
   it('renders hyperdom viewComponent', async function () {
-    class Blue extends hyperdom.RenderApp {
+    class Blue extends hyperdom.RenderComponent {
       private readonly title: string
 
       constructor (properties: { title: string }, readonly children: hyperdom.Renderable[]) {

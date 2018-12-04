@@ -67,14 +67,6 @@ Sponsored by:
     * [Using with Typescript](#using-with-typescript)
       * [Router based components](#router-based-components)
       * [Render based components](#render-based-components)
-* [Performance](#performance)
-* [Debugging](#debugging)
-    * [Chrome Plugin](#chrome-plugin)
-    * [File Names and Line Numbers](#file-names-and-line-numbers)
-* [Production Build](#production-build)
-* [Common Errors](#common-errors)
-    * [Outside Render Cycle](#outside-render-cycle)
-    * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
 * [API](#api)
     * [Rendering the Virtual DOM](#rendering-the-virtual-dom)
       * [The binding Attribute](#the-binding-attribute)
@@ -84,6 +76,14 @@ Sponsored by:
     * [Attaching to the DOM](#attaching-to-the-dom)
       * [Detach](#detach)
       * [Remove](#remove)
+* [Performance](#performance)
+* [Debugging](#debugging)
+    * [Chrome Plugin](#chrome-plugin)
+    * [File Names and Line Numbers](#file-names-and-line-numbers)
+* [Production Build](#production-build)
+* [Common Errors](#common-errors)
+    * [Outside Render Cycle](#outside-render-cycle)
+    * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
 * [Development](#development)
     * [Building](#building)
     * [Automated Testing](#automated-testing)
@@ -116,7 +116,7 @@ Same example in Typescript:
 ```tsx
 import * as hyperdom from 'hyperdom'
 
-class App extends hyperdom.RenderApp {
+class App extends hyperdom.RenderComponent {
   private name: string
 
   public render() {
@@ -1243,7 +1243,7 @@ import * as router from 'hyperdom/router'
 
 const home = router.route('**')
 
-class Thing extends hyperdom.RoutesApp {
+class Thing extends hyperdom.RoutesComponent {
   public title = 'hello'
 
   public routes () {
@@ -1263,7 +1263,7 @@ class Thing extends hyperdom.RoutesApp {
 ```typescript
 import * as hyperdom from 'hyperdom'
 
-class Thing extends hyperdom.RenderApp {
+class Thing extends hyperdom.RenderComponent {
   public title = 'hello'
 
   public render () {
@@ -1271,71 +1271,6 @@ class Thing extends hyperdom.RenderApp {
   }
 }
 ```
-
-## Performance
-
-Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
-
-* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
-* Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
-* For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `hyperdom.html.binding()` to not refresh, or only refresh a component.
-* Consider using a component with a `renderCacheKey()` method, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `renderCacheKey()` result changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
-* For parts of the page that don't ever change, you can pre-render the VDOM statically once and return the same VDOM on each render.
-
-## Debugging
-
-### Chrome Plugin
-
-[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
-
-### File Names and Line Numbers
-
-By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
-
-```jsx
-render() {
-  return <h1>{this.title}</h1>
-}
-```
-
-Will generate
-
-```html
-<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
-```
-
-## Production Build
-
-Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment constiable, and when set to `production` will turn these features off.
-
-To make a production build with webpack, use `webpack -p`.
-
-To make a production build with browserify, use [envify](https://github.com/hughsk/envify) and ensure `NODE_ENV=production`, for e.g. `browserify -t [ envify --NODE_ENV production  ] ...` and then use a minifier like [uglify](https://github.com/mishoo/UglifyJS2) to strip the disabled code.
-
-## Common Errors
-
-### Outside Render Cycle
-
-> You cannot create virtual-dom event handlers outside a render function
-
-This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
-
-Another cause of this error is if you have more than one instance of the hyperdom module loaded. This can occur if you have an NPM listing like this:
-
-```
-my-app@1.0.0 /Users/bob/dev/my-app
-├── hyperdom@1.19.1
-├── my-hyperdom-component@1.0.0
-│ ├── hyperdom@1.19.1
-```
-
-With `my-hyperdom-component` depending on another `hyperdom`. Better to have `my-hyperdom-component` have a `peerDependency` on hyperdom, allowing it to use the `hyperdom` under `my-app`.
-
-### Refresh Outside Render Cycle
-
-> Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers
-
-This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).
 
 ## API
 
@@ -1460,6 +1395,71 @@ attachment.remove();
 ```
 
 Destroys the DOM, running any `onremove` handlers found in components. This will remove the DOM element.
+
+## Performance
+
+Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
+
+* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
+* Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
+* For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `hyperdom.html.binding()` to not refresh, or only refresh a component.
+* Consider using a component with a `renderCacheKey()` method, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `renderCacheKey()` result changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
+* For parts of the page that don't ever change, you can pre-render the VDOM statically once and return the same VDOM on each render.
+
+## Debugging
+
+### Chrome Plugin
+
+[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
+
+### File Names and Line Numbers
+
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+
+```jsx
+render() {
+  return <h1>{this.title}</h1>
+}
+```
+
+Will generate
+
+```html
+<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
+```
+
+## Production Build
+
+Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment constiable, and when set to `production` will turn these features off.
+
+To make a production build with webpack, use `webpack -p`.
+
+To make a production build with browserify, use [envify](https://github.com/hughsk/envify) and ensure `NODE_ENV=production`, for e.g. `browserify -t [ envify --NODE_ENV production  ] ...` and then use a minifier like [uglify](https://github.com/mishoo/UglifyJS2) to strip the disabled code.
+
+## Common Errors
+
+### Outside Render Cycle
+
+> You cannot create virtual-dom event handlers outside a render function
+
+This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
+
+Another cause of this error is if you have more than one instance of the hyperdom module loaded. This can occur if you have an NPM listing like this:
+
+```
+my-app@1.0.0 /Users/bob/dev/my-app
+├── hyperdom@1.19.1
+├── my-hyperdom-component@1.0.0
+│ ├── hyperdom@1.19.1
+```
+
+With `my-hyperdom-component` depending on another `hyperdom`. Better to have `my-hyperdom-component` have a `peerDependency` on hyperdom, allowing it to use the `hyperdom` under `my-app`.
+
+### Refresh Outside Render Cycle
+
+> Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers
+
+This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).
 
 ## Development
 

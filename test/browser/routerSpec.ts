@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'lie/polyfill'
-import {html as h, App, VdomFragment, RoutesApp, Binding, RenderApp} from '../..'
+import {html as h, Component, VdomFragment, RoutesComponent, Binding, RenderComponent} from '../..'
 import * as hyperdomRouter from '../../router'
 import * as detect from './detect'
 
@@ -24,7 +24,7 @@ function describeRouter (historyApiType: string) {
     let router: hyperdomRouter.Router
     let historyApi: hyperdomRouter.RouteHistory
 
-    function mount (app: App, url?: string) {
+    function mount (app: Component, url?: string) {
       const options: any = {router}
 
       if (historyApiType === 'hash') {
@@ -53,7 +53,7 @@ function describeRouter (historyApiType: string) {
     })
 
     context('app with two routes', function () {
-      let app: RoutesApp
+      let app: RoutesComponent
       let routes: {
         [key: string]: hyperdomRouter.RouteHandler,
       }
@@ -64,7 +64,7 @@ function describeRouter (historyApiType: string) {
           b: router.route('/b'),
         }
 
-        app = new class extends RoutesApp {
+        app = new class extends RoutesComponent {
           public routes () {
             return [
               routes.a({
@@ -122,7 +122,7 @@ function describeRouter (historyApiType: string) {
     })
 
     function articleComponent () {
-      return new class extends RenderApp {
+      return new class extends RenderComponent {
         public resolve: () => any
         public id: string | number
         private article: string | undefined
@@ -155,7 +155,7 @@ function describeRouter (historyApiType: string) {
     }
 
     context('routes with bindings', function () {
-      class MyApp extends RoutesApp {
+      class MyApp extends RoutesComponent {
         public article = articleComponent()
 
         public routes () {
@@ -216,7 +216,7 @@ function describeRouter (historyApiType: string) {
     if (historyApiType === 'pushState') {
       describe('push replace', function () {
         context('app with bindings', function () {
-          class MyApp extends RoutesApp {
+          class MyApp extends RoutesComponent {
             public a: string
 
             public routes () {
@@ -351,7 +351,7 @@ function describeRouter (historyApiType: string) {
 
     describe('onload', function () {
       context('app with onload', function () {
-        class MyApp extends RoutesApp {
+        class MyApp extends RoutesComponent {
           public article = articleComponent()
 
           public routes () {
@@ -399,7 +399,7 @@ function describeRouter (historyApiType: string) {
       let a: hyperdomRouter.RouteHandler
       let b: hyperdomRouter.RouteHandler
 
-      class MyApp extends RoutesApp {
+      class MyApp extends RoutesComponent {
         public b: string
 
         constructor (readonly home: hyperdomRouter.RouteHandler) {
@@ -489,7 +489,7 @@ function describeRouter (historyApiType: string) {
 
     describe('sub routes', function () {
       context('app with sub routes', function () {
-        class MyApp extends RoutesApp {
+        class MyApp extends RoutesComponent {
           public a = aComponent()
 
           constructor (readonly routeTable: hyperdomRouter.Routes) {
@@ -521,7 +521,7 @@ function describeRouter (historyApiType: string) {
         let routes: hyperdomRouter.Routes
 
         function aComponent () {
-          return new class extends RoutesApp {
+          return new class extends RoutesComponent {
             private a: string
             private b: string
 
@@ -599,7 +599,7 @@ function describeRouter (historyApiType: string) {
     })
 
     describe('base url', function () {
-      class MyApp extends RoutesApp {
+      class MyApp extends RoutesComponent {
         constructor (readonly routeTable: hyperdomRouter.Routes) {
           super()
         }
@@ -703,7 +703,7 @@ function describeRouter (historyApiType: string) {
           b: router.route('/b'),
         }
 
-        const app = new class extends RoutesApp {
+        const app = new class extends RoutesComponent {
           public routes () {
             return [
               routes.a({render () { return 'a' }}),
@@ -729,7 +729,7 @@ function describeRouter (historyApiType: string) {
           b: router.route('/b'),
         }
 
-        const app = new class extends RoutesApp {
+        const app = new class extends RoutesComponent {
           public routes () {
             return [
               routes.a({render () { return 'a' }}),

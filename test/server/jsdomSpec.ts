@@ -1,13 +1,13 @@
 import * as hyperdom from '../..'
 import {JSDOM} from 'jsdom'
 import {expect} from 'chai'
-import {RenderApp} from "../../index"
+import {RenderComponent} from "../../index"
 
 describe('hyperdom', function () {
   describe('.append()', function () {
     it('renders elements in jsdom', function () {
       const {window} = new JSDOM(``)
-      const app = new class extends RenderApp {
+      const app = new class extends RenderComponent {
         public render () {
           return hyperdom.html('p', 'hello')
         }

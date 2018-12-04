@@ -1,4 +1,4 @@
-import {VdomFragment, Binding, App} from "index"
+import {VdomFragment, Binding, Component} from "index"
 
 // TODO: what else is there?
 export interface RouteDefinition {
@@ -44,7 +44,7 @@ export interface RoutableComponent {
 
   redirect? (params: object): string | undefined
 
-  render? (): VdomFragment | App | string // TODO add `render() => string` test to hyperdomSpec
+  render? (): VdomFragment | Component | string // TODO add `render() => string` test to hyperdomSpec
   // TODO: Promise<void> ?
   onload? (params: object): void
 }

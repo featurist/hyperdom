@@ -1,4 +1,4 @@
-import {App, VdomFragment} from "./index"
+import {Component, VdomFragment} from "./index"
 
-declare function toHtml (vdom: App | VdomFragment): string
+declare function toHtml (vdom: Component | VdomFragment): string
 export = toHtml

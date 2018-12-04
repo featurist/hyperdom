@@ -7,23 +7,23 @@ declare namespace hyperdom {
     children: any[]
   }
 
-  abstract class HyperdomApp {
+  abstract class HyperdomComponent {
     public refreshImmediately (): void
     public refreshComponent (): void
     public refresh (): void
   }
 
-  export abstract class RenderApp extends HyperdomApp {
-    public abstract render (): VdomFragment | App
+  export abstract class RenderComponent extends HyperdomComponent {
+    public abstract render (): VdomFragment | Component
   }
 
-  export abstract class RoutesApp extends HyperdomApp {
+  export abstract class RoutesComponent extends HyperdomComponent {
     public abstract routes (): router.Route[]
 
-    protected renderLayout (content: any): VdomFragment | App
+    protected renderLayout (content: any): VdomFragment | Component
   }
 
-  export type App = RoutesApp | RenderApp
+  export type Component = RoutesComponent | RenderComponent
 
   interface DomAttachement {
     remove (): void
@@ -48,11 +48,11 @@ declare namespace hyperdom {
 
   export type Binding = ObjectBinding | SimpleBinding
 
-  export type AppFn = (model?: any) => VdomFragment
+  export type FnComponent = (model?: any) => VdomFragment
 
-  export function append (root: HTMLElement, app: App | AppFn, opts?: MountOpts): DomAttachement
+  export function append (root: HTMLElement, component: Component | FnComponent, opts?: MountOpts): DomAttachement
 
-  export function replace (root: HTMLElement, app: App | AppFn, opts?: MountOpts): DomAttachement
+  export function replace (root: HTMLElement, component: Component | FnComponent, opts?: MountOpts): DomAttachement
 
   interface ModelMeta {
     error: {
@@ -75,7 +75,7 @@ declare namespace hyperdom {
   export type NodeProps = HtmlNodeProps & HyperdomNodeProps
 
   // TODO Date?
-  export type Renderable = string | number | boolean | undefined | null | VdomFragment | App
+  export type Renderable = string | number | boolean | undefined | null | VdomFragment | Component
 
   const html: {
     (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment,
@@ -91,12 +91,12 @@ declare namespace hyperdom {
   export function rawHtml (tag: string, ...children: Renderable[]): VdomFragment
   export function rawHtml (tag: string, nodeProps: NodeProps, ...children: Renderable[]): VdomFragment
 
-  export function viewComponent (app: App): VdomFragment
+  export function viewComponent (component: Component): VdomFragment
 
-  export function appendVDom (root: VdomFragment, app: App | AppFn): DomAttachement
+  export function appendVDom (root: VdomFragment, component: Component | FnComponent): DomAttachement
 
   const jsx: (
-    tag: string | { new<T extends object>(props: T, children: Renderable[]): App },
+    tag: string | { new<T extends object>(props: T, children: Renderable[]): Component },
     nodeProps: NodeProps | undefined,
     children?: Renderable | Renderable[],
   ) => VdomFragment
