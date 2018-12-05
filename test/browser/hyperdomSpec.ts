@@ -778,8 +778,8 @@ describe('hyperdom', function () {
     })
 
     it('refreshes the dom after an event handler promise rejects', function () {
-      function render (model) {
-        function onclick (e) {
+      function render (model: {mood: string}) {
+        function onclick (e: Event) {
           e.preventDefault()
           return new Promise(function (resolve, reject) {
             setTimeout(function () {
@@ -791,7 +791,7 @@ describe('hyperdom', function () {
 
         return h('.app',
           h('pre', model.mood),
-          h('button', { onclick: onclick }, 'Swing'))
+          h('button', { onclick }, 'Swing'))
       }
 
       attach(render, { mood: 'happy :)' })

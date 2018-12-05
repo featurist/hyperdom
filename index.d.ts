@@ -69,7 +69,7 @@ declare namespace hyperdom {
 
     key?: string | number
 
-    onclick? (): void
+    onclick? (e?: Event): void
   }
 
   export type NodeProps = HtmlNodeProps & HyperdomNodeProps
