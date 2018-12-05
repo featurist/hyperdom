@@ -131,14 +131,12 @@ class App extends hyperdom.RenderComponent {
 hyperdom.append(document.body, new App())
 ```
 
-This works with the following in `tsconfig.json`:
+This works with the following in the `compilerOptions` of `tsconfig.json`:
 
 ```
-...
   "lib": ["dom"],
   "jsx": "react",
   "jsxFactory": "hyperdom.jsx",
-...
 ```
 
 ## Install
@@ -1223,16 +1221,14 @@ console.log(html);
 
 ### Using with Typescript
 
-All of the above functionality (with the exception of string bindings - e.g. `binding="this.name"`) is available and is reasonably well typed.
+All of the above functionality (with the exception of string bindings - e.g. `binding="this.name"`) is available and is reasonably well typed. Type definitions come bundled with hyperdom npm package - there is no need to install a separate types package.
 
-In order to plug in hyperdom into the typescirpt tsx compilation, the following settings need to be present in `tsconfig.json`:
+In order to plug in hyperdom into the typescirpt tsx compilation, the following settings need to be present in the `compilerOptions` section of `tsconfig.json`:
 
 ```
-...
-  "lib": ["dom"], // in addition to whatever else you've got there already
+  "lib": ["dom"],
   "jsx": "react",
   "jsxFactory": "hyperdom.jsx",
-...
 ```
 
 #### Router based components
