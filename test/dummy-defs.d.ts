@@ -25,5 +25,5 @@ declare module 'lowscore/range' {
 
 // tslint:disable-next-line
 declare interface JQuery<TElement = HTMLElement> {
-  sendkeys(keys: string): void
+  sendkeys (keys: string): void
 }
