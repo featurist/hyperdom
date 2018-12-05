@@ -14,12 +14,14 @@ function refreshEventResult (result, mount, options) {
   var onlyRefreshAfterPromise = options && options.refresh === 'promise'
   var componentToRefresh = options && options.component
 
+  function handlePromiseResult (result) {
+    var opts = cloneOptions(options)
+    opts.refresh = undefined
+    refreshEventResult(result, mount, opts)
+  }
+
   if (result && typeof (result.then) === 'function') {
-    result.then(function (result) {
-      var opts = cloneOptions(options)
-      opts.refresh = undefined
-      refreshEventResult(result, mount, opts)
-    })
+    result.then(handlePromiseResult, handlePromiseResult)
   }
 
   if (onlyRefreshAfterPromise) {
