@@ -782,13 +782,15 @@ describe('hyperdom', function () {
     })
 
     it('refreshes the dom after an event handler promise rejects', function () {
+      var sadError = new Error('so sad')
+
       function render (model) {
         function onclick (e) {
           e.preventDefault()
           return new Promise(function (resolve, reject) {
             setTimeout(function () {
               model.mood = 'sad :('
-              reject(new Error('oops'))
+              reject(sadError)
             }, 2)
           })
         }
@@ -800,9 +802,22 @@ describe('hyperdom', function () {
 
       attach(render, { mood: 'happy :)' })
 
+      var trapsUnhandledRejections = typeof window.onunhandledrejection !== 'undefined'
+      var unhandledError = 'expected-promise-rejection-error-to-be-rethrown'
+      function onUnhandledRejection (rejection) {
+        unhandledError = rejection.reason
+      }
+      if (trapsUnhandledRejections) {
+        window.addEventListener('unhandledrejection', onUnhandledRejection)
+      }
+
       return click('button').then(function () {
         return retry(function () {
           expect(find('pre').text()).to.eql('sad :(')
+          if (trapsUnhandledRejections) {
+            window.removeEventListener('unhandledrejection', onUnhandledRejection)
+            expect(unhandledError).to.eql(sadError)
+          }
         })
       })
     })
