@@ -807,6 +807,11 @@ describe('hyperdom', function () {
       function onUnhandledRejection (rejection) {
         unhandledError = rejection.reason
       }
+      function removeHandler () {
+        if (trapsUnhandledRejections) {
+          window.removeEventListener('unhandledrejection', onUnhandledRejection)
+        }
+      }
       if (trapsUnhandledRejections) {
         window.addEventListener('unhandledrejection', onUnhandledRejection)
       }
@@ -815,11 +820,10 @@ describe('hyperdom', function () {
         return retry(function () {
           expect(find('pre').text()).to.eql('sad :(')
           if (trapsUnhandledRejections) {
-            window.removeEventListener('unhandledrejection', onUnhandledRejection)
             expect(unhandledError).to.eql(sadError)
           }
         })
-      })
+      }).then(removeHandler, removeHandler)
     })
 
     it('can define event handlers outside of the render loop', function () {
