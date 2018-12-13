@@ -21,7 +21,10 @@ function refreshEventResult (result, mount, options) {
   }
 
   if (result && typeof (result.then) === 'function') {
-    result.then(handlePromiseResult, handlePromiseResult)
+    result.then(handlePromiseResult, function (error) {
+      handlePromiseResult(error)
+      throw error
+    })
   }
 
   if (onlyRefreshAfterPromise) {
