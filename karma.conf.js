@@ -13,8 +13,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/browser/**/*Spec.ts',
-      'test/browser/**/*Spec.tsx'
+      'test/browser/karma.index.ts'
     ],
 
     // list of files to exclude
@@ -25,8 +24,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'test/browser/**/*Spec.ts': ['webpack', 'sourcemap'],
-      'test/browser/**/*Spec.tsx': ['webpack', 'sourcemap']
+      'test/browser/karma.index.ts': ['webpack']
     },
 
     webpack: {
@@ -51,7 +49,6 @@ module.exports = function (config) {
                 target: 'es5'
               }
             },
-            include: process.cwd() + '/test/browser',
             exclude: process.cwd() + '/node_modules'
           }
         ]
