@@ -1362,6 +1362,65 @@ describe('hyperdom', function () {
           expect(find('select')[0].selectedIndex).to.equal(0)
         })
       })
+
+      it('can bind to select multiple', function () {
+        function selectedOptions (element) {
+          if (element.selectedOptions) {
+            return Array.prototype.slice.call(element.selectedOptions)
+          } else {
+            var children = element.childNodes
+            var options = []
+            for (var n = 0; n < children.length; n++) {
+              var child = children[n]
+              if (child.selected) {
+                options.push(child)
+              }
+            }
+            return options
+          }
+        }
+
+        var app = {
+          colours: ['red', 'green'],
+
+          render: function () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colours'], multiple: true},
+                h('option.red', {value: 'red'}, 'red'),
+                h('option.blue', 'blue'),
+                h('option.green', {value: 'green'}, 'green')
+              ),
+              h('span', JSON.stringify(this.colours))
+            )
+          }
+        }
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('option.blue').prop('selected')).to.equal(false)
+          expect(find('option.green').prop('selected')).to.equal(true)
+          expect(selectedOptions(find('select')[0])).to.eql([
+            find('option.red')[0],
+            find('option.green')[0]
+          ])
+        }).then(function () {
+          find('option.green')[0].selected = false
+          find('select').change()
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('option.blue').prop('selected')).to.equal(false)
+          expect(find('option.green').prop('selected')).to.equal(false)
+          expect(selectedOptions(find('select')[0])).to.eql([
+            find('option.red')[0]
+          ])
+          expect(app.colours).to.eql(['red'])
+          return retry(function () {
+            expect(find('span').text()).to.equal('["red"]')
+          })
+        })
+      })
     })
   })
 
