@@ -1377,7 +1377,8 @@ describe('hyperdom', function () {
             return Array.prototype.slice.call(element.selectedOptions)
           } else {
             const children = element.childNodes
-            const options = Array.from(children).filter((child) => (child as HTMLOptionElement).selected)
+            const options = Array.prototype.slice.call(children)
+              .filter((child: HTMLElement) => (child as HTMLOptionElement).selected)
             return options
           }
         }
