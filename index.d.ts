@@ -39,12 +39,11 @@ declare namespace hyperdom {
   }
 
   export interface ObjectBinding {
-    get (): any
-
-    set (value: any): void
+    get (): string
+    set (value: string): void
   }
 
-  export type SimpleBinding = [object, string] | [object, string, (param: string | number) => any]
+  export type SimpleBinding = [object, string] | [object, string, (param: string) => any]
 
   export type Binding = ObjectBinding | SimpleBinding
 

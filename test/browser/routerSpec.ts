@@ -124,10 +124,10 @@ function describeRouter (historyApiType: string) {
     function articleComponent () {
       return new class extends RenderComponent {
         public resolve: () => any
-        public id: string | number
+        public id: string
         private article: string | undefined
 
-        public load (id: string | number) {
+        public load (id: string) {
           this.id = id
           this.article = undefined
           return new Promise((resolve) => {
@@ -147,7 +147,7 @@ function describeRouter (historyApiType: string) {
       }()
     }
 
-    function loadsArticle (monkey: any, article: any, id: number | string) {
+    function loadsArticle (monkey: any, article: any, id: string) {
       return monkey.find('div.loading').shouldHave({text: 'loading article ' + id}).then(function () {
         article.resolve()
         return monkey.find('article').shouldHave({text: 'this is article ' + id})
@@ -173,13 +173,13 @@ function describeRouter (historyApiType: string) {
 
             routes.article({
               bindings: {
-                id: [this.article, 'id', function (id: number) { return self.article.load(id) }] as Binding,
+                id: [this.article, 'id', function (id: string) { return self.article.load(id) }] as Binding,
               },
               render () {
                 return h('div',
                   h('h1', 'article ' + self.article.id),
                   self.article,
-                  h('button', { onclick () { return self.article.load(2) } }, 'next'),
+                  h('button', { onclick () { return self.article.load('2') } }, 'next'),
                 )
               },
             }),
@@ -204,11 +204,11 @@ function describeRouter (historyApiType: string) {
         const monkey = mount(app, '/')
 
         return monkey.button('article 1').click().then(function () {
-          return loadsArticle(monkey, app.article, 1)
+          return loadsArticle(monkey, app.article, '1')
         }).then(function () {
           return monkey.button('next').click()
         }).then(function () {
-          return loadsArticle(monkey, app.article, 2)
+          return loadsArticle(monkey, app.article, '2')
         })
       })
     })
@@ -357,7 +357,7 @@ function describeRouter (historyApiType: string) {
           public routes () {
             return [
               route({
-                onload: (params: {id: number}) => {
+                onload: (params: {id: string}) => {
                   return this.article.load(params.id)
                 },
 
