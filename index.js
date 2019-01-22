@@ -23,3 +23,5 @@ exports.component = function (model) {
 }
 
 exports.currentRender = render.currentRender
+exports.RenderComponent = function () {} // placeholder for typescript
+exports.RoutesComponent = function () {} // placeholder for typescript

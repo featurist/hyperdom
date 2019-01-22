@@ -16,6 +16,7 @@ function runRender (mount, fn) {
     runRender._currentRender = undefined
   }
 }
+runRender._currentRender = undefined
 
 function Render (mount) {
   this.finished = simplePromise()

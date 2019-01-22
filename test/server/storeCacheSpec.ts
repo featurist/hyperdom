@@ -1,14 +1,12 @@
-/* eslint-env mocha */
-
-var serverRenderCache = require('../../serverRenderCache')
-var StoreCache = require('../../storeCache')
-var render = require('../../render')
-var expect = require('chai').expect
-var refreshify = require('../../render').refreshify
+import serverRenderCache = require('../../serverRenderCache')
+import StoreCache = require('../../storeCache')
+import {expect} from 'chai'
+import render = require('../../render')
+const refreshify = render.refreshify
 
 describe('store cache', function () {
-  var storeCache
-  var oldCurrentRender
+  let storeCache: any
+  let oldCurrentRender: any
 
   beforeEach(function () {
     storeCache = new StoreCache()
@@ -17,8 +15,8 @@ describe('store cache', function () {
     render._currentRender = {
       mount: {
         refreshify: storeCache.refreshify,
-        serverRenderCache: storeCache
-      }
+        serverRenderCache: storeCache,
+      },
     }
   })
 
@@ -26,32 +24,32 @@ describe('store cache', function () {
     render._currentRender = oldCurrentRender
   })
 
-  function load (data) {
+  function load (data: string) {
     return wait(10).then(function () { return data })
   }
 
-  function wait (n) {
+  function wait (n: number) {
     return new Promise(function (resolve) {
-      setTimeout(resolve, 10)
+      setTimeout(resolve, n)
     })
   }
 
   it('can store data loaded', function () {
-    var setData1
-    var setData2
+    let setData1: string
+    let setData2: string
 
     refreshify(function () {
-      return serverRenderCache('key', function () { return load('some data') }).then(function (data) {
+      return serverRenderCache('key', function () { return load('some data') }).then(function (data: string) {
         expect(data).to.equal('some data')
         return (setData1 = data)
-      }).then(function (data) {
+      }).then(function (data: string) {
         return (setData2 = data)
       })
     })()
 
     return storeCache.loaded().then(function () {
       expect(storeCache.data).to.eql({
-        key: 'some data'
+        key: 'some data',
       })
       expect(setData1).to.equal('some data')
       expect(setData2).to.equal('some data')
@@ -59,10 +57,10 @@ describe('store cache', function () {
   })
 
   it("can store data even if promise isn't returned", function () {
-    var setData
+    let setData: string
 
     refreshify(function () {
-      serverRenderCache('key', function () { return load('some data') }).then(function (data) {
+      serverRenderCache('key', function () { return load('some data') }).then(function (data: string) {
         expect(data).to.equal('some data')
         setData = data
       })

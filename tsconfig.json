@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom", "esnext"],
+    "types": ["mocha"],
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx",
+    "noEmit": true,
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin",
+        "ignoreDefinitionFiles": true,
+        "configFile": "./tslint.json"
+      }
+    ],
+    "baseUrl": "."
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

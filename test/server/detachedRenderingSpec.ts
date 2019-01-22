@@ -1,28 +1,27 @@
-/* eslint-env mocha */
+import * as hyperdom from '../..'
+const h = hyperdom.html
 
-var hyperdom = require('../..')
-var h = hyperdom.html
-
-var vdomToHtml = require('vdom-to-html')
-var expect = require('chai').expect
-var hyperdomComponent = require('../../componentWidget')
+import * as vdomToHtml from 'vdom-to-html'
+import {expect} from 'chai'
+import hyperdomComponent = require('../../componentWidget')
 
 describe('hyperdom', function () {
   describe('.html(), detached from a real DOM', function () {
     it('creates a virtual dom with event handlers', function () {
-      var model = { counter: 0 }
-      var vdom = h('.outer',
+      const model = { counter: 0 }
+      const vdom = h('.outer',
         h('.inner', {
-          onclick: function () {
+          onclick () {
             model.counter++
-          }
+          },
         }),
         hyperdomComponent(function () {
           return h('.component')
         }),
-        h.rawHtml('div', '<span>some raw HTML</span>')
+        h.rawHtml('div', '<span>some raw HTML</span>'),
       )
-      var html = vdomToHtml(vdom)
+      const html = vdomToHtml(vdom)
+      // tslint:disable-next-line
       expect(html).to.equal('<div class="outer"><div class="inner"></div><div class="component"></div><div><span>some raw HTML</span></div></div>')
       vdom.children[0].properties.onclick.handler()
       expect(model.counter).to.equal(1)

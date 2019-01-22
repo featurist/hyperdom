@@ -1,52 +1,53 @@
-/* eslint-env mocha */
+import 'lie/polyfill'
+import 'jquery-sendkeys'
 
-require('lie/polyfill')
+import * as $ from 'jquery'
+import * as hyperdom from '../..'
+import * as router from '../../router'
+import * as mapBinding from '../../mapBinding'
+const h = hyperdom.html
+const jsx = hyperdom.jsx
+import {expect} from 'chai'
+import * as retry from 'trytryagain'
+import * as browserMonkey from 'browser-monkey'
+const browser = browserMonkey.find('.test')
+import * as vdomToHtml from 'vdom-to-html'
+import * as times from 'lowscore/times'
+import * as range from 'lowscore/range'
+import vdomComponent = require('../../componentWidget')
+import windowEvents = require('../../windowEvents')
+import merge = require('../../merge')
+import runRender = require('../../render')
+import Mount = require('../../mount')
+import {Component, FnComponent, RenderComponent, RoutesComponent, VdomFragment} from '../..'
 
-var $ = require('jquery')
-var hyperdom = require('../..')
-var router = require('../../router')
-var mapBinding = require('../../mapBinding')
-var h = hyperdom.html
-var jsx = hyperdom.jsx
-var expect = require('chai').expect
-var retry = require('trytryagain')
-require('jquery-sendkeys')
-var browser = require('browser-monkey').find('.test')
-var vdomToHtml = require('vdom-to-html')
-var times = require('lowscore/times')
-var range = require('lowscore/range')
-var vdomComponent = require('../../componentWidget')
-var windowEvents = require('../../windowEvents')
-var merge = require('../../merge')
-var runRender = require('../../render')
-var Mount = require('../../mount')
-
-var detect = {
-  dataset: typeof document.body.dataset === 'object'
+const detect = {
+  dataset: typeof document.body.dataset === 'object',
 }
 
 describe('hyperdom', function () {
-  var div
+  let div: HTMLElement
 
   beforeEach(function () {
     $('.test').remove()
     div = $('<div class="test"/>').appendTo(document.body)[0]
   })
 
-  function attach () {
-    var args = Array.prototype.slice.call(arguments)
-    args.unshift(div)
-    args.push({
-      requestRender: setTimeout
-    })
-    hyperdom.append.apply(hyperdom, args)
+  function attach (app: Component | FnComponent, model?: any) {
+    const opts = [{
+      requestRender: setTimeout,
+    }]
+    if (model) {
+      opts.unshift(model)
+    }
+    hyperdom.append(div, app, ...opts)
   }
 
-  function find (selector) {
+  function find (selector: string) {
     return $(div).find(selector)
   }
 
-  function click (selector) {
+  function click (selector: string) {
     return retry(function () {
       expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'")
     }).then(function () {
@@ -54,7 +55,7 @@ describe('hyperdom', function () {
     })
   }
 
-  function check (selector) {
+  function check (selector: string) {
     return retry(function () {
       expect(find(selector).length).to.equal(1, "could not find button '" + selector + "'")
     }).then(function () {
@@ -67,40 +68,30 @@ describe('hyperdom', function () {
     return {
       renderCount: 0,
 
-      rendering: function () {
+      rendering () {
         this.renderCount++
       },
 
-      waitForRender: function () {
-        var self = this
-
-        var oldRefreshCount = self.renderCount
-
-        return this.wait(oldRefreshCount)
+      waitForRender () {
+        return this.wait(this.renderCount)
       },
 
-      waitForRenderAfter: function (action) {
-        var self = this
-
-        var oldRefreshCount = self.renderCount
-
-        return action.then(function () {
-          return self.wait(oldRefreshCount)
+      waitForRenderAfter (action: Promise<any>) {
+        return action.then(() => {
+          return this.wait(this.renderCount)
         })
       },
 
-      wait: function (oldRefreshCount) {
-        var self = this
-
-        return retry(function () {
-          expect(self.renderCount, 'renderCount').to.equal(oldRefreshCount + 1)
+      wait (oldRefreshCount: number) {
+        return retry(() => {
+          expect(this.renderCount, 'renderCount').to.equal(oldRefreshCount + 1)
         })
-      }
+      },
     }
   }
 
   describe('attaching', function () {
-    var targetDiv
+    let targetDiv: HTMLElement
 
     beforeEach(function () {
       targetDiv = $('<div></div>').appendTo(div)[0]
@@ -117,20 +108,20 @@ describe('hyperdom', function () {
     })
 
     it('can pass a model with a render method', function () {
-      var model = {
-        stuff: 'stuff',
-        render: function () {
-          return h('div.rendered', {onclick: function () {}}, this.stuff)
+      const model = new class extends RenderComponent {
+        public stuff = 'stuff'
+        public render () {
+          return h('div.rendered', {onclick () {}}, this.stuff)
         }
-      }
+      }()
 
-      var renderRequested = false
+      let renderRequested = false
 
       hyperdom.append(targetDiv, model, {
-        requestRender: function (render) {
+        requestRender (render) {
           renderRequested = true
           setTimeout(render)
-        }
+        },
       })
 
       expect(div.innerHTML).to.equal('<div><div class="rendered">stuff</div></div>')
@@ -140,22 +131,21 @@ describe('hyperdom', function () {
     })
 
     it('can pass a synchronous reqeustRender function', function () {
-      var model = {
-        count: 0,
+      const model = new class extends RenderComponent {
+        public count = 0
 
-        render: function () {
-          var self = this
+        public render () {
           return h('div',
             h('div.count', 'count: ' + this.count),
-            h('button.add', {onclick: function () { self.count++ }}, '++')
+            h('button.add', {onclick: () => this.count++}, '++'),
           )
         }
-      }
+      }()
 
       hyperdom.append(targetDiv, model, {
-        requestRender: function (render) {
+        requestRender (render) {
           render()
-        }
+        },
       })
 
       expect(find('.count').text()).to.equal('count: 0')
@@ -182,7 +172,7 @@ describe('hyperdom', function () {
         return h('div.rendered')
       }
 
-      var targetVDom = h('body')
+      const targetVDom = h('body')
 
       hyperdom.appendVDom(targetVDom, render)
 
@@ -190,61 +180,61 @@ describe('hyperdom', function () {
     })
 
     describe('server-side rendering', function () {
-      var app
-      var events
+      class MyApp extends RenderComponent {
+        public name: string = 'server render'
+
+        public render () {
+          const self = this
+          return h('div.static',
+            h('h1', self.name),
+            h('button.update',
+              {
+                onclick () {
+                  events.push('click')
+                  self.name = 'client render'
+                },
+              },
+              'update',
+            ),
+          )
+        }
+      }
+
+      let app: MyApp
+      let events: string[]
 
       beforeEach(function () {
         events = []
 
-        app = {
-          name: 'server render',
-
-          render: function () {
-            var self = this
-            return h('div.static',
-              h('h1', self.name),
-              h('button.update',
-                {
-                  onclick: function () {
-                    events.push('click')
-                    self.name = 'client render'
-                  }
-                },
-                'update'
-              )
-            )
-          }
-        }
+        app = new MyApp()
       })
 
-      it('can merge onto an existing DOM', function () {
+      it('can merge onto an existing DOM', async function () {
         $(targetDiv).replaceWith(vdomToHtml(app.render()))
 
-        var mergeDiv = div.children[0]
+        const mergeDiv = div.children[0]
 
         merge(mergeDiv, app, {
-          requestRender: setTimeout
+          requestRender: setTimeout,
         })
 
-        return retry(function () {
-          expect(find('button.update')[0].onclick).to.exist // eslint-disable-line no-unused-expressions
-        }).then(function () {
-          return click('button.update').then(function () {
-          }).then(function () {
-            return retry(function () {
-              expect(find('h1').text()).to.equal('client render')
-            })
-          })
+        await retry(function () {
+          // tslint:disable-next-line
+          expect(find('button.update')[0].onclick).to.exist
+        })
+        await click('button.update')
+        await retry(function () {
+          expect(find('h1').text()).to.equal('client render')
         })
       })
 
       it('updates client side with client-side changes', function () {
         $(targetDiv).replaceWith(vdomToHtml(app.render()))
 
-        var mergeDiv = div.children[0]
+        const mergeDiv = div.children[0]
         app.name = 'client render'
         merge(mergeDiv, app, {
-          requestRender: setTimeout
+          requestRender: setTimeout,
         })
 
         expect(find('h1').text()).to.equal('client render')
@@ -258,7 +248,7 @@ describe('hyperdom', function () {
         return h('div.haha')
       }
 
-      attach(render, {})
+      attach(render)
 
       expect(find('.haha').length).to.eql(1)
     })
@@ -268,18 +258,18 @@ describe('hyperdom', function () {
         return h('div', '£')
       }
 
-      attach(render, {})
+      attach(render)
 
       expect(find('div').text()).to.eql('£')
     })
 
-    function itCanRenderA (type, value, expectedValue) {
+    function itCanRenderA (type: string, value: any, expectedValue?: any) {
       it('can render a ' + type, function () {
         function render () {
           return h('div.haha', value)
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('.haha').text()).to.eql(expectedValue !== undefined ? expectedValue : String(value))
       })
@@ -292,10 +282,12 @@ describe('hyperdom', function () {
 
     it('can render an object', function () {
       function render () {
+        // this is an undocumented feature that probably should be deprecated anyway
+        // @ts-ignore
         return h('div.haha', 'object ', { name: 'asdf' })
       }
 
-      attach(render, {})
+      attach(render)
 
       expect(find('.haha').text()).to.equal('object {"name":"asdf"}')
     })
@@ -306,7 +298,7 @@ describe('hyperdom', function () {
           return h('div.one', {class: 'two three'})
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('div').attr('class')).to.eql('one two three')
       })
@@ -316,7 +308,7 @@ describe('hyperdom', function () {
           return h('div.one', {class: ['two', 'three']})
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('div').attr('class')).to.eql('one two three')
       })
@@ -326,24 +318,26 @@ describe('hyperdom', function () {
           return h('div.one', {class: {two: true, three: true, four: false}})
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('div').attr('class')).to.eql('one two three')
       })
 
       it('accepts an array with a mix of strings and objects', function () {
         function render () {
-          return h('div.one', {class: ['two', ['three', {four: true, five: false}], {six: true, seven: false, eight: true}]})
+          return h('div.one', {
+            class: ['two', ['three', {four: true, five: false}], {six: true, seven: false, eight: true}],
+          })
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('div').attr('class')).to.eql('one two three four six eight')
       })
     })
 
     describe('selectors', function () {
-      function selectorProduces (selector, expectedSelector) {
+      function selectorProduces (selector: string, expectedSelector: string) {
         it("h('" + selector + "') produces '" + expectedSelector + "'", function () {
           function render () {
             return h(selector)
@@ -362,14 +356,14 @@ describe('hyperdom', function () {
     })
 
     describe('attribute naming exceptions', function () {
-      it('can render a for attribute', function () {
+      it('can render a "for" attribute', function () {
         function render () {
           return h('div',
-              h('label', {for: 'blah'})
+              h('label', {for: 'blah'}),
             )
         }
 
-        attach(render, {text: 'one'})
+        attach(render)
 
         expect(find('label').attr('for')).to.eql('blah')
       })
@@ -419,7 +413,7 @@ describe('hyperdom', function () {
 
           it('can render data- and dataset attributes', function () {
             function render () {
-              return h('div', {'data-one': 'one', 'data-two': 'two', dataset: {three: 'three'}})
+              return h('div', {'data-one': 'one', 'data-two': 'two', "dataset": {three: 'three'}})
             }
 
             attach(render)
@@ -438,12 +432,12 @@ describe('hyperdom', function () {
           return h('div',
               h('input', {
                 type: 'text',
-                attributes: { autocapitalize: 'none', autofocus: true }
-              })
+                attributes: { autocapitalize: 'none', autofocus: true },
+              }),
             )
         }
 
-        attach(render, {})
+        attach(render)
 
         expect(find('input').attr('autocapitalize')).to.equal('none')
         expect(find('input').attr('autofocus')).to.equal('autofocus')
@@ -452,13 +446,13 @@ describe('hyperdom', function () {
 
     describe('raw unescaped HTML', function () {
       it('can render raw HTML', function () {
-        function render (model) {
+        function render (model: any) {
           return h('div',
             model.text
               ? hyperdom.rawHtml('p', 'some <strong>dangerous HTML (' + model.text + ')')
               : undefined,
-            h('button.two', {onclick: function () { model.text = 'two' }}),
-            h('button.three', {onclick: function () { model.text = '' }})
+            h('button.two', {onclick () { model.text = 'two' }}),
+            h('button.three', {onclick () { model.text = '' }}),
           )
         }
 
@@ -492,25 +486,25 @@ describe('hyperdom', function () {
       it('can render raw HTML with attributes', function () {
         function render () {
           return h('div',
-            hyperdom.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML')
+            hyperdom.rawHtml('p.raw', {style: {color: 'red'}}, 'some <strong>dangerous HTML'),
           )
         }
 
         attach(render, {text: 'one'})
 
-        var p = find('p')
+        const p = find('p')
         expect(p.html()).to.eql('some <strong>dangerous HTML</strong>')
         expect(p.attr('class')).to.eql('raw')
         expect(p.attr('style')).to.eql('color: red;')
       })
 
       it('updates the dom when the HTML changes', function () {
-        function render (model) {
+        function render (model: any) {
           return h('div',
             hyperdom.rawHtml('p.raw', model.html),
             h('p.x', model.x),
-            h('button.one', {onclick: function () { model.x = 'zzz' }}),
-            h('button.two', {onclick: function () { model.html = 'Nice <b>HTML</b>' }})
+            h('button.one', {onclick () { model.x = 'zzz' }}),
+            h('button.two', {onclick () { model.html = 'Nice <b>HTML</b>' }}),
           )
         }
 
@@ -518,7 +512,7 @@ describe('hyperdom', function () {
 
         expect(find('p.raw').html()).to.equal('Naughty <b>HTML</b>')
 
-        var b = find('p.raw b')[0]
+        const b = find('p.raw b')[0]
 
         return click('button.one').then(function () {
           return retry(function () {
@@ -565,11 +559,11 @@ describe('hyperdom', function () {
 
     describe('rendering exceptions', function () {
       it("doesn't render anything if an exception is thrown on first render", function () {
-        var app = {
-          render: function () {
+        const app = new class extends RenderComponent {
+          public render (): VdomFragment {
             throw new Error('oops')
           }
-        }
+        }()
 
         expect(function () {
           attach(app)
@@ -577,17 +571,17 @@ describe('hyperdom', function () {
       })
 
       it('no change to HTML if there is a rendering error', function () {
-        var error
+        let error: Error
 
-        var app = {
-          render: function () {
+        const app = new (class extends RenderComponent {
+          public render () {
             if (error) {
               throw error
             } else {
               return h('h1', 'first render')
             }
           }
-        }
+        })()
 
         attach(app)
         error = new Error('oops')
@@ -603,7 +597,7 @@ describe('hyperdom', function () {
     it('renders', function () {
       function render () {
         return jsx('div', {class: 'one'}, [
-          jsx('div', {class: 'two'}, ['text'])
+          jsx('div', {class: 'two'}, ['text']),
         ])
       }
 
@@ -614,20 +608,21 @@ describe('hyperdom', function () {
     })
 
     it('renders view components', function () {
-      function CoolButton (properties, children) {
-        this.properties = properties
-        this.children = children
-      }
+      class CoolButton extends RenderComponent {
+        constructor (readonly properties: any, readonly children: any) {
+          super()
+        }
 
-      CoolButton.prototype.render = function () {
-        return h('button', h('span.title', this.properties.title), this.children)
-      }
-
-      var app = {
-        render: function () {
-          return h('div', jsx(CoolButton, {title: 'button title'}, h('h1', 'contents')))
+        public render () {
+          return h('button', h('span.title', this.properties.title), this.children)
         }
       }
+
+      const app = new class extends RenderComponent {
+        public render () {
+          return h('div', jsx(CoolButton, {title: 'button title'}, h('h1', 'contents')))
+        }
+      }()
 
       attach(app)
 
@@ -637,7 +632,7 @@ describe('hyperdom', function () {
     it('renders svg classes', function () {
       function render () {
         return jsx('svg', {xmlns: 'http://www.w3.org/2000/svg', width: '300', height: '300'}, [
-          jsx('circle', {class: 'svg-circle'})
+          jsx('circle', {class: 'svg-circle'}),
         ])
       }
 
@@ -647,20 +642,19 @@ describe('hyperdom', function () {
     })
 
     it('renders view components without attributes', function () {
-      function CoolButton (properties, children) {
-        this.properties = properties
-        this.children = children
-      }
+      class CoolButton extends RenderComponent {
+        constructor (readonly properties: any, readonly children: any) {super()}
 
-      CoolButton.prototype.render = function () {
-        return h('button', h('span.title', this.properties.title || 'no title'), this.children)
-      }
-
-      var app = {
-        render: function () {
-          return h('div', jsx(CoolButton, undefined, h('h1', 'another cool button')))
+        public render () {
+          return h('button', h('span.title', this.properties.title || 'no title'), this.children)
         }
       }
+
+      const app = new class extends RenderComponent {
+        public render () {
+          return h('div', jsx(CoolButton, undefined, h('h1', 'another cool button')))
+        }
+      }()
 
       attach(app)
 
@@ -672,7 +666,7 @@ describe('hyperdom', function () {
     it('renders xml element all children with namespace specified with xmlns', function () {
       function render () {
         return jsx('svg', {xmlns: 'http://www.w3.org/2000/svg', width: '300', height: '300'}, [
-          jsx('circle', {cx: '50', cy: '50', r: '40', stroke: 'red', 'stroke-width': '4', fill: 'yellow'})
+          jsx('circle', {cx: '50', cy: '50', r: '40', stroke: 'red', 'stroke-width': '4', fill: 'yellow'}),
         ])
       }
 
@@ -685,59 +679,61 @@ describe('hyperdom', function () {
     it('renders tags with namespaces', function () {
       function render () {
         return jsx('data', {xmlns: 'urn:data', 'xmlns--addr': 'urn:address'}, [
-          jsx('addr--address', {name: 'bob', 'addr--street': 'ny st'})
+          jsx('addr--address', {"name": 'bob', 'addr--street': 'ny st'}),
         ])
       }
 
       attach(render, {})
 
       expect(find('data')[0].namespaceURI).to.eql('urn:data')
-      var address = find('data>address')[0]
+      const address = find('data>address')[0]
       expect(address.namespaceURI).to.eql('urn:address')
       expect(address.prefix).to.eql('addr')
-      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
-      expect(addressAttribute.namespaceURI).to.eql('urn:address')
-      expect(addressAttribute.name).to.eql('addr:street')
-      expect(addressAttribute.prefix).to.eql('addr')
-      expect(addressAttribute.localName).to.eql('street')
-      expect(addressAttribute.value).to.eql('ny st')
+      const addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute!.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute!.name).to.eql('addr:street')
+      expect(addressAttribute!.prefix).to.eql('addr')
+      expect(addressAttribute!.localName).to.eql('street')
+      expect(addressAttribute!.value).to.eql('ny st')
       expect(address.getAttribute('name')).to.eql('bob')
     })
 
     it('inner element can declare new default namespace', function () {
       function render () {
         return jsx('data', {xmlns: 'urn:data'}, [
-          jsx('address', {name: 'bob', xmlns: 'urn:address', 'xmlns--addr': 'urn:address', 'addr--street': 'ny st'})
+          jsx(
+            'address', {name: 'bob', xmlns: 'urn:address', 'xmlns--addr': 'urn:address', 'addr--street': 'ny st'},
+          ),
         ])
       }
 
       attach(render, {})
 
       expect(find('data')[0].namespaceURI).to.eql('urn:data')
-      var address = find('data>address')[0]
+      const address = find('data>address')[0]
       expect(address.namespaceURI).to.eql('urn:address')
       expect(address.prefix).to.eql(null)
-      var addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
-      expect(addressAttribute).to.exist // eslint-disable-line no-unused-expressions
-      expect(addressAttribute.namespaceURI).to.eql('urn:address')
-      expect(addressAttribute.name).to.eql('addr:street')
-      expect(addressAttribute.prefix).to.eql('addr')
-      expect(addressAttribute.localName).to.eql('street')
-      expect(addressAttribute.value).to.eql('ny st')
+      const addressAttribute = address.getAttributeNodeNS('urn:address', 'street')
+      expect(addressAttribute).to.exist
+      expect(addressAttribute!.namespaceURI).to.eql('urn:address')
+      expect(addressAttribute!.name).to.eql('addr:street')
+      expect(addressAttribute!.prefix).to.eql('addr')
+      expect(addressAttribute!.localName).to.eql('street')
+      expect(addressAttribute!.value).to.eql('ny st')
       expect(address.getAttribute('name')).to.eql('bob')
     })
   })
 
   describe('event handlers', function () {
     it('can respond to button clicks', function () {
-      function render (model) {
+      function render (model: any) {
         return h('div',
           h('button', {
-            onclick: function () {
+            onclick () {
               model.on = true
-            }
+            },
           }),
-          model.on ? h('span', 'on') : undefined
+          model.on ? h('span', 'on') : undefined,
         )
       }
 
@@ -751,10 +747,10 @@ describe('hyperdom', function () {
     })
 
     it('can respond to button clicks after promise resolves', function () {
-      function render (model) {
+      function render (model: any) {
         return h('div',
           h('button', {
-            onclick: function () {
+            onclick () {
               model.text = 'loading'
               return new Promise(function (resolve) {
                 setTimeout(function () {
@@ -762,9 +758,9 @@ describe('hyperdom', function () {
                   resolve()
                 }, 100)
               })
-            }
+            },
           }),
-          h('span', model.text)
+          h('span', model.text),
         )
       }
 
@@ -782,10 +778,10 @@ describe('hyperdom', function () {
     })
 
     it('refreshes the dom after an event handler promise rejects', function () {
-      var sadError = new Error('so sad')
+      const sadError = new Error('so sad')
 
-      function render (model) {
-        function onclick (e) {
+      function render (model: {mood: string}) {
+        function onclick (e: Event) {
           e.preventDefault()
           return new Promise(function (resolve, reject) {
             setTimeout(function () {
@@ -797,14 +793,15 @@ describe('hyperdom', function () {
 
         return h('.app',
           h('pre', model.mood),
-          h('button', { onclick: onclick }, 'Swing'))
+          h('button', { onclick }, 'Swing'))
       }
 
       attach(render, { mood: 'happy :)' })
 
-      var trapsUnhandledRejections = typeof window.onunhandledrejection !== 'undefined'
-      var unhandledError = 'expected-promise-rejection-error-to-be-rethrown'
-      function onUnhandledRejection (rejection) {
+      const trapsUnhandledRejections = typeof window.onunhandledrejection !== 'undefined'
+      let unhandledError = 'expected-promise-rejection-error-to-be-rethrown'
+
+      function onUnhandledRejection (rejection: {reason: string}) {
         unhandledError = rejection.reason
       }
       function removeHandler () {
@@ -827,22 +824,23 @@ describe('hyperdom', function () {
     })
 
     it('can define event handlers outside of the render loop', function () {
-      var model = {
-        button: h('button', {
-          onclick: function () {
-            model.on = true
-          }
-        }),
+      const app = new (class extends RenderComponent {
+        public button: VdomFragment = h('button', {
+          onclick () {
+            app.on = true
+          },
+        })
+        public on: boolean
 
-        render: function () {
+        public render () {
           return h('div',
             this.button,
-            model.on ? h('span', 'on') : undefined
+            this.on ? h('span', 'on') : undefined,
           )
         }
-      }
+      })()
 
-      attach(model)
+      attach(app)
 
       return click('button').then(function () {
         return retry(function () {
@@ -852,28 +850,28 @@ describe('hyperdom', function () {
     })
 
     it('can render components outside of the render loop', function () {
-      var model = {
-        button: h('div',
-          {
-            render: function () {
-              return h('button', {
-                onclick: function () {
-                  model.on = true
-                }
-              })
-            }
-          }
-        ),
+      const app = new class extends RenderComponent {
+        public on: boolean
 
-        render: function () {
+        private readonly button: VdomFragment = h('div', {
+          render () {
+            return h('button', {
+              onclick () {
+                app.on = true
+              },
+            })
+          },
+        })
+
+        public render () {
           return h('div',
             this.button,
-            model.on ? h('span', 'on') : undefined
+            this.on ? h('span', 'on') : undefined,
           )
         }
-      }
+      }()
 
-      attach(model)
+      attach(app)
 
       return click('button').then(function () {
         return retry(function () {
@@ -883,20 +881,21 @@ describe('hyperdom', function () {
     })
 
     it('can render bindings outside of the render loop', function () {
-      var model = {
-        text: '',
+      const app = new class extends RenderComponent {
+        public text: string
+        public input: VdomFragment
 
-        render: function () {
+        public render () {
           return h('div',
             this.input,
-            h('span', model.text)
+            h('span', this.text),
           )
         }
-      }
+      }()
 
-      model.input = h('input', {binding: [model, 'text'], type: 'text'})
+      app.input = h('input', {binding: [app, 'text'], type: 'text'})
 
-      attach(model)
+      attach(app)
       find('input').sendkeys('haha')
 
       return retry(function () {
@@ -907,21 +906,20 @@ describe('hyperdom', function () {
 
   describe('norefresh', function () {
     it("when returned the view doesn't refresh after the handler has run", function () {
-      var refreshes = 0
+      let refreshes = 0
       function render () {
         refreshes++
 
         return h('div',
           h('button.refresh', {
-            onclick: function () {
-            }
+            onclick () {},
           }),
           h('button.norefresh', {
-            onclick: function () {
+            onclick () {
               return hyperdom.norefresh()
-            }
+            },
           }),
-          h('span', refreshes)
+          h('span', refreshes),
         )
       }
 
@@ -951,10 +949,10 @@ describe('hyperdom', function () {
 
   describe('model binding', function () {
     it('can bind to a text input', function () {
-      function render (model) {
+      function render (model: any) {
         return h('div',
           h('input', {type: 'text', binding: [model, 'text']}),
-          h('span', model.text)
+          h('span', model.text),
         )
       }
 
@@ -970,14 +968,14 @@ describe('hyperdom', function () {
 
     describe('setting input values on reused DOM elements', function () {
       it('checkbox', function () {
-        function render (model) {
+        function render (model: any) {
           return h('div',
             !model.hide1
               ? h('label', h('input.one', {type: 'checkbox', binding: [model, 'hide1']}), 'hide one')
               : undefined,
             !model.hide2
               ? h('label', h('input.two', {type: 'checkbox', binding: [model, 'hide2']}), 'hide two')
-              : undefined
+              : undefined,
           )
         }
 
@@ -992,11 +990,19 @@ describe('hyperdom', function () {
       })
 
       it('radio', function () {
-        function render (model) {
+        function render (model: any) {
           return h('div',
             model.value === 1 ? h('h1', 'selected one') : undefined,
-            h('label', h('input.one', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 1, id: 'one'}), 'one'),
-            h('label', h('input.two', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 2, id: 'two'}), 'two')
+            h(
+              'label',
+              h('input.one', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 1, id: 'one'}),
+              'one',
+            ),
+            h(
+              'label',
+              h('input.two', {type: 'radio', name: 'thingy', binding: [model, 'value'], value: 2, id: 'two'}),
+              'two',
+            ),
           )
         }
 
@@ -1005,8 +1011,8 @@ describe('hyperdom', function () {
         return check('.two').then(function () {
           return retry(function () {
             expect(find('h1').length).to.equal(0)
-            expect(find('input.one')[0].checked).to.equal(false)
-            expect(find('input.two')[0].checked).to.equal(true)
+            expect((find('input.one')[0] as HTMLInputElement).checked).to.equal(false)
+            expect((find('input.two')[0] as HTMLInputElement).checked).to.equal(true)
           })
         })
       })
@@ -1014,38 +1020,38 @@ describe('hyperdom', function () {
 
     describe('binding options', function () {
       it('can bind with set conversion', function () {
-        var numberConversion = {
-          model: function (view) {
+        const numberConversion = {
+          model (view: string) {
             return Number(view)
           },
 
-          view: function (model) {
+          view (model: number) {
             return String(model)
-          }
+          },
         }
 
-        function render (model) {
+        function render (model: any) {
           return h('div',
             h('input', {type: 'text', binding: mapBinding(model, 'number', numberConversion)}),
-            h('span', model.number)
+            h('span', model.number),
           )
         }
 
-        var model = {number: 0}
-        attach(render, model)
+        const state = {number: 0}
+        attach(render, state)
 
         find('input').sendkeys('{selectall}{backspace}123')
 
         return retry(function () {
           expect(find('span').text()).to.equal('123')
           expect(find('input').val()).to.equal('123')
-          expect(model.number).to.equal(123)
+          expect(state.number).to.equal(123)
         })
       })
 
       it("doesn't set the input text if the value is an Error", function () {
-        function number (value) {
-          var n = Number(value)
+        function number (value: string) {
+          const n = Number(value)
           if (isNaN(n)) {
             return new Error('expected a number')
           } else {
@@ -1053,40 +1059,40 @@ describe('hyperdom', function () {
           }
         }
 
-        function render (model) {
+        const render: FnComponent = (model: {number: number}) => {
           return h('div',
             h('input', {type: 'text', binding: mapBinding(model, 'number', number)}),
-            h('span', model.number)
+            h('span', model.number),
           )
         }
 
-        var model = {number: 0}
-        attach(render, model)
+        const m = {number: 0}
+        attach(render, m)
 
         find('input').sendkeys('{selectall}{backspace}abc')
 
         return retry(function () {
           expect(find('span').text()).to.equal('Error: expected a number')
           expect(find('input').val()).to.equal('abc')
-          expect(model.number).to.be.instanceof(Error)
+          expect(m.number).to.be.instanceof(Error)
         }).then(function () {
           find('input').sendkeys('{selectall}{backspace}123')
         }).then(function () {
           return retry(function () {
             expect(find('span').text()).to.equal('123')
             expect(find('input').val()).to.equal('123')
-            expect(model.number).to.equal(123)
+            expect(m.number).to.equal(123)
           })
         })
       })
     })
 
     it('when model returns undefined, it clears the input', function () {
-      function render (model) {
+      function render (model: {text: string}) {
         return h('div',
           h('input', {type: 'text', binding: [model, 'text']}),
-          h('button.clear', {onclick: function () { delete model.text }}, 'clear'),
-          h('span', model.text)
+          h('button.clear', {onclick () { delete model.text }}, 'clear'),
+          h('span', model.text),
         )
       }
 
@@ -1107,16 +1113,16 @@ describe('hyperdom', function () {
     })
 
     it('can bind to a text input and oninput', function () {
-      function render (model) {
+      function render (model: {text: string, tempText: string}) {
         return h('div',
           h('input', {
             type: 'text',
             binding: [model, 'tempText'],
-            oninput: function () {
+            oninput () {
               model.text = model.tempText
-            }
+            },
           }),
-          h('span', model.text)
+          h('span', model.text),
         )
       }
 
@@ -1131,10 +1137,10 @@ describe('hyperdom', function () {
     })
 
     it('can bind to a textarea', function () {
-      function render (model) {
+      function render (model: {text: string}) {
         return h('div',
           h('textarea', {binding: [model, 'text']}),
-          h('span', model.text)
+          h('span', model.text),
         )
       }
 
@@ -1149,10 +1155,10 @@ describe('hyperdom', function () {
     })
 
     it('can bind to a checkbox', function () {
-      function render (model) {
+      function render (model: {check: boolean}) {
         return h('div',
           h('input', {type: 'checkbox', binding: [model, 'check']}),
-          h('span', model.check ? 'on' : 'off')
+          h('span', model.check ? 'on' : 'off'),
         )
       }
 
@@ -1172,23 +1178,23 @@ describe('hyperdom', function () {
     })
 
     it('can bind to radio buttons', function () {
-      var blue = { name: 'blue' }
+      const blue = { name: 'blue' }
 
-      function render (model) {
+      function render (model: {colour: any}) {
         return h('div',
           h('input.red', {
             type: 'radio',
             name: 'colour',
             binding: [model, 'colour'],
-            value: 'red'
+            value: 'red',
           }),
           h('input.blue', {
             type: 'radio',
             name: 'colour',
             binding: [model, 'colour'],
-            value: blue
+            value: blue,
           }),
-          h('span', JSON.stringify(model.colour))
+          h('span', JSON.stringify(model.colour)),
         )
       }
 
@@ -1217,22 +1223,22 @@ describe('hyperdom', function () {
 
     describe('select', function () {
       it('can bind to select', function () {
-        var blue = { name: 'blue' }
+        const blue = { name: 'blue' }
 
-        var app = {
-          colour: blue,
+        const app = new class extends RenderComponent {
+          public colour = blue
 
-          render: function () {
+          public render () {
             return h('div',
               h('select',
                 {binding: [this, 'colour']},
                 h('option.red', {value: 'red'}, 'red'),
-                h('option.blue', {value: blue}, 'blue')
+                h('option.blue', {value: blue}, 'blue'),
               ),
-              h('span', JSON.stringify(this.colour))
+              h('span', JSON.stringify(this.colour)),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -1241,14 +1247,14 @@ describe('hyperdom', function () {
           expect(find('option.red').prop('selected')).to.equal(false)
           expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 0
+          (find('select')[0] as HTMLSelectElement).selectedIndex = 0
           find('select').change()
 
           return retry(function () {
             expect(find('span').text()).to.equal('"red"')
             expect(find('option.red').prop('selected')).to.equal(true)
           }).then(function () {
-            find('select')[0].selectedIndex = 1
+            (find('select')[0] as HTMLSelectElement).selectedIndex = 1
             find('select').change()
 
             return retry(function () {
@@ -1260,20 +1266,20 @@ describe('hyperdom', function () {
       })
 
       it('can render select with text nodes', function () {
-        var app = {
-          colour: 'red',
+        const app = new class extends RenderComponent {
+          public colour = 'red'
 
-          render: function () {
+          public render () {
             return h('div',
               h('select',
                 {binding: [this, 'colour']},
                 h('option.red', {value: 'red'}, 'red'),
-                ''
+                '',
               ),
-              h('span', JSON.stringify(this.colour))
+              h('span', JSON.stringify(this.colour)),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -1285,10 +1291,10 @@ describe('hyperdom', function () {
 
       it('can set select values', function () {
         attach(render)
-        function render (model) {
+        function render (model: {colour: any}) {
           return h('select',
             {binding: [model, 'colour']},
-            h('option.red', {value: 'red'}, 'red')
+            h('option.red', {value: 'red'}, 'red'),
           )
         }
         return retry(function () {
@@ -1297,22 +1303,22 @@ describe('hyperdom', function () {
       })
 
       it('can bind to select with no values on its options', function () {
-        var app = {
-          colour: 'blue',
+        const app = new class extends RenderComponent {
+          public colour = 'blue'
 
-          render: function () {
+          public render () {
             return h('div',
               h('select',
                 {binding: [this, 'colour']},
                 h('option.red', 're', 'd'),
                 h('option.orange'),
                 h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
-                h('option.blue', 'bl', 'ue')
+                h('option.blue', 'bl', 'ue'),
               ),
-              h('span', JSON.stringify(this.colour))
+              h('span', JSON.stringify(this.colour)),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -1321,14 +1327,14 @@ describe('hyperdom', function () {
           expect(find('option.red').prop('selected')).to.equal(false)
           expect(find('option.blue').prop('selected')).to.equal(true)
         }).then(function () {
-          find('select')[0].selectedIndex = 0
+          (find('select')[0] as HTMLSelectElement).selectedIndex = 0
           find('select').change()
 
           return retry(function () {
             expect(find('span').text()).to.equal('"red"')
             expect(find('option.red').prop('selected')).to.equal(true)
           }).then(function () {
-            find('select')[0].selectedIndex = 3
+            (find('select')[0] as HTMLSelectElement).selectedIndex = 3
             find('select').change()
 
             return retry(function () {
@@ -1340,61 +1346,58 @@ describe('hyperdom', function () {
       })
 
       it('chooses the first if nothing is selected', function () {
-        var app = {
-          render: function () {
+        const app = new class extends RenderComponent {
+          private colour: string
+
+          public render () {
             return h('div',
               h('select',
                 {binding: [this, 'colour']},
                 h('option.red', 're', 'd'),
                 h('option.orange'),
                 h('option.green', {value: 'green (not blue, ignore me)'}, 'blue'),
-                h('option.blue', 'bl', 'ue')
+                h('option.blue', 'bl', 'ue'),
               ),
-              h('span', JSON.stringify(this.colour))
+              h('span', JSON.stringify(this.colour)),
             )
           }
-        }
+        }()
 
         attach(app)
 
         return retry(function () {
           expect(find('option.red').prop('selected')).to.equal(true)
-          expect(find('select')[0].selectedIndex).to.equal(0)
+          expect((find('select')[0] as HTMLSelectElement).selectedIndex).to.equal(0)
         })
       })
 
       it('can bind to select multiple', function () {
-        function selectedOptions (element) {
+        function selectedOptions (element: HTMLSelectElement) {
           if (element.selectedOptions) {
             return Array.prototype.slice.call(element.selectedOptions)
           } else {
-            var children = element.childNodes
-            var options = []
-            for (var n = 0; n < children.length; n++) {
-              var child = children[n]
-              if (child.selected) {
-                options.push(child)
-              }
-            }
+            const children = element.childNodes
+            const options = Array.prototype.slice.call(children)
+              .filter((child: HTMLElement) => (child as HTMLOptionElement).selected)
             return options
           }
         }
 
-        var app = {
-          colours: ['red', 'green'],
+        const app = new class extends RenderComponent {
+          public colours = ['red', 'green']
 
-          render: function () {
+          public render () {
             return h('div',
               h('select',
                 {binding: [this, 'colours'], multiple: true},
                 h('option.red', {value: 'red'}, 'red'),
                 h('option.blue', 'blue'),
-                h('option.green', {value: 'green'}, 'green')
+                h('option.green', {value: 'green'}, 'green'),
               ),
-              h('span', JSON.stringify(this.colours))
+              h('span', JSON.stringify(this.colours)),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -1402,18 +1405,18 @@ describe('hyperdom', function () {
           expect(find('option.red').prop('selected')).to.equal(true)
           expect(find('option.blue').prop('selected')).to.equal(false)
           expect(find('option.green').prop('selected')).to.equal(true)
-          expect(selectedOptions(find('select')[0])).to.eql([
+          expect(selectedOptions(find('select')[0] as HTMLSelectElement)).to.eql([
             find('option.red')[0],
-            find('option.green')[0]
+            find('option.green')[0],
           ])
         }).then(function () {
-          find('option.green')[0].selected = false
+          (find('option.green')[0] as HTMLOptionElement).selected = false
           find('select').change()
           expect(find('option.red').prop('selected')).to.equal(true)
           expect(find('option.blue').prop('selected')).to.equal(false)
           expect(find('option.green').prop('selected')).to.equal(false)
-          expect(selectedOptions(find('select')[0])).to.eql([
-            find('option.red')[0]
+          expect(selectedOptions(find('select')[0] as HTMLSelectElement)).to.eql([
+            find('option.red')[0],
           ])
           expect(app.colours).to.eql(['red'])
           return retry(function () {
@@ -1426,26 +1429,26 @@ describe('hyperdom', function () {
 
   describe('components', function () {
     it('calls onload once when HTML appears on page', function () {
-      var model = {
-        loaded: 0,
-        refreshed: 0,
+      const model = new class extends RenderComponent {
+        private loaded = 0
+        private refreshed = 0
 
-        onload: function () {
-          var self = this
+        public onload () {
+          const self = this
           return wait(20).then(function () {
             self.loaded++
           })
-        },
+        }
 
-        render: function () {
+        public render () {
           this.refreshed++
           return h('div',
             h('h1.loaded', 'loaded ' + this.loaded + ' times'),
             h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
-            h('button.refresh', {onclick: function () {}}, 'refresh')
+            h('button.refresh', {onclick () {}}, 'refresh'),
           )
         }
-      }
+      }()
 
       attach(model)
 
@@ -1464,32 +1467,32 @@ describe('hyperdom', function () {
 
     describe('inner components', function () {
       it('calls onload once when HTML appears on page', function () {
-        var model = {
-          innerModel: {
-            loaded: 0,
-            refreshed: 0,
+        const model = new class extends RenderComponent {
+          private innerModel = new class extends RenderComponent {
+            private loaded = 0
+            private refreshed = 0
 
-            onload: function () {
-              var self = this
-              return wait(20).then(function () {
-                self.loaded++
-              })
-            },
-
-            render: function () {
+            public render () {
               this.refreshed++
               return h('div',
                 h('h1.loaded', 'loaded ' + this.loaded + ' times'),
                 h('h1.refreshed', 'refreshed ' + this.refreshed + ' times'),
-                h('button.refresh', {onclick: function () {}}, 'refresh')
+                h('button.refresh', {onclick () {}}, 'refresh'),
               )
             }
-          },
 
-          render: function () {
+            protected onload () {
+              const self = this
+              return wait(20).then(function () {
+                self.loaded++
+              })
+            }
+          }()
+
+          public render () {
             return h('div.outer', this.innerModel)
           }
-        }
+        }()
 
         attach(model)
 
@@ -1508,55 +1511,59 @@ describe('hyperdom', function () {
     })
 
     it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
-      var events = []
-      var monitor = renderMonitor()
+      const events: Array<{
+        type: string,
+        element: HTMLElement,
+        parent?: Node | null,
+      }> = []
+      const monitor = renderMonitor()
 
-      var model = {
-        showComponent: true,
+      const model = new class extends RenderComponent {
+        private showComponent = true
 
-        innerModel: {
-          onadd: function (element) {
+        private innerModel = new class extends RenderComponent {
+          public render () {
+            return h('h1', 'component')
+          }
+
+          protected onadd (element: HTMLElement) {
             events.push({
               type: 'onadd',
               parent: element.parentNode,
-              element: element
+              element,
             })
-          },
+          }
 
-          onupdate: function (element) {
+          protected onupdate (element: HTMLElement) {
             events.push({
               type: 'onupdate',
-              element: element
+              element,
             })
-          },
+          }
 
-          onremove: function (element) {
+          protected onremove (element: HTMLElement) {
             events.push({
               type: 'onremove',
-              element: element
+              element,
             })
-          },
-
-          render: function () {
-            return h('h1', 'component')
           }
-        },
+        }()
 
-        render: function () {
+        public render () {
           monitor.rendering()
 
           return h('div',
             this.showComponent ? this.innerModel : undefined,
-            h('button.refresh', {onclick: function () {}}, 'refresh'),
-            h('button.remove', {onclick: function () { model.showComponent = false }}, 'remove')
+            h('button.refresh', {onclick () {}}, 'refresh'),
+            h('button.remove', {onclick () { model.showComponent = false }}, 'remove'),
           )
         }
-      }
+      }()
 
       attach(model)
 
-      var expectedParent = div.firstChild
-      var expectedElement = div.firstChild.firstChild
+      const expectedParent = div.firstChild
+      const expectedElement = div.firstChild!.firstChild
 
       return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
         return monitor.waitForRenderAfter(click('button.refresh'))
@@ -1567,58 +1574,58 @@ describe('hyperdom', function () {
           {
             type: 'onadd',
             parent: expectedParent,
-            element: expectedElement
+            element: expectedElement,
           },
           {
             type: 'onupdate',
-            element: expectedElement
+            element: expectedElement,
           },
           {
             type: 'onupdate',
-            element: expectedElement
+            element: expectedElement,
           },
           {
             type: 'onremove',
-            element: expectedElement
-          }
+            element: expectedElement,
+          },
         ])
       })
     })
 
     it('top level receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
-      var events = []
-      var monitor = renderMonitor()
+      const events: any[] = []
+      const monitor = renderMonitor()
 
-      var model = {
-        onadd: function (element) {
-          events.push({
-            type: 'onadd',
-            parent: element.parentNode,
-            element: element
-          })
-        },
-
-        onupdate: function (element) {
-          events.push({
-            type: 'onupdate',
-            element: element
-          })
-        },
-
-        render: function () {
+      const model = new class extends RenderComponent {
+        public render () {
           monitor.rendering()
 
           return h('div',
             h('h1', 'component'),
-            h('button.refresh', { onclick: function () {} }, 'refresh')
+            h('button.refresh', { onclick () {}}, 'refresh'),
           )
         }
-      }
+
+        protected onadd (element: HTMLElement) {
+          events.push({
+            type: 'onadd',
+            parent: element.parentNode,
+            element,
+          })
+        }
+
+        protected onupdate (element: HTMLElement) {
+          events.push({
+            type: 'onupdate',
+            element,
+          })
+        }
+      }()
 
       attach(model)
 
-      var expectedParent = div
-      var expectedElement = div.firstChild
+      const expectedParent = div
+      const expectedElement = div.firstChild
 
       return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
         return monitor.waitForRenderAfter(click('button.refresh'))
@@ -1627,131 +1634,136 @@ describe('hyperdom', function () {
           {
             type: 'onadd',
             parent: expectedParent,
-            element: expectedElement
+            element: expectedElement,
           },
           {
             type: 'onupdate',
-            element: expectedElement
+            element: expectedElement,
           },
           {
             type: 'onupdate',
-            element: expectedElement
-          }
+            element: expectedElement,
+          },
         ])
       })
     })
 
     it('calls onadd when a component of a different constructor rendered', function () {
-      var events = []
-      var monitor = renderMonitor()
+      const events: string[] = []
+      const monitor = renderMonitor()
 
-      function ComponentA () {
-        this.text = 'A'
+      class ComponentA extends RenderComponent {
+        public text = 'A'
+
+        public render () {
+          return h('h1', this.text)
+        }
+
+        protected onadd () {
+          events.push('onadd a')
+        }
       }
 
-      ComponentA.prototype.onadd = function () {
-        events.push('onadd a')
+      class ComponentB extends RenderComponent {
+        public text = 'B'
+
+        public render () {
+          return h('h1', this.text)
+        }
+
+        protected onadd () {
+          events.push('onadd b')
+        }
       }
 
-      ComponentA.prototype.render = function () {
-        return h('h1', this.text)
-      }
+      const model = new class extends RenderComponent {
+        private showComponentA = true
 
-      function ComponentB () {
-        this.text = 'B'
-      }
-
-      ComponentB.prototype.onadd = function () {
-        events.push('onadd b')
-      }
-
-      ComponentB.prototype.render = function () {
-        return h('h1', this.text)
-      }
-
-      var model = {
-        showComponentA: true,
-
-        render: function () {
+        public render () {
           monitor.rendering()
 
           return h('div',
             this.showComponentA ? new ComponentA() : new ComponentB(),
-            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']}),
           )
         }
-      }
+      }()
 
       attach(model)
 
       expect(events).to.eql([
-        'onadd a'
+        'onadd a',
       ])
 
       return monitor.waitForRenderAfter(click('input.swap')).then(function () {
         expect(events).to.eql([
           'onadd a',
-          'onadd b'
+          'onadd b',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       }).then(function () {
         expect(events).to.eql([
           'onadd a',
           'onadd b',
-          'onadd a'
+          'onadd a',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       })
     })
 
     it('calls onadd when a component of with a different key is rendered', function () {
-      var events = []
-      var monitor = renderMonitor()
+      const events: string[] = []
+      const monitor = renderMonitor()
 
-      function Component (key) {
-        this.debug = true
-        this.renderKey = key
-        this.text = key || 'a'
+      class Component extends RenderComponent {
+        public text: string
+        public renderKey: string | undefined
+
+        constructor (key: string | undefined) {
+          super()
+          this.renderKey = key
+          this.text = key || 'a'
+        }
+
+        public render () {
+          return h('h1', this.text)
+        }
+
+        protected onadd () {
+          events.push('onadd ' + this.text)
+        }
       }
 
-      Component.prototype.onadd = function () {
-        events.push('onadd ' + this.text)
-      }
+      const model = new class extends RenderComponent {
+        private showComponentA = true
 
-      Component.prototype.render = function () {
-        return h('h1', this.text)
-      }
-
-      var model = {
-        showComponentA: true,
-
-        render: function () {
+        public render () {
           monitor.rendering()
 
           return h('div',
             new Component(this.showComponentA ? undefined : 'b'),
-            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']})
+            h('input.swap', {type: 'checkbox', binding: [this, 'showComponentA']}),
           )
         }
-      }
+      }()
 
       attach(model)
 
       expect(events).to.eql([
-        'onadd a'
+        'onadd a',
       ])
 
       return monitor.waitForRenderAfter(click('input.swap')).then(function () {
         expect(events).to.eql([
           'onadd a',
-          'onadd b'
+          'onadd b',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       }).then(function () {
         expect(events).to.eql([
           'onadd a',
           'onadd b',
-          'onadd a'
+          'onadd a',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       })
@@ -1759,28 +1771,28 @@ describe('hyperdom', function () {
 
     describe('caching', function () {
       it('can update the component only when the renderKey changes', function () {
-        var innerRenders = 0
-        var renders = 0
+        let innerRenders = 0
+        let renders = 0
 
-        var model = {
-          innerModel: {
-            cacheKey: 1,
+        const model = new class extends RenderComponent {
+          public innerModel = new class extends RenderComponent {
+            public cacheKey = 1
 
-            renderCacheKey: function () {
-              return this.cacheKey
-            },
-
-            render: function () {
+            public render () {
               innerRenders++
-              return h('button', {onclick: function () {}}, 'refresh')
+              return h('button', {onclick () {}}, 'refresh')
             }
-          },
 
-          render: function () {
+            protected renderCacheKey () {
+              return this.cacheKey
+            }
+          }()
+
+          public render () {
             renders++
             return this.innerModel
           }
-        }
+        }()
 
         attach(model)
 
@@ -1804,24 +1816,23 @@ describe('hyperdom', function () {
       })
 
       it("doesn't cache when renderCacheKey returns undefined", function () {
-        var innerRenders = 0
-        var renders = 0
+        let innerRenders = 0
+        let renders = 0
 
-        var model = {
-          innerModel: {
-            renderCacheKey: function () {},
-
-            render: function () {
+        const model = new class extends RenderComponent {
+          private innerModel = new class extends RenderComponent {
+            public render () {
               innerRenders++
-              return h('button', {onclick: function () {}}, 'refresh')
+              return h('button', {onclick () {}}, 'refresh')
             }
-          },
+            protected renderCacheKey () {}
+          }()
 
-          render: function () {
+          public render () {
             renders++
             return this.innerModel
           }
-        }
+        }()
 
         attach(model)
 
@@ -1845,13 +1856,13 @@ describe('hyperdom', function () {
     })
 
     it('the component can refresh the view', function () {
-      var model = {
-        name: 'Njord',
+      const model = new class extends RenderComponent {
+        public name = 'Njord'
 
-        render: function () {
+        public render () {
           return h('h1', 'hi ' + this.name)
         }
-      }
+      }()
 
       attach(model)
 
@@ -1866,23 +1877,23 @@ describe('hyperdom', function () {
     })
 
     it('can refresh several components without refreshing the whole page', function () {
-      var model = {
-        model1: innerModel('model1', 'one'),
-        model2: innerModel('model2', 'xxx'),
+      const model = new class extends RenderComponent {
+        public model1 = innerModel('model1', 'one')
+        public model2 = innerModel('model2', 'xxx')
 
-        render: function () {
+        public render () {
           return h('div', this.model1, this.model2)
         }
-      }
+      }()
 
-      function innerModel (class_, name) {
-        return {
-          name: name,
+      function innerModel (klass: string, name: string) {
+        return new class extends RenderComponent {
+          public name = name
 
-          render: function () {
-            return h('h1' + '.' + class_, 'hi ' + this.name)
+          public render () {
+            return h('h1' + '.' + klass, 'hi ' + this.name)
           }
-        }
+        }()
       }
 
       attach(model)
@@ -1919,25 +1930,25 @@ describe('hyperdom', function () {
     })
 
     it('does not refresh if the component was not rendered', function () {
-      var model = {
-        showModel: 1,
+      const model = new class extends RenderComponent {
+        public showModel = 1
 
-        model1: innerModel('one'),
-        model2: innerModel('two'),
+        public model1 = innerModel('one')
+        public model2 = innerModel('two')
 
-        render: function () {
+        public render () {
           return h('div', this.showModel === 1 ? this.model1 : this.model2)
         }
-      }
+      }()
 
-      function innerModel (name) {
-        return {
-          name: name,
+      function innerModel (name: string) {
+        return new class extends RenderComponent {
+          public name = name
 
-          render: function () {
+          public render () {
             return h('h1', 'hi ' + this.name)
           }
-        }
+        }()
       }
 
       attach(model)
@@ -1962,25 +1973,23 @@ describe('hyperdom', function () {
     })
 
     it('a component can be represented several times and be refreshed', function () {
-      var model = {
-        models: 1,
+      const model = new class extends RenderComponent {
+        public models = 1
 
-        innerModel: {
-          name: 'Jack',
+        public innerModel = new class extends RenderComponent {
+          public name = 'Jack'
 
-          render: function () {
+          public render () {
             return h('li', this.name)
           }
-        },
+        }()
 
-        render: function () {
-          var self = this
-
-          return h('ul', times(this.models, function () {
-            return self.innerModel
+        public render () {
+          return h('ul', times(this.models, () => {
+            return this.innerModel
           }))
         }
-      }
+      }()
 
       attach(model)
 
@@ -2023,12 +2032,12 @@ describe('hyperdom', function () {
     })
 
     it('calling refreshImmediately inside a render does nothing', function () {
-      var model = {
-        render: function () {
+      const model = new class extends RenderComponent {
+        public render () {
           this.refreshImmediately()
           return h('h1', 'hi')
         }
-      }
+      }()
 
       attach(model)
       expect(find('h1').text()).to.equal('hi')
@@ -2039,7 +2048,7 @@ describe('hyperdom', function () {
     describe('validation', function () {
       it('throws if a string is passed', function () {
         expect(function () {
-          hyperdom.binding('asdf')
+          hyperdom.binding('asdf' as any)
         }).to.throw(/bindings must be.*or an object.*asdf/)
       })
     })
@@ -2047,26 +2056,26 @@ describe('hyperdom', function () {
 
   describe('hyperdom.refreshify', function () {
     this.timeout(2000)
-    var refreshCalled
+    let refreshCalled: boolean
 
     beforeEach(function () {
       refreshCalled = false
-      var mount = new Mount()
+      const mount = new Mount()
 
       runRender._currentRender = {
         mount: {
-          refresh: function () {
+          refresh () {
             refreshCalled = true
           },
 
-          requestRender: function (fn) {
+          requestRender (fn: () => void) {
             fn()
           },
 
-          refreshify: function (fn, options) {
+          refreshify (fn: () => void, options: object) {
             return mount.refreshify.call(this, fn, options)
-          }
-        }
+          },
+        },
       }
     })
 
@@ -2074,20 +2083,25 @@ describe('hyperdom', function () {
       runRender._currentRender = undefined
     })
 
-    function expectToRefresh (options, v) {
+    function expectToRefresh (options: object | undefined, v: boolean) {
       (hyperdom.refreshify(function () {}, options))()
       expect(refreshCalled).to.equal(v)
     }
 
-    function expectPromiseToRefreshWithOptions (options, expectations) {
-      var fn = hyperdom.refreshify(function () {
+    interface IExpectations {
+      immediately: boolean
+      afterPromise: boolean
+    }
+
+    function expectPromiseToRefreshWithOptions (options: object | undefined, expectations: IExpectations) {
+      const fn = hyperdom.refreshify(function () {
         return wait(10)
       }, options)
 
       return expectPromiseToRefreshWithBinding(fn, expectations)
     }
 
-    function expectPromiseToRefreshWithBinding (fn, expectations) {
+    function expectPromiseToRefreshWithBinding (fn: () => void, expectations: IExpectations) {
       fn()
 
       expect(refreshCalled).to.equal(expectations.immediately)
@@ -2110,27 +2124,29 @@ describe('hyperdom', function () {
 
     context('component: old component', function () {
       it('calls refresh with the component', function () {
-        var component = {
+        const component = {
           canRefresh: true,
-          refresh: function () {
+          wasRefreshed: false,
+          refresh () {
             this.wasRefreshed = true
-          }
+          },
         };
 
-        (hyperdom.refreshify(function () {}, {component: component}))()
+        (hyperdom.refreshify(function () {}, {component}))()
         expect(component.wasRefreshed).to.equal(true)
       })
     })
 
     context('component: component', function () {
       it('calls refresh with the component', function () {
-        var component = {
-          refreshComponent: function () {
+        const component = {
+          wasRefreshed: false,
+          refreshComponent () {
             this.wasRefreshed = true
-          }
+          },
         };
 
-        (hyperdom.refreshify(function () {}, {component: component}))()
+        (hyperdom.refreshify(function () {}, {component}))()
         expect(component.wasRefreshed).to.equal(true)
       })
     })
@@ -2168,21 +2184,21 @@ describe('hyperdom', function () {
 
   describe('html.meta()', function () {
     it('stores temporary state without updating the model', function () {
-      var integer = {
-        view: function (model) {
+      const integer = {
+        view (model: any) {
           return (model || '').toString()
         },
-        model: function (view) {
+        model (view: any) {
           if (!/^\d+$/.test(view)) { throw new Error('Must be an integer') }
           return Number(view)
-        }
+        },
       }
-      function render (model) {
+      function render (model: any) {
         return h('div',
-          h('input.x', {binding: mapBinding(model, 'x', integer)})
+          h('input.x', {binding: mapBinding(model, 'x', integer)}),
         )
       }
-      var model = {}
+      const model: any = {}
       attach(render, model)
 
       return browser.find('input.x').typeIn('1').then(function () {
@@ -2201,10 +2217,10 @@ describe('hyperdom', function () {
   })
 
   describe('components', function () {
-    var events
-    var monitor
-    var renderData
-    var renderCacheKey
+    let events: any[]
+    let monitor: any
+    let renderData: string
+    let renderCacheKey: string
 
     beforeEach(function () {
       monitor = renderMonitor()
@@ -2214,117 +2230,119 @@ describe('hyperdom', function () {
       renderCacheKey = 'one'
     })
 
-    function trimH1 (innerHTML) {
-      return /<h1>.*?<\/h1>/.exec(innerHTML)[0]
+    function trimH1 (innerHTML: string) {
+      return /<h1>.*?<\/h1>/.exec(innerHTML)![0]
     }
 
-    function component (options) {
-      var render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : undefined
+    function component (options?: any): any {
+      const render = typeof options === 'object' && options.hasOwnProperty('render') ? options.render : undefined
 
       return {
-        onload: function () {
+        onload () {
           events.push(['onload'])
           this.state = 'state'
         },
 
-        onbeforeadd: function () {
+        onbeforeadd () {
           events.push(['onbeforeadd', this.state])
         },
 
-        onadd: function (element) {
+        onadd (element: HTMLElement) {
           events.push(['onadd', trimH1(element.innerHTML), this.state])
         },
 
-        onbeforerender: function (element) {
+        onbeforerender (element: HTMLElement) {
           events.push(['onbeforerender', element ? trimH1(element.innerHTML) : null, this.state])
         },
 
-        onrender: function (element, oldElement) {
-          events.push(['onrender', trimH1(element.innerHTML), oldElement ? trimH1(oldElement.innerHTML) : null, this.state])
+        onrender (element: HTMLElement, oldElement: HTMLElement) {
+          events.push(
+            ['onrender', trimH1(element.innerHTML), oldElement ? trimH1(oldElement.innerHTML) : null, this.state],
+          )
         },
 
-        onbeforeupdate: function (element) {
+        onbeforeupdate (element: HTMLElement) {
           events.push(['onbeforeupdate', trimH1(element.innerHTML), this.state])
         },
 
-        onupdate: function (element, oldElement) {
+        onupdate (element: HTMLElement, oldElement: HTMLElement) {
           events.push(['onupdate', trimH1(element.innerHTML), trimH1(oldElement.innerHTML), this.state])
         },
 
-        onbeforeremove: function (element) {
+        onbeforeremove (element: HTMLElement) {
           events.push(['onbeforeremove', trimH1(element.innerHTML), this.state])
         },
 
-        onremove: function (element) {
+        onremove (element: HTMLElement) {
           events.push(['onremove', trimH1(element.innerHTML), this.state])
         },
 
-        render: function () {
+        render () {
           return h('div', h('h1', 'element: ' + monitor.renderCount), render ? render() : '')
-        }
+        },
       }
     }
 
-    function cachingComponent (render) {
+    function cachingComponent (render?: () => any): any {
       return {
-        onload: function () {
+        onload () {
           events.push('onload')
           this.lastState = 'load'
         },
 
-        onbeforeadd: function () {
+        onbeforeadd () {
           events.push('onbeforeadd')
           this.lastState = 'beforeadd'
         },
 
-        onadd: function (element) {
+        onadd (element: HTMLElement) {
           events.push('onadd')
           this.lastState = 'add'
         },
 
-        onbeforerender: function (element) {
+        onbeforerender (element: HTMLElement) {
           events.push('onbeforerender')
         },
 
-        onrender: function (element, oldElement) {
+        onrender (element: HTMLElement, oldElement: HTMLElement) {
           events.push('onrender')
         },
 
-        onbeforeupdate: function (element) {
+        onbeforeupdate (element: HTMLElement) {
           events.push('onbeforeupdate')
           this.lastState = 'beforeupdate'
         },
 
-        onupdate: function (element, oldElement) {
+        onupdate (element: HTMLElement, oldElement: HTMLElement) {
           events.push('onupdate')
           this.lastState = 'update'
         },
 
-        onbeforeremove: function (element) {
+        onbeforeremove (element: HTMLElement) {
           events.push('onbeforeremove')
           this.lastState = 'beforeremove'
         },
 
-        onremove: function (element) {
+        onremove (element: HTMLElement) {
           events.push('onremove')
           this.lastState = 'remove'
         },
 
-        renderCacheKey: function () {
+        renderCacheKey () {
           monitor.rendering()
           return renderCacheKey
         },
 
-        render: function () {
+        render () {
           return h('div',
             h('h1', 'element: ' + renderData),
-            render ? render() : ''
+            render ? render() : '',
           )
-        }
+        },
       }
     }
 
-    function respondsToEvents (options) {
+    function respondsToEvents (options?: {remove: boolean}) {
       function elementHtml () {
         return '<h1>element: ' + (monitor.renderCount - renderOffset) + '</h1>'
       }
@@ -2333,8 +2351,8 @@ describe('hyperdom', function () {
         return '<h1>element: ' + (monitor.renderCount - renderOffset - 1) + '</h1>'
       }
 
-      var clickAdd
-      var renderOffset
+      let clickAdd: Promise<any>
+      let renderOffset: number
 
       if (!(options && options.remove === false)) {
         renderOffset = 0
@@ -2350,7 +2368,7 @@ describe('hyperdom', function () {
           ['onbeforeadd', 'state'],
           ['onbeforerender', null, 'state'],
           ['onadd', elementHtml(), 'state'],
-          ['onrender', elementHtml(), null, 'state']
+          ['onrender', elementHtml(), null, 'state'],
         ])
         events = []
 
@@ -2360,7 +2378,7 @@ describe('hyperdom', function () {
           ['onbeforeupdate', oldElementHtml(), 'state'],
           ['onbeforerender', oldElementHtml(), 'state'],
           ['onupdate', elementHtml(), elementHtml(), 'state'],
-          ['onrender', elementHtml(), elementHtml(), 'state']
+          ['onrender', elementHtml(), elementHtml(), 'state'],
         ])
         events = []
 
@@ -2368,7 +2386,7 @@ describe('hyperdom', function () {
           return monitor.waitForRenderAfter(click('button.remove')).then(function () {
             expect(events).to.eql([
               ['onbeforeremove', oldElementHtml(), 'state'],
-              ['onremove', oldElementHtml(), 'state']
+              ['onremove', oldElementHtml(), 'state'],
             ])
           })
         }
@@ -2382,7 +2400,7 @@ describe('hyperdom', function () {
         'onbeforeadd',
         'onbeforerender',
         'onadd',
-        'onrender'
+        'onrender',
       ])
       events = []
 
@@ -2403,7 +2421,7 @@ describe('hyperdom', function () {
           'onbeforeupdate',
           'onbeforerender',
           'onupdate',
-          'onrender'
+          'onrender',
         ])
         events = []
       })
@@ -2411,24 +2429,24 @@ describe('hyperdom', function () {
 
     context('model components', function () {
       it('captures lifetime events', function () {
-        var model = {
-          show: false,
+        const model = new class extends RenderComponent {
+          public show = false
 
-          innerModel: component(),
+          private innerModel = component()
 
-          render: function () {
+          public render () {
             monitor.rendering()
 
             this.innerModel.data = monitor.renderCount
 
             return h('div',
               this.show ? this.innerModel : undefined,
-              h('button.add', {onclick: function () { model.show = true }}, 'add'),
-              h('button.update', {onclick: function () {}}, 'update'),
-              h('button.remove', {onclick: function () { model.show = false }}, 'remove')
+              h('button.add', {onclick () { model.show = true }}, 'add'),
+              h('button.update', {onclick () {}}, 'update'),
+              h('button.remove', {onclick () { model.show = false }}, 'remove'),
             )
           }
-        }
+        }()
 
         attach(model)
 
@@ -2436,16 +2454,16 @@ describe('hyperdom', function () {
       })
 
       it('can cache', function () {
-        var app = {
-          innerModel: cachingComponent(),
+        const app = new class extends RenderComponent {
+          private innerModel = cachingComponent()
 
-          render: function () {
+          public render () {
             return h('div',
               this.innerModel,
-              h('button.update', {onclick: function () {}}, 'update')
+              h('button.update', {onclick () {}}, 'update'),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -2455,14 +2473,14 @@ describe('hyperdom', function () {
 
     context('top level model components', function () {
       it('captures lifetime events', function () {
-        var model = component({
-          render: function () {
+        const model = component({
+          render () {
             monitor.rendering()
             return h('div',
-              h('button.add', {onclick: function () { model.show = true }}, 'add'),
-              h('button.update', {onclick: function () {}}, 'update')
+              h('button.add', {onclick () { model.show = true }}, 'add'),
+              h('button.update', {onclick () {}}, 'update'),
             )
-          }
+          },
         })
 
         attach(model)
@@ -2471,8 +2489,8 @@ describe('hyperdom', function () {
       })
 
       it('can cache', function () {
-        var app = cachingComponent(function () {
-          return h('button.update', {onclick: function () {}}, 'update')
+        const app = cachingComponent(function () {
+          return h('button.update', {onclick () {}}, 'update')
         })
 
         attach(app)
@@ -2483,19 +2501,20 @@ describe('hyperdom', function () {
 
     context('view components', function () {
       it('captures lifetime events', function () {
-        var app = {
-          render: function () {
+        const app = new class extends RenderComponent {
+          private show = false
+          public render () {
             monitor.rendering()
             return h('div',
               this.show
                 ? hyperdom.viewComponent(component())
                 : undefined,
-              h('button.add', {onclick: function () { app.show = true }}, 'add'),
-              h('button.remove', {onclick: function () { app.show = false }}, 'remove'),
-              h('button.update', {onclick: function () {}}, 'update')
+              h('button.add', {onclick () { app.show = true }}, 'add'),
+              h('button.remove', {onclick () { app.show = false }}, 'remove'),
+              h('button.update', {onclick () {}}, 'update'),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -2503,14 +2522,14 @@ describe('hyperdom', function () {
       })
 
       it('can cache', function () {
-        var app = {
-          render: function () {
+        const app = new class extends RenderComponent {
+          public render () {
             return h('div',
               hyperdom.viewComponent(cachingComponent()),
-              h('button.update', {onclick: function () {}}, 'update')
+              h('button.update', {onclick () {}}, 'update'),
             )
           }
-        }
+        }()
 
         attach(app)
 
@@ -2522,42 +2541,42 @@ describe('hyperdom', function () {
   describe('component debugger', function () {
     contextInProduction(function () {
       it('does not set debugging properties', function () {
-        var inner = {
-          render: function () {
+        const inner = new class extends RenderComponent {
+          public render () {
             return h('div.inner', 'inner')
           }
-        }
+        }()
 
-        var outer = {
-          render: function () {
+        const outer = new class extends RenderComponent {
+          public render () {
             return h('div.outer', 'outer', inner)
           }
-        }
+        }()
 
         attach(outer)
 
-        expect(find('.outer')[0]._hyperdomMeta).to.eql(undefined)
-        expect(find('.inner')[0]._hyperdomMeta).to.eql(undefined)
+        expect((find('.outer')[0] as any)._hyperdomMeta).to.eql(undefined)
+        expect((find('.inner')[0] as any)._hyperdomMeta).to.eql(undefined)
       })
     })
 
     it('sets the component to the element', function () {
-      var inner = {
-        render: function () {
+      const inner = new class extends RenderComponent {
+        public render () {
           return h('div.inner', 'inner')
         }
-      }
+      }()
 
-      var outer = {
-        render: function () {
+      const outer = new class extends RenderComponent {
+        public render () {
           return h('div.outer', 'outer', inner)
         }
-      }
+      }()
 
       attach(outer)
 
-      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
-      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+      expect((find('.outer')[0] as any)._hyperdomMeta.component).to.eql(outer)
+      expect((find('.inner')[0] as any)._hyperdomMeta.component).to.eql(inner)
     })
 
     afterEach(function () {
@@ -2565,91 +2584,91 @@ describe('hyperdom', function () {
     })
 
     it('an application with routes sets the component to the element', function () {
-      var inner = {
-        render: function () {
+      const inner = new class extends RenderComponent {
+        public render () {
           return h('div.inner', 'inner')
         }
-      }
+      }()
 
-      var home = router.route('**')
+      const home = router.route('**')
 
-      var outer = {
-        routes: function () {
+      const outer = new class extends RoutesComponent {
+        public routes () {
           return [
             home({
-              render: function () {
+              render () {
                 return h('div.outer', 'outer', inner)
-              }
-            })
+              },
+            }),
           ]
         }
-      }
+      }()
 
-      hyperdom.append(div, outer, {router: router})
+      hyperdom.append(div, outer, {router})
 
-      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
-      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+      expect((find('.outer')[0] as any)._hyperdomMeta.component).to.eql(outer)
+      expect((find('.inner')[0] as any)._hyperdomMeta.component).to.eql(inner)
     })
 
     it('an application with routes sets the component to the element', function () {
-      var inner = {
-        render: function () {
+      const inner = new class extends RenderComponent {
+        public render () {
           return h('div.inner', 'inner')
         }
-      }
+      }()
 
-      var home = router.route('**')
+      const home = router.route('**')
 
-      var outer = {
-        routes: function () {
+      const outer = new class extends RoutesComponent {
+        public routes () {
           return [
             home({
-              render: function () {
+              render () {
                 return inner
-              }
-            })
+              },
+            }),
           ]
-        },
+        }
 
-        renderLayout: function (content) {
+        public renderLayout (content: any) {
           return h('div.outer', 'outer', content)
         }
-      }
+      }()
 
-      hyperdom.append(div, outer, {router: router})
+      hyperdom.append(div, outer, {router})
 
-      expect(find('.outer')[0]._hyperdomMeta.component).to.eql(outer)
-      expect(find('.inner')[0]._hyperdomMeta.component).to.eql(inner)
+      expect((find('.outer')[0] as any)._hyperdomMeta.component).to.eql(outer)
+      expect((find('.inner')[0] as any)._hyperdomMeta.component).to.eql(inner)
     })
   })
 
   describe('keys', function () {
     it('keeps HTML elements for same keys', function () {
-      var items = range(1, 11)
-      var app = {
-        render: function () {
-          return h('div', items.map(function (item) {
+      const items = range(1, 11)
+      const app = new class extends RenderComponent {
+        public render () {
+          return h('div', items.map(function (item: any) {
             return h('div.item', {key: item}, item)
           }))
         }
-      }
+      }()
 
       attach(app)
 
       return browser.find('div.item').shouldHave({
-        text: items.map(function (item) {
+        text: items.map(function (item: any) {
           return String(item)
-        })
+        }),
       }).then(function () {
-        var two = document.querySelector('div.item:nth-child(2)')
+        const two = document.querySelector('div.item:nth-child(2)')
         items.shift()
         app.refresh()
         return browser.find('div.item').shouldHave({
-          text: items.map(function (item) {
+          text: items.map(function (item: any) {
             return String(item)
-          })
+          }),
         }).then(function () {
-          expect(two.innerText).to.equal('2')
+          expect((two as HTMLElement)!.innerText).to.equal('2')
         })
       })
     })
@@ -2658,20 +2677,20 @@ describe('hyperdom', function () {
   describe('v1 compatibility', function () {
     describe('hyperdom.html.refresh', function () {
       it('refreshes the UI when called', function () {
-        function render (model) {
-          var refresh = h.refresh
+        function render (model: {text: string}) {
+          const refresh = h.refresh
 
           return h('div',
             h('h1', model.text),
             h('button.refresh', {
-              onclick: function () {
+              onclick () {
                 setTimeout(function () {
                   model.text = 'after timeout'
                   refresh()
                 }, 50)
-              }
+              },
             },
-            'refresh')
+            'refresh'),
           )
         }
 
@@ -2691,22 +2710,22 @@ describe('hyperdom', function () {
       })
 
       it('refreshes a component when called with that component', function () {
-        function render (model) {
-          var refresh = h.refresh
-          var component = vdomComponent(function () { return h('h2', model.text) })
+        function render (model: {text: string}) {
+          const refresh = h.refresh
+          const component = vdomComponent(function () { return h('h2', model.text) })
 
           return h('div',
             h('h1', model.text),
             component,
             h('button.refresh', {
-              onclick: function () {
+              onclick () {
                 setTimeout(function () {
                   model.text = 'after timeout'
                   refresh(component)
                 }, 50)
-              }
+              },
             },
-            'refresh')
+            'refresh'),
           )
         }
 
@@ -2728,37 +2747,37 @@ describe('hyperdom', function () {
       })
 
       it('updates the component when refreshed', function () {
-        var monitor = renderMonitor()
-        var updated = 0
-        var rendered = 0
+        const monitor = renderMonitor()
+        let updated = 0
+        let rendered = 0
 
-        function render (model) {
-          var refresh = h.refresh
+        function render (model: {text: string}) {
+          const refresh = h.refresh
           monitor.rendering()
 
-          var component = vdomComponent(
+          const component = vdomComponent(
             {
               cacheKey: true,
-              onupdate: function () {
+              onupdate () {
                 updated++
-              }
+              },
             },
             function () {
               rendered++
               return h('h2', model.text)
-            }
+            },
           )
 
           return h('div',
             component,
             h('button.refresh', {
-              onclick: function () {
+              onclick () {
                 monitor.waitForRender().then(function () {
                   refresh(component)
                 })
-              }
+              },
             },
-            'refresh')
+            'refresh'),
           )
         }
 
@@ -2776,20 +2795,20 @@ describe('hyperdom', function () {
       })
 
       it('refreshes whole page if passed a non-component', function () {
-        function render (model) {
-          var refresh = h.refresh
+        function render (model: {text: string}) {
+          const refresh = h.refresh
 
           return h('div',
             h('h1', model.text),
             h('button.refresh', {
-              onclick: function () {
+              onclick () {
                 setTimeout(function () {
                   model.text = 'after timeout'
                   refresh({})
                 }, 50)
-              }
+              },
             },
-            'refresh')
+            'refresh'),
           )
         }
 
@@ -2809,13 +2828,13 @@ describe('hyperdom', function () {
       })
 
       it('must be taken during render cycle, or exception is thrown', function () {
-        function render (model) {
-          var refresh = h.refresh
+        function render (model: {text: string}) {
+          const refresh = h.refresh
 
           return h('div',
             h('h1', model.text),
             h('button.refresh', {
-              onclick: function () {
+              onclick () {
                 setTimeout(function () {
                   try {
                     model.text = 'after timeout'
@@ -2825,9 +2844,9 @@ describe('hyperdom', function () {
                     refresh()
                   }
                 }, 50)
-              }
+              },
             },
-            'refresh')
+            'refresh'),
           )
         }
 
@@ -2849,22 +2868,22 @@ describe('hyperdom', function () {
 
     describe('hyperdom.html.window', function () {
       it('can add and remove event handlers on window', function () {
-        function render (model) {
+        function render (model: {active: boolean, clicks: number}) {
           return h('div',
             model.active
               ? windowEvents(
                 {
-                  onclick: function () {
+                  onclick () {
                     model.clicks++
-                  }
-                }
+                  },
+                },
                 )
               : undefined,
             model.active
-              ? h('button.disactivate', {onclick: function () { model.active = false; return false }}, 'disactivate')
-              : h('button.activate', {onclick: function () { model.active = true; return false }}, 'activate'),
+              ? h('button.disactivate', {onclick () { model.active = false; return false }}, 'disactivate')
+              : h('button.activate', {onclick () { model.active = true; return false }}, 'activate'),
             h('div.click', 'click here'),
-            h('div.clicks', model.clicks)
+            h('div.clicks', model.clicks),
           )
         }
 
@@ -2900,49 +2919,49 @@ describe('hyperdom', function () {
 
     describe('hyperdom.html.component', function () {
       it('receives onadd, onupdate and onremove events after the DOM changes have been made', function () {
-        var events = []
-        var componentState
-        var monitor = renderMonitor()
+        const events: any[] = []
+        let componentState: any
+        const monitor = renderMonitor()
 
-        function render (model) {
+        function render (model: {showComponent: boolean}) {
           monitor.rendering()
 
           return h('div',
             model.showComponent
               ? vdomComponent({
-                onadd: function (element) {
+                onadd (element: HTMLElement) {
                   events.push({
                     type: 'onadd',
                     parent: element.parentNode,
-                    element: element
+                    element,
                   })
                   componentState = this
                 },
-                onupdate: function (element) {
+                onupdate (element: HTMLElement) {
                   events.push({
                     type: 'onupdate',
-                    element: element,
-                    state: this
+                    element,
+                    state: this,
                   })
                 },
-                onremove: function (element) {
+                onremove (element: HTMLElement) {
                   events.push({
                     type: 'onremove',
-                    element: element,
-                    state: this
+                    element,
+                    state: this,
                   })
-                }
+                },
               }, h('h1', 'component'))
               : undefined,
-            h('button.refresh', {onclick: function () {}}, 'refresh'),
-            h('button.remove', {onclick: function () { model.showComponent = false }}, 'remove')
+            h('button.refresh', {onclick () {}}, 'refresh'),
+            h('button.remove', {onclick () { model.showComponent = false }}, 'remove'),
           )
         }
 
         attach(render, {showComponent: true})
 
-        var expectedParent = div.firstChild
-        var expectedElement = div.firstChild.firstChild
+        const expectedParent = div.firstChild
+        const expectedElement = div.firstChild!.firstChild
 
         return monitor.waitForRenderAfter(click('button.refresh')).then(function () {
           return monitor.waitForRenderAfter(click('button.refresh'))
@@ -2953,23 +2972,23 @@ describe('hyperdom', function () {
             {
               type: 'onadd',
               parent: expectedParent,
-              element: expectedElement
+              element: expectedElement,
             },
             {
               type: 'onupdate',
               element: expectedElement,
-              state: componentState
+              state: componentState,
             },
             {
               type: 'onupdate',
               element: expectedElement,
-              state: componentState
+              state: componentState,
             },
             {
               type: 'onremove',
               element: expectedElement,
-              state: componentState
-            }
+              state: componentState,
+            },
           ])
         })
       })
@@ -2978,10 +2997,11 @@ describe('hyperdom', function () {
         function render () {
           return vdomComponent(
             {
-              onadd: function () {
+              // @ts-ignore
+              onadd () {
 
-              }
-            }
+              },
+            },
           )
         }
 
@@ -2992,18 +3012,21 @@ describe('hyperdom', function () {
         function render () {
           return vdomComponent(
             {
-              onbeforeadd: function () {
+              onbeforeadd () {
+                // @ts-ignore
                 this.counter = 2
-              }
+              },
             },
             function () {
-              var self = this
+              const self = this
 
               return h('div',
+                // @ts-ignore
                 h('span.counter', this.counter),
-                h('button.add', {onclick: function () { self.counter++ }}, 'add')
+                // @ts-ignore
+                h('button.add', {onclick () { self.counter++ }}, 'add'),
               )
-            }
+            },
           )
         }
 
@@ -3027,13 +3050,10 @@ describe('hyperdom', function () {
       })
 
       it('renders and updates the vdom inside the component', function () {
-        function render (model) {
+        function render (model: {counter: number}) {
           return h('div',
-            vdomComponent({
-            },
-              h('span.counter', model.counter)
-            ),
-            h('button.add', {onclick: function () { model.counter++ }}, 'add')
+            vdomComponent({}, h('span.counter', model.counter)),
+            h('button.add', {onclick () { model.counter++ }}, 'add'),
           )
         }
 
@@ -3055,16 +3075,16 @@ describe('hyperdom', function () {
       })
 
       it('only refreshes the component when returned from an event', function () {
-        function render (model) {
+        function render (model: {counter: number}) {
           return h('div',
-            vdomComponent(function (component) {
+            vdomComponent(function (component: any) {
               return h('div',
                 h('span.inner-counter', model.counter),
-                h('button.add-inner', {onclick: function () { model.counter++; return component }}, 'add inner')
+                h('button.add-inner', {onclick () { model.counter++; return component }}, 'add inner'),
               )
             }),
             h('span.outer-counter', model.counter),
-            h('button.add-outer', {onclick: function () { model.counter++ }}, 'add outer')
+            h('button.add-outer', {onclick () { model.counter++ }}, 'add outer'),
           )
         }
 
@@ -3096,24 +3116,24 @@ describe('hyperdom', function () {
       })
 
       it('only refreshes array of the components when returned from an event', function () {
-        function render (model) {
-          var component1 = vdomComponent(function (component) {
+        function render (model: {counter: number}) {
+          const component1 = vdomComponent(function (component: any) {
             return h('div',
                 h('span.inner-counter', model.counter),
-                h('button.add-inner', {onclick: function () { model.counter++; return component }}, 'add inner')
+                h('button.add-inner', {onclick () { model.counter++; return component }}, 'add inner'),
               )
           })
 
           return h('div',
             component1,
-            vdomComponent(function (component) {
+            vdomComponent(function (component: any) {
               return h('div',
                 h('span.inner-counter2', model.counter),
-                h('button.add-inner2', {onclick: function () { model.counter++; return [component, component1] }}, 'add inner 2')
+                h('button.add-inner2', {onclick () { model.counter++; return [component, component1] }}, 'add inner 2'),
               )
             }),
             h('span.outer-counter', model.counter),
-            h('button.add-outer', {onclick: function () { model.counter++ }}, 'add outer')
+            h('button.add-outer', {onclick () { model.counter++ }}, 'add outer'),
           )
         }
 
@@ -3149,56 +3169,56 @@ describe('hyperdom', function () {
       })
 
       it('throws exception when component is returned from event but does not have a render function', function () {
-        function render (model) {
-          var component = vdomComponent(h('span.inner-counter', model.counter))
+        function render (model: {counter: number}) {
+          const component = vdomComponent(h('span.inner-counter', model.counter))
 
           return h('div',
             component,
-            h('button', { onclick: function () { return component } }, 'refresh component')
+            h('button', { onclick () { return component } }, 'refresh component'),
           )
         }
 
         attach(render, {})
 
-        return click('button').then(undefined, function (error) {
+        return click('button').then(undefined, function (error: Error) {
           expect(error.message).to.contain('refresh')
         })
       })
 
       it('can refresh the component when returned from an event, and handle lifetime events', function () {
-        var events = []
-        var refreshCount = 0
+        const events: any[] = []
+        let refreshCount = 0
 
-        function render (model) {
+        function render (model: {show: boolean}) {
           refreshCount++
           return h('div',
             model.show
               ? vdomComponent(
                   vdomComponent(
                     {
-                      onadd: function () {
+                      onadd () {
                         events.push('add')
                       },
-                      onupdate: function () {
+                      onupdate () {
                         events.push('update')
                       },
-                      onremove: function () {
+                      onremove () {
                         events.push('remove')
-                      }
+                      },
                     },
                     function () {
                       return h('div', 'rest of the content')
-                    }
-                  )
+                    },
+                  ),
                 )
               : undefined,
-            h('button.refresh', {onclick: function () {}}, 'refresh'),
-            h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']}))
+            h('button.refresh', {onclick () {}}, 'refresh'),
+            h('label', 'show', h('input.show', {type: 'checkbox', binding: [model, 'show']})),
           )
         }
 
-        var waitForRefresh = (function () {
-          var oldRefreshCount = 1
+        const waitForRefresh = (function () {
+          let oldRefreshCount = 1
           return function () {
             return retry(function () {
               expect(refreshCount).to.equal(oldRefreshCount + 1)
@@ -3222,7 +3242,7 @@ describe('hyperdom', function () {
                           'add',
                           'update',
                           'update',
-                          'remove'
+                          'remove',
                         ])
                       })
                     })
@@ -3235,27 +3255,27 @@ describe('hyperdom', function () {
       })
 
       it('can capture fields from each refresh', function () {
-        var events = []
+        const events: any[] = []
 
-        function render (model) {
+        function render (model: {value: number}) {
           model.value++
-          var refresh = h.refresh
+          const refresh = h.refresh
 
           return h('div',
             vdomComponent(
               {
                 value: model.value,
 
-                onadd: function (element) {
-                  var self = this
+                onadd (element: HTMLElement) {
+                  const self = this
                   element.addEventListener('click', function () {
                     events.push(self.value)
                     refresh()
                   })
-                }
+                },
               },
-              h('.button-' + model.value, 'click me')
-            )
+              h('.button-' + model.value, 'click me'),
+            ),
           )
         }
 
@@ -3270,28 +3290,28 @@ describe('hyperdom', function () {
       })
 
       it('can update the component only when the cacheKey changes', function () {
-        var updates = 0
-        var componentRenders = 0
-        var renders = 0
+        let updates = 0
+        let componentRenders = 0
+        let renders = 0
 
         function render () {
           renders++
           return vdomComponent(
             {
               cacheKey: model.cacheKey,
-              onupdate: function () {
+              onupdate () {
                 updates++
-              }
+              },
             },
             function () {
               componentRenders++
-              return h('button', {onclick: function () {}}, 'refresh')
-            }
+              return h('button', {onclick () {}}, 'refresh')
+            },
           )
         }
 
-        var model = {
-          cacheKey: 1
+        const model = {
+          cacheKey: 1,
         }
 
         attach(render, model)
@@ -3319,39 +3339,43 @@ describe('hyperdom', function () {
       })
 
       it('can wrap event handlers inside the component', function () {
-        var events = []
+        const events: any[] = []
 
         function render () {
           return h('div',
             vdomComponent(
               {
-                on: function (type, handler) {
-                  return function () {
+                on (type: string, handler: (...args: any[]) => void) {
+                  return function (this: any) {
                     events.push('component ' + type)
                     return handler.apply(this, arguments)
                   }
-                }
+                },
               },
               function () {
                 return h('div',
                   vdomComponent(
                     {
-                      on: function (type, handler) {
-                        return function () {
+                      on (type: string, handler: (...args: any[]) => void) {
+                        return function (this: any) {
                           events.push('inner component ' + type)
                           return handler.apply(this, arguments)
                         }
-                      }
+                      },
                     },
                     function () {
-                      return h('button.inner-inner-component', {onclick: function () { events.push('inner inner click') }}, 'click me')
-                    }
+                      return h(
+                        'button.inner-inner-component',
+                        {onclick () { events.push('inner inner click') }},
+                        'click me',
+                       )
+                    },
                   ),
-                  h('button.inner-component', {onclick: function () { events.push('inner click') }}, 'click me')
+                  h('button.inner-component', {onclick () { events.push('inner click') }}, 'click me'),
                 )
-              }
+              },
             ),
-            h('button.outer-component', {onclick: function () { events.push('outer click') }}, 'click me')
+            h('button.outer-component', {onclick () { events.push('outer click') }}, 'click me'),
           )
         }
 
@@ -3365,7 +3389,9 @@ describe('hyperdom', function () {
           })
         }).then(function () {
           return click('button.outer-component').then(function () {
-            expect(events).to.eql(['component click', 'inner click', 'inner component click', 'inner inner click', 'outer click'])
+            expect(events).to.eql(
+              ['component click', 'inner click', 'inner component click', 'inner inner click', 'outer click'],
+            )
           })
         })
       })
@@ -3373,9 +3399,9 @@ describe('hyperdom', function () {
 
     describe('hyperdom.html.refreshAfter', function () {
       it('refreshes after the promise is complete', function () {
-        var waiting
+        let waiting: Promise<any>
 
-        function load (model) {
+        function load (model: {text: string}) {
           return waiting
             ? undefined
             : (waiting = wait(20).then(function () {
@@ -3383,7 +3409,7 @@ describe('hyperdom', function () {
             }))
         }
 
-        function render (model) {
+        function render (model: {text: string}) {
           hyperdom.html.refreshAfter(load(model))
 
           return h('div', model.text)
@@ -3399,13 +3425,13 @@ describe('hyperdom', function () {
   })
 })
 
-function wait (n) {
+function wait (n: number) {
   return new Promise(function (resolve) {
     setTimeout(resolve, n)
   })
 }
 
-function contextInProduction (fn) {
+function contextInProduction (fn: () => void) {
   context('when NODE_ENV=production', function () {
     beforeEach(function () {
       process.env.NODE_ENV = 'production'
