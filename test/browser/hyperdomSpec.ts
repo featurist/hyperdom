@@ -778,13 +778,15 @@ describe('hyperdom', function () {
     })
 
     it('refreshes the dom after an event handler promise rejects', function () {
+      const sadError = new Error('so sad')
+
       function render (model: {mood: string}) {
         function onclick (e: Event) {
           e.preventDefault()
           return new Promise(function (resolve, reject) {
             setTimeout(function () {
               model.mood = 'sad :('
-              reject(new Error('oops'))
+              reject(sadError)
             }, 2)
           })
         }
@@ -796,11 +798,29 @@ describe('hyperdom', function () {
 
       attach(render, { mood: 'happy :)' })
 
+      const trapsUnhandledRejections = typeof window.onunhandledrejection !== 'undefined'
+      let unhandledError = 'expected-promise-rejection-error-to-be-rethrown'
+
+      function onUnhandledRejection (rejection: {reason: string}) {
+        unhandledError = rejection.reason
+      }
+      function removeHandler () {
+        if (trapsUnhandledRejections) {
+          window.removeEventListener('unhandledrejection', onUnhandledRejection)
+        }
+      }
+      if (trapsUnhandledRejections) {
+        window.addEventListener('unhandledrejection', onUnhandledRejection)
+      }
+
       return click('button').then(function () {
         return retry(function () {
           expect(find('pre').text()).to.eql('sad :(')
+          if (trapsUnhandledRejections) {
+            expect(unhandledError).to.eql(sadError)
+          }
         })
-      })
+      }).then(removeHandler, removeHandler)
     })
 
     it('can define event handlers outside of the render loop', function () {
@@ -1348,6 +1368,59 @@ describe('hyperdom', function () {
         return retry(function () {
           expect(find('option.red').prop('selected')).to.equal(true)
           expect((find('select')[0] as HTMLSelectElement).selectedIndex).to.equal(0)
+        })
+      })
+
+      it('can bind to select multiple', function () {
+        function selectedOptions (element: HTMLSelectElement) {
+          if (element.selectedOptions) {
+            return Array.prototype.slice.call(element.selectedOptions)
+          } else {
+            const children = element.childNodes
+            const options = Array.from(children).filter((child) => (child as HTMLOptionElement).selected)
+            return options
+          }
+        }
+
+        const app = new class extends RenderComponent {
+          public colours = ['red', 'green']
+
+          public render () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colours'], multiple: true},
+                h('option.red', {value: 'red'}, 'red'),
+                h('option.blue', 'blue'),
+                h('option.green', {value: 'green'}, 'green'),
+              ),
+              h('span', JSON.stringify(this.colours)),
+            )
+          }
+        }()
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('option.blue').prop('selected')).to.equal(false)
+          expect(find('option.green').prop('selected')).to.equal(true)
+          expect(selectedOptions(find('select')[0] as HTMLSelectElement)).to.eql([
+            find('option.red')[0],
+            find('option.green')[0],
+          ])
+        }).then(function () {
+          (find('option.green')[0] as HTMLOptionElement).selected = false
+          find('select').change()
+          expect(find('option.red').prop('selected')).to.equal(true)
+          expect(find('option.blue').prop('selected')).to.equal(false)
+          expect(find('option.green').prop('selected')).to.equal(false)
+          expect(selectedOptions(find('select')[0] as HTMLSelectElement)).to.eql([
+            find('option.red')[0],
+          ])
+          expect(app.colours).to.eql(['red'])
+          return retry(function () {
+            expect(find('span').text()).to.equal('["red"]')
+          })
         })
       })
     })

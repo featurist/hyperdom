@@ -50,7 +50,10 @@ var inputTypeBindings = {
     })
 
     var values = []
-    var selectedIndex
+
+    var valueSelected = attributes.multiple
+      ? function (value) { return currentValue instanceof Array && currentValue.indexOf(value) >= 0 }
+      : function (value) { return currentValue === value }
 
     for (var n = 0; n < options.length; n++) {
       var option = options[n]
@@ -60,22 +63,28 @@ var inputTypeBindings = {
 
       values.push(hasValue ? value : text)
 
-      var selected = hasValue ? value === currentValue : text === currentValue
-
-      if (selected) {
-        selectedIndex = n
-      }
+      var selected = valueSelected(hasValue ? value : text)
 
       option.properties.selected = selected
     }
 
-    if (selectedIndex !== undefined) {
-      attributes.selectedIndex = selectedIndex
-    }
-
     attachEventHandler(attributes, 'onchange', function (ev) {
-      attributes.selectedIndex = ev.target.selectedIndex
-      return binding.set(values[ev.target.selectedIndex])
+      if (ev.target.multiple) {
+        var options = ev.target.options
+
+        var selectedValues = []
+
+        for (var n = 0; n < options.length; n++) {
+          var op = options[n]
+          if (op.selected) {
+            selectedValues.push(values[n])
+          }
+        }
+        return binding.set(selectedValues)
+      } else {
+        attributes.selectedIndex = ev.target.selectedIndex
+        return binding.set(values[ev.target.selectedIndex])
+      }
     }, binding)
   },
 
