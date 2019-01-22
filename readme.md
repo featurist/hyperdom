@@ -133,10 +133,14 @@ hyperdom.append(document.body, new App())
 
 This works with the following in the `compilerOptions` of `tsconfig.json`:
 
-```
-  "lib": ["dom"],
-  "jsx": "react",
-  "jsxFactory": "hyperdom.jsx",
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom"],
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx"
+  }
+}
 ```
 
 ## Install
@@ -1225,10 +1229,14 @@ All of the above functionality (with the exception of string bindings - e.g. `bi
 
 In order to plug in hyperdom into the typescirpt tsx compilation, the following settings need to be present in the `compilerOptions` section of `tsconfig.json`:
 
-```
-  "lib": ["dom"],
-  "jsx": "react",
-  "jsxFactory": "hyperdom.jsx",
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom"],
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx"
+  }
+}
 ```
 
 #### Router based components
