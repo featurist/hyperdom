@@ -1648,7 +1648,7 @@ describe('hyperdom', function () {
       })
     })
 
-    it('calls onadd when a component of a different constructor rendered', function () {
+    it('calls onadd and onremove when a component of a different constructor rendered', function () {
       const events: string[] = []
       const monitor = renderMonitor()
 
@@ -1662,6 +1662,14 @@ describe('hyperdom', function () {
         protected onadd () {
           events.push('onadd a')
         }
+
+        protected onbeforeremove () {
+          events.push('onbeforeremove a')
+        }
+
+        protected onremove () {
+          events.push('onremove a')
+        }
       }
 
       class ComponentB extends RenderComponent {
@@ -1673,6 +1681,14 @@ describe('hyperdom', function () {
 
         protected onadd () {
           events.push('onadd b')
+        }
+
+        protected onbeforeremove () {
+          events.push('onbeforeremove b')
+        }
+
+        protected onremove () {
+          events.push('onremove b')
         }
       }
 
@@ -1698,13 +1714,19 @@ describe('hyperdom', function () {
       return monitor.waitForRenderAfter(click('input.swap')).then(function () {
         expect(events).to.eql([
           'onadd a',
+          'onbeforeremove a',
+          'onremove a',
           'onadd b',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       }).then(function () {
         expect(events).to.eql([
           'onadd a',
+          'onbeforeremove a',
+          'onremove a',
           'onadd b',
+          'onbeforeremove b',
+          'onremove b',
           'onadd a',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
@@ -1732,6 +1754,14 @@ describe('hyperdom', function () {
         protected onadd () {
           events.push('onadd ' + this.text)
         }
+
+        protected onbeforeremove () {
+          events.push('onbeforeremove ' + this.text)
+        }
+
+        protected onremove () {
+          events.push('onremove ' + this.text)
+        }
       }
 
       const model = new class extends RenderComponent {
@@ -1756,13 +1786,19 @@ describe('hyperdom', function () {
       return monitor.waitForRenderAfter(click('input.swap')).then(function () {
         expect(events).to.eql([
           'onadd a',
+          'onbeforeremove a',
+          'onremove a',
           'onadd b',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
       }).then(function () {
         expect(events).to.eql([
           'onadd a',
+          'onbeforeremove a',
+          'onremove a',
           'onadd b',
+          'onbeforeremove b',
+          'onremove b',
           'onadd a',
         ])
         return monitor.waitForRenderAfter(click('input.swap'))
