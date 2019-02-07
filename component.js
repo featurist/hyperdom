@@ -53,6 +53,7 @@ function afterUpdate (model, element, oldElement) {
 
 Component.prototype.update = function (previous) {
   if (previous.key !== this.key || this.model.constructor !== previous.model.constructor) {
+    previous.destroy()
     return this.init()
   } else {
     var self = this
