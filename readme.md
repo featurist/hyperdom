@@ -114,35 +114,26 @@ This works with [babel-preset-hyperdom](https://github.com/featurist/babel-prese
 
 Same example in Typescript:
 
-```typescript
-import * as hyperdom from 'hyperdom'
+```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
+import * as hyperdom from "hyperdom";
 
 class App extends hyperdom.RenderComponent {
-  private name: string
+  private name: string;
 
   public render() {
-    return <div>
-      <label>what's your name?</label>
-      <input type="text" binding={[this, 'name']} />
-      <div>hi {this.name}</div>
-    </div>
+    return (
+      <div>
+        <label>what's your name? </label>
+        <input type="text" binding={[this, "name"]} />
+        <div>hi {this.name} </div>
+      </div>
+    );
   }
 }
 
-hyperdom.append(document.body, new App())
+hyperdom.append(document.body, new App());
 ```
-
-This works with the following in the `compilerOptions` of `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "lib": ["dom"],
-    "jsx": "react",
-    "jsxFactory": "hyperdom.jsx"
-  }
-}
-```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PImImEAViRYtN0Le9xp7KQ0IAzDhvZ6_Z7NTxtbiQJgkgARXV0fWG40ehkmJycxWeaUYWByIkAPThADYcDDA1xg0yFjAYgB3SiPOkegDaAF1OBNOJMZu09pBlhstqgdntaPRECAE9CqEQstAHgB5aoY2tXUdMrZSrkAWWyUIIcilMHFiZAUAgGihdac8FzgOhTyITgb-9ETk2nQ9TjkAnI7ofTOf7nmBGrGIiXNB4bx7F9v2hORKEoAhwwgTNX2ZBQixbVA0LbZCmhJNoOn7ahB0OYcIAnasagAKi4fg4C4EDLSILgwGghibneeinAAbnCA0oGomiAEEci4bBB3QGi6LAgAlaMHgAYWeLJqAOLhRyySokn4WguDOMwrhZSpUGWLjMRELIpQ0I9yC4d9eTkAAKABKFSnXfAhV24OynQSZJ4hMXheI0JRWArGwCAAchomJKFXbTzhgAB-IIAqCrzSjQMyahdGAMloLB3S4DQWjQZZ7GAOsCDwCA4CmaEdJgO8Jn8XyTEYQpWEqlSKqqnA6sagofNS_qiidBzjKDZtuIk54cGyPU7KecgpTMGgcEGGrUBgCsuEErJHNGyYJgmIA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 ## Install
 
