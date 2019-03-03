@@ -93,13 +93,13 @@ Sponsored by:
 
 ## An Example
 
-```jsx
-const hyperdom = require('hyperdom');
+```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/app.jsx"}}
+import * as hyperdom from "hyperdom";
 
 class App {
   render() {
     return <div>
-      <label>what's your name?</label>
+      <label>what's your name? </label>
       <input type="text" binding="this.name" />
       <div>hi {this.name}</div>
     </div>;
@@ -108,6 +108,7 @@ class App {
 
 hyperdom.append(document.body, new App());
 ```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnwQNtGg8ni9Fo0NltGIlGsk4iYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxslPYsBkZJAEjUcAg5GpbAAjCgAAwi9nMGlWMHPAp8pA0gASKjUmi0TF8MC0JCYAClKuKxCAtBgLPzzJYbHYHFADTTpS8gQIGBLDXAKGUKGaUeUoAcLbZkkxJpMSKo0iBZC6aWgAK7QdResr4Cqx-N-v5Wxy6CWmDlWMNWMj4CDwanO0TRrA4SacbgUSZ0lXaM1CgAsYojckNjYZOnlbCgGCobuzLFzErYVgkGoL1GLpfl5fkHCT1djllguDNg-HnpAcnHhrRMCUAHcSBpHUIDGRDIwkSAvj9_biEMgXOQiR4SRAtOwL68bAoI0pznCAADc96mI-BAgWcr7WASn7uLQv7_rgrwAFRMBgcAxMqvZMGAuDaDSPaqmwkFpEWg5wHhACCZxMEuXAWrgAAUACUzFdkwXAUDGuDMDseypBWLCeIO2ApKefQUAA5HhSgkIJTAUp0AD8TBNFJOBieJngWOwMavBQyrHFQ1h7kwaC_BYmIWQoEBwCg6kwHMCy8RJ1xxE5zEUE5LluYYVyibxoU3FRY5GLCZDkdoKCgdQ6jsZo-Axp0lDoCQmzSGpMCnkwjHsFxnHgSYhiGEAA&query=module%3Dsrc%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 

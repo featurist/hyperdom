@@ -16,6 +16,7 @@
     "babel-preset-hyperdom": "^1.0.0",
     "browser-monkey": "2.4.1",
     "chai": "3.5.0",
+    "codesandbox-example-links": "^0.1.3",
     "detect-browser": "1.6.2",
     "electron": "1.8.2",
     "electron-mocha": "3.4.0",
@@ -62,6 +63,7 @@
     "karma": "karma start --single-run",
     "mocha": "TS_NODE_FILES=true mocha -r ts-node/register test/server/*Spec.ts",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
+    "update-code-example-links": "codesandbox-example-links -i readme.md",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*"
   },
   "keywords": [

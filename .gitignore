@@ -9,3 +9,4 @@ tags
 package-lock.json
 .DS_Store
 .idea
+.vscode
