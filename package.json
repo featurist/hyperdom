@@ -16,7 +16,7 @@
     "babel-preset-hyperdom": "^1.0.0",
     "browser-monkey": "2.4.1",
     "chai": "3.5.0",
-    "codesandbox-example-links": "^0.1.3",
+    "codesandbox-example-links": "https://github.com/featurist/codesandbox-example-links.git",
     "detect-browser": "1.6.2",
     "electron": "1.8.2",
     "electron-mocha": "3.4.0",

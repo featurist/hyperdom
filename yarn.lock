@@ -1401,12 +1401,12 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-codesandbox-example-links@^0.1.3:
+"codesandbox-example-links@https://github.com/featurist/codesandbox-example-links.git":
   version "0.1.3"
-  resolved "https://registry.yarnpkg.com/codesandbox-example-links/-/codesandbox-example-links-0.1.3.tgz#99facfca883ce25ed852a6bbcd1fcd7e1515fd72"
-  integrity sha512-0Co6UMUwDUpeezE84LE1yj3yiO6/7xpAZOPvIloaZhQNnlwRc/LalI/7ZyWsNNMMk033yFtgNFf1vOqzmpz7jQ==
+  resolved "https://github.com/featurist/codesandbox-example-links.git#dae8c53f6452863c1b649d21050f1d72a15ab4c4"
   dependencies:
     codesandbox "^2.1.1"
+    debug "^4.1.1"
     glob "^7.1.3"
     yargs "^13.2.1"
 
@@ -1866,6 +1866,13 @@ debug@^3.1.0, debug@^3.2.6:
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
   integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
+  dependencies:
+    ms "^2.1.1"
+
+debug@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
   dependencies:
     ms "^2.1.1"
 
