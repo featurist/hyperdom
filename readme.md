@@ -180,7 +180,7 @@ The result is that we can write applications that have a simple relationship bet
 
 Here's an example:
 
-```jsx
+```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/index.jsx"}}
 const hyperdom = require('hyperdom');
 
 class App {
@@ -199,6 +199,7 @@ class App {
 
 hyperdom.append(document.body, new App());
 ```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnBrBdGHdGg8ni9Fo0NltQWtGslUiYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxs1PYsBkFJAEjUcAg5FpbAAjCgAAxiznMOlWCHPAoCpB0gASKjUmi0TF8MC0JCYAClKpKxCAtBgLILzJYbHYHFAjXTZS8-IqGFLjXAKGUKBa0eUoAcrbZkkxJpMSKo0iBZG66WgAK7QdQ-sr4CrxxMBv42xy6KWmLlWCNWMj4CDwWmu0SxrA4SacbgUSYMtXaC0igAsEqjcmNzaZOkVbCgGCoHtzLHzUrYVgkWqL1FL5ZdPbpvtTUEm8cssFwFuHo-9IDkk-NGJgSgA7iQNM6BIIDGRDIwUSAvj9A_igUTyCSPGTXB6MSqv2TCDEwXAAI4JlwAAUADkfbqnBACUADc8L4MOcBwEwACCZxMJWPTkB6uBxvgFDXjByGESuFAKBAcAoFSnSgUwcHVFAUBKHBx7wiwXBWrg1G0TGXAUHGuDMDseypFWLCeMO2ApBefQUHBOFKCQklMCxMAAPxNEpOByfJngWOwcavBQqrHFQ1iHkwaC_BY2J2QxTF6XMCwrgp1xxAxhH0YxzHUjAhhXLJK6RTc6F5kY8KIdoKCnEWMGaPgcadJQ6AkJs0i6TAF54Wc1FoSYhiGEAA&query=module%3Dsrc%2Findex.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
