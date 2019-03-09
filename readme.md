@@ -91,6 +91,196 @@ Sponsored by:
 * [Sister Projects](#sister-projects)
 * [We're Hiring!](#were-hiring)
 
+## Quick Start
+
+### Install
+
+```sh
+yarn create hyperdom-app --jsx myapp # or npx create-hyperdom-app myapp
+cd myapp
+yarn install
+```
+
+Run dev server:
+
+```sh
+yarn dev
+```
+
+Open `http://localhost:5000`
+
+### Hyperdom App
+
+An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
+
+```jsx {"addToNextExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx"}}
+import * as hyperdom from "hyperdom";
+import {hello} from "./styles.css";
+
+export default class App {
+  render () {
+    return <h1 class={hello}>Hello from Hyperdom!</h1>
+  }
+}
+```
+
+It's mounted into the dom from `./browser/index.js`:
+
+```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js"}}
+import * as hyperdom from "hyperdom";
+import App from "./app";
+
+hyperdom.append(document.body, new App());
+```
+
+### State Management
+
+Good news - none required.
+
+Just like React app, Hyperdom app is often composed of multiple components. However, no matter which component needs an update, hyperdom always re-renders all of them. So components can reference some higher level object - aka model - to get/set state. The app object itself is a good choice for a model.
+
+### Events and Bindings
+
+How does hyperdom decide when to re-render? It's watching user interactions that _you tell it to watch_. There are two ways to do that: event handlers and input bindings.
+
+#### Event Handlers
+
+That is, run some code when user clicks on something. Let's modify the `App` in `./browser/app.jsx`:
+
+```jsx
+module.exports = class App {
+  renderHeader() {
+    if (!this.hideGreeting) {
+      return <div>
+        <h1 class={hello}>Hello from Hyperdom!</h1>
+        <a href='#' onclick={() => this.hideGreeting = true}>Next</a>
+      </div>
+    }
+  }
+
+  render () {
+    return <main>
+      {this.renderHeader()}
+    </main>
+  }
+}
+```
+
+When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
+
+This is still just a single component, but if it had a child component, that child could keep a reference to the parent object and make use of `hideGreeting` in much the same way.
+
+Read more about Events [here](#Events)
+
+#### Input Bindings
+
+This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
+
+```jsx
+  renderBody() {
+    if (this.hideGreeting) {
+      return <div>
+        <label>What is your name? </label><input type="text" binding="this.userName"></input>
+        {this.userName ? <div>You're now a hyperdomsta 💪{this.userName}</div> : undefined}
+      </div>
+    }
+  }
+
+  render() {
+    return <main>
+      {this.renderHeader()}
+      {this.renderBody()}
+    </main>
+  }
+```
+
+Each time user types into the input, hyperdom re-renders.
+
+Read more about Bindings [here](#Bindings)
+
+### Calling Ajax
+
+The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-ajax", "file": "src/browser/app.jsx", "line": 15}}
+  renderBody() {
+    return (
+      <div>
+        <label>What is your name? </label>
+        <input type="text" binding="this.userName" />
+        {(() => {
+          if (this.userName) {
+            return (
+              <div>
+                <div>You're now a hyperdomsta 💪{this.userName}</div>
+                <button
+                  onclick={() => this.getBeers()}
+                  disabled={this.isLoadingBeer}
+                >
+                  Have a beer
+                </button>
+              </div>
+            );
+          }
+        })()}
+        {this.isLoadingBeer ? "Loading..." : this.renderBeerList()}
+      </div>
+    );
+  }
+
+  renderBeerList() {
+    if (!this.beers) {
+      return;
+    }
+
+    return (
+      <table class={styles.beerList}>
+        <thead>
+          <tr>
+            <th />
+            <th>Name</th>
+            <th>Tagline</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.beers.map(({ name, tagline, image_url }) => {
+            return (
+              <tr>
+                <td>
+                  <img height="50" src={image_url} />
+                </td>
+                <td>{name}</td>
+                <td>{tagline}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+
+  async getBeers() {
+    delete this.beers;
+    this.isLoadingBeer = true;
+
+    const response = await fetch("https://api.punkapi.com/v2/beers");
+    this.beers = await response.json();
+
+    this.isLoadingBeer = false;
+  }
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlx6ZkDYvFMFYYAYFmUDvPgJ6yUwACCFxMK-XDergxorGoAAUACURkPEwXAUFmuDMJZ9m7LcOy5OkCjKj0OlwIMwD8YJdg4FAJCGHE5mDnawmWqanIWt4SzKl5uSeN0ChcGApwAMRzOQ2kQISQU2UwgxxEwlkUAoEBwHYxwwAA4lwPAWMSFVMBQuBZjA1lRe53kAHI2IBu4ZZh6XpA0nn2dZ8mXmsaQmVYuAAEKoko5WviwjnOa5Q17Ac027CenZxAA6n07z1UwSgkM5TBMp0AD8M3nTgp3pBY7BZu8EmqKcVDWIBIBMGg4IdcDdUNVmILDcyMBzAsQ0sMAlnlZVdkTd5EBgNVtX1Sg8NqIjnS2bt3m5PtLnVWj1PpHNuOM-0nmhI9ADkXDPUC1F0Ul2gRkwgC8G4AVTvAETcMI0jhg3CdDOsxs_0UIqLOs6IRVQCVBJlbZ2NSygvLrTAco2Qh6sayp9VYLAJyS7DKD1QAMiQWQdSbagW1b1PfVbxoYLK_PYGoiuM402YUKrZB-958t3GHLALWH3uM4Y1nmwzDvEy7bv7GQxKe7gTDvWwrvuwXKBV3MAiG6tahF879UUJnuPx15ydVste3UGtjfNzt9n49V3iGyHuBwJTQ202Qi2iBb9kz_TbeCmgsD-TRgXBRJoXj03AqDerni1SssfH7gse7LV8yX3kChxOTMCNLVt_H_fwQktrinP_fYfPxfDMf6n0ARQTY2ww7ZwauPBqbp2CY2AM9JG0huqfwsDAZBJESQwAAPrOVjOnCqVUqasyXm5S2cceq3wyhQVY5ClYkU6ssCAxJ7CnAAKxTnBj8IKmDSS4NwFAQwN9E5xyaLQn2FDsjABejAOWYiqHtBoXESWqDFJyKUSI3YTQAF0KYJ3K26dU7U2fmA6az9batHmnPBeaQaJKAbEwY2psJ6D13FYWAVBuqO2gXPFghtc4V0Ls4rqPU-ryXsq4AUDl4A9jIAMLqGBATuneGAHgvQ3LsijuwOAiAGiYXYBAFAf0yBEgKdJbQDQJBjj-M4mE-jRBj1qQkpJBRolwFiQMHC5AbLhN3P4uA5d85BLUF1NSUABjWLkPXXAriaY8AOsvYxboLDKMNnVKwrVTb5ALiXLxxNpmbS2OVWujtpnmSyFZAajRlkxysXIC2FscTIQIKhIEIIwTxhwvhNwtJzCkSgu8dsWA5w9j7AOIcIB5I8QBUwKiNEBYrktPFPcbFVyQu4v88i-lDLIrYGJLCnFlr7gtCgLCvdLKaHwFmTolB0BbWQYpQE2K4HWU7k8lC_w3kYRClJGSCBkAuAIu4WgiBiQRUwFASyYCp5pDAARSYaktDQCUAINgMVZT5HwN0UafUZD6ReBgKAyC4DVDgPyNQ-N5I2LCrFHGfixqTB6qauVuAtACCzBcNQWqJlGGWugZx-93ivlqBoNQkxSCDnOAMAQEaTzZJgFav1e9m7dWLsGqCa1Ji1CjtoAQyp2DWA-L2Y4TBtYsIoMSLgShE0KX9WoQN3V1A7jrbgBt19Xx4nUEMvNaoC01pMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
+
+Note how we take advantage of that second render to toggle 'Loading...'.
+
+### Composing Components
+
+Our `app.jsx` is getting pretty hairy - why not to extact a component out of it?
+
+### Routes
+
 ## An Example
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/index.jsx"}}
@@ -294,7 +484,7 @@ class App {
   }
 }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEpljdJ3hhHOF8uIGvN9PKXv-SQDxG4HBhABBarCAPzuiYIyr3cfzMvwIY0jFZPANwaHAbhHAh1wrF4umecDNxRODhE3MwoEoZg90A_dY3baQtxnHAqk9VcgXIY1PBoHBFi2YRUBgGtX2qP9dwAbk7DYeKAA&query=module%3Dsrc%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEpljdJ3hhHOF8uIGvN9PKXv-SQDxG4HBhABBarCAPzuiYIyr3cfzMvwIY0jFZPANwaHAbhHAh1wrQNRA3PAUTg4RNzMKBKGYPdAP3WN22kLcZxwKpPVXIFyGNTwaBwRYtmEVAYBrV9qj_XcAG5Ow2bigA&query=module%3Dsrc%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 #### JSX
 
