@@ -2,9 +2,7 @@
 
 A fast, feature rich virtual-dom framework for building dynamic browser applications.
 
-Hyperdom applications are made of regular JavaScript objects that represent application state with `render()` methods that define how that state is represented in HTML. Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, client-side routing, SVG, two-way data binding, and optimises for performance, developer usability and simplicity of application architecture.
-
-Hyperdom includes Typescript type definitions.
+Hyperdom applications are made of regular JavaScript objects that represent application state with `render()` methods that define how that state is represented in HTML. Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, typescript, client-side routing, SVG, two-way data binding, and optimises for performance, developer usability and simplicity of application architecture.
 
 Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
@@ -113,7 +111,7 @@ Open `http://localhost:5000`
 
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
-```jsx {"addToNextExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx"}}
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx", "addToNextExample": true}}
 import * as hyperdom from "hyperdom";
 import {hello} from "./styles.css";
 
@@ -124,20 +122,21 @@ export default class App {
 }
 ```
 
-It's mounted into the dom from `./browser/index.js`:
+It's mounted into the dom in `./browser/index.js`:
 
-```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js"}}
+```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js", "line": 1}}
 import * as hyperdom from "hyperdom";
 import App from "./app";
 
 hyperdom.append(document.body, new App());
 ```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoYLxuSCDIC45A0h4dIQFoPa4O87ZYHOPZ9gOQ4gAA3IwxGke8ABUTAYHAMRmgeTBgAClqKDxFpsIxZDMVB7wAIIXHxAlsigDTnJcDFrGQ-4WigynUOoAAUmj4FmnSUOgqJKNITBkDAgJMDJ7C6QAlA5Yk4shBCoUCILwhQSiwHAKD4HAOHEPh7i0IgxJQCQmBQLpmxKA5TCvmA-GTGAzLQEoAhsMaOCyvk-DdAAcjAWYwDItkvBgUAWXA1RwPyagQGAYkIemZB2DgUVJXIVDWHyFC4PVKW4FoAhZhcaiFQMrVqegMBqAAMhAAo9WktQaGokykIO5wDAIO0nuwM1GHN2BLSt7yDWtLAbVYuCTLUFAUNoAjKuw1gfL2xxMFAEDEvYxJcEos3tfNF2rRQ6g7uDuDLZDCg3UweLqPsZDEm9aofaDrkof8nkYcp2HWFSoW0uYJGSUw7GcdxnIWnJ2h7sJq6qeJlNkUlyyDiQhiM4JICKQKvnwAFQWiWpNgsUwVjpVmUDvPgJ5BbZsmvlw3q4EwjlIywXAUFmuDMEkyo9MrcCDMA3NRYYcS5Tz_NMKa9PaN4SzKm0bXGIYPtAA&query=module%3Dsrc%2Fbrowser%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 ### State Management
 
 Good news - none required.
 
-Just like React app, Hyperdom app is often composed of multiple components. However, no matter which component needs an update, hyperdom always re-renders all of them. So components can reference some higher level object - aka model - to get/set state. The app object itself is a good choice for a model.
+Just like React app, Hyperdom app is often composed of multiple components. Unlike React though, hyperdom always re-renders all of them, no matter which component needs an update. So components can reference some higher level object - aka model - to get/set state. The app object itself is a good candidate for a model.
 
 ### Events and Bindings
 
@@ -147,7 +146,7 @@ How does hyperdom decide when to re-render? It's watching user interactions that
 
 That is, run some code when user clicks on something. Let's modify the `App` in `./browser/app.jsx`:
 
-```jsx
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-events", "file": "src/browser/app.jsx", "line": 3}}
 module.exports = class App {
   renderHeader() {
     if (!this.hideGreeting) {
@@ -155,6 +154,8 @@ module.exports = class App {
         <h1 class={hello}>Hello from Hyperdom!</h1>
         <a href='#' onclick={() => this.hideGreeting = true}>Next</a>
       </div>
+    } else {
+      return <p>Now then...</p>
     }
   }
 
@@ -165,10 +166,9 @@ module.exports = class App {
   }
 }
 ```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxcJOADA5u4sGFEVRewC1An1yxkCgV2NCdjkIVWaxpGZVi4C5wWOYdkXpG6FhrcA_Uyc9aiWVkNm2fd5UND9ZBtPd904shBCoUCIJgvGOH4W4tLmKRUHvO2WBzj2fYDkOICKTxeNMFRNF0YVeVMXlrH04eFO4-RhnGYzLEgOJWGcY9-4WigWHUOo1maPgWadJQ6Coko0hMGQMCApz7B2bZikIyh_woxhApSfAsnyZjhG0IgxIZZgUDWZsSjvWkYAEZMYDMtASgCGw2Wyvk-DdItM0yIZLwYFAitwNUcD8moEBgIp92MHY6V2q-VDWHyFC4JHTu4FoAhZhcah-wM8ePego24AAMp5fFyLUGhqJMpCDucAwCM3J7sCXRhl9gajVwKU17Sw9cvZMtQUBQ2gCMq7DWB8vbHEwbXEvYxJcEopdKeX_c1316g7jvVd7-5w9MHi6j7ONM9qnPW8mIYhhAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
-
-This is still just a single component, but if it had a child component, that child could keep a reference to the parent object and make use of `hideGreeting` in much the same way.
 
 Read more about Events [here](#Events)
 
@@ -176,7 +176,7 @@ Read more about Events [here](#Events)
 
 This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
 
-```jsx
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-bindings", "file": "src/browser/app.jsx", "line": 13}}
   renderBody() {
     if (this.hideGreeting) {
       return <div>
@@ -193,6 +193,7 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
     </main>
   }
 ```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxQhVZrGkZlWLgABCqJKF1IVOS5_VeUNI1jUFDm7iwYURVFm2OeVJ6dnEADqfTvJ5TBKCQEVMEynQAPzrZ9ODXBY7BZu8kmqKcVDWIBIBMGg4KBSjHkyVmILzcyMBXI0cMI2tLDAFdKAE2oROdEwkPRXcoTA7VXCg0C1F0YV2gRkwgC8G4AVTvU3jtOE8Thg3DFTACFm3qQGQMDqNtcXrW9u5q8Bu1PdQB1nY5z2RekboWGtYsDftaiWVkNm2druSWzJ1tHSddmO-tZtkG023bTiyEEKhQIgmC8Y4fhbi0uYpFQe87ZYHOPZ9gOQ4gIpPFx0wVE0bzK6WkxeWsXzh4Z7H5GGcZhcsSA4lYZxu37haKBYfr1maPgWadJQ6AndIoMwIClfsHZtmKQHKH_CHGEClJ8CyfJkeEbQiDEhlmBQNZmxKMFchgARkxgMy0BKAIbDZbK-T4N0i0zTIhkvBgUD93A1RwPyagQGAinbYwdjpXaV8qM-QUFwG_feuAtDywuGoa-Awf67XQKNXAAAZTyfE5C1A0GoSYpBBznAGAIPBJ52DwKMIg7Aag0ECimg9FgWCDqTFqBQCg2gBDKnYNYD4vZjhMDasSewxIuBKAQUpJBVD0F9XUDucRqDJHuToUwPE6h9jjXYWqThoiTCGEMEAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 Each time user types into the input, hyperdom re-renders.
 
@@ -213,10 +214,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
             return (
               <div>
                 <div>You're now a hyperdomsta 💪{this.userName}</div>
-                <button
-                  onclick={() => this.getBeers()}
-                  disabled={this.isLoadingBeer}
-                >
+                <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
                   Have a beer
                 </button>
               </div>
@@ -277,7 +275,74 @@ Note how we take advantage of that second render to toggle 'Loading...'.
 
 ### Composing Components
 
-Our `app.jsx` is getting pretty hairy - why not to extact a component out of it?
+Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/beerList.jsx", "addToNextExample": true}}
+import * as hyperdom from "hyperdom";
+import styles from "./styles.css";
+
+export default class BeerList {
+  constructor(model) {
+    this.model = model;
+  }
+
+  render() {
+    if (!this.model.beers) {
+      return;
+    }
+
+    return (
+      <table class={styles.beerList}>
+        <thead>
+          <tr>
+            <th />
+            <th>Name</th>
+            <th>Tagline</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.model.beers.map(({ name, tagline, image_url }) => {
+            return (
+              <tr>
+                <td>
+                  <img height="50" src={image_url} />
+                </td>
+                <td>{name}</td>
+                <td>{tagline}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+}
+```
+
+And use it in the main app:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/app.jsx", "line": 3}}
+import BeerList from "./beerList";
+
+export default class App {
+  constructor() {
+    this.beerList = new BeerList(this);
+  }
+
+  renderBody() {
+    return (
+      <div>
+        <label>What is your name? </label>
+        <input type="text" binding="this.userName" />
+        {this.renderUsername()}
+        {this.isLoadingBeer ? "Loading..." : this.beerList.render()}
+      </div>
+    );
+  }
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUEABQAJQeQ8TAUAo2noIZxnvIMTBkDAgKqTF2kUAFEXaUF8mXmsaRcD6uAqaiSjBaFu5cBQ2a4MwAVhbstw7Lk6Qnl2cQAOp9O82lMEoJDVQlzIwAA_OkDStTgTW5J4FjsNm7wSaopxUNYgEgEwaDghYxLLZFcAoNmIIAHJDXMCz1aIwCZftBVWLgIwgkynTBQhu65Fde0oNpGkkFk21qWoTCjWwP1_WQxIoJDcwCNd0WaWlKC3WoL0XTcBxNdlcivSwSO4CaKzIyFr44zw1W1ajjUXbsCgqj0TlwIMwD8YJdg4FAJCGHE-ODvawlWmanKWt4SwqlN7TdAoXBgKcADEczkI5ECEozZWDHETAZZ9kVWAA4lwPDbUw8UUD5MBBZzVOiEdNiAW97SYWLaN3GFmPVnlJOFQ9ahPTAZXE0cYAa7Dh1qCdnRExdlVkxrlt7OjlsNejoT9QA5FwCVAlRTCALwbgBVO_ulqRh5wfHUNhhO2L005hQ_kKc19dMArUBKwSKshWr4WfbyAO4HAKN2_X-xwFgsAnB9UXfb9-zgz32MNywlfNSaGByln2BqAnY3V7Xi8Vxdru5HPr1yNRSiNkw3eGX3Ee7lYsBUJ3UXr73OWiLDk9g8SPdG-FptmbuXl3gLglGQAYP8MCAg9O8MAPBeh1XZDXdgcBEANEwuwCAKA5pkCJOg6S2gGgSDHAZeUbAD5v0-s_Gi8UIFQKYMA8gAwcLkGCv_XI784Cg2nl_QyP8bJQAGK_Y--VqB3T9mFKONUY52w6B6MgcRx77W1jAPW6l8jgyBo_G6Ii1DFS2GVGGn1cb4yyITcuDR3QWAxoIowiEzAoX-ECEExCjII2hHhZALgCLuFoEpXiTBKLUVooLESfM9ysVXKZLipE_HM3gLpESbAxKxP2jJOSeULLKWsrZeydNqI0R7rFcqLBAE-T8oFO0d8b5sM-hU8o8ValQGsXXOh2jcBiN3BAQOAVvCwwaXDXuVTmoSLIK_XKzSSZVUkXVaRgo0CwFybJRmyT-mxQtgPPIywsiL12CbbZ7QIrzD2TshQcQw4wEaBFI5Gy4jBBJM3RKFyTmbwubgXeTRNmrHWZ4CgmxtibwUSgPplDAXnACgFYAg1OjSHCnciwMBoUkRJDAAA-tVOMhh27q39vPYZUj5712-a8zeBKKCfPxfimaWhiQxBgBAYk9hTgAFYpzrR-IzRFpJUW4CgIYQ5xLmoXLJeSgVpL5E-zMaK_l01RVXVhYlCVQrhVjV2fysh88MVzwJU0X5jsmgj1aC7JpxgkL2LQk48EvpoT4TcLScw0T3gdiwHOXs_ZoBDkiYpe1_iqI0QLiEvSLFgmHnkr494bl2DxOYiAMSWEOJ5T9VoFAWEREBU0PgbMnRKDoBKtCxKyVw3BVdjiZCBBUKOIwss1J1rCK0EQMSdmmAoABV-YMsABFJg2S0NAJQAg2DczlPkfA3RrbZhgDIVyLwMBQGhcPUB_I1CdPkkI1mPMinhRtpME21Q4BttwFoAQ2YLhqCHQImxCkVlpTXbUDQahRQkEHOcAYAhSAPqQTAJdeUL06RNleqCd1Ji1BrtoAQKp2DWA-Pe44TBm70ooMSLgSgP3nufoU0lO4v0LQUGuvE6guEgfVGBpDJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+Note how we pass the app object itself into the `beerList` component to act as a source of state (model).
 
 ### Routes
 
