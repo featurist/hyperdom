@@ -10,85 +10,6 @@ Sponsored by:
 
 [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
-## Table of Contents
-
-* [An Example](#an-example)
-* [Install](#install)
-  * [New project](#new-project)
-  * [Add to existing project](#add-to-existing-project)
-  * [Size](#size)
-  * [Browser Support](#browser-support)
-* [Usage](#usage)
-    * [Hyperdom Applications](#hyperdom-applications)
-    * [The Render Method](#the-render-method)
-      * [JS](#js)
-      * [JSX](#jsx)
-      * [SVG (or XML more generally)](#svg-or-xml-more-generally)
-    * [Events](#events)
-      * [Re-rendering the view](#re-rendering-the-view)
-      * [Bindings](#bindings)
-    * [Routing](#routing)
-      * [Component Methods](#component-methods)
-      * [Route Definitions](#route-definitions)
-          * [isActive](#isactive)
-          * [url](#url)
-          * [params](#params)
-          * [push](#push)
-          * [replace](#replace)
-      * [Route Options](#route-options)
-      * [Router Options](#router-options)
-      * [Not Found](#not-found)
-    * [Virtual Dom API](#virtual-dom-api)
-      * [Selectors (hyperdom.html only)](#selectors-hyperdomhtml-only)
-      * [Add HTML Attributes](#add-html-attributes)
-      * [Keys](#keys)
-      * [Raw HTML](#raw-html)
-      * [Classes](#classes)
-      * [Joining VDOM Arrays](#joining-vdom-arrays)
-      * [Data Attributes](#data-attributes)
-      * [Responding to Events](#responding-to-events)
-      * [Binding the Inputs](#binding-the-inputs)
-      * [Radio Buttons](#radio-buttons)
-      * [Select Dropdowns](#select-dropdowns)
-      * [File Inputs](#file-inputs)
-      * [Window Events](#window-events)
-      * [Mapping the model to the view](#mapping-the-model-to-the-view)
-    * [Components](#components)
-      * [Model Components](#model-components)
-      * [View Components](#view-components)
-    * [Caching](#caching)
-    * [Not Refreshing](#not-refreshing)
-    * [Refreshing the view explicitly](#refreshing-the-view-explicitly)
-    * [Refreshify](#refreshify)
-    * [Binding](#binding)
-    * [Server-side Rendering](#server-side-rendering)
-    * [Using with Typescript](#using-with-typescript)
-      * [Router based components](#router-based-components)
-      * [Render based components](#render-based-components)
-* [API](#api)
-    * [Rendering the Virtual DOM](#rendering-the-virtual-dom)
-      * [The binding Attribute](#the-binding-attribute)
-      * [Event Handler on* Attributes](#event-handler-on-attributes)
-      * [Promises](#promises)
-    * [Raw HTML](#raw-html-1)
-    * [Attaching to the DOM](#attaching-to-the-dom)
-      * [Detach](#detach)
-      * [Remove](#remove)
-* [Performance](#performance)
-* [Debugging](#debugging)
-    * [Chrome Plugin](#chrome-plugin)
-    * [File Names and Line Numbers](#file-names-and-line-numbers)
-* [Production Build](#production-build)
-* [Common Errors](#common-errors)
-    * [Outside Render Cycle](#outside-render-cycle)
-    * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
-* [Development](#development)
-    * [Building](#building)
-    * [Automated Testing](#automated-testing)
-    * [Manual Testing](#manual-testing)
-* [Sister Projects](#sister-projects)
-* [We're Hiring!](#were-hiring)
-
 ## Quick Start
 
 ### Install
@@ -136,7 +57,9 @@ hyperdom.append(document.body, new App());
 
 Good news - none required.
 
-Just like React app, Hyperdom app is often composed of multiple components. Unlike React though, hyperdom always re-renders all of them, no matter which component needs an update. So components can reference some higher level object - aka model - to get/set state. The app object itself is a good candidate for a model.
+Just like React app, Hyperdom app is often composed of multiple components. Unlike React though, hyperdom does not recreate them on each render - components are assumed to live as long as the page stays open. Another crucial difference is that hyperdom is always re-renders top level app, no matter which component triggered an update.
+
+All that means is that components themselves - or, really, just javascript objects - are perfectly fit to store state in regular object properties.
 
 ### Events and Bindings
 
@@ -346,7 +269,7 @@ import BeerList from "./beerList";
 
 export default class App {
   constructor () {
-    this.beerList = new BeerList(this);
+    this.beerList = new BeerList();
   }
 
   renderBody() {
@@ -359,14 +282,14 @@ export default class App {
             ? <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
             : undefined
         }
-        {this.userName ? this.beerList.render() : undefined}
+        {this.userName ? this.beerList : undefined}
       </div>
     );
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeghnGe8gxMGQMCAqpsXaRQgWRdpwXyZeaxpFwPq4CpqJKCFYW7lwFDZrgzCBeFuy3DsuTpCeXZxAA6n07zaUwSgkDViXMjAAD86QNG1ODNbkngWOw2bvBJqinFQ1iASATBoOCFjEitUVwCg2YggAcsNcwLA1oivi1ohZQdR1qKdLK7jdLBjXsBxxKEA0AORcIlQJUek3nkMScT7pakaNCDZBgx5d2HSdw2GDcn2XTdAjZj6kBJfmL2iAh-MsMACMPbgT0wEwY0I9gmnpSghVWLg5WY9jFgwOohM3ajdzhTlchc0wjNqCaKxqOV11CzwNV1ZdH280T6QKCqPROXAgzAPxgl2DgUAkIYcSi4O9rCVaZqcpa3hLCq03tN0ChcGApwAMRzOQjkQISGvlYMcRBQjUVWAA4lwPA7UwCUUD5MDBQb6OiMdNiAYrjQYLbPPNfz1b5Swwu4CMIJMp0EvhRAYD-_tiOPcNoWS7n0u1UF8fy7bM1Nd92Z_ZTZCA90ngw2DEPaFD4kArDfsk5XZMUyjDRNfHuw5hQ_kKa9LXu1AnsEt7oW-xFle8mp8ohYLa8sPscBYLAJyT9F2kaSQWQ7UfuCn69rctSaGBykDtO_oruw_gLRXh_DOl0s65EFoTOQ1ElCNiYIfQycAS67isLAKg-9op_zgLlW6ld76P32LDF-EcIrRzMruLy7wFwSjIAMUhGBAQeneGAHgvR6rsmXuwOAiAGiYXYBAFA80yBEgEdJbQDQJBjgMvKNgEC8FYKQQwphBQpZwFoQMHC5AQoUNyAjAhT9iGGVITZKAAxcHQIKtQJmKDchVRlk3fGHQPRkDiLfA6gcYAh3UvkWGVNMEHTziVLYLMAkM2sSLMWzNY6NHdBYTOFijCITMChf4QIQQyKMvTaEeFkAuAIu4WgSleJMEotRWiFsRKmz3KxVcpkuKkRKVreAukRJsDEs0g6Mk5L5Qsspaytl7Kq2ojRF-cUKowLgHA_ACCeAv2QbXcKaCeCUxpkg3BLB9FwAfoY4kJDI7kJzqIKhaiNGUwSow5hDE2EKA4fYCg3DeH8MEcI0RgixSSOkdguRGywnYOUVcmh5BNEUjIDoo5mz8HbMIc_YxCVTHmIFkcvOwQr4wFsaIMuFdFHykWfjexjd6op3ngAvIaLhmyQ1p0mKdMBRx1JbsSKKwP7cyjiy16nhIrzHZayhQcQKaNEijylqnK-WouJJvJKgq-ULxFU0XAwrpXMtlYyzY2wVVXTWfKFA7p2CBUCsAIuMBpARRJJK41Rx3SkgAPo1SgIYXeE8NV2IbrLBlHK2XOo9asd1Z90gkWJDEGAEBiT2FOAAVinBtH4GsSIkhgLa3A9ruVeu5k0H1fq_WcuyIa5GgqM2ZrXtmtxgoJXs1nhQAthaZryuFbkYKXqHVvyLU0NV7LBVotAXPNG-N5F5WzqvKWRUMUsCxZlKFOyiF7MMnim6BLmAt0nTtFAK6wG7kMEwHA9C65S2qoS5uJKs1LxXkwDeW8d4Rz9gjRBx9Y5MAvmim-Wyl1GLUAbL-P9uh_0aMe8g7L3HhKKqitAsAT7N27QrG6fbgJIvgjiZCBBULpIwuCX00J8JuFpOYRp7wOxYDnL2fs0Ahz1MUjh0pVEaJDytNUlilTDzyWKe8Ny7BWnMRAGJLCHF8rUZQFhaxgVND4GzJ0Sg6BSomqSilFjIUs7wdSWhDJ1LukYcIrQRAEqSCYCgIFNVs6GIEUmDZLQ0AlACDYEbOU-R8DdETtmGAMhXIvAwFAE1l86H8jUGXeSlidbGwqpspOkwo7VDgGAKCWhMYXDUDZxF8F8o0qyTpV8tQNBqFFCQQc5wBgCFIFl7hMAfMJb_uMqOAXNpQSZpMWoy9tACBVOwawHxMvHCYJvUNFBiRcCUEVhSiXSvqB3P19K-9yt4nUFO-r6pGu9ZMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeghnGe8gxMGQMCAqpsXaRQIXyZeaxpFwPq4CpqJKCFYW7lwFDZrgzCBeFuy3DsuTpCeXZxAA6n07zaUwSgkJViXMjAAD86QNM1OANbkngWOw2bvBJqinFQ1iASATBoOCFjEotUVwCg2YggAcgNcwLLVoivo1oiRdF-1qEdLK7pdLDDXsBxxKEvUAORcIlQJUek3nkMScT7pakaNIDZDAx5127bduD3TAhg3G9Z2XQI2Y-pASX5o9ogIXjLDALDe2HQNTDDST2CaelTAY1jFgwOoBOXSjdzhcFWXAXIeVWLgJorGoJUXUw5WVdVZ2vezhPpAoKo9E5cCDMA_GCXYOBQCQhhxALg72sJVpmpylreEsKoTe03QKFwYCnAAxHM5CORAhLKyVgxxEFJNRVYADiXA8JtTAJRQPkwMF2to6IB02IBMuNBgFtsw1nNyATPPUHzIwgkynTC-FEBgF7O2k3dA2hSLLBi1VQVR1LFuTfVH3Zt9MC_Sl3SeJDwOg9o4PiQCUOe8TJfw4jyMNPVUe7DmFD-QpT2NU7UAuwSbuhR7EUl7yanyiFLOL6I-xwFgsAnCP0XaRpJBZJtu-4Afi8N41JoYHK_3U7-Mu7H8s3z8_yczqp13AfdOaRqJKEbEwHehk4D513FYWAVAt7RU_nALmLASZXxvvsKG99g4RTDmZXcXl3gLglGQAYBCMCAg9O8MAPBeg1XZHPdgcBEANEwuwCAKAZpkCJNw6S2gGgSDHAZeUbBgG5CprA6htCCii3gBQgYOFyCZRytIku2Db54MMgQmyUABhczAVXTOQsK7hWrhLPGHQPRkDiBfXaPsYD-3UvkKGFMUG7V5moQqWwSoCBJj4_mgtcD70aO6CwKdjFGEQmYFC_wgQgnEUZdKOE8LIBcARdwtAlK8SYJRaitFjYiQNnuViq5TJcVIvk1W8BdIiTYGJOpu0ZJyRyhZZS1lbL2QVtRGi984qlTkBAqBMC94WIQTgHgbcZHygwV4lA2jcHEnwSHIhGjRCkMUXAZRbcEo0LoQxRhChmH2AoGwjhXCeF8IETwsUIixFoMkQsuZuAaIHPkWQpR5AVEUjIOoheV0tFwGvjo1ZeiEoGKMWnTZwTginxgPA3Ihdi6oNgZMy6Vja7xynt_PIiK-myWVi0mKNMBSR3xbsSKKxn6s1DnSp6nhIrzEZfShQcREaNEimyxqzKOUIuJCvJK3KOXTz5U0XAvLRW0vFdSzY2w5XnTebtd07BAqBWALnGA0gIokmFTqo47pSQAH1KpQEMBvYeSrcjYpqlSplDKbWOtWA6w-6QSLEhiDACAxJ7CnAAKxTlWj8ZWJESQwDNbgC1rLnWsyaK6917rmXZC1QNCeFBE1JsXimhxgohWMwzVm7Nk1JW8tyMFZ1lrH6H25Qqxl3LEUAMnqjPGUj8awqBcE5FohUWBSwaCnBd9DKYsati-uYKVkoGnYAkBTAcBUMrooiqNd7U5rxcm2e88mDL1XuvYOnsSbjPefvJgx9EXnwHZO4dahtav3ft0T-jQt3kEZY4lA8LEX7zri26Wl123ZWrEYHEyECCoSSRhcEvpoT4TcLScwNT3gdiwHOXs_ZoBDiqYpRDBSqI0V7laMpLESmHnknk94bl2ANOYiAMSWEOI5QIygLCmdAqaHwNmTolB0BFV1UlFKlGQrAJAwktCyTSVtNg4RWgiAhUkEwFAQKCrR1gAIpMGyWhoBKAEGwXWcp8j4G6DHbMMAZCuReBgKAuqT6UP5GoQu8kwHqz1qVTBsdJih2qHAVTuAtAYwuGoQzML4I5TJaknSr5agaDUKKEgg5zgDAEKQeLbCYCOdC5_IZodXNrSgnzSYtQ57aAECqdg1gPhxeOEwFefqKDEi4EodLCkwtZfUDuFrtMWWvjxOoFZJX1RlaayYQwhggA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-Note how we pass the app object itself into the `beerList` component to act as a source of state (model).
+Both the top level app and its child component live from the moment the app is mounted until the page is closed/refreshed. Render events don't recreate those objects. That makes keeping app state a mere business of assigning object properties where they make sense. It's just javascript - no framework involved.
 
 ### Routes
 
