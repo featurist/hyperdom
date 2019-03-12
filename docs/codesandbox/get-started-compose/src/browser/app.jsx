@@ -16,7 +16,7 @@ import styles from "./styles.css";
     if (this.userName) {
       return (
         <div>
-          <div>You're now a 💪hyperdomsta {this.userName}</div>
+          <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
           <button
             onclick={() => this.getBeers()}
             disabled={this.isLoadingBeer}

@@ -181,7 +181,7 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
     if (this.hideGreeting) {
       return <div>
         <label>What is your name? </label><input type="text" binding="this.userName"></input>
-        {this.userName ? <div>You're now a hyperdomsta 💪{this.userName}</div> : undefined}
+        {this.userName ? <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div> : undefined}
       </div>
     }
   }
@@ -193,7 +193,7 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
     </main>
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxQhVZrGkZlWLgABCqJKF1IVOS5_VeUNI1jUFDm7iwYURVFm2OeVJ6dnEADqfTvJ5TBKCQEVMEynQAPzrZ9ODXBY7BZu8kmqKcVDWIBIBMGg4KBSjHkyVmILzcyMBXI0cMI2tLDAFdKAE2oROdEwkPRXcoTA7VXCg0C1F0YV2gRkwgC8G4AVTvU3jtOE8Thg3DFTACFm3qQGQMDqNtcXrW9u5q8Bu1PdQB1nY5z2RekboWGtYsDftaiWVkNm2druSWzJ1tHSddmO-tZtkG023bTiyEEKhQIgmC8Y4fhbi0uYpFQe87ZYHOPZ9gOQ4gIpPFx0wVE0bzK6WkxeWsXzh4Z7H5GGcZhcsSA4lYZxu37haKBYfr1maPgWadJQ6AndIoMwIClfsHZtmKQHKH_CHGEClJ8CyfJkeEbQiDEhlmBQNZmxKMFchgARkxgMy0BKAIbDZbK-T4N0i0zTIhkvBgUD93A1RwPyagQGAinbYwdjpXaV8qM-QUFwG_feuAtDywuGoa-Awf67XQKNXAAAZTyfE5C1A0GoSYpBBznAGAIPBJ52DwKMIg7Aag0ECimg9FgWCDqTFqBQCg2gBDKnYNYD4vZjhMDasSewxIuBKAQUpJBVD0F9XUDucRqDJHuToUwPE6h9jjXYWqThoiTCGEMEAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxQhVZrGkZlWLgABCqJKF1IVOS5_VeUNI1jUFDm7iwYURVFm2OeVJ6dnEADqfTvJ5TBKCQEVMEynQAPzrZ9ODXBY7BZu8kmqKcVDWIBIBMGg4KBSjHkyVmILzcyMBXI0cMI2tLDAFdKAE2oROdEwkPRXcoTA7VXCg0C1HpAKALjXE-4WhGjR8-QxK9dTeO04TxOGDcMVMAIWbepAZAwOo21xetb27lrwG7U91AHWdjnPZF6RuhYa1SwN-1qJZWQ2bZ-u5LbMn20dJ12a761W2QbTbdtOLIQQqFAiCYLxjh-FuLS5ikVB7ztlgc49n2A5DiAik8UnTBUTRdGFXlTF5axxeHjnifkYZxmlyxIDiVhnG7UL2goFhxvWZo-BZp0lDoCd0igzAgK1-wdm2YpIcof8EcYQKUnwLJ8mx4RtCIMSGWYFA1mbEowVyGABGTGAzLQEoAhsNlsr5Pg3SLTNMiGS8GBQMPcDVHA_JqBAYCKdtRgdh0p2lfKjPkFBcBf2PrgLQysLhqHvgMABu10CjVwAAGU8nxOQtQNBqEmKQQc5wBgCCISedgyCjCoOwGoLBAopoPRYHgg6kxagUAoNoAQyp2DWA-L2Y4TA2rEnsMSLgSgUFKTQXQ7BfV1A7mkZg2R7kmFMDxOofY41uFql4ZIkwhhDBAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 Each time user types into the input, hyperdom re-renders.
 
@@ -213,7 +213,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
           if (this.userName) {
             return (
               <div>
-                <div>You're now a hyperdomsta 💪{this.userName}</div>
+                <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
                 <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
                   Have a beer
                 </button>
@@ -267,7 +267,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
     this.isLoadingBeer = false;
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlx6ZkDYvFMFYYAYFmUDvPgJ6yUwACCFxMK-XDergxorGoAAUACURkPEwXAUFmuDMJZ9m7LcOy5OkCjKj0OlwIMwD8YJdg4FAJCGHE5mDnawmWqanIWt4SzKl5uSeN0ChcGApwAMRzOQ2kQISQU2UwgxxEwlkUAoEBwHYxwwAA4lwPAWMSFVMBQuBZjA1lRe53kAHI2IBu4ZZh6XpA0nn2dZ8mXmsaQmVYuAAEKoko5WviwjnOa5Q17Ac027CenZxAA6n07z1UwSgkM5TBMp0AD8M3nTgp3pBY7BZu8EmqKcVDWIBIBMGg4IdcDdUNVmILDcyMBzAsQ0sMAlnlZVdkTd5EBgNVtX1Sg8NqIjnS2bt3m5PtLnVWj1PpHNuOM-0nmhI9ADkXDPUC1F0Ul2gRkwgC8G4AVTvAETcMI0jhg3CdDOsxs_0UIqLOs6IRVQCVBJlbZ2NSygvLrTAco2Qh6sayp9VYLAJyS7DKD1QAMiQWQdSbagW1b1PfVbxoYLK_PYGoiuM402YUKrZB-958t3GHLALWH3uM4Y1nmwzDvEy7bv7GQxKe7gTDvWwrvuwXKBV3MAiG6tahF879UUJnuPx15ydVste3UGtjfNzt9n49V3iGyHuBwJTQ202Qi2iBb9kz_TbeCmgsD-TRgXBRJoXj03AqDerni1SssfH7gse7LV8yX3kChxOTMCNLVt_H_fwQktrinP_fYfPxfDMf6n0ARQTY2ww7ZwauPBqbp2CY2AM9JG0huqfwsDAZBJESQwAAPrOVjOnCqVUqasyXm5S2cceq3wyhQVY5ClYkU6ssCAxJ7CnAAKxTnBj8IKmDSS4NwFAQwN9E5xyaLQn2FDsjABejAOWYiqHtBoXESWqDFJyKUSI3YTQAF0KYJ3K26dU7U2fmA6az9batHmnPBeaQaJKAbEwY2psJ6D13FYWAVBuqO2gXPFghtc4V0Ls4rqPU-ryXsq4AUDl4A9jIAMLqGBATuneGAHgvQ3LsijuwOAiAGiYXYBAFAf0yBEgKdJbQDQJBjj-M4mE-jRBj1qQkpJBRolwFiQMHC5AbLhN3P4uA5d85BLUF1NSUABjWLkPXXAriaY8AOsvYxboLDKMNnVKwrVTb5ALiXLxxNpmbS2OVWujtpnmSyFZAajRlkxysXIC2FscTIQIKhIEIIwTxhwvhNwtJzCkSgu8dsWA5w9j7AOIcIB5I8QBUwKiNEBYrktPFPcbFVyQu4v88i-lDLIrYGJLCnFlr7gtCgLCvdLKaHwFmTolB0BbWQYpQE2K4HWU7k8lC_w3kYRClJGSCBkAuAIu4WgiBiQRUwFASyYCp5pDAARSYaktDQCUAINgMVZT5HwN0UafUZD6ReBgKAyC4DVDgPyNQ-N5I2LCrFHGfixqTB6qauVuAtACCzBcNQWqJlGGWugZx-93ivlqBoNQkxSCDnOAMAQEaTzZJgFav1e9m7dWLsGqCa1Ji1CjtoAQyp2DWA-L2Y4TBtYsIoMSLgShE0KX9WoQN3V1A7jrbgBt19Xx4nUEMvNaoC01pMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlx6ZkDYvFMFYYAYFmUDvPgJ6yUwACCFxMK-XDergxorGoAAUACURkPEwXAUFmuDMJZ9m7LcOy5OkCjKj0OlwIMwD8YJdg4FAJCGHE5mDnawmWqanIWt4SzKl5uSeN0ChcGApwAMRzOQ2kQISQU2UwgxxEwlkUAoEBwHYxwwAA4lwPAWMSFVMBQuBZjA1lRe53kAHI2IBu4ZZh6XpA0nn2dZ8mXmsaQmVYuAAEKoko5WviwjnOa5Q17Ac027CenZxAA6n07z1UwSgkM5TBMp0AD8M3nTgp3pBY7BZu8EmqKcVDWIBIBMGg4IdcDdUNVmILDcyMBzAsQ0sMAlnlZVdkTd5EBgNVtX1Sg8NqIjnS2bt3m5PtLnVWj1PpHNuOM-0nmhI9ADkXDPUC1HpAKAJkMScT7haEaNIL5Ai0ZRNwwjSOGDcJ0M6zGz_RQ5BMEVUAlQSZW2djcsoLy60wHKNmGCp9VYLAJzAMb9UADIkFkHVm2og0s6zojGhgsr89gaiq4zjTZhQmtkN91PK3cIcsAtIcId7hjWZbDMO7DKDO67-zCx7uBMO9bAu27wsoBXcwCMbq1qAXTv1RQ6e47HXmJ1Wy17dQa3143O32fj1XeMbQe4HAlNDbTZCLaIyf2VP9Mt4KaCwP5NGBcFEmhaPDcCl7au1Ss0d5Lgx-7LV8xn3kChxOTMCNLVV-eI_wQkrrikPzfIcP6fDOf0ff8KCbG2CHTOxNR4NTdOwTGwBnpI2kN1N-FgYAIJIiSGAAB9ZysZU4VSqlTVmC83Lexjj1K-GUKCrBIT7TwJFOrLAgMSewpwACsU5wY_CCmg0kWDcBQCtqjahMcmhUJ9qHShcRgAvRgErER5D2gSIdkgxSsiJHx3aE0X-QimDtzEanZOasmjAOmg_W2rR5ozznmkGiSgGxMFNubMe_ddxWFgFQbqWcIEzxYI7OApc87EgLl1HqfV5L2VcAKBy8AexkAGF1DAgJ3TvDADwXobl2QR3YHARADRMLsAgCgP6ZAiT5OktoBoEgxx_EcTCXRogR41PiYkgoUS4AxIGDhcgNkwm7l8f492jiupqSgAMSxcha64GcTTHgB1F4xzdBYSRxs6pWFaubfIwsi4eOJhMzaWxyrVyzhM8yWQrIDUaAsqOFi5DJ2TjiZCBBUJAhBGCeMOF8JuFpOYUiUF3jtiwHOHsfYBxDhAPJHivymBURonRJKIl4p7jYquMF3EfnkX0oZBFbAxJYU4stMW2gUBYW7pZTQ-AsydEoOgLaCDFKAgxdA6y7d7koX-M8jCIUpIyQQMgFwBF3C0EQMSCKmAoCWWARPNIYACKTDUloaASgBBsBirKfI-BuijT6jIfSLwMBQAQXAaocB-RqHxvJKxYVYo4x8WNSYPUjXStwFoAQWYLhqHVaMowy10CON3u8V8tQNBqEmKQQc5wBgCFDSeLJMBzXep3o3bqhcA1QTWpMWoEdtACGVOwawHxezHCYLrJhFBiRcCUHGhSPq1B-u6uoHc1bcC1ovq-PE6gAnZrVLmytJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
 
@@ -282,39 +282,59 @@ import * as hyperdom from "hyperdom";
 import styles from "./styles.css";
 
 export default class BeerList {
-  constructor(model) {
-    this.model = model;
+
+  async getBeers() {
+    delete this.beers;
+    this.isLoadingBeer = true;
+
+    const response = await fetch("https://api.punkapi.com/v2/beers");
+    this.beers = await response.json();
+
+    this.isLoadingBeer = false;
+  }
+
+  renderTable() {
+    if (this.beers) {
+      return (
+        <div>
+          <table class={styles.beerList}>
+            <thead>
+              <tr>
+                <th />
+                <th>Name</th>
+                <th>Tagline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.beers.map(({name, tagline, image_url}) => {
+                return (
+                  <tr>
+                    <td>
+                      <img height="50" src={image_url} />
+                    </td>
+                    <td>{name}</td>
+                    <td>{tagline}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
   }
 
   render() {
-    if (!this.model.beers) {
-      return;
+    if (this.isLoadingBeer) {
+      return <div>Loading...</div>
+    } else {
+      return (
+        <div>
+          <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>Have a beer</button>
+          {this.renderTable()}
+        </div>
+      );
     }
-
-    return (
-      <table class={styles.beerList}>
-        <thead>
-          <tr>
-            <th />
-            <th>Name</th>
-            <th>Tagline</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.model.beers.map(({ name, tagline, image_url }) => {
-            return (
-              <tr>
-                <td>
-                  <img height="50" src={image_url} />
-                </td>
-                <td>{name}</td>
-                <td>{tagline}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
   }
 }
 ```
@@ -325,7 +345,7 @@ And use it in the main app:
 import BeerList from "./beerList";
 
 export default class App {
-  constructor() {
+  constructor () {
     this.beerList = new BeerList(this);
   }
 
@@ -334,13 +354,17 @@ export default class App {
       <div>
         <label>What is your name? </label>
         <input type="text" binding="this.userName" />
-        {this.renderUsername()}
-        {this.isLoadingBeer ? "Loading..." : this.beerList.render()}
+        {
+          this.userName
+            ? <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
+            : undefined
+        }
+        {this.userName ? this.beerList.render() : undefined}
       </div>
     );
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUEABQAJQeQ8TAUAo2noIZxnvIMTBkDAgKqTF2kUAFEXaUF8mXmsaRcD6uAqaiSjBaFu5cBQ2a4MwAVhbstw7Lk6Qnl2cQAOp9O82lMEoJDVQlzIwAA_OkDStTgTW5J4FjsNm7wSaopxUNYgEgEwaDghYxLLZFcAoNmIIAHJDXMCz1aIwCZftBVWLgIwgkynTBQhu65Fde0oNpGkkFk21qWoTCjWwP1_WQxIoJDcwCNd0WaWlKC3WoL0XTcBxNdlcivSwSO4CaKzIyFr44zw1W1ajjUXbsCgqj0TlwIMwD8YJdg4FAJCGHE-ODvawlWmanKWt4SwqlN7TdAoXBgKcADEczkI5ECEozZWDHETAZZ9kVWAA4lwPDbUw8UUD5MBBZzVOiEdNiAW97SYWLaN3GFmPVnlJOFQ9ahPTAZXE0cYAa7Dh1qCdnRExdlVkxrlt7OjlsNejoT9QA5FwCVAlRTCALwbgBVO_ulqRh5wfHUNhhO2L005hQ_kKc19dMArUBKwSKshWr4WfbyAO4HAKN2_X-xwFgsAnB9UXfb9-zgz32MNywlfNSaGByln2BqAnY3V7Xi8Vxdru5HPr1yNRSiNkw3eGX3Ee7lYsBUJ3UXr73OWiLDk9g8SPdG-FptmbuXl3gLglGQAYP8MCAg9O8MAPBeh1XZDXdgcBEANEwuwCAKA5pkCJOg6S2gGgSDHAZeUbAD5v0-s_Gi8UIFQKYMA8gAwcLkGCv_XI784Cg2nl_QyP8bJQAGK_Y--VqB3T9mFKONUY52w6B6MgcRx77W1jAPW6l8jgyBo_G6Ii1DFS2GVGGn1cb4yyITcuDR3QWAxoIowiEzAoX-ECEExCjII2hHhZALgCLuFoEpXiTBKLUVooLESfM9ysVXKZLipE_HM3gLpESbAxKxP2jJOSeULLKWsrZeydNqI0R7rFcqLBAE-T8oFO0d8b5sM-hU8o8ValQGsXXOh2jcBiN3BAQOAVvCwwaXDXuVTmoSLIK_XKzSSZVUkXVaRgo0CwFybJRmyT-mxQtgPPIywsiL12CbbZ7QIrzD2TshQcQw4wEaBFI5Gy4jBBJM3RKFyTmbwubgXeTRNmrHWZ4CgmxtibwUSgPplDAXnACgFYAg1OjSHCnciwMBoUkRJDAAA-tVOMhh27q39vPYZUj5712-a8zeBKKCfPxfimaWhiQxBgBAYk9hTgAFYpzrR-IzRFpJUW4CgIYQ5xLmoXLJeSgVpL5E-zMaK_l01RVXVhYlCVQrhVjV2fysh88MVzwJU0X5jsmgj1aC7JpxgkL2LQk48EvpoT4TcLScw0T3gdiwHOXs_ZoBDkiYpe1_iqI0QLiEvSLFgmHnkr494bl2DxOYiAMSWEOJ5T9VoFAWEREBU0PgbMnRKDoBKtCxKyVw3BVdjiZCBBUKOIwss1J1rCK0EQMSdmmAoABV-YMsABFJg2S0NAJQAg2DczlPkfA3RrbZhgDIVyLwMBQGhcPUB_I1CdPkkI1mPMinhRtpME21Q4BttwFoAQ2YLhqCHQImxCkVlpTXbUDQahRQkEHOcAYAhSAPqQTAJdeUL06RNleqCd1Ji1BrtoAQKp2DWA-Pe44TBm70ooMSLgSgP3nufoU0lO4v0LQUGuvE6guEgfVGBpDJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeghnGe8gxMGQMCAqpsXaRQgWRdpwXyZeaxpFwPq4CpqJKCFYW7lwFDZrgzCBeFuy3DsuTpCeXZxAA6n07zaUwSgkDViXMjAAD86QNG1ODNbkngWOw2bvBJqinFQ1iASATBoOCFjEitUVwCg2YggAcsNcwLA1oivi1ohZQdR1qKdLK7jdLBjXsBxxKEA0AORcIlQJUek3nkMScT7pakaNCDZBgx5d2HSdw2GDcn2XTdAjZj6kBJfmL2iAh-MsMACMPbgT0wEwY0I9gmnpSghVWLg5WY9jFgwOohM3ajdzhTlchc0wjNqCaKxqOV11CzwNV1ZdH280T6QKCqPROXAgzAPxgl2DgUAkIYcSi4O9rCVaZqcpa3hLCq03tN0ChcGApwAMRzOQjkQISGvlYMcRBQjUVWAA4lwPA7UwCUUD5MDBQb6OiMdNiAYrjQYLbPPNfz1b5Swwu4CMIJMp0EvhRAYD-_tiOPcNoWS7n0u1UF8fy7bM1Nd92Z_ZTZCA90ngw2DEPaFD4kArDfsk5XZMUyjDRNfHuw5hQ_kKa9LXu1AnsEt7oW-xFle8mp8ohYLa8sPscBYLAJyT9F2kaSQWQ7UfuCn69rctSaGBykDtO_oruw_gLRXh_DOl0s65EFoTOQ1ElCNiYIfQycAS67isLAKg-9op_zgLlW6ld76P32LDF-EcIrRzMruLy7wFwSjIAMUhGBAQeneGAHgvR6rsmXuwOAiAGiYXYBAFA80yBEgEdJbQDQJBjgMvKNgEC8FYKQQwphBQpZwFoQMHC5AQoUNyAjAhT9iGGVITZKAAxcHQIKtQJmKDchVRlk3fGHQPRkDiLfA6gcYAh3UvkWGVNMEHTziVLYLMAkM2sSLMWzNY6NHdBYTOFijCITMChf4QIQQyKMvTaEeFkAuAIu4WgSleJMEotRWiFsRKmz3KxVcpkuKkRKVreAukRJsDEs0g6Mk5L5Qsspaytl7Kq2ojRF-cUKowLgHA_ACCeAv2QbXcKaCeCUxpkg3BLB9FwAfoY4kJDI7kJzqIKhaiNGUwSow5hDE2EKA4fYCg3DeH8MEcI0RgixSSOkdguRGywnYOUVcmh5BNEUjIDoo5mz8HbMIc_YxCVTHmIFkcvOwQr4wFsaIMuFdFHykWfjexjd6op3ngAvIaLhmyQ1p0mKdMBRx1JbsSKKwP7cyjiy16nhIrzHZayhQcQKaNEijylqnK-WouJJvJKgq-ULxFU0XAwrpXMtlYyzY2wVVXTWfKFA7p2CBUCsAIuMBpARRJJK41Rx3SkgAPo1SgIYXeE8NV2IbrLBlHK2XOo9asd1Z90gkWJDEGAEBiT2FOAAVinBtH4GsSIkhgLa3A9ruVeu5k0H1fq_WcuyIa5GgqM2ZrXtmtxgoJXs1nhQAthaZryuFbkYKXqHVvyLU0NV7LBVotAXPNG-N5F5WzqvKWRUMUsCxZlKFOyiF7MMnim6BLmAt0nTtFAK6wG7kMEwHA9C65S2qoS5uJKs1LxXkwDeW8d4Rz9gjRBx9Y5MAvmim-Wyl1GLUAbL-P9uh_0aMe8g7L3HhKKqitAsAT7N27QrG6fbgJIvgjiZCBBULpIwuCX00J8JuFpOYRp7wOxYDnL2fs0Ahz1MUjh0pVEaJDytNUlilTDzyWKe8Ny7BWnMRAGJLCHF8rUZQFhaxgVND4GzJ0Sg6BSomqSilFjIUs7wdSWhDJ1LukYcIrQRAEqSCYCgIFNVs6GIEUmDZLQ0AlACDYEbOU-R8DdETtmGAMhXIvAwFAE1l86H8jUGXeSlidbGwqpspOkwo7VDgGAKCWhMYXDUDZxF8F8o0qyTpV8tQNBqFFCQQc5wBgCFIFl7hMAfMJb_uMqOAXNpQSZpMWoy9tACBVOwawHxMvHCYJvUNFBiRcCUEVhSiXSvqB3P19K-9yt4nUFO-r6pGu9ZMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 Note how we pass the app object itself into the `beerList` component to act as a source of state (model).
 
