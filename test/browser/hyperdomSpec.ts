@@ -618,6 +618,17 @@ describe('hyperdom', function () {
       expect(find('div.one > div.two').text()).to.eql('text')
     })
 
+    // not sure if this test is needed
+    it('renders false as empty string', function () {
+      function render () {
+        return jsx('div', undefined, false)
+      }
+
+      attach(render, {})
+
+      expect(find('div').text()).to.eql('')
+    })
+
     it('renders view components', function () {
       class CoolButton extends RenderComponent {
         constructor (readonly properties: any, readonly children: any) {

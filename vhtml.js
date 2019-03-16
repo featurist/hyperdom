@@ -17,6 +17,10 @@ function h (tagName, props, children) {
     props.key = undefined
   }
 
+  if (props.innerHTML === false) {
+    props.innerHTML = ''
+  }
+
   // support namespace
   if (props.hasOwnProperty('namespace')) {
     var namespace = props.namespace
