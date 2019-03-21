@@ -62,6 +62,10 @@ module.exports = function (tag, attributes, childElements) {
     attributes.className = generateClassName(attributes.className)
   }
 
+  if (attributes.innerHTML === false) {
+    delete attributes.innerHTML
+  }
+
   return attributes
 }
 

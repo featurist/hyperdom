@@ -3,7 +3,7 @@ var isVdom = require('./isVdom')
 var Component = require('./component')
 
 function toVdom (object) {
-  if (object === undefined || object === null) {
+  if (object === undefined || object === null || object === false) {
     return new Vtext('')
   } else if (typeof (object) !== 'object') {
     return new Vtext(String(object))
