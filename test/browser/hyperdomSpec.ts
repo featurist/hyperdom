@@ -279,6 +279,7 @@ describe('hyperdom', function () {
     itCanRenderA('boolean', true)
     itCanRenderA('date', new Date())
     itCanRenderA('undefined', undefined, '')
+    itCanRenderA('false', false, '')
 
     it('can render an object', function () {
       function render () {
@@ -471,6 +472,16 @@ describe('hyperdom', function () {
             })
           })
         })
+      })
+
+      it('renders false as empty string', function () {
+        function render () {
+          return hyperdom.rawHtml('.raw', false)
+        }
+
+        attach(render, {text: 'one'})
+
+        expect(find('.raw').text()).to.eql('')
       })
 
       it('renders undefined as empty string', function () {
