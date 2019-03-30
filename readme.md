@@ -197,7 +197,7 @@ Note how we take advantage of that second render to toggle 'Loading...'.
 
 Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/beerList.jsx", "addToNextExample": true}}
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/BeerList.jsx", "addToNextExample": true}}
 import * as hyperdom from "hyperdom";
 import styles from "./styles.css";
 
@@ -262,7 +262,7 @@ export default class BeerList {
 And use it in the main app:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/app.jsx", "line": 3}}
-import BeerList from "./beerList";
+import BeerList from "./BeerList";
 
 export default class App {
   constructor () {
@@ -282,11 +282,158 @@ export default class App {
     );
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJfzqbgWnniA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeghnGe8gxMGQMCAqpsXaRQIXyZeaxpFwPq4CpqJKCFYW7lwFDZrgzCBeFuy3DsuTpCeXZxAA6n07zaUwSgkJViXMjAAD86QNM1OANbkngWOw2bvBJqinFQ1iASATBoOCFjEotUVwCg2YggAcgNcwLLVoivo1oiRdF-1qEdnRMAAZI96T1aEvUAORcIlQJUek3nkMScT7pakaNADZBAx5127bduD3TAhg3AcE2iAhu65MAMN7YdA1PS92PYJp6Xo5dyN3OFwVZcBch5VYuAmisaglRdTDlZV1VnXsKNnbsCgqj0TlwIMwD8YJdg4FAJCGHEjODvawlWmanKWt4SwqqjuzdAoXBgKcADEczkI5ECEiLJWDHEQXY1FVgAOJcDwm1MAlFA-TAwUy7zogHTYgEY-0mGo-TDVU3I6O09Q9MjCCTKdCz4UQGA1s7Tjd0DaFrMsOzVVBd73MUwHk1vZ931kL93SeBDQMg9oYPiQCkNW1jqdwwjSMNPV3u7DmFD-Qpl2XcbUCmwS5uhZbEWp7yanyiFpOD7k-xwFgsAnC30XaRpJBZJts-4Avi-a41JoYHKf1E7-ReB73_fHyHZ1h7uC8R2k1FKI2TAz4ZcAJ7uViwCoFPaKl84DUxYNjLeO99iQ33i7CK7szK7i8u8BcEoyADHgRgQEHp3hgB4L0Gq7I-7sDgIgBomF2AQBQDNMgRIqHSW0A0CQY4DLyjYE_XIhMf5YJwQUNm8B0EDBwuQTKOUuGpygbvWBhl4E2SgAMamr9s5R2ZpncKOdOYBw6B6MgcQN67VtjAB26l8iQyYMNbGdM1CFS2CVAQVjVEMyZrgeejR3QWFDkoowiEzAoX-ECEEbCjLpRwnhZALgCLuFoEpXiTBKLUVoirESis9ysVXKZLipE4li3gLpESbAxK5N2jJOSOULLKWsrZeygtqI0X3nFUqch36f2_nPdR_8cA8BgMA3aoDwG9JQFImBxI4Gu0QeI0QKCBFwCET0hK2DcEMQIQoIh9gKCkPIZQ6htD6HULFMw1hoCOEDO4fKXhSy0HkGERSMgYiB5XUkXAbe0jRmyISvIxR4dJnWNwMEVeMA_65CTinEBP8OmXU0Xna-Bdj67EFGgWAtTZIi2KTFYmAovbX0mpFFYcLGqeDdvismkV5jEoJZFOICNGiUu7oPQlCg4j_OJCPJKNLGV0smk0XA5L2V4s5XkTY2wBUsAMei3Au13TsECoFYAccYDSAiiSVlCqjjulJAAfUqlAQwE9m4itEFCmq2LF55B5QaklqwTWmvaCRYkMQYAQGJPYU4ABWKcq0fgixIiSGAWrcA6rJRaglTQrU2ptYS7IcqBodwoGG8Ni9I36MFCyiwiMaXxoTVyolwbgoGt1YfU1NKhX4ppQC--nceYB04Wjb5DzflAtECCwKkDnnQL3oZCFjUoWwpeSMlAA6H7PyYDgTBWcBEVVzsaxNXcTUbFmv3Jgw9R7jxdlbbGbSJXzyYMvAF69W19o7WoGWp9z7dEvo0W-5B8Vit-f8xFgLPb50rYXS6NbsrViMDiZCBBUKBIwuCX00J8JuFpOYbJ7wOxYDnL2fs0AhyZMUhB-JVEaK1ytKkliyTDzyVie8Ny7B8nMRAGJLCHEcroZQFhKOgVND4GzJ0Sg6AiqKqSilAjIUn7fv8WhIJaLSkgcIrQRALKSCYCgIFIVXawAEUmDZLQ0AlACDYHLOU-R8DdF9tmGAMhXIvAwFARVK8MH8jUEneSr8Jby1KhAv2kw3bVDgDJ3AWgBDZguGoDTXz4I5XFY018tQNBqFFCQQc5wBgCFIGF0hMALO-cvo0t2Nm1pQXppMWofdtACBVOwawHxQvHCYCPZ1FBiRcCUHFhSfn0oRXUDuarOlSWvjxOoEZ2X1S5cqyYQwhggA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJDRqZp2mASA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeg6m4FpOmDEwZAwICqmxfFFAhfJl5rGkXA-rgKmokoIVhbuXAUNmuDMIF4W7LcOy5OkJ5dnEADqfTvNpTBKCQVVJcyMAAPzpA0LU4I1uSeBY7DZu8EmqKcVDWCZTBoOCFjEktUVwCg2YggAcoNcwLHVoivk1oiRdF-1qEdnRMAAZI96QNaEfUAORcElQJUek3nkMScT7pakaNADZBAx5127bduD3TAhg3Ack2iAhu65MAMN7Ydg1PS92PYEZAro5dyN3OFwXZcBcj5VYuAmisailRdTAVVVNVnXsKNnbsCgqj0TlwIMwD8YJdg4FAJCGHEjODvawlWmanKWt4SwqqjuzdAoXBgKcADEczkI5ECEiLpWDHEQXY1FVgAOJcDwm1MIlFA-TAwUy7zogHTYgEY-0mGo-TjVU3I6O09Q9MjCCTKdCz4UQGA1s7Tjd2DaFrMsOz1VBd73MUwHU1vZ931kL93SeBDQMg9oYPiQCkNW1jqdwwjSMNA13u7DmFD-Qpl2XcbUCmwS5uhZbEWp7yhm4HAIWk4PuT7HAWCwCcLfRdpGkkFkm2z4vS-a01JoYHKf1E7-ReB73_fHyHZ1h7ui8R2k1FKI2TAz7F8-Z-FViwCoFPaKl84DUxYNjbeu99iQ1ni7CK7szK7i8u8BcEoyADHgRgQEHp3hgB4L0Wq7I-7sDgIgBomF2AQBQLNMgRIqHSW0A0CQY4_g_zYE_XIhMf5YJwQUNm8B0EDBwuQLKuUuGpygXvWBsV4E2SgAMamr9s5R2Zn_cqPAOZ5wDh0D0ZA4ib12rbGADt1L5EhkwEa2M6ZqCKlsUqAhrGqIZkzXAC9GjugsKHJRRhEJmBQv8IEIIDLpWMjhPCyAXAEXcLQJSvEmCUWorRFWIlFZ7lYquUyXFSLxLFvAXSIk2BiTybtGSclcoWWUtZWy9lBbURorPDKZU5Dv0_t_eUCddwAJ4DAYBu1QHgL6SgKRMDiRwNdog8RogUECLgEI3piVsG4IYgQhQRD7AUFIeQyh1DaH0OoWKZhrDQEcMGdw-UvDlloPIMIikZAxEDyupIuAO9pFjNkYleRijw5TJsbgYIa8YCdNyEnFOICf7qMujnTm18C7H12IKNAsA6myRFiUmKxMKBe2vlNSKKx4VNU8G7AlZNIrzBJYSyKcQEaNCpd3QeRKFBxABcSEeyVaVMvpVNJouAKUcvxVyvImxtiCpYIYjFc8UDunYIFQKwA44wGkBFEkbLFVHHdKSAA-lVKAhgJ7N1FaIaF2il6mryLyw1pLVg4rNe0EixIYgwAgMSewpwACsU4QAfC-MAEiJIYDatwLq8llrCVNGtba01RLsjysGh3CgEbI0MoTQYwUrKLCI1pYmpNgdiWhuCoavVh8o1NGFQS2lgL76dx5gHThaMfmPL-cC0QoLAqQJedA_esVIVNWNXC15oyUBDofs_JgOBMFZwEZVXOtVYVdxtRsOa_cmDD1HuPF2VtsbtLngvJgK9AUb3bQOrtagZan3Pt0S-jRb7kAJeKv5AKkVAs9vnathdLp1pytWIwOJkIEFQkEjC4JfTQnwm4Wk5gcnvA7FgOcvZ-zQCHFkxSUGElURorXK0aSWIpMPPJOJ7w3LsAKcxEAYksIcVyphlAWEo6BU0PgbMnRKDoGKkq5KqUiMhSfr-gJaFgnorKWBwitBECspIJgKAgVhU9rAARSYNktDQCUAINgcs5T5HwN0X22YYAyFci8DAUAlWrwwfyNQSd5KvwlvLMqEC_aTDdtUOAcncBaAENmC4agtPfPgrlCVTTXy1A0GoUUJBBznAGAIUgEXSEwCs_5y-TS3Z2bWlBemkxah920AIFU7BrAfHC8cJgI8XUUGJFwJQCWFIBeMhFdQO5as6TJa-PE6hRm5fVPl6rJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-Both the top level app and its child component live from the moment the app is mounted until the page is closed/refreshed. Render events don't recreate those objects. That makes keeping app state a mere business of assigning object properties where they make sense. It's just javascript - no framework involved.
+Both the top level app and its child component live from the moment the app is mounted until the page is closed/refreshed. Render events don't recreate those objects (that's the crucial different with React). At the same time, hyperdom always calls their render functions no matter which particular component requested rerender. Those two properties combined make keeping app state a mere business of assigning app/component object properties where it makes sense. It's just javascript - no framework is involved.
 
 ### Routes
+
+Routing is essential in most of non-trivial applications. That's why hyperdom has routing built in - so you don't have to waste time choosing and implementing one.
+
+We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
+
+First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/index.js", "line": 2, "addToNextExample": true}}
+import router from "hyperdom/router";
+import App from "./app";
+
+hyperdom.append(document.body, new App(), { router });
+```
+
+Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/boors` (`browser/app.jsx`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/app.jsx", "line": 3, "addToNextExample": true}}
+import routes from "./routes"
+
+export default class App {
+  constructor () {
+    this.beerList = new BeerList()
+  }
+
+  routes() {
+    return [
+      routes.home({
+        render: () => {
+          return this.hideGreeting ? this.renderBody() : this.renderHeader()
+        }
+      }),
+      this.beerList
+    ]
+  }
+
+  renderLayout(content) {
+    return <main>{content}</main>
+  }
+
+  renderBody() {
+    return (
+      <div>
+        <label>What is your name? </label>
+        <input type="text" binding="this.userName" />
+        {
+          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
+        }
+        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
+      </div>
+    )
+  }
+```
+
+The original `render()` method is gone. Two other special methods - `routes()` and (optional) `renderLayout()` - took its place. The former one is where the magic happens, so let's take a closer look. In a nutshell, `routes()` returns a "url -> render function" mapping. A particular render is invoked only if the current url matches. The "key" in that mapping is not actually a string url but a route definition. `routes.home()` in the above example is a route definition.
+
+We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/routes.js", "addToNextExample": true}}
+import router from "hyperdom/router";
+
+export default {
+  home: router.route("/"),
+  beers: router.route("/beers"),
+  beer: router.route("/beers/:id")
+};
+```
+
+A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
+
+There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/BeerList.jsx", "line": 2}}
+import routes from "./routes"
+
+export default class BeerList {
+
+  async onload() {
+    this.isLoadingBeer = true
+
+    const response = await fetch("https://api.punkapi.com/v2/beers")
+    this.beers = await response.json()
+
+    this.isLoadingBeer = false
+  }
+
+  routes() {
+    return [
+      routes.beers({
+        render: () => {
+          return <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
+        }
+      }),
+      routes.beer({
+        bindings: {
+          id: [this, "beerId"]
+        },
+        render: () => {
+          return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
+        }
+      })
+    ]
+  }
+
+  renderCurrentBeer() {
+    const beer = this.beers.find(beer => beer.id == this.beerId)
+    return <img src={beer.image_url}/>
+  }
+
+  renderTable() {
+    return (
+      <div>
+        <table class={styles.beerList}>
+          <thead>
+            <tr>
+              <th />
+              <th>Name</th>
+              <th>Tagline</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {this.beers.map(({id, name, tagline, image_url}) => {
+              return (
+                <tr>
+                  <td>
+                    <img height="50" src={image_url} />
+                  </td>
+                  <td>{name}</td>
+                  <td>{tagline}</td>
+                  <td><a href={routes.beer.href({id})}>show</a></td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+}
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMAQBXfJkYkyBkgCRqOAQcistgARhQAAZNTK0mwrAjXvllUg2QAJFRqTRaJi-GBaEhMABSFR1YhAWgwFhV5ksNjsmNdbINbxhAgYaTdAqF3rxZSgR19tmSTEmkxIqjIgbdaDF0HUMdK-HKObzCYh_scujSpllVgzVjI-Ag8FZ4dybEw2Cgk3YJCgSkgUCg3oAbCgAExjjVZtmdnA9rgDPkcy3ab3qgAs2pAsgjbJXXJ0JrYUAwVAFVZYNd1ICsElt9eoTZbJrb8g4hfnOcssFw3tP54UJeTDXm6BIwEogIkBooZCAYZDGKYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWi9rg7wAFRMBgcAxBah5MGAALWoo9FWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlxZA8dB7wAEIwGoAAyEACoxzGiQ0qkaVpQEgPJinkUw4rnjpIlsGJlkvmsZA2LxTBWGAGBilA7z4KeslMAAghcTBvq4Aq4GK-AUNBTAABQAJTBQ8TAUAoWnoGpuCadpgxME5gJMAZmVGfFciGI5LD2XA8WJXuXAUGKuDMMIe4VSQEpSQo2gwDFb65BV1BWLgAjVYMcQ1X1fV1Q1zApWlqVWAA4lwPAWMSTAAPzJalcAoFwvq4MpqJKNVAizTte2DaaKxqCVLWiGVd2GHFu4TWd6WGRee7wVe5UWQNGkYEobUUDF1LuAlvV_fVjXpB6FhxMAYOUIYjRw2QbQPXIF1qIdWzVZDU0wzFSW7LcOx9Z4p5dnEADqfTvFpTBAw1uXMjAm2NFTODk7kngWOwErJRapxUNYxlMGg4KrSL20oGKIIAHJs3MCwk6IkOvbL8tqErnRMAAZPr6Rk6EbUAORcLlQLUekYXkMScQHlaUaNHbUpjcAb3a7guswCjDRk2rP13Swnta4rbMG0bnjdAoXBgIMwCVe9uA7XHMBgPFhhxKaGDyjb2BqI0GBxA9E03Ac5NxaVv3Y7gV1ZDdENJYTzDE3deyV0H6QKKqPS-XAif8YJdg4FAJDZ1dQ4OsJ1rmpyVreEsqo8-0sfx6cADEczkD5ECEonI1jTFb3zTAS1qZKa05RQ4UwHF2fdywCs2EBIfpJhq8V3cSVxfJwcPRxMhAgqEgQgn0hlLKFAcJ4WQC4Ai7haBmUotRWiTsRKz33GxNcJluKkSUh8CSglrIsRAGJYeUkZJyTwS5SqJC9KVSrIwZyBC3IeS8v3GitFCpQJqnIGiShGxMHIOPLI-MkpvS0upEgWRVqFSYDfO-v0WChXeIuXsZABgKOooCT07wwA8F6MTdkFAKDsDgIgBomF2AQBQALMgRIbHSW0A0CQ44_gZRhNXPcb1C6p20RgXRBQ_pwA0QMHC5BboSNllImR-wpTyJyu5KAAwa6ZjSJVcRtUeDTSEGrZOfiqoa1EHXYaCVRrjQmiUnJMNO53DDmlWJsiEkZQ2myaRzTiQoG6XMU6ss67BCwLALO39V7Bwmk9F6k1gZST8T1buktLCrQsZUqpRx1ACEEGdaQs4MoAEl8wgG-lU0CVTSmxXKR7J-UNcl1IRpIuAHT4nEnkZtNgTzVrdJQL0raaU66BAantCghURkBy7u_MufUnpJWOZjDJ_1cAAtwECkFzc9yqIlq0m-stCkoEgJYGKfiFFjT8SgY4CjsVpT8Qc7xuRW7pBImtH4idSUkRJDAAA-g1KAhhVbVlrgiwZaBhlorpTUtuas7nd08IKYVMBOGySHkQ2ZkCjKP3frsFKKwxkU1vjq8uKV5j6t1QoOIvtGgpWNbzS1gziRQAsDAC1prrnWoUEal1H89XXKddq71FBNjbA9Q0nauKPTsBij1Y4OymSdB2YKO1DqdlstJFy3APLLmrLWdU6GEqNVVJlbgK1-aKCrDzVmhlWg1rLAgMSewpwACs04QAfC-MAZNnLuWGHdWW_NTRS3lrWTK7IwAY1-wtf2gdBrh3xvtU5f2Jai1TuuOvDOicCkZTsPHSN6gnrZzgJ1QExc4QLo9bzJohbT1MFpQO3d3qmgBp1RaoZrRJVgp_nua9D1AFIRQv8MBGFwR-mhPhNwtJzD4PMh2LA85ez9kHMOXBCkIMoJonRBeGDdKsXQ0eUyyGLIzNwPQrDq4tANHsn-RDyCApBUwbZaxlxEOMHQVoFAWEBoxU0PgMUnRKDoCOtGmA-VArhuesFfD7VCNPXkkA39aFwHJ2A3ApGRFwO0II0R9k2DSPkc4o5Fh5k2GeXeG-TqnQBDkd2jM4xDQ2DPTkIU8zBHLPtWs4U2zUy_GOYk85qgrnPENEQMcWzRgOIyZAX-9CoIKE7SoSBwitBEB2pIJgKAhKjqisYgRSY7ktDQCUAINgU95T5HwN0F-YoYAyACi8DAUAdlwGqHAfkagIBgHknC0e09Kmiz5LfRrYBoJaAEGKC4ahSsDHa45FOvC3y1A0GoSYpAhznAGAIJbp5zEwEm-k6bRlkqEdm9BQakxaimO0AIVU7BrAfD7OS-1taKDEi4EobbjBdvaRLbud77xDVvjxOoZ5F2NRXe2yYQwhggA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+When beer table page is visited for the _first_ time, `onload()` method is going to be called. In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+
+Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property.
+
+Learn more about routing [here](#Routing)
 
 ### Testing
 
