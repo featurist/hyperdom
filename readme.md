@@ -33,10 +33,10 @@ Open `http://localhost:5000`
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx", "addToNextExample": true}}
-import * as hyperdom from "hyperdom";
-import {hello} from "./styles.css";
+const hyperdom = require("hyperdom");
+const {hello} = require("./styles.css");
 
-export default class App {
+module.exports = class App {
   render () {
     return <h1 class={hello}>Hello from Hyperdom!</h1>
   }
@@ -46,12 +46,12 @@ export default class App {
 It's mounted into the dom in `./browser/index.js`:
 
 ```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js", "line": 1}}
-import * as hyperdom from "hyperdom";
-import App from "./app";
+const hyperdom = require("hyperdom");
+const App = require("./app");
 
 hyperdom.append(document.body, new App());
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoYLxuSCDIC45A0h4dIQFoPa4O87ZYHOPZ9gOQ4gAA3IwxGke8ABUTAYHAMRmgeTBgAClqKDxFpsIxZDMVB7wAIIXHxAlsigDTnJcDFrGQ-4WigynUOoAAUmj4FmnSUOgqJKNITBkDAgJMDJ7C6QAlA5Yk4shBCoUCILwhQSiwHAKD4HAOHEPh7i0IgxJQCQmBQLpmxKA5TCvmA-GTGAzLQEoAhsMaOCyvk-DdAAcjAWYwDItkvBgUAWXA1RwPyagQGAYkIemZB2DgUVJXIVDWHyFC4PVKW4FoAhZhcaiFQMrVqegMBqAAMhAAo9WktQaGokykIO5wDAIO0nuwM1GHN2BLSt7yDWtLAbVYuCTLUFAUNoAjKuw1gfL2xxMFAEDEvYxJcEos3tfNF2rRQ6g7uDuDLZDCg3UweLqPsZDEm9aofaDrkof8nkYcp2HWFSoW0uYJGSUw7GcdxnIWnJ2h7sJq6qeJlNkUlyyDiQhiM4JICKQKvnwAFQWiWpNgsUwVjpVmUDvPgJ5BbZsmvlw3q4EwjlIywXAUFmuDMEkyo9MrcCDMA3NRYYcS5Tz_NMKa9PaN4SzKm0bXGIYPtAA&query=module%3Dsrc%2Fbrowser%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoYLxuSCDIC45A0h4dJcAAjjmXAABTtlgc49n2A5DiAACUADcjCuAKMRmgeTCDEwJFkTAlHslxFpsCxbHkBxACCFw8XxMCkRAFFsCgDTnJcTGsemZD7haKDqdQ6jkZo-BZp0lDoKiSjSEwZAwICTAyew5GMeJZA4shBCoUCILwhQSiwHAKD4HAOHEPh7i0IgxJQCQmBQORmxKIxTCvmA-GTGAzLQEoAhsMaOCyvk-DdAAcjAWYwDIjkvBgUA2XA1RwPyagQGAWkIdpdg4LFqVyFQ1h8hQuBNeluBaAIWYXGoJUDB1axkOgMBqAAMhAHGvrUGhqJMpCDucAwCHtJ7sHNRgLUtq3re8w19WkW1WLgky1BQFDaAIyrsNYHy9scTBQBAxL2MSXBKPNXXYFdHEUOoO6Xbga3Qwod0sHi6j7GQxIfWqX3gx5KH_D5GHqdh1hUhFtJ4WQHG6docn8UpgmKCJq6aRJ1PvMAyyDiQhj0wpAlCapAoBfAwWhWJWmMLa6hZrAKA2D2uC8HJ-AnqFjmya-XDergTAuSjohcBQWa4MwSTKj06twIMXM9bzcQFTzTBgAClqmpyFreEsyptJ1xiGIHQA&query=module%3Dsrc%2Fbrowser%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 ### State Management
 
@@ -89,7 +89,7 @@ module.exports = class App {
   }
 }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxcJOADA5u4sGFEVRewC1An1yxkCgV2NCdjkIVWaxpGZVi4C5wWOYdkXpG6FhrcA_Uyc9aiWVkNm2fd5UND9ZBtPd904shBCoUCIJgvGOH4W4tLmKRUHvO2WBzj2fYDkOICKTxeNMFRNF0YVeVMXlrH04eFO4-RhnGYzLEgOJWGcY9-4WigWHUOo1maPgWadJQ6Coko0hMGQMCApz7B2bZikIyh_woxhApSfAsnyZjhG0IgxIZZgUDWZsSjvWkYAEZMYDMtASgCGw2Wyvk-DdItM0yIZLwYFAitwNUcD8moEBgIp92MHY6V2q-VDWHyFC4JHTu4FoAhZhcah-wM8ePego24AAMp5fFyLUGhqJMpCDucAwCM3J7sCXRhl9gajVwKU17Sw9cvZMtQUBQ2gCMq7DWB8vbHEwbXEvYxJcEopdKeX_c1316g7jvVd7-5w9MHi6j7ONM9qnPW8mIYhhAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvMAyyDiQhiUdRMB0RAjFsCg8IUEosBwCg-BwDCnFrGQtrqFmsAoDYPa4Lwwn4CeSlMAAghcTCvlw3q4MaKxqAxbEWQ8RxgEwDHeBQCgQPJXlWAA4lwPAWMSjmvrkXAUFmuDMHsBw7Lk6QKMqPRGXAgx8TgUCCXEtkCUwYAApapqcha3hLMq8W5J43QKFwYCDAA5AAxA1TDkIZECEulDmUXETCed5djHDAAUwEFZDEsJFC4FmMCGHEAByNgUI0GCVekDS3PFQk4AMTm7iwEVRTF7CLUC_XLGQKDXY0p3OQhVaqYd1BWLgbmhc5R3RekboWOtwADfJVmvbZWT2WxD1VQ0v1kG0D0PTiyEEKhQIgmC8Y4fhbi0iAtH0TATEgLOXY9n2A5DiAKkNuQpH7hawl4-JBPMSVq6U1x1NkKRZnsAzon44TUlYexHOMHT2goFhL0MZo-BZp0lDoKiSjSEwZAwICpkXA5VOIyh_yoxhAqyfAClKVjhG0IgxJZZgUAMZsSgfWkYAEZMYDMtASgCGwuWyvk-DdEts0yKZLwYFAqtwNUcD8moEBgBzD2MHYmV2q-VDWHy00x67uBaAIWYXGogcDEnqnoGNuAADLebxci1BoaiTKQg7nAMAitye7Bl0YFfYGotekdN-0sI3r2TLUFAUNoAjKuw1gfL2xxMFAEDEvYxJcEo5fpldA813X_XqDuleD0fnmj0weLqPsE1z2qC-7yYhiGEAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
 
@@ -103,7 +103,9 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
   renderBody() {
     if (this.hideGreeting) {
       return <div>
-        <label>What is your name? </label><input type="text" binding="this.userName"></input>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
         {this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>}
       </div>
     }
@@ -116,7 +118,7 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
     </main>
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7zAMsg4kIYjHMWyKDwhQSiwHAKD4HAMJcemZC2uoWawCgNi8bRgw9Ce8lMAAghcTCvlw3q4MaKxqAAFAAlCZDxHGATDWd4FAKBAMkeVYADiXA8BYxL2a-uRcBQWa4MwewHDsuTpAoyq6TRcCDPxOBQEJcSWYJInaEwpqcha3hLMqsW5J43QKFwYCDAA5AAxLVTDkPgUAQISqV2UwgxxEw7meXYxwwH5MABWQxLdX1uBZjAhhxAAcjYFCNBgZXpA0tyxQhVZrGkZlWLgABCqJKF1IVOS5_VeUNI1jUFDm7iwYURVFm2OeVJ6dnEADqfTvJ5TBKCQEVMEynQAPzrZ9ODXBY7BZu8kmqKcVDWIBIBMGg4KBSjHkyVmILzcyMBXI0cMI2tLDAFdKAE2oROdEwABkTPpJtoTA7VXCg0C1HpAKALjXE-4WhGjQC-QxK9dTeO04TxOGDcMXbXF61vbuKvAbtT3UAdZ2Oc9kXpG6FhrTLA37WollZDZtma7k5syZbR0nXZ9vrSbZBtNt204shBCoUCIJgvGOH4W4tLmKRUHvO2WBzj2fYDkOICKTxMdMFRNF0YVeVMXlrG54eafR-RhnGfnLEgOJWGcbtIvaCgWG69Zmj4FmnSUOgJ3SKDMCAuX7B2bZil-yh_xBxhApSfAsnyeHhG0IgxIZZgUDWZsSjBXIYAEZMYDMtASgCGw2Wyvk-DdItM0yIZLwYFAvdwNUcD8moEBgIp22MHY6V2q-qM-QUFwC_XeuAtACCzBcNQl8Bhf12ugUauAAAynk-JyFqBoNQkxSCDnOAMAQuCTzsDgUYBB2A1CoIFFNB6LBMEHUmLUCgFBtACGVOwawHxezHCYG1Yk9hiRcCUPApSiDKFoL6uoHcYiUESPcrQpgeJ1D7HGmwtUHCREmEMIYIAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvMAyyDiQhiUdRMB0RAjFsCg8IUEosBwCg-BwDCnFrGQtrqFmsAoDYPa4Lwwn4CeSlMAAghcTCvlw3q4MaKxqAxbEWQ8RxgEwDHeBQCgQPJXlWAA4lwPAWMSjmvrkXAUFmuDMHsBw7Lk6QKMqPRGXAgx8TgUCCXEtkCUwYAApapqcha3hLMq8W5J43QKFwYCDAA5AAxA1TDkIZECEulDmUXETCed5djHDAAUwEFZDEsJFC4FmMCGHEAByNgUI0GCVekDS3PFCFVqpLBWVYuAAEKokoPVhS5bkDT5w2jeNIVObu-08FFMVbc5VUnp2625AA6n07zeUwSgkFFTBMp0AD86QWOwWbvDJqinFQ1iASATBoOCwXI158lZiCC3MjAVyNLD8M_RtX04BTwDXSg-NqITnRMAAZCz6RbaEoMNVw4NAkw3SeAKAITXE-4WhGjTC-QxJ9bTuP0wTROGDccU7QlG3vbu6vAXtInWedzkRa96RuhY63y4NB1qLZWT2WxOu5Jb8nW8dp0OY7G1m2QbQ7TtOLIQQqFAiCYLxjh-FuLSIC0fRMBMSAs5dj2fYDkOIAqQ25CkeL2jCbH4nx8xJWrhnXFZ2QpFmew-eiXHCdSVh7Hl4wudaCgWHUOoDGaPgWadJQ6CndI4MwICpkXA5mcByh_whxhAqyfAClKZHhG0IgxJZZgUAMZsSihXIYAEZMYDMtASgCGwuWyvk-DdEts0yKZLwYFAI9wNUcD8moEBgOXO1GB2EynaV8KM-TTS_sfXAWgBBZguGoe-AwAGqXQGNXAAAZbyvE5C1A0GoSYpBBznAGAIIhJ52DIKMKg7AagsGkWmo9FgeDDqTFqBQCg2gBDKnYNYD4vZjhMCgBAYk9hiRcCUCg9MZA0F0Owf1dQO5ZGYPkZ5JhTA8TqH2BNbhapeFSJMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 Each time user types into the input, hyperdom re-renders.
 
@@ -130,8 +132,9 @@ The above examples represent _synchronous_ state change. Where it gets interesti
   renderBody() {
     return (
       <div>
-        <label>What is your name? </label>
-        <input type="text" binding="this.userName" />
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
         {
           this.userName &&
             <div>
@@ -187,7 +190,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
     this.isLoadingBeer = false;
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWg9rg7wAFRMBgcAxGaB5MGAAKWoo9EWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlx6ZkDYvFMFYYAYFmUDvPgJ6yUwACCFxMK-XDergxorGoAAUACURkPEwXAUFmuDMJZ9m7LcOy5OkCjKj0OlwIMwD8YJdg4FAJCGHE5mDnawmWqanIWt4SzKl5uSeN0ChcGApwAMRzOQ2kQISQU2UwgxxEwlkUAoEBwHYxwwAA4lwPAWMSFVMBQuBZjA1lRe53kAHI2IBu4ZZh6XpA0nn2dZ8mXmsaQmVYuAAEKoko5WviwjnOa5Q17Ac027CenZxAA6n07z1UwSgkM5TBMp0AD8M3nTgp3pBY7BZu8EmqKcVDWIBIBMGg4IdcDdUNVmILDcyMBzAsQ0sLt3ksLV9UoPDaiI50TAAGRE2j3nHXcZOYxTcShI9ADkXDPUC1HpAKAJkMScT7haEaNOz5Bc0Z2NwwjSOGDcJ1U-T2YUBQ5BMEVUAlQSZW2ZV3WwygvLrTAco2YYKn1VgsAnMAIsoPVAAyJBZB1utqINE2Y95xoYLKrPYGo0uTbL8tkN9k1zc7S0h8LWvW7b-ycw7uBMO9bA23bnMoKncwCBbq1qLHVv1RQBtHbNUu7gtcgIQpe3UGtOd5zt9kQGA1XeBbXu4HAtkY5XTkuYtojl_Z-0udVR2CmgsD-TRgXBRJoWt7nApOy7eTLFkgd5Lga-7LV8yb8vcQEzAjS1bvnjH8EJLK4pR8KGvR8b2T18rN9p-bNs0vm1rrcNW67CWZZwDPSRtIbqF8LAwGASREkMAAD6zlYyGHVlVTuLtB6HTDtTHqu8MoUFWOgpeP0tCdWWBAYk9hTgAFYpzgx-EFSBpJYG4CgIbVGeDqZNFwfgl2p9sjABejACW7CsHtBwXEc2oDFICJET7doTR76sKYKXPBCDy5LyPq_aaR8TatHmr3fuaQaJKAbEwHWes25113FYWAVBNY4y_r3LGEc4BJ2jsSWOXUep9XkvZVwAoHLwB7GQAYXUMCAndO8MAPBehuXZHLdgcBEANEwuwCAKA_pkCJMk6S2gGgSDHH8UxMJFG5BbgU4JoSCh-LgAEgYOFyA2S8buC2kdk6uNMV1NSUABi6LkFnXA5jcioOHs7Do7oA4fxxnVKwrU9b5E5vHGxDVembS2OVDOWtenmSyFZAajQ3QWC8kU4CRhEJmBQv8IEIIwTxhwvhNwtJzCkSgu8dsWA5w9j7AOIcIB5I8SeUwKiNE6JJREvFPcbFVzfO4o88i-lDKgrYGJLCnFlo820CgLCVdLKaHwFmTolB0BbWAYpQEsLf7WUUTiZCBBUIXIwiFKSMkEDIBcARdwtBEDEgipgKAllX4dzkGAAikw1JaGgEoAQbAYqynyPgboo0-oyH0i8DAUBgFwGqHAfkagG7yT0WFWKdk0ggz5D1DVgrcBaAEFmC4ahZVdOOQpdApj57vFfLUDQahJikEHOcAYAhvUnjiTAXVy0nVqBdd1OObqoJrUmLUOW2gBDKnYNYD4vZjhMGVqQigxIuBKBDY6ueedurqB3GG3AEbt6vjxOoFxSa1QpoLSYQwhggA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcWsZC2uoWawCgNg9rgvBCfgJ4KUwACCFxMK-XDergxorGoDFsWZDzCRQWa4MwTG7rstw7Lk6QKMqPQGXAgzAHxAl2DgUAkIYcTWYOdpgAClqmpyFreEsyrebknjdAoXBgKcADEczkPpECEsFdmUXETAMRQCgQHAdjHDAADiXA8BYxJCRQuBZjAbHRY5PlMAAcjYgEee0mGZekDReY5SlVspLAWVYuAAEKokolWvitPAuW5Q3pPNk27CenYzbkADqfTvA1TBKCQLlMEynQAPzpBY7BZu80mqKcVDWIBIBMGg4KdQD9WNVmIIjcyMBXI0X0_Zds3nTgqO7cNTB1Q1KAw2ocOdEwABkJNHcNewHKjlNeaET0AORcC9QJMN0ngCgCZDEnE-4WhGjSc-QPNmbj0Ow_Dhg3NTFPYxsP0UOQTAlVAZUEhV9mDNVYsoLy60wHKdmGEw-xwFgsAnMAOsNQAMiQWSdfraiDad2MsMaGCymzoMG7-ruU38CvkDTU0nW7CGu1bUMoLb9v7NzTu4EwH1sHbDvcygmdzAIOurWoic2w1FBG0d0t3AtXFLemaR5xtvuFwKO2ORAYA1d4OvYHK9lY3tzmuZXuQR45XB94dk2eIKaCwAFGAKcFoWyZ3uANxQLtuxPyxZCHE-4CHux1fMe95AocREzAjR1UfG9xMEJKq2Q59NCfsu7E0u-yxfm-rK7E-bNsL-i2jkvRqbp2AMQYsAF68NpA4zvhYGAMCIBulJAAfRcrGQwmtqo92xiPA6NUAFZR6kfIh383bkM-loLqywIDEnsKcAArFOEGPxgpIJJDANBuAoDGwWIQnyF8yEUIERQbIwBXowClk0IRwj2iiLiFbOBD8pHyP4a_Yh_DFoUMwRHdeTQ_4zQvubVoFc5BDzSLPJQDYmB619nAJuu4rCwCoDjIBdiB6iGtnANO8diSJ26r1GAldHI8WEnAHsZABhCQwICd07wwA8F6ExdkFAKDsDgIgBomF2AQBQN9MgRIclyW0A0CQY4_h2PYh4lgHc7HRNiQUMJESBg4XIHZYJu4vE-Mdr7ISYAMBQAGB43RwlLIONyHg1yBDx5ugsAonW9UrBtQNvkbmydXF41rptLYlUc7R1rtZLItkBqNFmWQbyWjgJGEQmYFC_wgQgjBPGHC-E3C0hALReiMBkmzi7D2PsA4hwgEWqEvm2ghKfLEt85iKVVzAsrqEky7AIUiS-ckySWEqnKTBVoFAWFqDqAYpofAWZOiUHQFtGBD9ATGQuHZRaOJkIEFQg8jCC9GryQQMgFwBF3C0EQMSSKmAoAMT_t3OQYACKTH6VoaASgBBsFirKfI-BuhjT6jIYyLwBkwLNpE_kagW6V3MeFOKDk0iAz5D1aocBJW4C0AILMFw1CqqGdc6u6B65F3NSwWoGg1CTFIIOc4AwBBBpPOkoJ7rGCerUCvHGSdXx-rWpMWoqTtACGVOwawHxezHCYKrOhFBiRcCUMa5Ssbl7etETuSt8aD6vjxOoXxma1TZvLWQEwhhDBAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
 
@@ -198,10 +201,10 @@ Note how we take advantage of that second render to toggle 'Loading...'.
 Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/BeerList.jsx", "addToNextExample": true}}
-import * as hyperdom from "hyperdom";
-import styles from "./styles.css";
+const hyperdom = require("hyperdom");
+const styles = require("./styles.css");
 
-export default class BeerList {
+module.exports = class BeerList {
 
   async getBeers() {
     delete this.beers;
@@ -262,9 +265,9 @@ export default class BeerList {
 And use it in the main app:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/app.jsx", "line": 3}}
-import BeerList from "./BeerList";
+const BeerList = require("./BeerList");
 
-export default class App {
+module.exports = class App {
   constructor () {
     this.beerList = new BeerList();
   }
@@ -272,8 +275,9 @@ export default class App {
   renderBody() {
     return (
       <div>
-        <label>What is your name? </label>
-        <input type="text" binding="this.userName" />
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
         {
           this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
         }
@@ -282,31 +286,31 @@ export default class App {
     );
   }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hA4pQe8ABUTAYHAMTmgeTBgACVqKHRlpsAA3IwJESrg7wCkosA0Yx2hsig8IUAJ8AoPgcAwpxGZkNxZFMAAQjAagADIQAKDFMaJDRqZp2mASA8mMDYPHvFYYAYNmUDvPgJ6yUwACCFxMK-rgCrg2b4BQUFMAAFAAlB5DxMBQCjaeg6m4FpOmDEwZAwICqmxfFFAhfJl5rGkXA-rgKmokoIVhbuXAUNmuDMIF4W7LcOy5OkJ5dnEADqfTvNpTBKCQVVJcyMAAPzpA0LU4I1uSeBY7DZu8EmqKcVDWCZTBoOCFjEktUVwCg2YggAcoNcwLHVoivk1oiRdF-1qEdnRMAAZI96QNaEfUAORcElQJUek3nkMScT7pakaNADZBAx5127bduD3TAhg3Ack2iAhu65MAMN7Ydg1PS92PYEZAro5dyN3OFwXZcBcj5VYuAmisailRdTAVVVNVnXsKNnbsCgqj0TlwIMwD8YJdg4FAJCGHEjODvawlWmanKWt4SwqqjuzdAoXBgKcADEczkI5ECEiLpWDHEQXY1FVgAOJcDwm1MIlFA-TAwUy7zogHTYgEY-0mGo-TjVU3I6O09Q9MjCCTKdCz4UQGA1s7Tjd2DaFrMsOz1VBd73MUwHU1vZ931kL93SeBDQMg9oYPiQCkNW1jqdwwjSMNA13u7DmFD-Qpl2XcbUCmwS5uhZbEWp7yhm4HAIWk4PuT7HAWCwCcLfRdpGkkFkm2z4vS-a01JoYHKf1E7-ReB73_fHyHZ1h7ui8R2k1FKI2TAz7F8-Z-FViwCoFPaKl84DUxYNjbeu99iQ1ni7CK7szK7i8u8BcEoyADHgRgQEHp3hgB4L0Wq7I-7sDgIgBomF2AQBQLNMgRIqHSW0A0CQY4_g_zYE_XIhMf5YJwQUNm8B0EDBwuQLKuUuGpygXvWBsV4E2SgAMamr9s5R2Zn_cqPAOZ5wDh0D0ZA4ib12rbGADt1L5EhkwEa2M6ZqCKlsUqAhrGqIZkzXAC9GjugsKHJRRhEJmBQv8IEIIDLpWMjhPCyAXAEXcLQJSvEmCUWorRFWIlFZ7lYquUyXFSLxLFvAXSIk2BiTybtGSclcoWWUtZWy9lBbURorPDKZU5Dv0_t_eUCddwAJ4DAYBu1QHgL6SgKRMDiRwNdog8RogUECLgEI3piVsG4IYgQhQRD7AUFIeQyh1DaH0OoWKZhrDQEcMGdw-UvDlloPIMIikZAxEDyupIuAO9pFjNkYleRijw5TJsbgYIa8YCdNyEnFOICf7qMujnTm18C7H12IKNAsA6myRFiUmKxMKBe2vlNSKKx4VNU8G7AlZNIrzBJYSyKcQEaNCpd3QeRKFBxABcSEeyVaVMvpVNJouAKUcvxVyvImxtiCpYIYjFc8UDunYIFQKwA44wGkBFEkbLFVHHdKSAA-lVKAhgJ7N1FaIaF2il6mryLyw1pLVg4rNe0EixIYgwAgMSewpwACsU4QAfC-MAEiJIYDatwLq8llrCVNGtba01RLsjysGh3CgEbI0MoTQYwUrKLCI1pYmpNgdiWhuCoavVh8o1NGFQS2lgL76dx5gHThaMfmPL-cC0QoLAqQJedA_esVIVNWNXC15oyUBDofs_JgOBMFZwEZVXOtVYVdxtRsOa_cmDD1HuPF2VtsbtLngvJgK9AUb3bQOrtagZan3Pt0S-jRb7kAJeKv5AKkVAs9vnathdLp1pytWIwOJkIEFQkEjC4JfTQnwm4Wk5gcnvA7FgOcvZ-zQCHFkxSUGElURorXK0aSWIpMPPJOJ7w3LsAKcxEAYksIcVyphlAWEo6BU0PgbMnRKDoGKkq5KqUiMhSfr-gJaFgnorKWBwitBECspIJgKAgVhU9rAARSYNktDQCUAINgcs5T5HwN0X22YYAyFci8DAUAlWrwwfyNQSd5KvwlvLMqEC_aTDdtUOAcncBaAENmC4agtPfPgrlCVTTXy1A0GoUUJBBznAGAIUgEXSEwCs_5y-TS3Z2bWlBemkxah920AIFU7BrAfHC8cJgI8XUUGJFwJQCWFIBeMhFdQO5as6TJa-PE6hRm5fVPl6rJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxOaB5MIMTBcAAjrmXAABSKORlpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcWsjbkKRABCMBqAAMhApFUbR9EwExICSRp2m6YBIBKRmZB2uo2awCgNgSrgvBCfgJ4KUwACCFxMK-PG4Nm-AUFBTAMWx_kPEwFAKLp6CabgOl6UwZAwICTBmUlFkRVx1bKSwXA-rgamokoEVRbuXAUNmuDMExu67LcOy5OkJ5di1rVMAA6n07y6UwSgkLVqXMjAAD86QWOw2bvNJqinFQ1iWUwaDghYxKLXFcAoNmIIAHJjVcjTTbNnXtA07U4OdLCvl1LCxfFe1qIdnRMAAZO96TNaEw0AORcKlQJMN0ngCgCZDEnE-6WpGjTg-QUP-Y9O3Pbgr0wIYNwHDdwHRbkwAo7tB1jR9X1E9g5kCghjXpA0zXRdZl5yEVVi4CaKxqBVd3CTVdXhfj3044LuwKCqPSeXAgzAHxAl2DgUAkIYcQc4O9pgACVpmpylreEsKq4543QKFwYCnAAxHM5AeRAhLSxVgxxOFRNxVYADiXA8BtQkUEFMBscrIuiPtNiAbTuyYed2N3IzeXMzZhXUGzIwgkynTc9FEBgM723Ey9Y2RTzid8_VQd7ML4ftD9_2A2QwOgwjkPQyx2hw1JENI4TudoxjWP0xX93tDmFChQng-iNbUC2wS9uRY7MW57yWVwBFNPj6I-xwFgsAnF38W6VpJBZBtWVr-PuO5CaGByiDq2JUHEfD6Phv9zHtNM6IZ803IGBwEojZMCXolFehdopWFgFQBe8VKa4DgHHUQRMD5H32JDLKPs_Z5WijxYScAJRkAGEJDAgIPTvDADwXoxl7AUHYHARADRMLsAgCgGaZAiSMLktoBoEgxx_GAexeBD1c4wMElRIhJCcF4IGDhcguUCoINzkg4-qDEpCTABgKAAx4HfzSKzLmoCqo8FqqXWmHQPRkDiHvHarsYAe00vkSGTBJpE10SVMqFUBDOKTmoDmWQ9F93dBYFqH8aY0xxMhAgqEgQgjBAmHC-E3C0hAAZMSRkOxYDnL2fs0AhxWTytgmG2ghLJPEuyFuh5rLYN8uwIpIlDLGUklhfhykClaBQFhJODFND4GzJ0Sg6AyrSFSulHyFwIrWTCShf4USMKy1kvJBAyAXAEXcLQRAxJFaYCgAxTYSh9EsDAARSYaitDQCUAINgqs5T5HwN0EO2YYAyB8i8dRgyt74P5GoLOeVtHyzVpVB6odJi-2qHAA5uAtACGzBcNQNzNFGGUglKm7xXy1A0GoUUJBBznAGAIUgWKaEwG-QimByU5q4H-atKCbNJi1BHtoAQKp2DWA-Ji44TAp7EnsMSLgSgiU2URdlUiFB1A7gFaSheFK8TqBQcSBl6omV8omREqZ6FQRZVJThPCizqQrOIqpd4LSamiRKS0ppKl8G8WkgJI1dSJJSRkjteZZrGB2QcmSZyUE3JUQ8r_QS6qLKVR_n_ABQD5QZ13OAngMAoE7WEQImNKBFEyrQVRX29zMG7mwQuSR0bRHEIKEwMhFAKGKBHjQuhDCmEsLYUwsUXCeHCLNbkCmwDCH5veNm1SZIKRkFkWPQR-84CHyUcSFNhb1FwvymPFxwRt5GT2aILOOdoHAIXbkaqRiBaV3Lm_denhBRoFgBLX10tZmxsSqSwOldcj7uWFkC-rV924AfV1W98wX2PtinEDGjQv0P3ureuIs71kWBgL-hQH6I6-w_eBlYMGKA7Mg8jIRwCUDunYAxBiwA04wEGYKEDaVBkQHdKSAA-rVKAhg55OyLuvXmm6Gp0YA9B_9e7hVIcHp4YjxIYgwAgJyigpwACsU4QAfC-MAYjJIYDkdwJR99rHx6_tWNeuj-7sjYbGn3djinOPscJiSKeaVtMqaY6-poz7dOiDYlZqjZ891NEQ_-39c6X4M3fvGr-ciXHhtyEuhiiCh3IJPolNdogN38x3XEYdMqUBxeji1QwTAcAENoxF4xnH3N7qfuQJgk9p6z0ok7ImobYGryYJvOdu9AsxZC2oZWV8b7dBgY0HL5j_2WJQDOudq8y6v3Oh_eO8djCGFG0AA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-Both the top level app and its child component live from the moment the app is mounted until the page is closed/refreshed. Render events don't recreate those objects (that's the crucial different with React). At the same time, hyperdom always calls their render functions no matter which particular component requested rerender. Those two properties combined make keeping app state a mere business of assigning app/component object properties where it makes sense. It's just javascript - no framework is involved.
+Since `this.beerList` is a component, we can specify it in place of jsx. Hyperdom will implicitly call its `render()` method.
 
 ### Routes
 
-Routing is essential in most of non-trivial applications. That's why hyperdom has routing built in - so you don't have to waste time choosing and implementing one.
+Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to waste time choosing and implementing one.
 
 We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
 
 First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/index.js", "line": 2, "addToNextExample": true}}
-import router from "hyperdom/router";
-import App from "./app";
+const router = require("hyperdom/router");
+const App = require("./app");
 
 hyperdom.append(document.body, new App(), { router });
 ```
 
-Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/boors` (`browser/app.jsx`):
+Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers` (`browser/app.jsx`):
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/app.jsx", "line": 3, "addToNextExample": true}}
-import routes from "./routes"
+const routes = require("./routes");
 
-export default class App {
+module.exports = class App {
   constructor () {
     this.beerList = new BeerList()
   }
@@ -329,8 +333,9 @@ export default class App {
   renderBody() {
     return (
       <div>
-        <label>What is your name? </label>
-        <input type="text" binding="this.userName" />
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
         {
           this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
         }
@@ -345,9 +350,9 @@ The original `render()` method is gone. Two other special methods - `routes()` a
 We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/routes.js", "addToNextExample": true}}
-import router from "hyperdom/router";
+const router = require("hyperdom/router");
 
-export default {
+module.exports = {
   home: router.route("/"),
   beers: router.route("/beers"),
   beer: router.route("/beers/:id")
@@ -359,9 +364,9 @@ A route definition can be specified in the array returned from the `routes()` me
 There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/BeerList.jsx", "line": 2}}
-import routes from "./routes"
+const routes = require("./routes");
 
-export default class BeerList {
+module.exports = class BeerList {
 
   async onload() {
     this.isLoadingBeer = true
@@ -427,15 +432,17 @@ export default class BeerList {
   }
 }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMAQBXfJkYkyBkgCRqOAQcistgARhQAAZNTK0mwrAjXvllUg2QAJFRqTRaJi-GBaEhMABSFR1YhAWgwFhV5ksNjsmNdbINbxhAgYaTdAqF3rxZSgR19tmSTEmkxIqjIgbdaDF0HUMdK-HKObzCYh_scujSpllVgzVjI-Ag8FZ4dybEw2Cgk3YJCgSkgUCg3oAbCgAExjjVZtmdnA9rgDPkcy3ab3qgAs2pAsgjbJXXJ0JrYUAwVAFVZYNd1ICsElt9eoTZbJrb8g4hfnOcssFw3tP54UJeTDXm6BIwEogIkBooZCAYZDGKYIA_H8ALAmoDTnOw5JwNYVLkDSHh0hAWi9rg7wAFRMBgcAxBah5MGAALWoo9FWmwADcjAkWR7wCkosC0Ux2hsig8IUAJ8AoPgcAwlxZA8dB7wAEIwGoAAyEACoxzGiQ0qkaVpQEgPJinkUw4rnjpIlsGJlkvmsZA2LxTBWGAGBilA7z4KeslMAAghcTBvq4Aq4GK-AUNBTAABQAJTBQ8TAUAoWnoGpuCadpgxME5gJMAZmVGfFciGI5LD2XA8WJXuXAUGKuDMMIe4VSQEpSQo2gwDFb65BV1BWLgAjVYMcQ1X1fV1Q1zApWlqVWAA4lwPAWMSTAAPzJalcAoFwvq4MpqJKNVAizTte2DaaKxqCVLWiGVd2GHFu4TWd6WGRee7wVe5UWQNGkYEobUUDF1LuAlvV_fVjXpB6FhxMAYOUIYjRw2QbQPXIF1qIdWzVZDU0wzFSW7LcOx9Z4p5dnEADqfTvFpTBAw1uXMjAm2NFTODk7kngWOwErJRapxUNYxlMGg4KrSL20oGKIIAHJs3MCwk6IkOvbL8tqErnRMAAZPr6Rk6EbUAORcLlQLUekYXkMScQHlaUaNHbUpjcAb3a7guswCjDRk2rP13Swnta4rbMG0bnjdAoXBgIMwCVe9uA7XHMBgPFhhxKaGDyjb2BqI0GBxA9E03Ac5NxaVv3Y7gV1ZDdENJYTzDE3deyV0H6QKKqPS-XAif8YJdg4FAJDZ1dQ4OsJ1rmpyVreEsqo8-0sfx6cADEczkD5ECEonI1jTFb3zTAS1qZKa05RQ4UwHF2fdywCs2EBIfpJhq8V3cSVxfJwcPRxMhAgqEgQgn0hlLKFAcJ4WQC4Ai7haBmUotRWiTsRKz33GxNcJluKkSUh8CSglrIsRAGJYeUkZJyTwS5SqJC9KVSrIwZyBC3IeS8v3GitFCpQJqnIGiShGxMHIOPLI-MkpvS0upEgWRVqFSYDfO-v0WChXeIuXsZABgKOooCT07wwA8F6MTdkFAKDsDgIgBomF2AQBQALMgRIbHSW0A0CQ44_gZRhNXPcb1C6p20RgXRBQ_pwA0QMHC5BboSNllImR-wpTyJyu5KAAwa6ZjSJVcRtUeDTSEGrZOfiqoa1EHXYaCVRrjQmiUnJMNO53DDmlWJsiEkZQ2myaRzTiQoG6XMU6ss67BCwLALO39V7Bwmk9F6k1gZST8T1buktLCrQsZUqpRx1ACEEGdaQs4MoAEl8wgG-lU0CVTSmxXKR7J-UNcl1IRpIuAHT4nEnkZtNgTzVrdJQL0raaU66BAantCghURkBy7u_MufUnpJWOZjDJ_1cAAtwECkFzc9yqIlq0m-stCkoEgJYGKfiFFjT8SgY4CjsVpT8Qc7xuRW7pBImtH4idSUkRJDAAA-g1KAhhVbVlrgiwZaBhlorpTUtuas7nd08IKYVMBOGySHkQ2ZkCjKP3frsFKKwxkU1vjq8uKV5j6t1QoOIvtGgpWNbzS1gziRQAsDAC1prrnWoUEal1H89XXKddq71FBNjbA9Q0nauKPTsBij1Y4OymSdB2YKO1DqdlstJFy3APLLmrLWdU6GEqNVVJlbgK1-aKCrDzVmhlWg1rLAgMSewpwACs04QAfC-MAZNnLuWGHdWW_NTRS3lrWTK7IwAY1-wtf2gdBrh3xvtU5f2Jai1TuuOvDOicCkZTsPHSN6gnrZzgJ1QExc4QLo9bzJohbT1MFpQO3d3qmgBp1RaoZrRJVgp_nua9D1AFIRQv8MBGFwR-mhPhNwtJzD4PMh2LA85ez9kHMOXBCkIMoJonRBeGDdKsXQ0eUyyGLIzNwPQrDq4tANHsn-RDyCApBUwbZaxlxEOMHQVoFAWEBoxU0PgMUnRKDoCOtGmA-VArhuesFfD7VCNPXkkA39aFwHJ2A3ApGRFwO0II0R9k2DSPkc4o5Fh5k2GeXeG-TqnQBDkd2jM4xDQ2DPTkIU8zBHLPtWs4U2zUy_GOYk85qgrnPENEQMcWzRgOIyZAX-9CoIKE7SoSBwitBEB2pIJgKAhKjqisYgRSY7ktDQCUAINgU95T5HwN0F-YoYAyACi8DAUAdlwGqHAfkagIBgHknC0e09Kmiz5LfRrYBoJaAEGKC4ahSsDHa45FOvC3y1A0GoSYpAhznAGAIJbp5zEwEm-k6bRlkqEdm9BQakxaimO0AIVU7BrAfD7OS-1taKDEi4EobbjBdvaRLbud77xDVvjxOoZ5F2NRXe2yYQwhggA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMAQBXfJkYkyBkgCRqOAQcistgARhQAAZNTK0mwrAjXvllUg2QAJFRqTRaJi-GBaEhMABSFR1YhAWgwFhV5ksNjsmNdbINbxhAgYaTdAqF3rxZSgR19tmSTEmkxIqjIgbdaDF0HUMdK-HKObzCYh_scujSpllVgzVjI-Ag8FZ4dybEw2Cgk3YJCgSkgUCg3oAbCgAExjjVZtmdnA9rgDPkcy3ab3qgAs2pAsgjbJXXJ0JrYUAwVAFVZYNd1ICsElt9eoTZbJrb8g4hfnOcssFw3tP54UJeTDXm6BIwEogIkBooZCAYZDGKYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxBah5MIMTBcAAjrmXAABSKORVpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcdx5CkQAQjAagADIQKRVG0fRMBMSAknqVpOlASAbHKWQpHiueQn6WJhkSQ0dkvkpmZkPa6hirAKA2L2uC8EJ-CngpTAAIIXEwb48bgYr4BQ0FMAxbExQ8TAUAoOnoBpuDabpTBkDAgJMKZ-XmalciGGsaRuXAqXpXuXAUGKuDMMIe4sPVdjaIZb65N11BWLgAiNYMcRNYNg0tW1zBZTl2VWAA4lwPAWMSTAAPyZdlcAoFwvq4KpqJKI1AgLfth0jaaKxqFVXWiDVj2GGxu7TZduVmRee7wVetVDUdmkYEoJASgx1LuGlA3Ca17XpB6FhxMAkOUIYjSI2QbTPXI11qCdWyNTDs3w0xj17AcOyDZ4p5dlT00AOp9O8OlMKDbVFcyMA7Z4FjsBKmUWqcVDWBZTBoOCG3C3tKBiiCAByXNXI0fMSvT7QNLTODqywMMfTLctqIrnRMAAZKb6S3HEoRgwA5FwRVAkw3SeAKAJSnEB5WlGjRu-QxKTcAn2G7gxswOjDRWxluTPdNuvBwrXNmxbnjdAoXBgIMwA9dgCp2BnqWGHEpoYPKzvi3ljQYHEsfU5HlMZVZ1YA8JR23Vk93QxlJPMGT00U3c0ftAoqo9GFcBZ3xAl2DgUAkEXt1Dg6YAAta5qcla3hLKqOvpGnGenAAxHM5ChRAhJZ-Nk0MZ9S0wKtGmSptVEUPFMBsUXQ-5PLNhAY9uyYXVjcBue4PL_QQtiJCKF_hAhBA0cqBUKA4TwsgFwBF3C0B4mRDe2gHIiQMkZL2a5LJcUbCpXi0kBJ4NEuJYyUkZL7XkopUhWD6rUIIS5eq7FSGMG8r5MkAVoLBSoqFDA4UEHmSanIMRShGxMHIHPLIRMMqfR0ppEgWQNrlSEq_MUMAW4sFYfAXsNkYBCQwICT07wwA8F6IQigFB2BwEQA0TC7AIAoH5mQIk7i5LaAaBIccfw8qKRUTLXOuBBJUQsVY4ScATEDBwuQB6YScpqI0fsKU2iqJgAwFAAY1UW71WUc1Hgc0hBDxziEhietRB41GilNKE0ppxyGnDZgA9kaqLgOozRWS8rbTZL0zJxIUBjLmBdGW9TghYFgIXYBg9_4gSHq9d6M0wbni-rgGpX9xaSylM4lprTjgCEEJdaQs48oAEl8wgD-nHUCcd6ljSaYHXZbTymdKDjLdJfTiTaJ2mwYZG0xkoAmbtHK9TAhtUOhQcq8z66LNabXGOTdcj3JxnVYaahoW4FhfCrue4sERJ0eEkJKBICWAYiS5pESUDHEoi_MlagblorqWU-GvMtCbR-FnOlEAPSkgAPptSgIYBYhTPKAxGjMtAczCW5B7ilIenTdmeEFHKsxoiFKT0obJCJiDP5LN2FlFYu9cjqtwOa6mWV5jWotVlOIYdGiOveTahQcQZnEigBYGALqPVuodQoO1gb0hNCtW6_1ZrI0UE2NsUN3ycoRP2h6dgDEanHAuUyToFzBTet9RcgVJIYAitwGK15RzWnsvacq41cdLX2vrRQVYdaq3pAFZtZYEBiT2FOAAVmnCAD4XxgBFuFaKwwIbW31qaC2ttrT1XZGANm8OLq53zv7s2rpJIfXFQjlu0Nm7sipxiAfbOGz9V5XzjAMAGb1CvSLnABQQIq5wgPdOi14bG0sDZW2h9kamhxt3i62ZrQVWIqpmy56z0cTIQIKhWBGFwR-mhPhNwtIQCOVoXObsvZ-yDmHCQ6ypEiHWj0vgpyhCWLEI8qwi9uB2GUeYjgrQrl6PcOI-8KK7BGO0MklhDjnlSMoCwsNBimh8Bik6JQdAp0s0lUihcVKFzgDUXoyBDysHoFoTgT1VDqDUZETQTZd4bkGPkZoc5dk1HWNmcE7w1E_D_LWECsIlpz7OgCDMwdC9RkGjsTWcmrz9GfMSis8EhUAW5AROC2F3AoWqB-eTQ0RAxx2JGA4lp-DMD0KginrJJhaHCK0EQN6kgmAoDUtOgqpgYACKTFyVoaASgBBsEXvKfI-Bug_z0TISKLw8kXLgNUOA_I1AQDAKQzFM8l4tJFnyV-I26u4C0AIMUFw1BdYGFN2qWzEEtNqBoNQkxSBDnOAMAQp3TxOJgDtzye3JGvwO9BEakxagOO0AIVU7BrAfD7Ayn1PaKDEi4EoO7jAHukWbbuSH7xbVvjxOoEZX2NQ_buyYQwhggA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-When beer table page is visited for the _first_ time, `onload()` method is going to be called. In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+When beer table page is visited for the _first_ time, an `onload()` hook is called (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
 
-Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property.
+Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
 
 Learn more about routing [here](#Routing)
 
 ### Testing
+
+We've touched all hyperdom bases - there aren't that many! - and this is definetly enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.
 
 ## An Example
 

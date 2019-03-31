@@ -1,2 +1,2 @@
-import "babel-polyfill";
-import * as hyperdom from "hyperdom";
+require("babel-polyfill");
+const hyperdom = require("hyperdom");

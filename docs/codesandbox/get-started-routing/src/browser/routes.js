@@ -1,6 +1,6 @@
-import router from "hyperdom/router";
+const router = require("hyperdom/router");
 
-export default {
+module.exports = {
   home: router.route("/"),
   beers: router.route("/beers"),
   beer: router.route("/beers/:id")

@@ -1,1 +1,1 @@
-import "babel-polyfill";
+require("babel-polyfill");

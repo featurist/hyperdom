@@ -1,5 +1,5 @@
-import * as hyperdom from "hyperdom";
-import styles from "./styles.css";
+const hyperdom = require("hyperdom");
+const styles = require("./styles.css");
 
   renderHeader() {
     return (
