@@ -10,8 +10,6 @@ Sponsored by:
 
 [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
-Table of Contents
-=================
 
 <details><summary>Quick Start</summary>
 
