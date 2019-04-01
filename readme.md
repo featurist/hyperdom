@@ -434,7 +434,7 @@ module.exports = class BeerList {
 ```
 <a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMAQBXfJkYkyBkgCRqOAQcistgARhQAAZNTK0mwrAjXvllUg2QAJFRqTRaJi-GBaEhMABSFR1YhAWgwFhV5ksNjsmNdbINbxhAgYaTdAqF3rxZSgR19tmSTEmkxIqjIgbdaDF0HUMdK-HKObzCYh_scujSpllVgzVjI-Ag8FZ4dybEw2Cgk3YJCgSkgUCg3oAbCgAExjjVZtmdnA9rgDPkcy3ab3qgAs2pAsgjbJXXJ0JrYUAwVAFVZYNd1ICsElt9eoTZbJrb8g4hfnOcssFw3tP54UJeTDXm6BIwEogIkBooZCAYZDGKYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxBah5MIMTBcAAjrmXAABSKORVpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcdx5CkQAQjAagADIQKRVG0fRMBMSAknqVpOlASAbHKWQpHiueQn6WJhkSQ0dkvkpmZkPa6hirAKA2L2uC8EJ-CngpTAAIIXEwb48bgYr4BQ0FMAxbExQ8TAUAoOnoBpuDabpTBkDAgJMKZ-XmalciGGsaRuXAqXpXuXAUGKuDMMIe4sPVdjaIZb65N11BWLgAiNYMcRNYNg0tW1zBZTl2VWAA4lwPAWMSTAAPyZdlcAoFwvq4KpqJKI1AgLfth0jaaKxqFVXWiDVj2GGxu7TZduVmRee7wVetVDUdmkYEoJASgx1LuGlA3Ca17XpB6FhxMAkOUIYjSI2QbTPXI11qCdWyNTDs3w0xj17AcOyDZ4p5dlT00AOp9O8OlMKDbVFcyMA7Z4FjsBKmUWqcVDWBZTBoOCG3C3tKBiiCAByXNXI0fMSvT7QNLTODqywMMfTLctqIrnRMAAZKb6S3HEoRgwA5FwRVAkw3SeAKAJSnEB5WlGjRu-QxKTcAn2G7gxswOjDRWxluTPdNuvBwrXNmxbnjdAoXBgIMwA9dgCp2BnqWGHEpoYPKzvi3ljQYHEsfU5HlMZVZ1YA8JR23Vk93QxlJPMGT00U3c0ftAoqo9GFcBZ3xAl2DgUAkEXt1Dg6YAAta5qcla3hLKqOvpGnGenAAxHM5ChRAhJZ-Nk0MZ9S0wKtGmSptVEUPFMBsUXQ-5PLNhAY9uyYXVjcBue4PL_QQtiJCKF_hAhBA0cqBUKA4TwsgFwBF3C0B4mRDe2gHIiQMkZL2a5LJcUbCpXi0kBJ4NEuJYyUkZL7XkopUhWD6rUIIS5eq7FSGMG8r5MkAVoLBSoqFDA4UEHmSanIMRShGxMHIHPLIRMMqfR0ppEgWQNrlSEq_MUMAW4sFYfAXsNkYBCQwICT07wwA8F6IQigFB2BwEQA0TC7AIAoH5mQIk7i5LaAaBIccfw8qKRUTLXOuBBJUQsVY4ScATEDBwuQB6YScpqI0fsKU2iqJgAwFAAY1UW71WUc1Hgc0hBDxziEhietRB41GilNKE0ppxyGnDZgA9kaqLgOozRWS8rbTZL0zJxIUBjLmBdGW9TghYFgIXYBg9_4gSHq9d6M0wbni-rgGpX9xaSylM4lprTjgCEEJdaQs48oAEl8wgD-nHUCcd6ljSaYHXZbTymdKDjLdJfTiTaJ2mwYZG0xkoAmbtHK9TAhtUOhQcq8z66LNabXGOTdcj3JxnVYaahoW4FhfCrue4sERJ0eEkJKBICWAYiS5pESUDHEoi_MlagblorqWU-GvMtCbR-FnOlEAPSkgAPptSgIYBYhTPKAxGjMtAczCW5B7ilIenTdmeEFHKsxoiFKT0obJCJiDP5LN2FlFYu9cjqtwOa6mWV5jWotVlOIYdGiOveTahQcQZnEigBYGALqPVuodQoO1gb0hNCtW6_1ZrI0UE2NsUN3ycoRP2h6dgDEanHAuUyToFzBTet9RcgVJIYAitwGK15RzWnsvacq41cdLX2vrRQVYdaq3pAFZtZYEBiT2FOAAVmnCAD4XxgBFuFaKwwIbW31qaC2ttrT1XZGANm8OLq53zv7s2rpJIfXFQjlu0Nm7sipxiAfbOGz9V5XzjAMAGb1CvSLnABQQIq5wgPdOi14bG0sDZW2h9kamhxt3i62ZrQVWIqpmy56z0cTIQIKhWBGFwR-mhPhNwtIQCOVoXObsvZ-yDmHCQ6ypEiHWj0vgpyhCWLEI8qwi9uB2GUeYjgrQrl6PcOI-8KK7BGO0MklhDjnlSMoCwsNBimh8Bik6JQdAp0s0lUihcVKFzgDUXoyBDysHoFoTgT1VDqDUZETQTZd4bkGPkZoc5dk1HWNmcE7w1E_D_LWECsIlpz7OgCDMwdC9RkGjsTWcmrz9GfMSis8EhUAW5AROC2F3AoWqB-eTQ0RAxx2JGA4lp-DMD0KginrJJhaHCK0EQN6kgmAoDUtOgqpgYACKTFyVoaASgBBsEXvKfI-Bug_z0TISKLw8kXLgNUOA_I1AQDAKQzFM8l4tJFnyV-I26u4C0AIMUFw1BdYGFN2qWzEEtNqBoNQkxSBDnOAMAQp3TxOJgDtzye3JGvwO9BEakxagOO0AIVU7BrAfD7Ayn1PaKDEi4EoO7jAHukWbbuSH7xbVvjxOoEZX2NQ_buyYQwhggA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-When beer table page is visited for the _first_ time, an `onload()` hook is called (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
 
 Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
 
@@ -442,55 +442,13 @@ Learn more about routing [here](#Routing)
 
 ### Testing
 
-We've touched all hyperdom bases - there aren't that many! - and this is definetly enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.
-
-## An Example
-
-```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/index.jsx"}}
-import * as hyperdom from "hyperdom";
-
-class App {
-  render() {
-    return <div>
-      <label>what's your name? </label>
-      <input type="text" binding="this.name" />
-      <div>hi {this.name}</div>
-    </div>;
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnBrBdGHdGg8ni9Fo0NltQWtGslUiYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxs1PYsBkFJAEjUcAg5FpbAAjCgAAxiznMOlWCHPAoCpB0gASKjUmi0TF8MC0JCYAClKpKxCAtBgLILzJYbHYHFAjXTZS8-IqGFLjXAKGUKBa0eUoAcrbZkkxJpMSKo0iBZG66WgAK7QdQ-sr4CrxxMBv42xy6KWmLlWCNWMj4CDwWmu0SxrA4SacbgUSYMtXaC0igAsEqjcmNzaZOkVbCgGCoHtzLHzUrYVgkWqL1FL5ZdPbpvtTUEm8cssFwFuHo-9IDkk-NGJgSgA7iQNM6BIIDGRDIwUSAvj9A_igUTyCSPGSIFo7DXq8ABUTAYHAMSqv2TBgLg2h0n26psAA3PC-DDnAkEAIJnEwlZMFwVq4AAFAAlPhK5cBQca4MwOx7KkVYsJ4w7YCkF59BQADkkFKCQtFMFSnQAPxME0bE4ExzGeBY7Bxq8FCqscVDWIeTBoL8FjYipCgQHAKDCTAcwLCuLHXHEen4RQekGUZhhXIxK6OTcaF5kY8JIdoKCnEWJGaPgcadJQ6AkJs0hCTAF5MLh7DkWRKEmIYhhAA&query=module%3Dsrc%2Findex.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
-
-Same example in Typescript:
-
-```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
-import * as hyperdom from "hyperdom";
-
-class App extends hyperdom.RenderComponent {
-  private name: string;
-
-  public render() {
-    return (
-      <div>
-        <label>what's your name? </label>
-        <input type="text" binding={[this, "name"]} />
-        <div>hi {this.name} </div>
-      </div>
-    );
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PImImEAViRYtN0Le9xp7KQ0IAzDhvZ6_Z7NTxtbiQJgkgARXV0fWG40ehkmJycxWeaUYWByIkAPThADYcDDA1xg0yFjAYgB3SiPOkegDaAF1OBNOJMZu09pBlhstqgdntaPRECAE9CqEQstAHgB5aoY2tXUdMrZSrkAWWyUIIcilMHFiZAUAgGihdac8FzgOhTyITgb-9ETk2nQ9TjkAnI7ofTOf7nmBGrGIiXNB4bx7F9v2hORKEoAhwwgTNX2ZBQixbVA0LbZCmhJNoOn7ahB0OYcIAnasagAKi4fg4C4EDLSILgwGghibneeinAAbnCA0oGomiAEEci4bBB3QGi6LAgAlaMHgAYWeLJqAOLhRyySokn4WguDOMwrhZSpUGWLjMRELIpQ0I9yC4d9eTkAAKABKFSnXfAhV24OynQSZJ4hMXheI0JRWArGwCAAchomJKFXbTzhgAB-IIAqCrzSjQMyahdGAMloLB3S4DQWjQZZ7GAOsCDwCA4CmaEdJgO8Jn8XyTEYQpWEqlSKqqnA6sagofNS_qiidBzjKDZtuIk54cGyPU7KecgpTMGgcEGGrUBgCsuEErJHNGyYJgmIA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+We've touched all hyperdom bases - there aren't that many! - and this is definitely enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.
 
 ## Install
 
 ### New project
 
-Create a skeleton appilcation with express backend:
+Create a skeleton application with express backend:
 
 ```bash
 npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
@@ -1572,7 +1530,7 @@ console.log(html);
 
 All of the above functionality (with the exception of string bindings - e.g. `binding="this.name"`) is available and is reasonably well typed. Type definitions come bundled with hyperdom npm package - there is no need to install a separate types package.
 
-In order to plug in hyperdom into the typescirpt tsx compilation, the following settings need to be present in the `compilerOptions` section of `tsconfig.json`:
+In order to plug in hyperdom into the typescirpt tsx compilation, add the following settings to the `compilerOptions` section of `tsconfig.json`:
 
 ```json
 {
@@ -1584,42 +1542,54 @@ In order to plug in hyperdom into the typescirpt tsx compilation, the following 
 }
 ```
 
-#### Router based components
+#### Render component
 
-```typescript
-import * as hyperdom from 'hyperdom'
-import * as router from 'hyperdom/router'
+```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
+import * as hyperdom from "hyperdom";
 
-const home = router.route('**')
+class App extends hyperdom.RenderComponent {
+  private name: string;
+
+  public render() {
+    return (
+      <div>
+        <label>what's your name? </label>
+        <input type="text" binding={[this, "name"]} />
+        <div>hi {this.name} </div>
+      </div>
+    );
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHIiQA9OEANhwMIDXCDTIWMBiAHdKI86e6ANoAXU4E04kxm7T2kGWGy2qB2e1o9EQIHj0KoRCy0AeAHlqhia1cR0ytlKuQBZbJQghyKUwcUJkBQCAaKG1pzwHOA6FPIhOet7x0gTadd1OOQCchu-9Mp_ueYEKsxES5oPNe3bPl-0JyJQlAEGGEAZi-zIKIWzaoKhrZIU0JJtB0fbUAOhxDhA45VjUABUXD8HAXDAZaRBcGAUH0Tc7x0U4ADc4QGjacDUQAgjkXDYAO6DUbRoEAEpRg8ADCzxZNQBxcCOWSVEktowFwZxmFcLKVKgyycZiIhZFKGiHuQXBvrycgABQAJTKaaVnmCu3C2c5CTJPEJi8DaGhKKw5Y2AQADk1ExJQK5aecMAAPxBP5gWeaUaCmTUzowBktBYG6XAaC0aDLPYwC1gQeAQHAUzQtpMC3hM_g-SYjCFKwFXKeVlU4LVDUFN5KV9UUzn2UZgZNlx4nPDg2R6rZTzkFKZg0DggzVagMDllwAlZA5I2TBMExAA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+#### Router components
+
+```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts-routing", "file": "src/index.tsx"}}
+import * as hyperdom from "hyperdom";
+import * as router from "hyperdom/router";
+
+const home = router.route("/");
 
 class Thing extends hyperdom.RoutesComponent {
-  public title = 'hello'
+  public tech = "hyperdom";
 
-  public routes () {
+  public routes() {
     return [
       home({
         render: () => {
-          return <div>{this.title}</div>
-        },
-      }),
-    ]
+          return <div>Hello from {this.tech}</div>;
+        }
+      })
+    ];
   }
 }
+
+hyperdom.append(document.body, new Thing(), {router});
 ```
-
-#### Render based components
-
-```typescript
-import * as hyperdom from 'hyperdom'
-
-class Thing extends hyperdom.RenderComponent {
-  public title = 'hello'
-
-  public render () {
-    return <div>{this.title}</div>
-  }
-}
-```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHIiQA9OEANhwMIDXCDTIWMBiAHdKI86e6ANoAXU4E04kxmjWavLaHR2e1o9EQxKIWSrNQAVFx-HAuOaHk8iFwwHJntCZ5aiE4ANycCBDkdcceTrhLqW0OQLpfzm7vNe6Y-nzfhA3UFnT54wLj2I-UE8PHB3mAABROLoTgAJRbpiBo2nAU6uHgaDLFw2B9ugU6rnOOAAErfnaADCzzDqgBxcPGXBZFKGhQBA5BcLQ1gfiu15zg-kE8ORlHUV-P5wABoEkaaR7mFKcjcLWAk8Hgb4AaRJg8HIUYPFcvEfqw_ESrJgkEMJ3CMIUrAABJKFAlDnsuwAEPBcA4HReATAUySsBBGmBuJRagQJ9ZOUWTaPuhzw4NkeoAU85BSmYNA4IMUxcER5ZcHBCG8dFwD_nIEzga2IDtHskDLBsWyoD21B9ocA6kU4VBDtADwAPLVBiNZXDJ0JbMJigALLZFCBByFKMDigmIBURoUJiSA8A5oC0LMSA9YDY6ICbJ07pOPJ8xuvNTJLe461VjERJ-UQ-XLZt0JLpQBBhhAGYrcyCiFs2qCPZMEwTEAA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 ## API
 
