@@ -6,11 +6,6 @@ Hyperdom applications are made of regular JavaScript objects that represent appl
 
 Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
 
-Sponsored by:
-
-[![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
-
-
 <details><summary>Quick Start</summary>
 
 * [Install](#install)
@@ -109,6 +104,10 @@ Sponsored by:
   * [Remove](#remove)
 
 </details>
+
+Sponsored by:
+
+[![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
 ## Quick Start
 
