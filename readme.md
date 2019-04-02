@@ -6,6 +6,8 @@ Hyperdom supports a simple event-update-render cycle, promises for asynchronous 
 
 Hyperdom is influenced by [react](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Unlike react though, there is no need for state management libraries - this problem simply does not exist in hyperdom -, API is small, and the routing is built in.
 
+## Table of Contents
+
 <details><summary>Quick Start</summary>
 
 * [Install](#install)
