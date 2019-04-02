@@ -156,19 +156,17 @@ hyperdom.append(document.body, new App());
 
 ### State Management
 
-Good news - none required.
+It's rare to have to think about state management in Hyperdom. Just like React app, a Hyperdom app is often composed of multiple components. Unlike React though, Hyperdom does not recreate them on each render - your app has total control over how long those components live. Another crucial difference is that Hyperdom always re-renders the whole app, no matter which component triggered an update.
 
-Just like React app, Hyperdom app is often composed of multiple components. Unlike React though, hyperdom does not recreate them on each render - components are assumed to live as long as the page stays open. Another crucial difference is that hyperdom is always re-renders top level app, no matter which component triggered an update.
-
-All that means is that components themselves - or, really, just javascript objects - are perfectly fit to store state in regular object properties.
+This means you don't have to think about which components will be rerendered, you don't have to think about which events will rerender the app, you don't have to think about special data structures - you can use normal JavaScript objects to store state. You can now just concentrate on how UI events update your application state, and how that state is rendered on the page.
 
 ### Events and Bindings
 
-How does hyperdom decide when to re-render? It's watching user interactions that _you tell it to watch_. There are two ways to do that: event handlers and input bindings.
+Hyperdom rerenders immediately after each UI event your app handles. There are two ways of handling UI events in hyperdom, event handlers (for things like mouse clicks) and input bindings (for things like text boxes).
 
 #### Event Handlers
 
-That is, run some code when user clicks on something. Let's modify the `App` in `./browser/app.jsx`:
+Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
 
 ```jsx {"codeExample": {"project": "docs/codesandbox/get-started-events", "file": "src/browser/app.jsx", "line": 3}}
 module.exports = class App {
