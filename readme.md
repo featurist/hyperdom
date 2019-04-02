@@ -1,143 +1,553 @@
 # hyperdom [![npm version](https://img.shields.io/npm/v/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![npm](https://img.shields.io/npm/dm/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![Build Status](https://travis-ci.org/featurist/hyperdom.svg?branch=master)](https://travis-ci.org/featurist/hyperdom)
 
-A fast, feature rich virtual-dom framework for building dynamic browser applications.
+A simple, fast, feature rich framework for building dynamic browser applications.
 
-Hyperdom applications are made of regular JavaScript objects that represent application state with `render()` methods that define how that state is represented in HTML. Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, client-side routing, SVG, two-way data binding, and optimises for performance, developer usability and simplicity of application architecture.
+Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, typescript, client-side routing, SVG, two-way data binding, server-side rendering, and optimises for performance, developer usability and simplicity of application architecture.
 
-Hyperdom includes Typescript type definitions.
+Hyperdom is influenced by [react](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching. Unlike react though, there is no need for state management libraries (this problem simply does not exist in hyperdom), the API is compact and the routing is built in.
 
-Hyperdom is influenced by Facebook's [React](http://facebook.github.io/react/) and uses [virtual-dom](https://github.com/Matt-Esch/virtual-dom) for the DOM patching.
+## Table of Contents
+
+<details><summary>Quick Start</summary>
+
+* [Install](#install)
+* [Hyperdom App](#hyperdom-app)
+* [State Management](#state-management)
+* [Events and Bindings](#events-and-bindings)
+* [Event Handlers](#event-handlers)
+* [Input Bindings](#input-bindings)
+* [Calling Ajax](#calling-ajax)
+* [Composing Components](#composing-components)
+* [Routes](#routes)
+* [Testing](#testing)
+
+</details>
+<details><summary>Install</summary>
+
+* [New project](#new-project)
+* [Add to existing project](#add-to-existing-project)
+* [Size](#size)
+* [Browser Support](#browser-support)
+
+</details>
+
+<details><summary>Usage</summary>
+
+* [Hyperdom Applications](#hyperdom-applications)
+* [The Render Method](#the-render-method)
+  * [JS](#js)
+  * [JSX](#jsx)
+  * [SVG (or XML more generally)](#svg-or-xml-more-generally)
+* [Events](#events)
+  * [Re-rendering the view](#re-rendering-the-view)
+  * [Bindings](#bindings)
+* [Routing](#routing)
+  * [Component Methods](#component-methods)
+  * [Route Definitions](#route-definitions)
+      * [isActive](#isactive)
+      * [url](#url)
+      * [params](#params)
+      * [push](#push)
+      * [replace](#replace)
+  * [Route Options](#route-options)
+  * [Router Options](#router-options)
+  * [Not Found](#not-found)
+* [Components](#components)
+  * [Model Components](#model-components)
+  * [View Components](#view-components)
+* [Caching](#caching)
+* [Not Refreshing](#not-refreshing)
+* [Refreshing the view explicitly](#refreshing-the-view-explicitly)
+* [Refreshify](#refreshify)
+* [Binding](#binding)
+* [Server-side Rendering](#server-side-rendering)
+* [Using with Typescript](#using-with-typescript)
+  * [Render component](#render-component)
+  * [Router components](#router-components)
+* [Performance](#performance)
+* [Debugging](#debugging)
+  * [Chrome Plugin](#chrome-plugin)
+  * [File Names and Line Numbers](#file-names-and-line-numbers)
+* [Production Build](#production-build)
+* [Common Errors](#common-errors)
+  * [Outside Render Cycle](#outside-render-cycle)
+  * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
+* [Development](#development)
+  * [Building](#building)
+  * [Automated Testing](#automated-testing)
+  * [Manual Testing](#manual-testing)
+* [Sister Projects](#sister-projects)
+
+</details>
+<details><summary>API</summary>
+
+* [Rendering the Virtual DOM](#rendering-the-virtual-dom)
+  * [The binding Attribute](#the-binding-attribute)
+  * [Event Handler on\* Attributes](#event-handler-on-attributes)
+  * [Promises](#promises)
+* [Virtual Dom API](#virtual-dom-api)
+  * [Selectors (hyperdom.html only)](#selectors-hyperdomhtml-only)
+  * [Add HTML Attributes](#add-html-attributes)
+  * [Keys](#keys)
+  * [Raw HTML](#raw-html)
+  * [Classes](#classes)
+  * [Joining VDOM Arrays](#joining-vdom-arrays)
+  * [Data Attributes](#data-attributes)
+  * [Responding to Events](#responding-to-events)
+  * [Binding the Inputs](#binding-the-inputs)
+  * [Radio Buttons](#radio-buttons)
+  * [Select Dropdowns](#select-dropdowns)
+  * [File Inputs](#file-inputs)
+  * [Window Events](#window-events)
+  * [Mapping the model to the view](#mapping-the-model-to-the-view)
+* [Raw HTML](#raw-html-1)
+* [Attaching to the DOM](#attaching-to-the-dom)
+  * [Detach](#detach)
+  * [Remove](#remove)
+
+</details>
 
 Sponsored by:
 
 [![Browserstack](https://www.browserstack.com/images/mail/newsletter-bs-logo.png)](https://www.Browserstack.com/).
 
-## Table of Contents
+## Quick Start
 
-* [An Example](#an-example)
-* [Install](#install)
-  * [New project](#new-project)
-  * [Add to existing project](#add-to-existing-project)
-  * [Size](#size)
-  * [Browser Support](#browser-support)
-* [Usage](#usage)
-    * [Hyperdom Applications](#hyperdom-applications)
-    * [The Render Method](#the-render-method)
-      * [JS](#js)
-      * [JSX](#jsx)
-      * [SVG (or XML more generally)](#svg-or-xml-more-generally)
-    * [Events](#events)
-      * [Re-rendering the view](#re-rendering-the-view)
-      * [Bindings](#bindings)
-    * [Routing](#routing)
-      * [Component Methods](#component-methods)
-      * [Route Definitions](#route-definitions)
-          * [isActive](#isactive)
-          * [url](#url)
-          * [params](#params)
-          * [push](#push)
-          * [replace](#replace)
-      * [Route Options](#route-options)
-      * [Router Options](#router-options)
-      * [Not Found](#not-found)
-    * [Virtual Dom API](#virtual-dom-api)
-      * [Selectors (hyperdom.html only)](#selectors-hyperdomhtml-only)
-      * [Add HTML Attributes](#add-html-attributes)
-      * [Keys](#keys)
-      * [Raw HTML](#raw-html)
-      * [Classes](#classes)
-      * [Joining VDOM Arrays](#joining-vdom-arrays)
-      * [Data Attributes](#data-attributes)
-      * [Responding to Events](#responding-to-events)
-      * [Binding the Inputs](#binding-the-inputs)
-      * [Radio Buttons](#radio-buttons)
-      * [Select Dropdowns](#select-dropdowns)
-      * [File Inputs](#file-inputs)
-      * [Window Events](#window-events)
-      * [Mapping the model to the view](#mapping-the-model-to-the-view)
-    * [Components](#components)
-      * [Model Components](#model-components)
-      * [View Components](#view-components)
-    * [Caching](#caching)
-    * [Not Refreshing](#not-refreshing)
-    * [Refreshing the view explicitly](#refreshing-the-view-explicitly)
-    * [Refreshify](#refreshify)
-    * [Binding](#binding)
-    * [Server-side Rendering](#server-side-rendering)
-    * [Using with Typescript](#using-with-typescript)
-      * [Router based components](#router-based-components)
-      * [Render based components](#render-based-components)
-* [API](#api)
-    * [Rendering the Virtual DOM](#rendering-the-virtual-dom)
-      * [The binding Attribute](#the-binding-attribute)
-      * [Event Handler on* Attributes](#event-handler-on-attributes)
-      * [Promises](#promises)
-    * [Raw HTML](#raw-html-1)
-    * [Attaching to the DOM](#attaching-to-the-dom)
-      * [Detach](#detach)
-      * [Remove](#remove)
-* [Performance](#performance)
-* [Debugging](#debugging)
-    * [Chrome Plugin](#chrome-plugin)
-    * [File Names and Line Numbers](#file-names-and-line-numbers)
-* [Production Build](#production-build)
-* [Common Errors](#common-errors)
-    * [Outside Render Cycle](#outside-render-cycle)
-    * [Refresh Outside Render Cycle](#refresh-outside-render-cycle)
-* [Development](#development)
-    * [Building](#building)
-    * [Automated Testing](#automated-testing)
-    * [Manual Testing](#manual-testing)
-* [Sister Projects](#sister-projects)
-* [We're Hiring!](#were-hiring)
+### Install
 
-## An Example
+```sh
+yarn create hyperdom-app --jsx myapp # or npx create-hyperdom-app myapp
+cd myapp
+yarn install
+```
 
-```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/index.jsx"}}
-import * as hyperdom from "hyperdom";
+Run dev server:
 
-class App {
-  render() {
-    return <div>
-      <label>what's your name? </label>
-      <input type="text" binding="this.name" />
-      <div>hi {this.name}</div>
-    </div>;
+```sh
+yarn dev
+```
+
+Open `http://localhost:5000`
+
+### Hyperdom App
+
+An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx", "addToNextExample": true}}
+const hyperdom = require("hyperdom");
+const {hello} = require("./styles.css");
+
+module.exports = class App {
+  render () {
+    return <h1 class={hello}>Hello from Hyperdom!</h1>
   }
 }
+```
+
+It's mounted into the dom in `./browser/index.js`:
+
+```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js", "line": 1}}
+const hyperdom = require("hyperdom");
+const App = require("./app");
 
 hyperdom.append(document.body, new App());
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnBrBdGHdGg8ni9Fo0NltQWtGslUiYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxs1PYsBkFJAEjUcAg5FpbAAjCgAAxiznMOlWCHPAoCpB0gASKjUmi0TF8MC0JCYAClKpKxCAtBgLILzJYbHYHFAjXTZS8-IqGFLjXAKGUKBa0eUoAcrbZkkxJpMSKo0iBZG66WgAK7QdQ-sr4CrxxMBv42xy6KWmLlWCNWMj4CDwWmu0SxrA4SacbgUSYMtXaC0igAsEqjcmNzaZOkVbCgGCoHtzLHzUrYVgkWqL1FL5ZdPbpvtTUEm8cssFwFuHo-9IDkk-NGJgSgA7iQNM6BIIDGRDIwUSAvj9A_igUTyCSPGSIFo7DXq8ABUTAYHAMSqv2TBgLg2h0n26psAA3PC-DDnAkEAIJnEwlZMFwVq4AAFAAlPhK5cBQca4MwOx7KkVYsJ4w7YCkF59BQADkkFKCQtFMFSnQAPxME0bE4ExzGeBY7Bxq8FCqscVDWIeTBoL8FjYipCgQHAKDCTAcwLCuLHXHEen4RQekGUZhhXIxK6OTcaF5kY8JIdoKCnEWJGaPgcadJQ6AkJs0hCTAF5MLh7DkWRKEmIYhhAA&query=module%3Dsrc%2Findex.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoYLxuSCDIC45A0h4dJcAAjjmXAABTtlgc49n2A5DiAACUADcjCuAKMRmgeTCDEwJFkTAlHslxFpsCxbHkBxACCFw8XxMCkRAFFsCgDTnJcTGsemZD7haKDqdQ6jkZo-BZp0lDoKiSjSEwZAwICTAyew5GMeJZA4shBCoUCILwhQSiwHAKD4HAOHEPh7i0IgxJQCQmBQORmxKIxTCvmA-GTGAzLQEoAhsMaOCyvk-DdAAcjAWYwDIjkvBgUA2XA1RwPyagQGAWkIdpdg4LFqVyFQ1h8hQuBNeluBaAIWYXGoJUDB1axkOgMBqAAMhAHGvrUGhqJMpCDucAwCHtJ7sHNRgLUtq3re8w19WkW1WLgky1BQFDaAIyrsNYHy9scTBQBAxL2MSXBKPNXXYFdHEUOoO6Xbga3Qwod0sHi6j7GQxIfWqX3gx5KH_D5GHqdh1hUhFtJ4WQHG6docn8UpgmKCJq6aRJ1PvMAyyDiQhj0wpAlCapAoBfAwWhWJWmMLa6hZrAKA2D2uC8HJ-AnqFjmya-XDergTAuSjohcBQWa4MwSTKj06twIMXM9bzcQFTzTBgAClqmpyFreEsyptJ1xiGIHQA&query=module%3Dsrc%2Fbrowser%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-Same example in Typescript:
+### State Management
 
-```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
-import * as hyperdom from "hyperdom";
+It's rare to have to think about state management in Hyperdom. Just like React app, a Hyperdom app is often composed of multiple components. Unlike React though, Hyperdom does not recreate them on each render - your app has total control over how long those components live. Another crucial difference is that Hyperdom always re-renders the whole app, no matter which component triggered an update.
 
-class App extends hyperdom.RenderComponent {
-  private name: string;
+This means you don't have to think about which components will be rerendered, you don't have to think about which events will rerender the app, you don't have to think about special data structures - you can use normal JavaScript objects to store state. You can now just concentrate on how UI events update your application state, and how that state is rendered on the page.
 
-  public render() {
+### Events and Bindings
+
+Hyperdom rerenders immediately after each UI event your app handles. There are two ways of handling UI events in hyperdom, event handlers (for things like mouse clicks) and input bindings (for things like text boxes).
+
+#### Event Handlers
+
+Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-events", "file": "src/browser/app.jsx", "line": 3}}
+module.exports = class App {
+  renderHeader() {
+    if (!this.hideGreeting) {
+      return <div>
+        <h1 class={hello}>Hello from Hyperdom!</h1>
+        <a href='#' onclick={() => this.hideGreeting = true}>Next</a>
+      </div>
+    } else {
+      return <p>Now then...</p>
+    }
+  }
+
+  render () {
+    return <main>
+      {this.renderHeader()}
+    </main>
+  }
+}
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvMAyyDiQhiUdRMB0RAjFsCg8IUEosBwCg-BwDCnFrGQtrqFmsAoDYPa4Lwwn4CeSlMAAghcTCvlw3q4MaKxqAxbEWQ8RxgEwDHeBQCgQPJXlWAA4lwPAWMSjmvrkXAUFmuDMHsBw7Lk6QKMqPRGXAgx8TgUCCXEtkCUwYAApapqcha3hLMq8W5J43QKFwYCDAA5AAxA1TDkIZECEulDmUXETCed5djHDAAUwEFZDEsJFC4FmMCGHEAByNgUI0GCVekDS3PFQk4AMTm7iwEVRTF7CLUC_XLGQKDXY0p3OQhVaqYd1BWLgbmhc5R3RekboWOtwADfJVmvbZWT2WxD1VQ0v1kG0D0PTiyEEKhQIgmC8Y4fhbi0iAtH0TATEgLOXY9n2A5DiAKkNuQpH7hawl4-JBPMSVq6U1x1NkKRZnsAzon44TUlYexHOMHT2goFhL0MZo-BZp0lDoKiSjSEwZAwICpkXA5VOIyh_yoxhAqyfAClKVjhG0IgxJZZgUAMZsSgfWkYAEZMYDMtASgCGwuWyvk-DdEts0yKZLwYFAqtwNUcD8moEBgBzD2MHYmV2q-VDWHy00x67uBaAIWYXGogcDEnqnoGNuAADLebxci1BoaiTKQg7nAMAitye7Bl0YFfYGotekdN-0sI3r2TLUFAUNoAjKuw1gfL2xxMFAEDEvYxJcEo5fpldA813X_XqDuleD0fnmj0weLqPsE1z2qC-7yYhiGEAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
+
+Read more about Events [here](#Events)
+
+#### Input Bindings
+
+This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-bindings", "file": "src/browser/app.jsx", "line": 13}}
+  renderBody() {
+    if (this.hideGreeting) {
+      return <div>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
+        {this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>}
+      </div>
+    }
+  }
+
+  render() {
+    return <main>
+      {this.renderHeader()}
+      {this.renderBody()}
+    </main>
+  }
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvMAyyDiQhiUdRMB0RAjFsCg8IUEosBwCg-BwDCnFrGQtrqFmsAoDYPa4Lwwn4CeSlMAAghcTCvlw3q4MaKxqAxbEWQ8RxgEwDHeBQCgQPJXlWAA4lwPAWMSjmvrkXAUFmuDMHsBw7Lk6QKMqPRGXAgx8TgUCCXEtkCUwYAApapqcha3hLMq8W5J43QKFwYCDAA5AAxA1TDkIZECEulDmUXETCed5djHDAAUwEFZDEsJFC4FmMCGHEAByNgUI0GCVekDS3PFCFVqpLBWVYuAAEKokoPVhS5bkDT5w2jeNIVObu-08FFMVbc5VUnp2625AA6n07zeUwSgkFFTBMp0AD86QWOwWbvDJqinFQ1iASATBoOCwXI158lZiCC3MjAVyNLD8M_RtX04BTwDXSg-NqITnRMAAZCz6RbaEoMNVw4NAkw3SeAKAITXE-4WhGjTC-QxJ9bTuP0wTROGDccU7QlG3vbu6vAXtInWedzkRa96RuhY63y4NB1qLZWT2WxOu5Jb8nW8dp0OY7G1m2QbQ7TtOLIQQqFAiCYLxjh-FuLSIC0fRMBMSAs5dj2fYDkOIAqQ25CkeL2jCbH4nx8xJWrhnXFZ2QpFmew-eiXHCdSVh7Hl4wudaCgWHUOoDGaPgWadJQ6CndI4MwICpkXA5mcByh_whxhAqyfAClKZHhG0IgxJZZgUAMZsSihXIYAEZMYDMtASgCGwuWyvk-DdEts0yKZLwYFAI9wNUcD8moEBgOXO1GB2EynaV8KM-TTS_sfXAWgBBZguGoe-AwAGqXQGNXAAAZbyvE5C1A0GoSYpBBznAGAIIhJ52DIKMKg7AagsGkWmo9FgeDDqTFqBQCg2gBDKnYNYD4vZjhMCgBAYk9hiRcCUCg9MZA0F0Owf1dQO5ZGYPkZ5JhTA8TqH2BNbhapeFSJMIYQwQA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+Each time user types into the input, hyperdom re-renders.
+
+Read more about Bindings [here](#Bindings)
+
+### Calling Ajax
+
+The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-ajax", "file": "src/browser/app.jsx", "line": 15}}
+  renderBody() {
     return (
       <div>
-        <label>what's your name? </label>
-        <input type="text" binding={[this, "name"]} />
-        <div>hi {this.name} </div>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
+        {
+          this.userName &&
+            <div>
+              <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
+              <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
+                Have a beer
+              </button>
+            </div>
+        }
+        {this.isLoadingBeer ? "Loading..." : this.renderBeerList()}
       </div>
     );
   }
-}
 
-hyperdom.append(document.body, new App());
+  renderBeerList() {
+    if (!this.beers) {
+      return;
+    }
+
+    return (
+      <table class={styles.beerList}>
+        <thead>
+          <tr>
+            <th />
+            <th>Name</th>
+            <th>Tagline</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.beers.map(({ name, tagline, image_url }) => {
+            return (
+              <tr>
+                <td>
+                  <img height="50" src={image_url} />
+                </td>
+                <td>{name}</td>
+                <td>{tagline}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+
+  async getBeers() {
+    delete this.beers;
+    this.isLoadingBeer = true;
+
+    const response = await fetch("https://api.punkapi.com/v2/beers");
+    this.beers = await response.json();
+
+    this.isLoadingBeer = false;
+  }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PImImEAViRYtN0Le9xp7KQ0IAzDhvZ6_Z7NTxtbiQJgkgARXV0fWG40ehkmJycxWeaUYWByIkAPThADYcDDA1xg0yFjAYgB3SiPOkegDaAF1OBNOJMZu09pBlhstqgdntaPRECAE9CqEQstAHgB5aoY2tXUdMrZSrkAWWyUIIcilMHFiZAUAgGihdac8FzgOhTyITgb-9ETk2nQ9TjkAnI7ofTOf7nmBGrGIiXNB4bx7F9v2hORKEoAhwwgTNX2ZBQixbVA0LbZCmhJNoOn7ahB0OYcIAnasagAKi4fg4C4EDLSILgwGghibneeinAAbnCA0oGomiAEEci4bBB3QGi6LAgAlaMHgAYWeLJqAOLhRyySokn4WguDOMwrhZSpUGWLjMRELIpQ0I9yC4d9eTkAAKABKFSnXfAhV24OynQSZJ4hMXheI0JRWArGwCAAchomJKFXbTzhgAB-IIAqCrzSjQMyahdGAMloLB3S4DQWjQZZ7GAOsCDwCA4CmaEdJgO8Jn8XyTEYQpWEqlSKqqnA6sagofNS_qiidBzjKDZtuIk54cGyPU7KecgpTMGgcEGGrUBgCsuEErJHNGyYJgmIA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMMJCMNYZAyQBI1HAIORWWwAIwoAAM6qlaTYVgRr3yiqQbIAEio1JotExfDAtCQmAApCpasQgLQYCxK8yWGx2THOtl6t4wgQMNIugVCz14spQI7e2zJJiTSYkVRkf0utAAV2g6ijpXw5WzubjEN9jl0aVM0qsaasZHwEHgrNDuTYmGwUEm7BIUCUkCgUE9ADYUAAmUdqjNsjs4btcAZ8jnm7Se1UAFk1IFkYbZy65OiNbCgGCoAsrLGr2pAVgk1rr1EbzaNrfkHALc-zllguE9J7PFAXkwV4ugSMBKICJAaMGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxGaB5MIMTBcAAjjmXAABSKORFpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcWsZC2uoWawCgNg9rgvBCfgJ4KUwACCFxMK-XDergxorGoDFsWZDzCRQWa4MwTG7rstw7Lk6QKMqPQGXAgzAHxAl2DgUAkIYcTWYOdpgAClqmpyFreEsyrebknjdAoXBgKcADEczkPpECEsFdmUXETAMRQCgQHAdjHDAADiXA8BYxJCRQuBZjAbHRY5PlMAAcjYgEee0mGZekDReY5SlVspLAWVYuAAEKokolWvitPAuW5Q3pPNk27CenYzbkADqfTvA1TBKCQLlMEynQAPzpBY7BZu80mqKcVDWIBIBMGg4KdQD9WNVmIIjcyMBXI0X0_Zds3nTgqO7cNTB1Q1KAw2ocOdEwABkJNHcNewHKjlNeaET0AORcC9QJMN0ngCgCZDEnE-4WhGjSc-QPNmbj0Ow_Dhg3NTFPYxsP0UOQTAlVAZUEhV9mDNVYsoLy60wHKdmGEw-xwFgsAnMAOsNQAMiQWSdfraiDad2MsMaGCymzoMG7-ruU38CvkDTU0nW7CGu1bUMoLb9v7NzTu4EwH1sHbDvcygmdzAIOurWoic2w1FBG0d0t3AtXFLemaR5xtvuFwKO2ORAYA1d4OvYHK9lY3tzmuZXuQR45XB94dk2eIKaCwAFGAKcFoWyZ3uANxQLtuxPyxZCHE-4CHux1fMe95AocREzAjR1UfG9xMEJKq2Q59NCfsu7E0u-yxfm-rK7E-bNsL-i2jkvRqbp2AMQYsAF68NpA4zvhYGAMCIBulJAAfRcrGQwmtqo92xiPA6NUAFZR6kfIh383bkM-loLqywIDEnsKcAArFOEGPxgpIJJDANBuAoDGwWIQnyF8yEUIERQbIwBXowClk0IRwj2iiLiFbOBD8pHyP4a_Yh_DFoUMwRHdeTQ_4zQvubVoFc5BDzSLPJQDYmB619nAJuu4rCwCoDjIBdiB6iGtnANO8diSJ26r1GAldHI8WEnAHsZABhCQwICd07wwA8F6ExdkFAKDsDgIgBomF2AQBQN9MgRIclyW0A0CQY4_h2PYh4lgHc7HRNiQUMJESBg4XIHZYJu4vE-Mdr7ISYAMBQAGB43RwlLIONyHg1yBDx5ugsAonW9UrBtQNvkbmydXF41rptLYlUc7R1rtZLItkBqNFmWQbyWjgJGEQmYFC_wgQgjBPGHC-E3C0hALReiMBkmzi7D2PsA4hwgEWqEvm2ghKfLEt85iKVVzAsrqEky7AIUiS-ckySWEqnKTBVoFAWFqDqAYpofAWZOiUHQFtGBD9ATGQuHZRaOJkIEFQg8jCC9GryQQMgFwBF3C0EQMSSKmAoAMT_t3OQYACKTH6VoaASgBBsFirKfI-BuhjT6jIYyLwBkwLNpE_kagW6V3MeFOKDk0iAz5D1aocBJW4C0AILMFw1CqqGdc6u6B65F3NSwWoGg1CTFIIOc4AwBBBpPOkoJ7rGCerUCvHGSdXx-rWpMWoqTtACGVOwawHxezHCYKrOhFBiRcCUMa5Ssbl7etETuSt8aD6vjxOoXxma1TZvLWQEwhhDBAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
+
+Note how we take advantage of that second render to toggle 'Loading...'.
+
+### Composing Components
+
+Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/BeerList.jsx", "addToNextExample": true}}
+const hyperdom = require("hyperdom");
+const styles = require("./styles.css");
+
+module.exports = class BeerList {
+
+  async getBeers() {
+    delete this.beers;
+    this.isLoadingBeer = true;
+
+    const response = await fetch("https://api.punkapi.com/v2/beers");
+    this.beers = await response.json();
+
+    this.isLoadingBeer = false;
+  }
+
+  renderTable() {
+    if (this.beers) {
+      return (
+        <div>
+          <table class={styles.beerList}>
+            <thead>
+              <tr>
+                <th />
+                <th>Name</th>
+                <th>Tagline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.beers.map(({name, tagline, image_url}) => {
+                return (
+                  <tr>
+                    <td>
+                      <img height="50" src={image_url} />
+                    </td>
+                    <td>{name}</td>
+                    <td>{tagline}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+  }
+
+  render() {
+    if (this.isLoadingBeer) {
+      return <div>Loading...</div>
+    } else {
+      return (
+        <div>
+          <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>Have a beer</button>
+          {this.renderTable()}
+        </div>
+      );
+    }
+  }
+}
+```
+
+And use it in the main app:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/app.jsx", "line": 3}}
+const BeerList = require("./BeerList");
+
+module.exports = class App {
+  constructor () {
+    this.beerList = new BeerList();
+  }
+
+  renderBody() {
+    return (
+      <div>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
+        {
+          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
+        }
+        {this.userName && this.beerList}
+      </div>
+    );
+  }
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JNSFp2CQBjIGSAJGo4BByKy2ABGFAABg10rSbCsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbViEBaDAWZXmSw2OyYl1s_VvGECBhpV0CoVevFlKBHH22ZJMSaTEiqMgB11oACu0HU0dK-HKObz8YhfscujSphlVnTVjI-Ag8FZYdybEw2CgkwlUCUkCgUC9ADYUAAmUfqzNszs4HtcAZ8jkW7RetUAFi1IFk4bZy65OmNbCgGCoAqrLBrOpAVgkNvr1CbLeNbfkHELc5zllguC9J7PFAXkwV6ugSMBKICJAaCGQgGGQhjYqYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxOaB5MIMTBcAAjrmXAABSKORlpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcWsjbkKRABCMBqAAMhApFUbR9EwExICSRp2m6YBIBKRmZB2uo2awCgNgSrgvBCfgJ4KUwACCFxMK-PG4Nm-AUFBTAMWx_kPEwFAKLp6CabgOl6UwZAwICTBmUlFkRVx1bKSwXA-rgamokoEVRbuXAUNmuDMExu67LcOy5OkJ5di1rVMAA6n07y6UwSgkLVqXMjAAD86QWOw2bvNJqinFQ1iWUwaDghYxKLXFcAoNmIIAHJjVcjTTbNnXtA07U4OdLCvl1LCxfFe1qIdnRMAAZO96TNaEw0AORcKlQJMN0ngCgCZDEnE-6WpGjTg-QUP-Y9O3Pbgr0wIYNwHDdwHRbkwAo7tB1jR9X1E9g5kCghjXpA0zXRdZl5yEVVi4CaKxqBVd3CTVdXhfj3044LuwKCqPSeXAgzAHxAl2DgUAkIYcQc4O9pgACVpmpylreEsKq4543QKFwYCnAAxHM5AeRAhLSxVgxxOFRNxVYADiXA8BtQkUEFMBscrIuiPtNiAbTuyYed2N3IzeXMzZhXUGzIwgkynTc9FEBgM723Ey9Y2RTzid8_VQd7ML4ftD9_2A2QwOgwjkPQyx2hw1JENI4TudoxjWP0xX93tDmFChQng-iNbUC2wS9uRY7MW57yWVwBFNPj6I-xwFgsAnF38W6VpJBZBtWVr-PuO5CaGByiDq2JUHEfD6Phv9zHtNM6IZ803IGBwEojZMCXolFehdopWFgFQBe8VKa4DgHHUQRMD5H32JDLKPs_Z5WijxYScAJRkAGEJDAgIPTvDADwXoxl7AUHYHARADRMLsAgCgGaZAiSMLktoBoEgxx_GAexeBD1c4wMElRIhJCcF4IGDhcguUCoINzkg4-qDEpCTABgKAAx4HfzSKzLmoCqo8FqqXWmHQPRkDiHvHarsYAe00vkSGTBJpE10SVMqFUBDOKTmoDmWQ9F93dBYFqH8aY0xxMhAgqEgQgjBAmHC-E3C0hAAZMSRkOxYDnL2fs0AhxWTytgmG2ghLJPEuyFuh5rLYN8uwIpIlDLGUklhfhykClaBQFhJODFND4GzJ0Sg6AyrSFSulHyFwIrWTCShf4USMKy1kvJBAyAXAEXcLQRAxJFaYCgAxTYSh9EsDAARSYaitDQCUAINgqs5T5HwN0EO2YYAyB8i8dRgyt74P5GoLOeVtHyzVpVB6odJi-2qHAA5uAtACGzBcNQNzNFGGUglKm7xXy1A0GoUUJBBznAGAIUgWKaEwG-QimByU5q4H-atKCbNJi1BHtoAQKp2DWA-Ji44TAp7EnsMSLgSgiU2URdlUiFB1A7gFaSheFK8TqBQcSBl6omV8omREqZ6FQRZVJThPCizqQrOIqpd4LSamiRKS0ppKl8G8WkgJI1dSJJSRkjteZZrGB2QcmSZyUE3JUQ8r_QS6qLKVR_n_ABQD5QZ13OAngMAoE7WEQImNKBFEyrQVRX29zMG7mwQuSR0bRHEIKEwMhFAKGKBHjQuhDCmEsLYUwsUXCeHCLNbkCmwDCH5veNm1SZIKRkFkWPQR-84CHyUcSFNhb1FwvymPFxwRt5GT2aILOOdoHAIXbkaqRiBaV3Lm_denhBRoFgBLX10tZmxsSqSwOldcj7uWFkC-rV924AfV1W98wX2PtinEDGjQv0P3ureuIs71kWBgL-hQH6I6-w_eBlYMGKA7Mg8jIRwCUDunYAxBiwA04wEGYKEDaVBkQHdKSAA-rVKAhg55OyLuvXmm6Gp0YA9B_9e7hVIcHp4YjxIYgwAgJyigpwACsU4QAfC-MAYjJIYDkdwJR99rHx6_tWNeuj-7sjYbGn3djinOPscJiSKeaVtMqaY6-poz7dOiDYlZqjZ891NEQ_-39c6X4M3fvGr-ciXHhtyEuhiiCh3IJPolNdogN38x3XEYdMqUBxeji1QwTAcAENoxF4xnH3N7qfuQJgk9p6z0ok7ImobYGryYJvOdu9AsxZC2oZWV8b7dBgY0HL5j_2WJQDOudq8y6v3Oh_eO8djCGFG0AA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+Since `this.beerList` is a component, we can specify it in place of jsx. Hyperdom will implicitly call its `render()` method.
+
+### Routes
+
+Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to waste time choosing and implementing one.
+
+We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
+
+First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/index.js", "line": 2, "addToNextExample": true}}
+const router = require("hyperdom/router");
+const App = require("./app");
+
+hyperdom.append(document.body, new App(), { router });
+```
+
+Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers` (`browser/app.jsx`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/app.jsx", "line": 3, "addToNextExample": true}}
+const routes = require("./routes");
+
+module.exports = class App {
+  constructor () {
+    this.beerList = new BeerList()
+  }
+
+  routes() {
+    return [
+      routes.home({
+        render: () => {
+          return this.hideGreeting ? this.renderBody() : this.renderHeader()
+        }
+      }),
+      this.beerList
+    ]
+  }
+
+  renderLayout(content) {
+    return <main>{content}</main>
+  }
+
+  renderBody() {
+    return (
+      <div>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
+        {
+          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
+        }
+        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
+      </div>
+    )
+  }
+```
+
+The original `render()` method is gone. Two other special methods - `routes()` and (optional) `renderLayout()` - took its place. The former one is where the magic happens, so let's take a closer look. In a nutshell, `routes()` returns a "url -> render function" mapping. A particular render is invoked only if the current url matches. The "key" in that mapping is not actually a string url but a route definition. `routes.home()` in the above example is a route definition.
+
+We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/routes.js", "addToNextExample": true}}
+const router = require("hyperdom/router");
+
+module.exports = {
+  home: router.route("/"),
+  beers: router.route("/beers"),
+  beer: router.route("/beers/:id")
+};
+```
+
+A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
+
+There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
+
+```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/BeerList.jsx", "line": 2}}
+const routes = require("./routes");
+
+module.exports = class BeerList {
+
+  async onload() {
+    this.isLoadingBeer = true
+
+    const response = await fetch("https://api.punkapi.com/v2/beers")
+    this.beers = await response.json()
+
+    this.isLoadingBeer = false
+  }
+
+  routes() {
+    return [
+      routes.beers({
+        render: () => {
+          return <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
+        }
+      }),
+      routes.beer({
+        bindings: {
+          id: [this, "beerId"]
+        },
+        render: () => {
+          return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
+        }
+      })
+    ]
+  }
+
+  renderCurrentBeer() {
+    const beer = this.beers.find(beer => beer.id == this.beerId)
+    return <img src={beer.image_url}/>
+  }
+
+  renderTable() {
+    return (
+      <div>
+        <table class={styles.beerList}>
+          <thead>
+            <tr>
+              <th />
+              <th>Name</th>
+              <th>Tagline</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {this.beers.map(({id, name, tagline, image_url}) => {
+              return (
+                <tr>
+                  <td>
+                    <img height="50" src={image_url} />
+                  </td>
+                  <td>{name}</td>
+                  <td>{tagline}</td>
+                  <td><a href={routes.beer.href({id})}>show</a></td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+}
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMAQBXfJkYkyBkgCRqOAQcistgARhQAAZNTK0mwrAjXvllUg2QAJFRqTRaJi-GBaEhMABSFR1YhAWgwFhV5ksNjsmNdbINbxhAgYaTdAqF3rxZSgR19tmSTEmkxIqjIgbdaDF0HUMdK-HKObzCYh_scujSpllVgzVjI-Ag8FZ4dybEw2Cgk3YJCgSkgUCg3oAbCgAExjjVZtmdnA9rgDPkcy3ab3qgAs2pAsgjbJXXJ0JrYUAwVAFVZYNd1ICsElt9eoTZbJrb8g4hfnOcssFw3tP54UJeTDXm6BIwEogIkBooZCAYZDGKYIA_H8ALAmoDTnOw5JwNYVLkDSHh0q4AoxBah5MIMTBcAAjrmXAABSKORVpsAAlAA3IwJHvAKSiwHAlHUTAdEQIxbAoPCFD8fAKD4HAMKcdx5CkQAQjAagADIQKRVG0fRMBMSAknqVpOlASAbHKWQpHiueQn6WJhkSQ0dkvkpmZkPa6hirAKA2L2uC8EJ-CngpTAAIIXEwb48bgYr4BQ0FMAxbExQ8TAUAoOnoBpuDabpTBkDAgJMKZ-XmalciGGsaRuXAqXpXuXAUGKuDMMIe4sPVdjaIZb65N11BWLgAiNYMcRNYNg0tW1zBZTl2VWAA4lwPAWMSTAAPyZdlcAoFwvq4KpqJKI1AgLfth0jaaKxqFVXWiDVj2GGxu7TZduVmRee7wVetVDUdmkYEoJASgx1LuGlA3Ca17XpB6FhxMAkOUIYjSI2QbTPXI11qCdWyNTDs3w0xj17AcOyDZ4p5dlT00AOp9O8OlMKDbVFcyMA7Z4FjsBKmUWqcVDWBZTBoOCG3C3tKBiiCAByXNXI0fMSvT7QNLTODqywMMfTLctqIrnRMAAZKb6S3HEoRgwA5FwRVAkw3SeAKAJSnEB5WlGjRu-QxKTcAn2G7gxswOjDRWxluTPdNuvBwrXNmxbnjdAoXBgIMwA9dgCp2BnqWGHEpoYPKzvi3ljQYHEsfU5HlMZVZ1YA8JR23Vk93QxlJPMGT00U3c0ftAoqo9GFcBZ3xAl2DgUAkEXt1Dg6YAAta5qcla3hLKqOvpGnGenAAxHM5ChRAhJZ-Nk0MZ9S0wKtGmSptVEUPFMBsUXQ-5PLNhAY9uyYXVjcBue4PL_QQtiJCKF_hAhBA0cqBUKA4TwsgFwBF3C0B4mRDe2gHIiQMkZL2a5LJcUbCpXi0kBJ4NEuJYyUkZL7XkopUhWD6rUIIS5eq7FSGMG8r5MkAVoLBSoqFDA4UEHmSanIMRShGxMHIHPLIRMMqfR0ppEgWQNrlSEq_MUMAW4sFYfAXsNkYBCQwICT07wwA8F6IQigFB2BwEQA0TC7AIAoH5mQIk7i5LaAaBIccfw8qKRUTLXOuBBJUQsVY4ScATEDBwuQB6YScpqI0fsKU2iqJgAwFAAY1UW71WUc1Hgc0hBDxziEhietRB41GilNKE0ppxyGnDZgA9kaqLgOozRWS8rbTZL0zJxIUBjLmBdGW9TghYFgIXYBg9_4gSHq9d6M0wbni-rgGpX9xaSylM4lprTjgCEEJdaQs48oAEl8wgD-nHUCcd6ljSaYHXZbTymdKDjLdJfTiTaJ2mwYZG0xkoAmbtHK9TAhtUOhQcq8z66LNabXGOTdcj3JxnVYaahoW4FhfCrue4sERJ0eEkJKBICWAYiS5pESUDHEoi_MlagblorqWU-GvMtCbR-FnOlEAPSkgAPptSgIYBYhTPKAxGjMtAczCW5B7ilIenTdmeEFHKsxoiFKT0obJCJiDP5LN2FlFYu9cjqtwOa6mWV5jWotVlOIYdGiOveTahQcQZnEigBYGALqPVuodQoO1gb0hNCtW6_1ZrI0UE2NsUN3ycoRP2h6dgDEanHAuUyToFzBTet9RcgVJIYAitwGK15RzWnsvacq41cdLX2vrRQVYdaq3pAFZtZYEBiT2FOAAVmnCAD4XxgBFuFaKwwIbW31qaC2ttrT1XZGANm8OLq53zv7s2rpJIfXFQjlu0Nm7sipxiAfbOGz9V5XzjAMAGb1CvSLnABQQIq5wgPdOi14bG0sDZW2h9kamhxt3i62ZrQVWIqpmy56z0cTIQIKhWBGFwR-mhPhNwtIQCOVoXObsvZ-yDmHCQ6ypEiHWj0vgpyhCWLEI8qwi9uB2GUeYjgrQrl6PcOI-8KK7BGO0MklhDjnlSMoCwsNBimh8Bik6JQdAp0s0lUihcVKFzgDUXoyBDysHoFoTgT1VDqDUZETQTZd4bkGPkZoc5dk1HWNmcE7w1E_D_LWECsIlpz7OgCDMwdC9RkGjsTWcmrz9GfMSis8EhUAW5AROC2F3AoWqB-eTQ0RAxx2JGA4lp-DMD0KginrJJhaHCK0EQN6kgmAoDUtOgqpgYACKTFyVoaASgBBsEXvKfI-Bug_z0TISKLw8kXLgNUOA_I1AQDAKQzFM8l4tJFnyV-I26u4C0AIMUFw1BdYGFN2qWzEEtNqBoNQkxSBDnOAMAQp3TxOJgDtzye3JGvwO9BEakxagOO0AIVU7BrAfD7Ayn1PaKDEi4EoO7jAHukWbbuSH7xbVvjxOoEZX2NQ_buyYQwhggA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+
+Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
+
+Learn more about routing [here](#Routing)
+
+### Testing
+
+We've touched all hyperdom bases - there aren't that many! - and this is definitely enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.
 
 ## Install
 
 ### New project
 
-Create a skeleton appilcation with express backend:
+Create a skeleton application with express backend:
 
 ```bash
 npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
@@ -294,7 +704,7 @@ class App {
   }
 }
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEpljdJ3hhHOF8uIGvN9PKXv-SQDxG4HBhABBarCAPzuiYIyr3cfzMvwIY0jFZPANwaHAbhHAh1wrF4umecDNxRODhE3MwoEoZg90A_dY3baQtxnHAqk9VcgXIY1PBoHBFi2YRUBgGtX2qP9dwAbk7DYeKAA&query=module%3Dsrc%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEpljdJ3hhHOF8uIGvN9PKXv-SQDxG4HBhABBarCAPzuiYIyr3cfzMvwIY0jFZPANwaHAbhHAh1wrQNRA3PAUTg4RNzMKBKGYPdAP3WN22kLcZxwKpPVXIFyGNTwaBwRYtmEVAYBrV9qj_XcAG5Ow2bigA&query=module%3Dsrc%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
 
 #### JSX
 
@@ -640,6 +1050,434 @@ Where
 
 * `path` - the current path as found in the address bar
 * `routes` - the list of routes found in the application, these can be used to show which routes are available
+
+### Components
+
+Components are the basic building blocks of a Hyperdom application. The simplest component is an object that contains just a `render()` method. However, components can be used to interact with HTML at a more basic level, such as when using jQuery plugins, or to cache rendering output for performance.
+
+There are two types of components in Hyperdom, with the only difference being where they store their state. The first type, and by far the most common, are **model components** and store their state in the model, or quite often, they _are_ the model. The point of **model components** is that the lifetime of their state is completely independent of whether those components are rendered or not. With **model components** the application is entirely in control of its state.
+
+The other type are **view components** and keep their state in the view only, this means that if the component disappears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
+
+Nevertheless, the API for view and model components is almost entirely the same. They both respond to the same rendering cycle events and have the same rendering and caching logic.
+
+Components allow the following:
+
+1. **Rendering VDOM** - essential to any Hyperdom application
+2. **Model Loading** - asynchronously loading model resources
+3. **HTML rendering events** - useful for low-level HTML hacking, including jQuery plugins
+4. **VDOM caching** - useful in apps that render very large amounts of HTML
+
+Components can implement these methods:
+
+* `render()` - returns the VDOM representation of the component, called on each rendering cycle
+* `onload()` (optional) - called when the component is first rendered, this can be used to setup the component, or load resources from AJAX. If this returns a promise, the view will be re-rendered again after the promise is resolved.
+* `renderKey` (optional) - used for efficient diffing of virtual-dom elements, see [keys](#keys).
+* `renderCacheKey()` (optional) - returns the cache key for the component. If the cache key hasn't changed since the last render, then the VDOM from the last render is used, otherwise, if the cache key has changed, `render()` is called for the latest VDOM.
+* `onbeforeadd()` (optional) - called before the component is first added to the VDOM tree
+* `onadd(element)` (optional) - called after the component is first added to the VDOM tree. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onbeforeupdate(element)` (optional) - called before the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`).
+* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
+* `onbeforerender([element])` (optional) - called before the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`).
+* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
+
+#### Model Components
+
+Model components are simply just plain objects that implement `render()` and some of the methods above. They are rendered by simply placing them in the VDOM:
+
+```jsx
+const component = {
+  render() {
+    return <h1>model component</h1>
+  }
+}
+
+<div>{component}</div>
+```
+
+#### View Components
+
+View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`. You can also declare a class containing a `render()` method, and refer to it in JSX.
+
+Using `hyperdom.viewComponent()`:
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    render() {
+      return <h1>view component</h1>
+    }
+  })
+}</div>
+```
+
+Using a view component class in JSX:
+
+```jsx
+class MyComponent {
+  constructor(properties, children) {
+    this.title = properties.title
+    this.children = children
+  }
+
+  render() {
+    return <div>
+      <h1>{this.title}</h1>
+      {this.children}
+    </div>
+  }
+}
+
+<div>
+  <MyComponent title="value">
+    <div>child element</div>
+  </MyComponent>
+</div>
+```
+
+If you define fields on the object, these fields are present on each render: `this.name` is the latest value of `name`.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    name: name,
+    render() {
+      return <h1>view component {this.name}</h1>
+    }
+  })
+}</div>
+```
+
+However, if you want to initialise some state once when the component is first rendered, then use it and update it during the lifetime of the component, use `onload()`, in this case `this.name` is the value of `name` when the component was first rendered.
+
+```jsx
+<div>{
+  hyperdom.viewComponent({
+    onload() {
+      this.name = name
+    },
+
+    render() {
+      return <h1>view component {this.name}</h1>
+    }
+  })
+}</div>
+```
+
+### Caching
+
+To cache the output from `render()`, return a non-undefined cache key from `renderCacheKey()`. This is useful if the component renders something large, for example, in the 10s of thousands of HTML nodes. For example, the following will only re-render when `this.version` changes:
+
+```jsx
+const component = {
+  constructor () {
+    this.version = 0
+  }
+
+  renderCacheKey () {
+    return this.version
+  }
+
+  render () {
+    return <div>
+      ...
+    </div>
+  }
+}
+```
+
+### Not Refreshing
+
+By default the view will refresh after an event handler has run, however you can return `hyperdom.norefresh()` from an event handler to prevent this.
+
+### Refreshing the view explicitly
+
+Sometimes you want to refresh the view but not just after a UI event. For this, a component has a small handful of methods
+
+* `component.refresh()` - can be called to queue up a refresh of the entire view. Calling this multiple times will only invoke one refresh, normally on the next animation frame.
+* `component.refreshImmediately()` - can be called to refresh the view immediately.
+* `component.refreshComponent()` - can be called to queue up a refresh of just this component.
+
+### Refreshify
+
+Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `hyperdom.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
+
+```js
+const refreshHandler = h.refreshify(handler, [options]);
+```
+
+* `handler` - a function that handles some event, can return a promise.
+* `options.refresh` - one of these values:
+  * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
+  * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
+  * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
+* `options.component` - only refresh this [component](#components)
+
+### Binding
+
+You can customise how bindings refresh the page by using `hyperdom.html.binding()`.
+
+```js
+const binding = hyperdom.html.binding(binding, options);
+```
+
+* `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
+* `options` - options that are passed directly to [refreshify](#refreshify).
+
+### Server-side Rendering
+
+You can render HTML as text, for example on the server, by using `toHtml`:
+
+```js
+const hyperdom = require('hyperdom')
+const h = hyperdom.html;
+const toHtml = require('hyperdom/toHtml');
+
+const vdom = h('html',
+  h('head',
+    h('link', {rel: 'stylesheet', href: '/style.css'})
+  ),
+  h('body',
+    h('h1', 'hyperdom!')
+  )
+);
+
+const html = toHtml(vdom);
+console.log(html);
+```
+
+### Using with Typescript
+
+All of the above functionality (with the exception of string bindings - e.g. `binding="this.name"`) is available and is reasonably well typed. Type definitions come bundled with hyperdom npm package - there is no need to install a separate types package.
+
+In order to plug in hyperdom into the typescirpt tsx compilation, add the following settings to the `compilerOptions` section of `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom"],
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx"
+  }
+}
+```
+
+#### Render component
+
+```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
+import * as hyperdom from "hyperdom";
+
+class App extends hyperdom.RenderComponent {
+  private name: string;
+
+  public render() {
+    return (
+      <div>
+        <label>what's your name? </label>
+        <input type="text" binding={[this, "name"]} />
+        <div>hi {this.name} </div>
+      </div>
+    );
+  }
+}
+
+hyperdom.append(document.body, new App());
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHIiQA9OEANhwMIDXCDTIWMBiAHdKI86e6ANoAXU4E04kxm7T2kGWGy2qB2e1o9EQIHj0KoRCy0AeAHlqhia1cR0ytlKuQBZbJQghyKUwcUJkBQCAaKG1pzwHOA6FPIhOet7x0gTadd1OOQCchu-9Mp_ueYEKsxES5oPNe3bPl-0JyJQlAEGGEAZi-zIKIWzaoKhrZIU0JJtB0fbUAOhxDhA45VjUABUXD8HAXDAZaRBcGAUH0Tc7x0U4ADc4QGjacDUQAgjkXDYAO6DUbRoEAEpRg8ADCzxZNQBxcCOWSVEktowFwZxmFcLKVKgyycZiIhZFKGiHuQXBvrycgABQAJTKaaVnmCu3C2c5CTJPEJi8DaGhKKw5Y2AQADk1ExJQK5aecMAAPxBP5gWeaUaCmTUzowBktBYG6XAaC0aDLPYwC1gQeAQHAUzQtpMC3hM_g-SYjCFKwFXKeVlU4LVDUFN5KV9UUzn2UZgZNlx4nPDg2R6rZTzkFKZg0DggzVagMDllwAlZA5I2TBMExAA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+#### Router components
+
+```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts-routing", "file": "src/index.tsx"}}
+import * as hyperdom from "hyperdom";
+import * as router from "hyperdom/router";
+
+const home = router.route("/");
+
+class Thing extends hyperdom.RoutesComponent {
+  public tech = "hyperdom";
+
+  public routes() {
+    return [
+      home({
+        render: () => {
+          return <div>Hello from {this.tech}</div>;
+        }
+      })
+    ];
+  }
+}
+
+hyperdom.append(document.body, new Thing(), {router});
+```
+<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHIiQA9OEANhwMIDXCDTIWMBiAHdKI86e6ANoAXU4E04kxmjWavLaHR2e1o9EQxKIWSrNQAVFx-HAuOaHk8iFwwHJntCZ5aiE4ANycCBDkdcceTrhLqW0OQLpfzm7vNe6Y-nzfhA3UFnT54wLj2I-UE8PHB3mAABROLoTgAJRbpiBo2nAU6uHgaDLFw2B9ugU6rnOOAAErfnaADCzzDqgBxcPGXBZFKGhQBA5BcLQ1gfiu15zg-kE8ORlHUV-P5wABoEkaaR7mFKcjcLWAk8Hgb4AaRJg8HIUYPFcvEfqw_ESrJgkEMJ3CMIUrAABJKFAlDnsuwAEPBcA4HReATAUySsBBGmBuJRagQJ9ZOUWTaPuhzw4NkeoAU85BSmYNA4IMUxcER5ZcHBCG8dFwD_nIEzga2IDtHskDLBsWyoD21B9ocA6kU4VBDtADwAPLVBiNZXDJ0JbMJigALLZFCBByFKMDigmIBURoUJiSA8A5oC0LMSA9YDY6ICbJ07pOPJ8xuvNTJLe461VjERJ-UQ-XLZt0JLpQBBhhAGYrcyCiFs2qCPZMEwTEAA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+
+### Performance
+
+Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
+
+* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
+* Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
+* For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `hyperdom.html.binding()` to not refresh, or only refresh a component.
+* Consider using a component with a `renderCacheKey()` method, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `renderCacheKey()` result changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
+* For parts of the page that don't ever change, you can pre-render the VDOM statically once and return the same VDOM on each render.
+
+### Debugging
+
+#### Chrome Plugin
+
+[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
+
+#### File Names and Line Numbers
+
+By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
+
+```jsx
+render() {
+  return <h1>{this.title}</h1>
+}
+```
+
+Will generate
+
+```html
+<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
+```
+
+### Production Build
+
+Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment constiable, and when set to `production` will turn these features off.
+
+To make a production build with webpack, use `webpack -p`.
+
+To make a production build with browserify, use [envify](https://github.com/hughsk/envify) and ensure `NODE_ENV=production`, for e.g. `browserify -t [ envify --NODE_ENV production  ] ...` and then use a minifier like [uglify](https://github.com/mishoo/UglifyJS2) to strip the disabled code.
+
+### Common Errors
+
+#### Outside Render Cycle
+
+> You cannot create virtual-dom event handlers outside a render function
+
+This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
+
+Another cause of this error is if you have more than one instance of the hyperdom module loaded. This can occur if you have an NPM listing like this:
+
+```
+my-app@1.0.0 /Users/bob/dev/my-app
+├── hyperdom@1.19.1
+├── my-hyperdom-component@1.0.0
+│ ├── hyperdom@1.19.1
+```
+
+With `my-hyperdom-component` depending on another `hyperdom`. Better to have `my-hyperdom-component` have a `peerDependency` on hyperdom, allowing it to use the `hyperdom` under `my-app`.
+
+#### Refresh Outside Render Cycle
+
+> Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers
+
+This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).
+
+### Development
+
+To get started:
+
+```js
+git clone https://github.com/featurist/hyperdom.git
+cd hyperdom
+npm install
+```
+
+Some of the scripts below assume that you have `node_modules/.bin` in your `$PATH`.
+
+#### Building
+
+`hyperdom.js` and `hyperdom.min.js` can be build using `npm run build`, these can then be used in a `<script src="..."></script>` tag.
+
+#### Automated Testing
+
+Hyperdom is almost 100% tested with karma and mocha. If you're planning to submit a pull request, we kindly ask that you write a test that demonstrates that it works. Without tests, we can't guarantee that your feature will continue to work as we refactor the codebase.
+
+Tests can be found in [test/browser/hyperdomSpec.js](https://github.com/featurist/hyperdom/blob/master/test/browser/hyperdomSpec.js).
+
+You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change.
+
+Server-side tests can be found in [test/server](https://github.com/featurist/hyperdom/tree/master/test/server). You can use `mocha test/server` to run these.
+
+To run all tests use `npm test`.
+
+#### Manual Testing
+
+As much as automated testing is amazing, it can never really replace manual or exploratory testing. You may want to experiment with an API or see how hyperdom performs in a real project, while making changes to hyperdom as you go.
+
+To do this, first go to the `hyperdom` directory and run `npm link`. This will make hyperdom available to other projects.
+
+Then inside your other project run `npm link hyperdom`. When your project has `require('hyperdom')` it will be referring to your local version.
+
+You can then use [browserify](https://github.com/substack/node-browserify): `browserify myapp.js > myappbundle.js` or [watchify](https://github.com/substack/watchify): `watchify myapp.js -dvo myappbundle.js`, or [amok](https://github.com/caspervonb/amok): `amok --compiler babel --browser chrome myapp.js`, or [beefy](https://github.com/chrisdickinson/beefy): `beefy myapp.js`. [browserify-middleware](https://github.com/ForbesLindesay/browserify-middleware) is worth a look too.
+
+Alternatively, if you just want to compile `hyperdom.js` and reference it in a `<script src="..."></script>`, you can by running `npm run prepublish` in the hyperdom directory.
+
+### Sister Projects
+
+* [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
+* [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
+* [hyperdom-medium-editor](https://github.com/featurist/hyperdom-medium-editor)
+* [hyperdom-ckeditor](https://github.com/featurist/hyperdom-ckeditor)
+* [hyperdom-semantic-ui](https://github.com/featurist/hyperdom-semantic-ui)
+* [hyperdom-sortable](https://github.com/featurist/hyperdom-sortable)
+* [hyperdom-zeroclipboard](https://github.com/featurist/hyperdom-zeroclipboard)
+
+## API
+
+### Rendering the Virtual DOM
+
+```js
+const vdomFragment = hyperdom.html(selector, [attributes], children, ...);
+```
+
+* `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
+* `selector` - (almost) any selector, containing element names, classes and ids: `tag.class#id`, or small hierarchies `pre code`.
+* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
+* `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
+
+#### The `binding` Attribute
+
+Form input elements can be passed a `binding` attribute, which is expected to be either:
+
+* An array with two items, the first being the model and second the field name, the third being an optional function that is called when the binding is set, for examle, you can initiate some further processing when the value changes.
+
+  ```js
+  [object, fieldName, setter(value)]
+  ```
+
+* `object` - an object
+* `fieldName` - the name of a field on `object`
+* `setter(value)` (optional) - a function called with the value when setting the model.
+
+* An object with two methods, `get` and `set`, to get and set the new value, respectively.
+
+  ```js
+  {
+    get: function () {
+      return model.property;
+    },
+    set: function (value) {
+      model.property = value;
+    },
+    options: {
+      // options passed directly to `hyperdom.binding()`
+    }
+  }
+  ```
+
+#### Event Handler `on*` Attributes
+
+Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
+
+When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
+
+#### Promises
+
+If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
 
 ### Virtual Dom API
 
@@ -1020,307 +1858,6 @@ const date = {
 
 Under the hood, hyperdom stores the intermediate value and the exception in the model's [meta](#meta) area. You can get the exception by calling `hyperdom.meta(model, field).error`.
 
-### Components
-
-Components are the basic building blocks of a Hyperdom application. The simplest component is an object that contains just a `render()` method. However, components can be used to interact with HTML at a more basic level, such as when using jQuery plugins, or to cache rendering output for performance.
-
-There are two types of components in Hyperdom, with the only difference being where they store their state. The first type, and by far the most common, are **model components** and store their state in the model, or quite often, they _are_ the model. The point of **model components** is that the lifetime of their state is completely independent of whether those components are rendered or not. With **model components** the application is entirely in control of its state.
-
-The other type are **view components** and keep their state in the view only, this means that if the component disappears from view, the state is lost and you'll have to rebuild it again when the component comes back into view. This is advantageous for some types of UI components that need to store state as the user interacts with them, like menus or tabs for example, but don't really affect the underlying model or state of the application itself.
-
-Nevertheless, the API for view and model components is almost entirely the same. They both respond to the same rendering cycle events and have the same rendering and caching logic.
-
-Components allow the following:
-
-1. **Rendering VDOM** - essential to any Hyperdom application
-2. **Model Loading** - asynchronously loading model resources
-3. **HTML rendering events** - useful for low-level HTML hacking, including jQuery plugins
-4. **VDOM caching** - useful in apps that render very large amounts of HTML
-
-Components can implement these methods:
-
-* `render()` - returns the VDOM representation of the component, called on each rendering cycle
-* `onload()` (optional) - called when the component is first rendered, this can be used to setup the component, or load resources from AJAX. If this returns a promise, the view will be re-rendered again after the promise is resolved.
-* `renderKey` (optional) - used for efficient diffing of virtual-dom elements, see [keys](#keys).
-* `renderCacheKey()` (optional) - returns the cache key for the component. If the cache key hasn't changed since the last render, then the VDOM from the last render is used, otherwise, if the cache key has changed, `render()` is called for the latest VDOM.
-* `onbeforeadd()` (optional) - called before the component is first added to the VDOM tree
-* `onadd(element)` (optional) - called after the component is first added to the VDOM tree. `element` is the top-most HTML element of the component (the one returned from `render()`).
-* `onbeforeupdate(element)` (optional) - called before the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`).
-* `onupdate(element, oldElement)` (optional) - called after the component is updated with new VDOM. `element` is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
-* `onbeforerender([element])` (optional) - called before the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`).
-* `onrender(element, [oldElement])` (optional) - called after the component is added to the VDOM tree, or updated with new VDOM. `element`, present only on update, is the top-most HTML element of the component (the one returned from `render()`). `oldElement` is the previous element represented by the component, and could be the same as `element`.
-
-#### Model Components
-
-Model components are simply just plain objects that implement `render()` and some of the methods above. They are rendered by simply placing them in the VDOM:
-
-```jsx
-const component = {
-  render() {
-    return <h1>model component</h1>
-  }
-}
-
-<div>{component}</div>
-```
-
-#### View Components
-
-View models are rendered by passing an object that implements `render()` to `hyperdom.viewComponent()`. You can also declare a class containing a `render()` method, and refer to it in JSX.
-
-Using `hyperdom.viewComponent()`:
-
-```jsx
-<div>{
-  hyperdom.viewComponent({
-    render() {
-      return <h1>view component</h1>
-    }
-  })
-}</div>
-```
-
-Using a view component class in JSX:
-
-```jsx
-class MyComponent {
-  constructor(properties, children) {
-    this.title = properties.title
-    this.children = children
-  }
-
-  render() {
-    return <div>
-      <h1>{this.title}</h1>
-      {this.children}
-    </div>
-  }
-}
-
-<div>
-  <MyComponent title="value">
-    <div>child element</div>
-  </MyComponent>
-</div>
-```
-
-If you define fields on the object, these fields are present on each render: `this.name` is the latest value of `name`.
-
-```jsx
-<div>{
-  hyperdom.viewComponent({
-    name: name,
-    render() {
-      return <h1>view component {this.name}</h1>
-    }
-  })
-}</div>
-```
-
-However, if you want to initialise some state once when the component is first rendered, then use it and update it during the lifetime of the component, use `onload()`, in this case `this.name` is the value of `name` when the component was first rendered.
-
-```jsx
-<div>{
-  hyperdom.viewComponent({
-    onload() {
-      this.name = name
-    },
-
-    render() {
-      return <h1>view component {this.name}</h1>
-    }
-  })
-}</div>
-```
-
-### Caching
-
-To cache the output from `render()`, return a non-undefined cache key from `renderCacheKey()`. This is useful if the component renders something large, for example, in the 10s of thousands of HTML nodes. For example, the following will only re-render when `this.version` changes:
-
-```jsx
-const component = {
-  constructor () {
-    this.version = 0
-  }
-
-  renderCacheKey () {
-    return this.version
-  }
-
-  render () {
-    return <div>
-      ...
-    </div>
-  }
-}
-```
-
-### Not Refreshing
-
-By default the view will refresh after an event handler has run, however you can return `hyperdom.norefresh()` from an event handler to prevent this.
-
-### Refreshing the view explicitly
-
-Sometimes you want to refresh the view but not just after a UI event. For this, a component has a small handful of methods
-
-* `component.refresh()` - can be called to queue up a refresh of the entire view. Calling this multiple times will only invoke one refresh, normally on the next animation frame.
-* `component.refreshImmediately()` - can be called to refresh the view immediately.
-* `component.refreshComponent()` - can be called to queue up a refresh of just this component.
-
-### Refreshify
-
-Sometimes you have an event handler in another framework (e.g. jQuery) that modifies the model. You want to refresh the page after that event handler has executed. You can use `hyperdom.html.refreshify(handler)` to return a new handler that refreshes the page after your event handler has run.
-
-```js
-const refreshHandler = h.refreshify(handler, [options]);
-```
-
-* `handler` - a function that handles some event, can return a promise.
-* `options.refresh` - one of these values:
-  * `true` - (the default) `refreshHandler` will refresh on return, and on promise fulfil if it returns a promise.
-  * `false` - `refreshHandler` will be just `handler` so no refresh will happen if you call it.
-  * `'promise'` - `refreshHandler` will only refresh if it returns a promise and only after the promise is fulfilled.
-* `options.component` - only refresh this [component](#components)
-
-### Binding
-
-You can customise how bindings refresh the page by using `hyperdom.html.binding()`.
-
-```js
-const binding = hyperdom.html.binding(binding, options);
-```
-
-* `binding` - an array [model, 'property'], or a binding object {get(), set(value)}.
-* `options` - options that are passed directly to [refreshify](#refreshify).
-
-### Server-side Rendering
-
-You can render HTML as text, for example on the server, by using `toHtml`:
-
-```js
-const hyperdom = require('hyperdom')
-const h = hyperdom.html;
-const toHtml = require('hyperdom/toHtml');
-
-const vdom = h('html',
-  h('head',
-    h('link', {rel: 'stylesheet', href: '/style.css'})
-  ),
-  h('body',
-    h('h1', 'hyperdom!')
-  )
-);
-
-const html = toHtml(vdom);
-console.log(html);
-```
-
-### Using with Typescript
-
-All of the above functionality (with the exception of string bindings - e.g. `binding="this.name"`) is available and is reasonably well typed. Type definitions come bundled with hyperdom npm package - there is no need to install a separate types package.
-
-In order to plug in hyperdom into the typescirpt tsx compilation, the following settings need to be present in the `compilerOptions` section of `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "lib": ["dom"],
-    "jsx": "react",
-    "jsxFactory": "hyperdom.jsx"
-  }
-}
-```
-
-#### Router based components
-
-```typescript
-import * as hyperdom from 'hyperdom'
-import * as router from 'hyperdom/router'
-
-const home = router.route('**')
-
-class Thing extends hyperdom.RoutesComponent {
-  public title = 'hello'
-
-  public routes () {
-    return [
-      home({
-        render: () => {
-          return <div>{this.title}</div>
-        },
-      }),
-    ]
-  }
-}
-```
-
-#### Render based components
-
-```typescript
-import * as hyperdom from 'hyperdom'
-
-class Thing extends hyperdom.RenderComponent {
-  public title = 'hello'
-
-  public render () {
-    return <div>{this.title}</div>
-  }
-}
-```
-
-## API
-
-### Rendering the Virtual DOM
-
-```js
-const vdomFragment = hyperdom.html(selector, [attributes], children, ...);
-```
-
-* `vdomFragment` - a virtual DOM fragment. This will be compared with the previous virtual DOM fragment, and the differences applied to the real DOM.
-* `selector` - (almost) any selector, containing element names, classes and ids: `tag.class#id`, or small hierarchies `pre code`.
-* `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
-* `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
-
-#### The `binding` Attribute
-
-Form input elements can be passed a `binding` attribute, which is expected to be either:
-
-* An array with two items, the first being the model and second the field name, the third being an optional function that is called when the binding is set, for examle, you can initiate some further processing when the value changes.
-
-  ```js
-  [object, fieldName, setter(value)]
-  ```
-
-* `object` - an object
-* `fieldName` - the name of a field on `object`
-* `setter(value)` (optional) - a function called with the value when setting the model.
-
-* An object with two methods, `get` and `set`, to get and set the new value, respectively.
-
-  ```js
-  {
-    get: function () {
-      return model.property;
-    },
-    set: function (value) {
-      model.property = value;
-    },
-    options: {
-      // options passed directly to `hyperdom.binding()`
-    }
-  }
-  ```
-
-#### Event Handler `on*` Attributes
-
-Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
-
-When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
-
-#### Promises
-
-If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
-
 ### Raw HTML
 
 **Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
@@ -1391,121 +1928,6 @@ attachment.remove();
 ```
 
 Destroys the DOM, running any `onremove` handlers found in components. This will remove the DOM element.
-
-## Performance
-
-Hyperdom is usually very fast. It's based on [virtual-dom](https://github.com/Matt-Esch/virtual-dom) which has excellent performance, several times faster than React. See [these benchmarks](http://vdom-benchmark.github.io/vdom-benchmark/). However, if you have very large and interactive pages there are several strategies you can employ to speed things up.
-
-* Consider only rendering a part of the page on certain events. For this, you can use a [component](#components) for the portion of the page you want to refresh, then return a component or an array of components from the event handler.
-* Consider using [key](#keys) attributes for large dynamic lists of elements. Key attributes allow the diffing engine to spot differences inside lists of elements in some cases massively reducing the amount of DOM changes between renders.
-* For form inputs with bindings, especially text inputs that can refresh the page on each keypress, consider using `hyperdom.html.binding()` to not refresh, or only refresh a component.
-* Consider using a component with a `renderCacheKey()` method, to have finer control over when the component re-renders. You can reduce the total render time by not rendering portions of the page that don't change very often. When the `renderCacheKey()` result changes from one render to the next, the component will be re-rendered. When it doesn't change, the component won't be re-rendered.
-* For parts of the page that don't ever change, you can pre-render the VDOM statically once and return the same VDOM on each render.
-
-## Debugging
-
-### Chrome Plugin
-
-[https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle](https://chrome.google.com/webstore/detail/hyperdom-inpector/pggnlghflkefenflladfgkbcmfnjkcle)
-
-### File Names and Line Numbers
-
-By using [transform-react-jsx-source](http://babeljs.io/docs/plugins/transform-react-jsx-source/) hyperdom will generate `data-file-name` and `data-line-number` attributes pointing to the file that generated the DOM.
-
-```jsx
-render() {
-  return <h1>{this.title}</h1>
-}
-```
-
-Will generate
-
-```html
-<h1 data-file-name="/full/path/to/file.jsx" data-line-number="40">Title</h1>
-```
-
-## Production Build
-
-Debugging features and deprecation warnings can be turned off for production builds. Hyperdom source code checks the `NODE_ENV` environment constiable, and when set to `production` will turn these features off.
-
-To make a production build with webpack, use `webpack -p`.
-
-To make a production build with browserify, use [envify](https://github.com/hughsk/envify) and ensure `NODE_ENV=production`, for e.g. `browserify -t [ envify --NODE_ENV production  ] ...` and then use a minifier like [uglify](https://github.com/mishoo/UglifyJS2) to strip the disabled code.
-
-## Common Errors
-
-### Outside Render Cycle
-
-> You cannot create virtual-dom event handlers outside a render function
-
-This usually happens when you try to create virtual dom outside of a render function, which is ok, but if you try to add event handlers (`onclick` etc, or otherwise have attributes set to functions) then you'll see this error. This is because outside of the render cycle, there's no way for the event handlers to know which attachment to refresh - you could have several on a page at once.
-
-Another cause of this error is if you have more than one instance of the hyperdom module loaded. This can occur if you have an NPM listing like this:
-
-```
-my-app@1.0.0 /Users/bob/dev/my-app
-├── hyperdom@1.19.1
-├── my-hyperdom-component@1.0.0
-│ ├── hyperdom@1.19.1
-```
-
-With `my-hyperdom-component` depending on another `hyperdom`. Better to have `my-hyperdom-component` have a `peerDependency` on hyperdom, allowing it to use the `hyperdom` under `my-app`.
-
-### Refresh Outside Render Cycle
-
-> Please assign hyperdom.html.refresh during a render cycle if you want to use it in event handlers
-
-This can occur if you use `hyperdom.html.refresh`, or `h.refresh` outside of a render cycle, for example, in an event handler or after a `setTimeout`. This is easily fixed, take a look at [Refresh Function](#refresh-function).
-
-## Development
-
-To get started:
-
-```js
-git clone https://github.com/featurist/hyperdom.git
-cd hyperdom
-npm install
-```
-
-Some of the scripts below assume that you have `node_modules/.bin` in your `$PATH`.
-
-### Building
-
-`hyperdom.js` and `hyperdom.min.js` can be build using `npm run build`, these can then be used in a `<script src="..."></script>` tag.
-
-### Automated Testing
-
-Hyperdom is almost 100% tested with karma and mocha. If you're planning to submit a pull request, we kindly ask that you write a test that demonstrates that it works. Without tests, we can't guarantee that your feature will continue to work as we refactor the codebase.
-
-Tests can be found in [test/browser/hyperdomSpec.js](https://github.com/featurist/hyperdom/blob/master/test/browser/hyperdomSpec.js).
-
-You can run karma by running `karma start`, it will watch your files and rerun the tests every time they change.
-
-Server-side tests can be found in [test/server](https://github.com/featurist/hyperdom/tree/master/test/server). You can use `mocha test/server` to run these.
-
-To run all tests use `npm test`.
-
-### Manual Testing
-
-As much as automated testing is amazing, it can never really replace manual or exploratory testing. You may want to experiment with an API or see how hyperdom performs in a real project, while making changes to hyperdom as you go.
-
-To do this, first go to the `hyperdom` directory and run `npm link`. This will make hyperdom available to other projects.
-
-Then inside your other project run `npm link hyperdom`. When your project has `require('hyperdom')` it will be referring to your local version.
-
-You can then use [browserify](https://github.com/substack/node-browserify): `browserify myapp.js > myappbundle.js` or [watchify](https://github.com/substack/watchify): `watchify myapp.js -dvo myappbundle.js`, or [amok](https://github.com/caspervonb/amok): `amok --compiler babel --browser chrome myapp.js`, or [beefy](https://github.com/chrisdickinson/beefy): `beefy myapp.js`. [browserify-middleware](https://github.com/ForbesLindesay/browserify-middleware) is worth a look too.
-
-Alternatively, if you just want to compile `hyperdom.js` and reference it in a `<script src="..."></script>`, you can by running `npm run prepublish` in the hyperdom directory.
-
-## Sister Projects
-
-* [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
-* [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
-* [hyperdom-medium-editor](https://github.com/featurist/hyperdom-medium-editor)
-* [hyperdom-ckeditor](https://github.com/featurist/hyperdom-ckeditor)
-* [hyperdom-semantic-ui](https://github.com/featurist/hyperdom-semantic-ui)
-* [hyperdom-sortable](https://github.com/featurist/hyperdom-sortable)
-* [hyperdom-zeroclipboard](https://github.com/featurist/hyperdom-zeroclipboard)
 
 ## We're Hiring!
 
