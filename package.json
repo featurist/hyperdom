@@ -78,7 +78,9 @@
   "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
   "license": "MIT",
   "files": [
-    "*.js"
+    "*.js",
+    "*.d.ts",
+    "*.ts"
   ],
   "repository": {
     "type": "git",
