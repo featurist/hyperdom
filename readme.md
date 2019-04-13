@@ -1425,6 +1425,7 @@ Alternatively, if you just want to compile `hyperdom.js` and reference it in a `
 * [hyperdom-semantic-ui](https://github.com/featurist/hyperdom-semantic-ui)
 * [hyperdom-sortable](https://github.com/featurist/hyperdom-sortable)
 * [hyperdom-zeroclipboard](https://github.com/featurist/hyperdom-zeroclipboard)
+* [hyperdom-modal](https://github.com/featurist/hyperdom-modal)
 
 ## API
 
