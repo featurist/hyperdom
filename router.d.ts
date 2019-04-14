@@ -1,4 +1,4 @@
-import {VdomFragment, Binding, Component} from "index"
+import {VdomFragment, Binding, Component} from "."
 
 // TODO: what else is there?
 export interface RouteDefinition {

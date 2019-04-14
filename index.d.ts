@@ -1,4 +1,4 @@
-import * as router from "router"
+import * as router from "./router"
 
 // tslint:disable-next-line
 declare namespace hyperdom {
