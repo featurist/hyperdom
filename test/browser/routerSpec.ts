@@ -7,6 +7,7 @@ import * as detect from './detect'
 import mountHyperdom = require('./mountHyperdom')
 import stringify = Mocha.utils.stringify
 
+describeRouter('memory')
 describeRouter('hash')
 if (detect.pushState) {
   describeRouter('pushState')
@@ -43,7 +44,9 @@ function describeRouter (historyApiType: string) {
 
       historyApi = historyApiType === 'hash'
         ? hyperdomRouter.hash()
-        : hyperdomRouter.pushState()
+        : historyApiType === 'memory'
+          ? hyperdomRouter.memory()
+          : hyperdomRouter.pushState()
 
       router = hyperdomRouter.router({history: historyApi})
     }
@@ -102,7 +105,7 @@ function describeRouter (historyApiType: string) {
         })
       })
 
-      if (detect.historyBack) {
+      if (detect.historyBack && historyApiType !== 'memory') {
         it('can navigate backward and forward', function () {
           const monkey = mount(app, '/a')
 
