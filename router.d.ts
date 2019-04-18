@@ -78,3 +78,5 @@ export function router (options: object): Router
 export function hash (): RouteHistory
 
 export function pushState (): RouteHistory
+
+export function memory (): RouteHistory

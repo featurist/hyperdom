@@ -468,6 +468,27 @@ QueryString.prototype.stringify = function (paramsObject) {
   return query
 }
 
+var Memory = function () {
+  this.state = ['/']
+}
+
+Memory.prototype.start = function (model) {}
+
+Memory.prototype.stop = function () {}
+
+Memory.prototype.url = function () {
+  return this.state[this.state.length - 1]
+}
+
+Memory.prototype.push = function (url) {
+  this.state.push(url)
+}
+
+Memory.prototype.replace = function (url) {
+  this.state.pop()
+  this.state.push(url)
+}
+
 var PushState = function () {
 }
 
@@ -588,6 +609,10 @@ HrefAttribute.prototype.unhook = function (element) {
 }
 
 exports = module.exports = new Router()
+
+exports.memory = function () {
+  return new Memory()
+}
 
 exports.hash = function () {
   return new Hash()

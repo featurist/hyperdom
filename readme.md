@@ -1027,7 +1027,7 @@ const router = hyperdomRouter.router(options)
 Where `options` can contain:
 
 * `querystring` - an object that contains `stringify(params)` and `parse(querystring)` methods, the `qs` module or Node's `querystring` module are good options. By default Hyperdom uses a very simple (and small) query string parser and stringifier that works for basic values like strings and numbers, but for complex objects you'll see `%5Bobject%20Object%5D` in your query string.
-* `history` - can be either `router.hash()` for hash-style routing, or `router.pushState()` for regular History API routing.
+* `history` - defaults to `router.pushState()` for History API routing. Specify `router.hash()` for hash-style routing. `router.memory()` can be used for testing.
 * `baseUrl` - can be used to make all routes relative to this base URL path
 
 #### Not Found
