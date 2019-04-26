@@ -1,5 +1,5 @@
 {
-  "name": "hyperdom-get-started-ajax",
+  "name": "hyperdom-get-started-events",
   "version": "1.0.0",
   "description": "Hyperdom Demo JS",
   "main": "index.html",
@@ -8,8 +8,7 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "babel-polyfill": "6.26.0",
-    "babel-preset-hyperdom": "1.4.0",
+    "babel-preset-hyperdom": "latest",
     "hyperdom": "latest"
   },
   "devDependencies": {

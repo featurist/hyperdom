@@ -5,16 +5,3 @@
 .hello {
   text-transform: uppercase;
 }
-
-.beerList {
-  border-collapse: collapse;
-}
-
-.beerList tr {
-  border-bottom: 1px solid lightgrey;
-}
-
-.beerList td,
-.beerList th {
-  padding: 10px;
-}
