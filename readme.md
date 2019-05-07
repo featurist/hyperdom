@@ -116,7 +116,7 @@ Sponsored by:
 ### Install
 
 ```sh
-yarn create hyperdom-app --jsx myapp # or npx create-hyperdom-app myapp
+yarn create hyperdom-app --jsx myapp # or npx create-hyperdom-app --jsx myapp
 cd myapp
 yarn install
 ```
@@ -156,9 +156,9 @@ hyperdom.append(document.body, new App());
 
 ### State Management
 
-It's rare to have to think about state management in Hyperdom. Just like React app, a Hyperdom app is often composed of multiple components. Unlike React though, Hyperdom does not recreate them on each render - your app has total control over how long those components live. Another crucial difference is that Hyperdom always re-renders the whole app, no matter which component triggered an update.
+It's rare to have to think about state management in Hyperdom. Just like React app, a Hyperdom app is often composed of multiple components. Unlike React though, Hyperdom does not _recreate_ them on each render - your app has total control over how long those components live. Another crucial difference is that Hyperdom always re-renders the whole app, no matter which component triggered an update.
 
-This means you don't have to think about which components will be rerendered, you don't have to think about which events will rerender the app, you don't have to think about special data structures - you can use normal JavaScript objects to store state. You can now just concentrate on how UI events update your application state, and how that state is rendered on the page.
+This means you can use normal JavaScript objects to store state and simply refer to those objects in jsx.
 
 ### Events and Bindings
 
@@ -293,7 +293,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
 
 When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
 
-Note how we take advantage of that second render to toggle 'Loading...'.
+Note how we take advantage of the two renders rule to toggle 'Loading...'.
 
 ### Composing Components
 
@@ -387,11 +387,11 @@ module.exports = class App {
 ```
 <a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdSeUhadgkE4yBUgCRqOAQciqtgARhQAAZ3VajGw4kyMcNHbY2AAJFRqTRaJiFGBaEhMABSMy9Di0GCsTpiZDiiXayeMfsxNgEDCMDn1kwoGfYk3w0ypOe5TE8nhIqjIeYcaFM0HUVZr0y7PdBWepuZAcii1ribbiZHwEHgqpLAzYmGwUE87DMljInicLjgbg83l8wxVQZAUAwVH1HeMa5wm64J116vD2gzV5vlZAhhXIDfTUdAvL94B_Cc_2MOIJGjGdqHnRdbGXeR-SmDcuyzWBcE_a8wKCFhJ29EBBRgJQSXcdQiyEEIyHCMhImifFCWJMk1BWKF2HFeIpXIGUcjlTJ9QaMMgKYU4mC4ABHbsuAACkUESIzYABKABuRhBKxfUlFgOAxIkmBpIgOS2BQRkKB0-AUHwOAbDUz453IISACEYDUAAZCAhPEqSZJgeSQDM1yPK8n97PbMhY3UUxYBQBJzUNPTxPwK9bKYABBaEmGQzSfHwCh3CYWTlOy5EKAULz0Dc3BPO8pgyBgEkmGCmrQuK9SjDouQuBHXBnPZJRitK0sDIoUxcGYeSRoBBF_gGQYr3XOb5qYAB1I4sS8pglBIcb6uVGAAH5BisdhTCxCzVAhKh4h_Jg0FiKxzGuiq4BQUxyQAOQO2FVlO87lu2FZFpwQGWGQlaWHKyqPrUb6AiYAAyRHBlmypdoAci4erSSYfZcn1YkyHMJpAIjctVkJ8gSey6G3th3B4ZgUJ4WBMGmDoyHade96voOpGUbpqqQv1Tn5tZxFkXCgjuuoOJcGDd41CGiHRvGybkRmtnNe2BRnQOVK4FOYBtN0pIcCgEhQiaRWoEtpgwGJSNQw1CN8leZ12dyfYFC4MAIQAYkecgUogIVjaG04miKoWKriABxLgeCe_SnFMGBlOtnWBk-hJK2moGMEBiW5uljmHJYHr5YucklQCFXkQgMAY55hmmZK1XK54dWiuz1HtYLgZATZ9HTCxmAcaa_GqeJ0nFO0CnzKJmngCFtuDpZlZZr7gEuwoAqIq5gYQ6gMPBQjkqo6YIWdRauBirFo-mCBOAsFgcFV55rz3JIXonpax-kN2YDGDBgW0eN7rVR3oMQk50D5ey3gPFaZcZadQrnjOASg5xMFvtVe-HdkRxFgFQa-PNsB2g6gMIW39f5AmJi1VOPgYAdWRJpAycBzTWAnuJDAJI0xYjADwQ4AVkgUHYHARAKx2LsAgCgM6ZBhQyOstoFYEgABMhI8EqUoaIIW5DcBJTxnwkY7DOEnHFOQdq6CoZfzgD_P-9Dqr6TABgKAJwdFdSMFXZWBCRpcDGhNXuBcdhpjIE0T-lU44wETm5YYxMmDHSFt4vqA0hoCCSXLNQiteg-M3qmKwpcPFhF5IxAgzFSTkkpCORIdIeJZFlBkJyWIybaH0r5Yy_kFKuw_CAcKbDMrsDaYZPyAUzIcW0Q5FpWgUAcTlrJTQ-BTABEoOgAa0h6qNQytCYq4UGIgCYkSCpbFTZWRsggZAjT6n8SQOYS2mAoCyR-EoXxLA3CUE8C4rQ0AlACBDDgW0wx8D7FzunGQGV0SuPWa_aweo1BNw6p482ds4zIRurqfcrh3BaAEKYaEaggXuOKRFYWrUhLIUWBoNQJoSB2yhCcAQpBaXiOYUSxgJLaoXVwMNFgFL5aeEWPvbQAhnTsHiNiGlYImCn3MMkcwXAlAIocuy0K191CGGVUJcq3KmDVnUHQ8wwq3SisVfRPkByWKVJahyridS-K0DYVMoZRkTIAXnsBPpTTsQWV0k6kZplzKWTemciZEUooxTFPFdwvB9IpQwGlK1KqSxyDjVg_AOCeB3wbiNIhPAJ56LwTomxlUaEOPMAw8SacWWH1EGw58ZjuFGP4Q7IRCgRH73EZI6Rsj5GKNkaaVRGj9F2ULaQyqQ79K8KbXWpyYo6SWPCmVWx9j9Xlodq4wlaDq3JPKG_fyLzRBNxbmOvB-6Bj-J7lNLmw9JaD22HsNAsADZxqNibb1Vl9Ecqzreoe5V3jAPFk4f9K0hgKCeEBgDCgmhM1WOVcDP7IM7tuVYGAMHIPQKHmsXA4HUN_vQ4MCgTy4Pc2PXaFAqZ2CyVksAOuMB1l7CQw1dZ_gRQwAAPrjSgKES-0dO5PzVoEy9fHgOAbw1eigHxv1CZOlocwDQYAQBlRQCEABWN0jx8TG2Y6KdjuBONgdE5DGDEmpOGfE-Emjm8zMGeE30VeIpT4NUs8ZkzQMROSeQQZrjgCr1rEI9AmDu6EHbwLig8um7Za9SzQMQ9slqF2Nof_aqp7RDnsCdepoy6nooGyyXZEoQmA4BONqs93cBN93S_5veB8mAnzPhfMS0cb4ZrwQ_Z-Xld0fzi5lxxahragPAfsfRqwqvkH_REt627d0P3K4gm9yCR1izoqESIoRQhAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
 
-Since `this.beerList` is a component, we can specify it in place of jsx. Hyperdom will implicitly call its `render()` method.
+Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
 
 ### Routes
 
-Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to waste time choosing and implementing one.
+Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to spend time choosing and implementing one.
 
 We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
 
