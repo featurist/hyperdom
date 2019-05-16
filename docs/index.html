@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>hyperdom - A fast, feature rich and simple framework for building dynamic browser applications.</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="A fast, feature rich and simple framework for building dynamic browser applications.">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name       : 'hyperdom',
+      repo       : 'https://github.com/featurist/hyperdom',
+      loadSidebar: true,
+      auto2top   : true,
+      maxLevel   : 3,
+      subMaxLevel: 3,
+      coverpage  : 'coverpage.md',
+      homepage   : 'introduction.md',
+      disqus     : 'hyperdom',
+      plugins    : [
+        function(hook, vm) {
+          hook.init(function() {
+            // Called when the script starts running, only trigger once, no arguments,
+          });
+
+          hook.beforeEach(function(content) {
+            // Invoked each time before parsing the Markdown file.
+            // ...
+            return content;
+          })
+          hook.afterEach(function(html, next) {
+            debugger
+            // Invoked each time after the Markdown file is parsed.
+            // beforeEach and afterEach support asynchronous。
+            // ...
+            // call `next(html)` when task is done.
+            next(html);
+          });
+        }
+      ]
+    }
+  </script>
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+  <!--<script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>-->
+</body>
+</html>
