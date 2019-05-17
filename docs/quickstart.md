@@ -20,26 +20,13 @@ Open `http://localhost:5000`
 
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/app.jsx", "addToNextExample": true}}
-const hyperdom = require("hyperdom");
-const {hello} = require("./styles.css");
-
-module.exports = class App {
-  render () {
-    return <h1 class={hello}>Hello from Hyperdom!</h1>
-  }
-}
-```
+[see](codesandbox/get-started-compose/src/browser/app.jsx#L3)
 
 It's mounted into the dom in `./browser/index.js`:
 
-```js {"codeExample": {"project": "docs/codesandbox/get-started-init", "file": "src/browser/index.js"}}
-const hyperdom = require("hyperdom");
-const App = require("./app");
+[see](codesandbox/get-started-compose/src/browser/index.js)
 
-hyperdom.append(document.body, new App());
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMLAUZAyQBI1HAIORWWwAIwoAAMqolaTYVgRr3y8qQbIAEio1JotExfDAtCQmAApCoasQgLQYCwK8yWGx2TGOtk6t4wgQMNJOgVC914spQI6e2zJJiTSYkVRkX1OtAAV2g6gjpXw5Uz2ZjEO9jl0aVMkqsKasZHwEHgrODuTYmGwUEmnG4fI5pu07qgGCoArTbN7XJ0BrYg-HFHLLErmpAVgklpr1HrjYNzfkHDzOEmmcssFwA6H8DnIDki6dBJgSkBJA0gaEBjIhmxphAPz-AOBajBWNyQQZAXHIGkPDpVwBRiE0JyYQYmC4ABHLMuAACkUOCzTYABKABuRhoPeABBC4EKQmBUIgDC2BQBpzkuEACLWMhxzNFBGOodR0M0fAM06Sh0FRJRpCYMgYEBJgyPYdDcIInFvwIX8gRBeEKCUWA4BQfA4BA4hwPcWhEGJKASEwKB0M2JRcKYHcwHAyYwGZaAlAENhDRwaV8nwboADkYAzGAZGkl4MCgMS4GqOB-TUCAwEI99WLsHAzLsuQqGsPkKFwaKHNwLQBAzC41F8gZEo_MhFJ_f5VIAxjgOsKlDNpMCyBg9jtAolC0JgTD2Ww_tmMS4i7OWKAzMMbqqN6_r6IFTT4B0vS8MSxhrXUDNYBQGx2CfXgKPwQc9Ok8idy4T1cCYOT0pDSiKAzXBmCSRUemOuBBmAcbJriTyJptMAAXNY1OTNbwlkVNpKuMQxYaAA&query=module%3Dsrc%2Fbrowser%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-compose?fontsize=14)
 
 ### State Management
 
@@ -55,27 +42,9 @@ Hyperdom rerenders immediately after each UI event your app handles. There are t
 
 Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-events", "file": "src/browser/app.jsx", "line": 3}}
-module.exports = class App {
-  renderHeader() {
-    if (!this.hideGreeting) {
-      return <div>
-        <h1 class={hello}>Hello from Hyperdom!</h1>
-        <a href='#' onclick={() => this.hideGreeting = true}>Next</a>
-      </div>
-    } else {
-      return <p>Now then...</p>
-    }
-  }
+[see](codesandbox/get-started-events/src/browser/app.jsx#L3)
 
-  render () {
-    return <main>
-      {this.renderHeader()}
-    </main>
-  }
-}
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JMYBJ3DDZGk2OLcHAIORWWwAIwoAAM6pkDJAVgRr3yiqQbIAEio1JotExfDAtCQmAApCpa6UgLQYCxK8yWGx2THOsQgPVvGECBhpAMCoWevFlKBHb22ZJMSaTEiqMj--QgNAAV2g6mjpXw5Vz-fjEN9jl0aVM2qs6asZHwEHgrLDuTYmGwUEmnG4fI55u0nqgGCoAszAcHXJ0RrYo_HFGrLFrLqsEmtDeozdbRvbWZjxZ7ucssFwI7H8CXIDkq4DBJgSkBJA0IaEBjIhmxpkDBD-AOBNQGnOdhyTgawqXIGkPDpVwBRiM0ZyYQYmC4ABHPMuAACkURCLTYABKABuRg4PeYBligKASEMZDUJgDCIGwtgUHhCglFgOAUHwOAYWItYyFtdQc1gFAbHYF9eDo_BR14pgAEELiYfcuG9XBjRWNQsII5SHiOMAmCw7wKAUCAuNMqwAHEuB4CxiR0_dci4Cgc1wZg9gOHZcnSBRlR6WS4EGCicGoww4g0qi7TAAFLVNTkLW8JZlS83JPG6BQuDAQYAHIAGJsqYcgZIgQkgu05C4iYEyzLsY4YGsmBbLIYk6IoXAcxgMKADkbAoRoMBS9IGluLzaJwAZdPDURnNc9z2DiLqgSq5YyBQNbGnmvSvxrASWFUqxcEMhy9Jmtz0jdCxBuAaquP2tQNKyLSCO21KGgusg2m27acV_X5_iBEEwQTMDILcWkXHIeDpwtOj0MwmAcPZPDhxAfim0h95FPYWGGPhxHWJAwiSIzMhoe0FAQOodQsM0fAc06Sh0FRJRpCYMgYEBBSLm0tGfp-f8AaAgUOPgbjeNB6DaEQYlqMwKAsM2JRjrSMAoMmMBmWgJQBDYCLxXyfBuh6jqZAUl4MCgVm4GqOB-TUCAwGJ7bGDsEK7X3KhrD5NqbdV3AtAEHMLjUQ2Bid79DEMIA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-events?fontsize=14)
 
 When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
 
@@ -85,26 +54,9 @@ Read more about Events [here](#Events)
 
 This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-bindings", "file": "src/browser/app.jsx", "line": 13}}
-  renderBody() {
-    if (this.hideGreeting) {
-      return <div>
-        <label>
-          What is your name? <input type="text" binding="this.userName"></input>
-        </label>
-        {this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>}
-      </div>
-    }
-  }
+[see](codesandbox/get-started-bindings/src/browser/app.jsx#L13)
 
-  render() {
-    return <main>
-      {this.renderHeader()}
-      {this.renderBody()}
-    </main>
-  }
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCcxMSTAY6qmi6RQQFLBx4RgEOEwAyhiWaCTWngD0-YUwOaKeWjwYTPgKpXA8ALxsAKrBAGIAtAAcbEwNbY0KmdmMcp616kptLJ7qEBJMEOrDIBjs7GxxjfsSqXK7cPi4EOwUTHAEp5_4DWi4JAA7gNcA0LFZbAArPgga4NJ4vN6LP4kLapJYOFKMExmdgYfAAawwAHMYChoeRnK4qDREHQ5GwyBhOvxWCBlKoNNpJqSKJM4BRSlR1JM0OCLMSYbI0mwJGo4BByKy2ABGFAABg1MgZICsCNe-SVSDZAAkVGpNFomL4YFoSEwAFIVbUykBaDAWZXmSw2OyYl1iED6t4wgQMNKBgVCr14spQI4-2zJJiTSYkVRkAPyEBoACu0HUMdK-HKeYLCYhfscujSph1VgzVjI-Ag8FZ4dybEw2Cgk043D5HIt2i9UAwVAFWcDQ65OmNbDHE4oNZYdddVgkNsb1BbbeNHezsZLvbzllguFH4_gy5AcjXgYJMCUgJIGlDQgMZEM2NMQYIfwBYE1Aac52HJOBrCpcgaQ8OlXAFGJzVnJhBiYLgAEd8y4AAKRQkMtNgAEoAG5GHg95gGWKAoBIQwULQmBMIgHC2BQeEKCUWA4BQfA4BhEi1jIO11FzWAUBsdhX14ej8DHPimAAQQuJgDy4H1cBNFY1GwwiVIeI4wCYbDvAoBQIG4syrAAcS4HgJV0g9ci4Chc1wZg9gOHZcnSBQVR6OS4EGSicBoww4k06j7TAAErTNTlLW8JYVS83JPG6BQuDAQYAHIAGJsqYchZIgQkgp0lC4iYUzzLsY4YBsmA7LIYl6IoXBcxgMKADkbAoRoMBS9IGluLzv1rQSWDUqxcAAIVRJRyscgyjOqiy6oapriQc_TJp4Vz3JGnb2jHHtBtyAB1Pp3nMpglBIVymCZToAH50gsdhc3eDjVFOKhrBvJgxUsCVfrM7jcxBLrmRgK5Gnez6zqGk6cER4BVpQCG1ChzomAAMlx9IRtCe7sq4R6gSYbpPAFAFmriGdLSjRoafIYlKrRsGMch6HDBuTyxu8obDojJgBdFiaGPUxb9Oc_b0ndCxBo5mqprUTSsm0wixdyZXuNV2b5p07WhoVsg2jGsacT_X5_iBEEwUTcCoLcWkXHIBCGe0eiMKwmBcPZfCRxAATm3d94lPYb3GN9_22NAojSMzMhPa0FBQOodRsM0fBc06Sh0Hm6RHpgQFFIuHSQ6tn4ALt4CBU4-AeL452YNoRBiRozAoGwzYlG2tIwGgyYwGZaAlAENgIrlfJ8G6HqOpkRSXgwKAi7gao4H5NQIDAROxsYOwQvtA8_r5NqN8H3AtAEXMLjUWeBj3wT0Ea3AABlzIouRag0NRJlIai5wBgCAAWOdgj8jDP2wGoD-CE2p6TSD_aaooSAUAoNoAQKp2DWA-CQKAxwmD4OJPYYkXAlBPyTi_GBn8qrqGlFQ9-NDTIIJYHidQ-xmqYPVNgihJhDCGCAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-bindings?fontsize=14)
 
 Each time user types into the input, hyperdom re-renders.
 
@@ -114,69 +66,9 @@ Read more about Bindings [here](#Bindings)
 
 The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-ajax", "file": "src/browser/app.jsx", "line": 15}}
-  renderBody() {
-    return (
-      <div>
-        <label>
-          What is your name? <input type="text" binding="this.userName"></input>
-        </label>
-        {
-          this.userName &&
-            <div>
-              <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
-              <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
-                Have a beer
-              </button>
-            </div>
-        }
-        {this.isLoadingBeer ? "Loading..." : this.renderBeerList()}
-      </div>
-    );
-  }
+[see](codesandbox/get-started-ajax/src/browser/app.jsx#L15)
 
-  renderBeerList() {
-    if (!this.beers) {
-      return;
-    }
-
-    return (
-      <table class={styles.beerList}>
-        <thead>
-          <tr>
-            <th />
-            <th>Name</th>
-            <th>Tagline</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.beers.map(({ name, tagline, image_url }) => {
-            return (
-              <tr>
-                <td>
-                  <img height="50" src={image_url} />
-                </td>
-                <td>{name}</td>
-                <td>{tagline}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
-  }
-
-  async getBeers() {
-    delete this.beers;
-    this.isLoadingBeer = true;
-
-    const response = await fetch("https://api.punkapi.com/v2/beers");
-    this.beers = await response.json();
-
-    this.isLoadingBeer = false;
-  }
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdSeDA0jDxGQKkASNRwCDkVVsACMKAADG7LUY2HEmRjhg7bGwABIqNSaLRMQowLQkJgAKRmnocWgwVkdMTIcUS7STxl9mJsAgYRgc-smFHT7Em-GmVOz3KYnk8JFUZFzDjQpmg6kr1emne7oMz1JzIDkUStcVbcTI-Ag8FVxYGbEw2CgnnYZksZE8ThccDcHm8vmGKsDICgGCo-vbxlXOA3XBOuvVYe06cv14rIEMy5Ar81HRz0_eBv3HX9jDiCQo2nag5wXWwl3kfkpnXTtM1gXAPyvUCghYCcvRAQUYCUEl3HUQshBCMhwjISJonxQliTJNQVihdhxXiKVyBlHI5UyfUGlDQCmFOJguAARy7LgAApFGE8M2AASgAbkYASsX1JRYDgUTxJgKSIFktgUEZChtPgFB8DgGxVM-MgY3UUxYBQBJ2HcXg9PwS8bKYABBaEmCQrhh1wIN3jUGSlKC5EuAoUxcGYOSS22BF_gGQYFCdA4fLgU5gC0nSkhwKASFCJpwqgUqmDAYkIxDDVw3yV4nXSgZcn2BQuDACEAGJHnIbyICFfKotEpomBkigFAgOAkjBGAAHEuB4KxzD0pxTBgJTyuRDKmAAOQSCsUvati2sGFY0uROyjFouQQriXAACF2SUMakJYOKEqSvbBmu07tkvNcLoGAB1I4sVmpglBIBKmCVAIAH5BisdhTCxczVAhKh4m_Jg0FiNacZmubTHJA7lUCEAGTRjHQcu4GcAZz79qYabZpQcm1EpgImAAMn5v79sBYEGZFtLKjhgByLgEdJJh9lyfViTIcwmgA8My1WFXyHVoKObJimqdCeExeFtnvgxihyCYQaoGGwVRui04JsNlAdWemBbSi0ImCBOAsFgcFgHd2aABkSF6NavbUXbAbZ0QgwwG1FYJ72sITy3CWt8hxe2K7zaz2jE9D0mUAjqOgTV2PcCYFG2Ej6O1ZQVvHgEd3HrUWvw9mihfb-s3ERutS7vsr7qCenu-4-5EIDASb8nd7BbWi1mJ_ixLR4Ge6Uu-xLJsHvY0FgHKMBs_LCsslfcF7_V48ToY3l6fOhlwfOAWmp4P8Gaaml5mAqw_4W3an_coIoHZkEAWsBQr81jvwtkA5-Hws5DB-H8EBBty43zmimdgMkZLAARlTaQ7MIFWBgKQ_wIoYAAH0EpQCYKEF2E115s33r9LOIsnA_1ASgxOAjUZaHWm8CA5hkgQgAKyukePifK1DRT0NwFAP2zxMEizWPwwRGUhh9GAIjGAptNG8O2BQPRexzCQMMUArR2jLo8PUUwW6gjmEl2zhQdBF0gFB02CPcc49FZwCULOJgnsM5wFnilOIsAqDs2weE7eogw5wCbtXcwtcNo-BgKPZEGl9JwHctYGAekMAklTFiMAPBDhyX_BQCg7A4CIBWGxdgEAUDozIMKVpVltArAkAAJkJOE5SiSWDL3CSUspIx8mFJOOKcgUUckpWSakmOGc9JgAwFAE4iS3Fd1wJEgYHDD6Ax2KmMgTQy6cxmnEZa3thhq3rnEzm-zXq_DGh3cu-zwq9EijtVYKYrDpWcUwsIvIGIECYqScklJhyJDpNxLIsoMjkEEprbQelJLSRgDU9FQFbp5ICuwTFBlsU1NMuxEZ9k8UoHYpPGSmh8CmACJQdAb1SFQJJP5aEUVbr0RAIxIk0LWJXzmtZBAyAUVIr4kgSxJBMBQBkugtecg3CUE8JsrQ0AlACGDDgG0wx8D7COltGQ_l0RbNIYHaweo1Dz1HrvYqVVYxIVxrqPcrh3BaAEKYaEagjU7LBW2Mg6AM53yxEhRYGg1CeFIFVKEJwBBxsvA07JQbGChrUOG9mddI3kRjYsOp2gBBOnYPEbEJAHbqCYA7cRFBzBcCUA6-ymbb593ZuoQwrbs1fyQlWdQaSS2ujLc2uioRx1AA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-ajax?fontsize=14)
 
 When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
 
@@ -186,93 +78,13 @@ Note how we take advantage of the two renders rule to toggle 'Loading...'.
 
 Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/BeerList.jsx", "addToNextExample": true}}
-const hyperdom = require("hyperdom");
-const styles = require("./styles.css");
+[see](codesandbox/get-started-compose/src/browser/BeerList.jsx)
 
-module.exports = class BeerList {
-
-  async getBeers() {
-    delete this.beers;
-    this.isLoadingBeer = true;
-
-    const response = await fetch("https://api.punkapi.com/v2/beers");
-    this.beers = await response.json();
-
-    this.isLoadingBeer = false;
-  }
-
-  renderTable() {
-    if (this.beers) {
-      return (
-        <div>
-          <table class={styles.beerList}>
-            <thead>
-              <tr>
-                <th />
-                <th>Name</th>
-                <th>Tagline</th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.beers.map(({name, tagline, image_url}) => {
-                return (
-                  <tr>
-                    <td>
-                      <img height="50" src={image_url} />
-                    </td>
-                    <td>{name}</td>
-                    <td>{tagline}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-  }
-
-  render() {
-    if (this.isLoadingBeer) {
-      return <div>Loading...</div>
-    } else {
-      return (
-        <div>
-          <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>Have a beer</button>
-          {this.renderTable()}
-        </div>
-      );
-    }
-  }
-}
-```
 
 And use it in the main app:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-compose", "file": "src/browser/app.jsx", "line": 3}}
-const BeerList = require("./BeerList");
-
-module.exports = class App {
-  constructor () {
-    this.beerList = new BeerList();
-  }
-
-  renderBody() {
-    return (
-      <div>
-        <label>
-          What is your name? <input type="text" binding="this.userName"></input>
-        </label>
-        {
-          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
-        }
-        {this.userName && this.beerList}
-      </div>
-    );
-  }
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdSeUhadgkE4yBUgCRqOAQciqtgARhQAAZ3VajGw4kyMcNHbY2AAJFRqTRaJiFGBaEhMABSMy9Di0GCsTpiZDiiXayeMfsxNgEDCMDn1kwoGfYk3w0ypOe5TE8nhIqjIeYcaFM0HUVZr0y7PdBWepuZAcii1ribbiZHwEHgqpLAzYmGwUE87DMljInicLjgbg83l8wxVQZAUAwVH1HeMa5wm64J116vD2gzV5vlZAhhXIDfTUdAvL94B_Cc_2MOIJGjGdqHnRdbGXeR-SmDcuyzWBcE_a8wKCFhJ29EBBRgJQSXcdQiyEEIyHCMhImifFCWJMk1BWKF2HFeIpXIGUcjlTJ9QaMMgKYU4mC4ABHbsuAACkUESIzYABKABuRhBKxfUlFgOAxIkmBpIgOS2BQRkKB0-AUHwOAbDUz453IISACEYDUAAZCAhPEqSZJgeSQDM1yPK8n97PbMhY3UUxYBQBJzUNPTxPwK9bKYABBaEmGQzSfHwCh3CYWTlOy5EKAULz0Dc3BPO8pgyBgEkmGCmrQuK9SjDouQuBHXBnPZJRitK0sDIoUxcGYeSRoBBF_gGQYr3XOb5qYAB1I4sS8pglBIcb6uVGAAH5BisdhTCxCzVAhKh4h_Jg0FiKxzGuiq4BQUxyQAOQO2FVlO87lu2FZFpwQGWGQlaWHKyqPrUb6AiYAAyRHBlmypdoAci4erSSYfZcn1YkyHMJpAIjctVkJ8gSey6G3th3B4ZgUJ4WBMGmDoyHade96voOpGUbpqqQv1Tn5tZxFkXCgjuuoOJcGDd41CGiHRvGybkRmtnNe2BRnQOVK4FOYBtN0pIcCgEhQiaRWoEtpgwGJSNQw1CN8leZ12dyfYFC4MAIQAYkecgUogIVjaG04miKoWKriABxLgeCe_SnFMGBlOtnWBk-hJK2moGMEBiW5uljmHJYHr5YucklQCFXkQgMAY55hmmZK1XK54dWiuz1HtYLgZATZ9HTCxmAcaa_GqeJ0nFO0CnzKJmngCFtuDpZlZZr7gEuwoAqIq5gYQ6gMPBQjkqo6YIWdRauBirFo-mCBOAsFgcFV55rz3JIXonpax-kN2YDGDBgW0eN7rVR3oMQk50D5ey3gPFaZcZadQrnjOASg5xMFvtVe-HdkRxFgFQa-PNsB2g6gMIW39f5AmJi1VOPgYAdWRJpAycBzTWAnuJDAJI0xYjADwQ4AVkgUHYHARAKx2LsAgCgM6ZBhQyOstoFYEgABMhI8EqUoaIIW5DcBJTxnwkY7DOEnHFOQdq6CoZfzgD_P-9Dqr6TABgKAJwdFdSMFXZWBCRpcDGhNXuBcdhpjIE0T-lU44wETm5YYxMmDHSFt4vqA0hoCCSXLNQiteg-M3qmKwpcPFhF5IxAgzFSTkkpCORIdIeJZFlBkJyWIybaH0r5Yy_kFKuw_CAcKbDMrsDaYZPyAUzIcW0Q5FpWgUAcTlrJTQ-BTABEoOgAa0h6qNQytCYq4UGIgCYkSCpbFTZWRsggZAjT6n8SQOYS2mAoCyR-EoXxLA3CUE8C4rQ0AlACBDDgW0wx8D7FzunGQGV0SuPWa_aweo1BNw6p482ds4zIRurqfcrh3BaAEKYaEaggXuOKRFYWrUhLIUWBoNQJoSB2yhCcAQpBaXiOYUSxgJLaoXVwMNFgFL5aeEWPvbQAhnTsHiNiGlYImCn3MMkcwXAlAIocuy0K191CGGVUJcq3KmDVnUHQ8wwq3SisVfRPkByWKVJahyridS-K0DYVMoZRkTIAXnsBPpTTsQWV0k6kZplzKWTemciZEUooxTFPFdwvB9IpQwGlK1KqSxyDjVg_AOCeB3wbiNIhPAJ56LwTomxlUaEOPMAw8SacWWH1EGw58ZjuFGP4Q7IRCgRH73EZI6Rsj5GKNkaaVRGj9F2ULaQyqQ79K8KbXWpyYo6SWPCmVWx9j9Xlodq4wlaDq3JPKG_fyLzRBNxbmOvB-6Bj-J7lNLmw9JaD22HsNAsADZxqNibb1Vl9Ecqzreoe5V3jAPFk4f9K0hgKCeEBgDCgmhM1WOVcDP7IM7tuVYGAMHIPQKHmsXA4HUN_vQ4MCgTy4Pc2PXaFAqZ2CyVksAOuMB1l7CQw1dZ_gRQwAAPrjSgKES-0dO5PzVoEy9fHgOAbw1eigHxv1CZOlocwDQYAQBlRQCEABWN0jx8TG2Y6KdjuBONgdE5DGDEmpOGfE-Emjm8zMGeE30VeIpT4NUs8ZkzQMROSeQQZrjgCr1rEI9AmDu6EHbwLig8um7Za9SzQMQ9slqF2Nof_aqp7RDnsCdepoy6nooGyyXZEoQmA4BONqs93cBN93S_5veB8mAnzPhfMS0cb4ZrwQ_Z-Xld0fzi5lxxahragPAfsfRqwqvkH_REt627d0P3K4gm9yCR1izoqESIoRQhAA&query=module%3Dsrc%2Fbrowser%2Fapp.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[see](codesandbox/get-started-compose/src/browser/app.jsx#L3)
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-compose?fontsize=14)
 
 Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
 
@@ -284,141 +96,25 @@ We are going to add new routes to the beer site: `/beers` - to show the beers ta
 
 First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/index.js", "line": 1, "addToNextExample": true}}
-const router = require("hyperdom/router");
-const App = require("./app");
-
-hyperdom.append(document.body, new App(), { router });
-```
+[see](codesandbox/get-started-routing/src/browser/index.js#L1)
 
 Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers` (`browser/app.jsx`):
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/app.jsx", "line": 3, "addToNextExample": true}}
-const routes = require("./routes");
-
-module.exports = class App {
-  constructor () {
-    this.beerList = new BeerList()
-  }
-
-  routes() {
-    return [
-      routes.home({
-        render: () => {
-          return this.hideGreeting ? this.renderBody() : this.renderHeader()
-        }
-      }),
-      this.beerList
-    ]
-  }
-
-  renderLayout(content) {
-    return <main>{content}</main>
-  }
-
-  renderBody() {
-    return (
-      <div>
-        <label>
-          What is your name? <input type="text" binding="this.userName"></input>
-        </label>
-        {
-          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
-        }
-        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
-      </div>
-    )
-  }
-```
+[see](codesandbox/get-started-routing/src/browser/app.jsx#L3)
 
 The original `render()` method is gone. Two other special methods - `routes()` and (optional) `renderLayout()` - took its place. The former one is where the magic happens, so let's take a closer look. In a nutshell, `routes()` returns a "url -> render function" mapping. A particular render is invoked only if the current url matches. The "key" in that mapping is not actually a string url but a route definition. `routes.home()` in the above example is a route definition.
 
 We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/routes.js", "addToNextExample": true}}
-const router = require("hyperdom/router");
-
-module.exports = {
-  home: router.route("/"),
-  beers: router.route("/beers"),
-  beer: router.route("/beers/:id")
-};
-```
+[see](codesandbox/get-started-routing/src/browser/routes.js)
 
 A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
 
 There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
 
-```jsx {"codeExample": {"project": "docs/codesandbox/get-started-routing", "file": "src/browser/BeerList.jsx", "line": 2}}
-const routes = require("./routes");
-
-module.exports = class BeerList {
-
-  async onload() {
-    this.isLoadingBeer = true
-
-    const response = await fetch("https://api.punkapi.com/v2/beers")
-    this.beers = await response.json()
-
-    this.isLoadingBeer = false
-  }
-
-  routes() {
-    return [
-      routes.beers({
-        render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
-        }
-      }),
-      routes.beer({
-        bindings: {
-          id: [this, "beerId"]
-        },
-        render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
-        }
-      })
-    ]
-  }
-
-  renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id == this.beerId)
-    return <img src={beer.image_url}/>
-  }
-
-  renderTable() {
-    return (
-      <div>
-        <table class={styles.beerList}>
-          <thead>
-            <tr>
-              <th />
-              <th>Name</th>
-              <th>Tagline</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {this.beers.map(({id, name, tagline, image_url}) => {
-              return (
-                <tr>
-                  <td>
-                    <img height="50" src={image_url} />
-                  </td>
-                  <td>{name}</td>
-                  <td>{tagline}</td>
-                  <td><a href={routes.beer.href({id})}>show</a></td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-}
+[see](codesandbox/get-started-routing/src/browser/BeerList.jsx#L2)
 ```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdTeEimYZkcwyBUgCRqOAQciqtgARhQAAZ3VajGw4kyMcNHbY2AAJFRqTRaJiFGBaEhMABSMy9Di0GCsTpiZDiiXayeMfsxNgEDCMDn1kwoGfYk3w0ypOe5TE8nhIqjIeYcaFM0HUVZr0y7PdBWepuZAcii1ribbiZHwEHgqpLAzYmGwUE87DMljInicLjgbg83l8wxVQZAUAwVH1HeMa5wm64J116vD2gzV5vlZAhhXIDfTUdAvL94B_Cc_2MOIJGjGdqHnRdbGXeR-SmDcuyzWBcE_a8wKCFhJ29EBBRgJQSXcdQiyEEIyHCMhImifFCWJMk1BWKF2HFeIpXIGUcjlTJ9QaMMgKYU4mC4ABHbsuAACkUESIzYABKABuRhBKxfUlFgOAxIkmBpIgOS2BQRkKB0-AUHwOAbDUjTyCEgAhGA1AAGQgITxKkmSYHkkAzJc9zPJ_ZSHOsLFiTNeB9J84y_NMlYopvFT1PbMhY3UUxYBQBJ2HcXh9PwK9bKYABBaEmGQzSfHwCh3CYWTlKq5EKAUTz0Fc3APK8pgyBgEkmCC7qQqaidPiMZL4CalrSwMihTFwZhhDmlgprgJJtD85CBjW6g4lwAQZtOJpZt23auAWpamDajr2riABxLgeCscwmAAfhu9qNq4EdcCc9klBmgRbp-_a1GDd41DG1bRDo87QmUyCBlBzrgtvOaaIIia9r-tyMCUU0KFk6Vsmanb5sW5gdjTMgmmAUnKFCVZUysLY6LkX6DoB34Zopy6qca5EAQRf5dtyK91zF86AHUjixTymEJxa-uVGBPtyKx2DNG6wwhKh4h_Jg0FiV79e-lBTHJAA5NXYVWLWzWl7YVklnBnZYCnztRq21FtgImAAMkDwZRcqU0AHIuD60kmH2XJ9WJC0mkAiNy1WRPyHMU7gB9m21eZlZReFuGS89vO_bVoOQ9yfYFC4MBTmAda0dwDb65gMAmtCJpgwwW04-NrrVgwJp4fFovgTFsKjA5ybwdwSHemh8nkQF675NhwEp7LwYFGdA4SrgJvtN0pIcCgEge8hqBL6YMBiUjUMNQjfJXmdD3BjrhuIQAYkecgxUIBCibsdU6slUb3RgE9Vy5o3riScKYGAyke67xYNbBIlZYYAnYs7eEO85r2VnmEXkjECDMVJOSFYw0eoUC4jxLIsoMiOSxKnbQsVDK-X8mw4CRDNLYgsrpDhRkTIBXMpZDaNk7JpX4etYRXDErrVShNTK2UxR5QKnpcSxUMClRoSFWachdFKDnEwcgl9eh81ahbTybkSC9FesNfSiDAjpQGLI-A-VrAwH0hgEkaYsRgB4IcbhFAKDsDgIgFY7F2AQBQNrMgwpYnWW0CsCQAAmQkXU7LWI6tgO0vj_EjAMnALxJxxTkBhrkjatj7FAgtE48SYAMBQBOONNxEkibTVXnNdey0S4t3yW3WSXtRBczUEdZqJ0zrnTGTwQW29ES5xsXAOxDiGldQ-sYNZ9TzAoH2Y8EGFtxm4HKFgWA3d8GIl3uPAYiNkZjK6RtIZIzd4myzK9SJMzZmgnUAIQQoNpD3i6gASV7CALGszCI_JOZMsSOc0GU2uos-mqNanrPME4z6bAdmvX2SgQ5X0OonNKItX6FBhqXMntc7BTBblwxngMSFc9cYHVJbgcllKenuJYUPNQziLZDI2pALMskhnwr5bgFAYIxIIMFaC9QjK5lXWpv4N6-Im5DOlamUUAB9RaUBQjPHaZzBeZy0AXO5cqwWm9zoot3kMc5PidG2RPoIqyQzaGoNpQCNq7xP4DCGLgAN4s2pPBDYGtqTR_YwFWFGxFkaFBNDOeYKAVhY1rCTQm7YYbjU-pdk4ENca3i9CLRQH4fxs3LLydklAqZ2CyRGWCIFSoAhAr2Km9NQL_AihgPq3AhqpkIvzQMPpQsR2huDdmu1FAPgTp-ZrLQb03gQHMMkCEABWN0jwNXAB7Xqg1oRw3TonrOiNsyhh9GAK2mAhcz0nsjVejtab-p3rnT8j9gwz21waD_ZuTzW5JAbk29QiMe5wAUKSEeDJ73zoLVOuDSrP1gcRXGitn841OrwdS6e7S6IMRAExIklC2L1nFAwvitB-E8PkfFbhikPwgD4byqauBaOiJ4UlLp2EmMyN5RVdg7GEpiI4so9KPCUAcX2rJTQ-BTABEoOgQGLaBrlWhE1IFwBOnRTY4jNKBGiMsSoS3OkFHshUZY9xoT9GX6pNY2JxgqicoaMNFomZkGAgCFYygKa_kVgqUgkKrz3GfNdL80KgLcghnBZ06F6K4XskrEQGCFSYRVIGfIcR1iFJT5WSkWZphiBU0kEwFAMVgMrVuEoJ4ZpWhoBKAECGHAtphj4H2BgpBMhyrohaUCuAB49RqAgGANKc9z63zjMhA2up9yuHcFoAQphoRqDaycUbE1W60JmYsDQahPCkFvlCE4AgDtXgiTAdb6VNsGKcNtiie3FhhO0AIZ07B4jYhIGm9QTA01rooOYLgShLuMGu0JWdhhQdYjDchas6hdkvbdG9y7kRQihCAA&query=module%3Dsrc%2Fbrowser%2FBeerList.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-routing?fontsize=14)
 
 When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
 
@@ -429,4 +125,3 @@ Learn more about routing [here](#Routing)
 ### Testing
 
 We've touched all hyperdom bases - there aren't that many! - and this is definitely enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.
-

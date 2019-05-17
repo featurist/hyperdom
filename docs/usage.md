@@ -9,26 +9,9 @@ The result is that we can write applications that have a simple relationship bet
 
 Here's an example:
 
-```jsx {"codeExample": {"project": "docs/codesandbox/demo-js", "file": "src/index.jsx"}}
-const hyperdom = require('hyperdom');
+[see](codesandbox/demo-js/src/index.js)
 
-class App {
-  constructor() {
-    this.name = 'Sally'
-  }
-
-  render() {
-    return <div>
-      <label>what's your name?</label>
-      <input type="text" binding="this.name" />
-      <div>hi {this.name}</div>
-    </div>;
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnBrBdGHdGg8ni9Fo0NltQWtGslUiYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxs1PYsBkFJAEjUcAg5FpbAAjCgAAxiznMOlWCHPAoCpB0gASKjUmi0TF8MC0JCYAClKpKxCAtBgLILzJYbHYHFAjXTZS8-IqGFLjXAKGUKBa0eUoAcrbZkkxJpMSKo0iBZG66WgAK7QdQ-sr4CrxxMBv42xy6KWmLlWCNWMj4CDwWmu0SxrA4SacbgUSYMtXaC1QDBUD3243Npk6RVsdud70gOT5qVsKwSLVF6il8suuTG32pqCTeOWWC4Nsd-AjsfR40YmBKADuJA0zoEggMZEMjBRIC-P0D-KBRPIJI8ZNcHpiqr7JhBiYLgAEcEy4AAKAByXt1WggBKABueF8HbOA4CYABBM4mErHpyA9XA43wCgL0ghC8KXJgKAUCA4BQKlOiAphoOqKAoCUaCx3hFguCtXAKKomMuAoONcGYHY9lSKsWE8dtsBSU8-goaDMKUEhxKYJiYAAfiaBScBk2TPAsdg41eChVWOKhrBHJg0F-CxsRsuiGJ0uYFmouTrjiOi8No-jGOpGBDCuaTqPCm4ULzIx4Tg7QUFOItIM0fA406Sh0BITZpG0mBT2ws4KOQkxDEMIA&query=module%3Dsrc%2Findex.jsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-js?fontsize=14)
 
 This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
@@ -112,18 +95,9 @@ The virtual-dom can be generated using regular JavaScript or JSX
 
 The JavaScript virtual-dom API has some niceties for generating classes and IDs.
 
-```js {"codeExample": {"project": "docs/codesandbox/demo-no-jsx", "file": "src/index.js", "line": 2}}
-const h = require('hyperdom').html
+[see](codesandbox/demo-no-jsx/src/index.js#L2)
 
-class App {
-  render() {
-    return h('div.content',
-      h('h1', 'hello!')
-    )
-  }
-}
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEpljdJ3hhHOF8uIGvN9PKXv-SQDxG4HBhABBarCAPzuiYIyr3cfzMvwIY0jFZPANwaHAbhHAh1wrQNRA3PAUTg4RNzMKBKGYPdAP3WN22kLcZxwKpPVXIFyGNTwaBwRYtmEVAYBrV9qj_XcAG5Ow2bigA&query=module%3Dsrc%2Findex.js" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-no-jsx?fontsize=14)
 
 #### JSX
 
@@ -683,52 +657,15 @@ In order to plug in hyperdom into the typescirpt tsx compilation, add the follow
 
 #### Render component
 
-```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts", "file": "src/index.tsx"}}
-import * as hyperdom from "hyperdom";
+[see](codesandbox/demo-ts/src/index.tsx)
 
-class App extends hyperdom.RenderComponent {
-  private name: string;
-
-  public render() {
-    return (
-      <div>
-        <label>what's your name? </label>
-        <input type="text" binding={[this, "name"]} />
-        <div>hi {this.name} </div>
-      </div>
-    );
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHJrbb4G6SkGmQsYDEAO6UR5090AbQAupwJpxJjN2ntIMsNltUDs9rR6IgQPHoVQiFloA8APLVDHlq79plbKVcgCy2ShBDkUpg4oTICgEA0UIrTngADZAdCnkQnFXN46QJtOu6nHIBOQ3demXf3PMCKWYkTzQ9zzbe832hORKEoAgwwgDMH2ZBQAy4OtUCQhs4KaEk2g6TtqG7Q5ewgIdSxqAAqLh-DgLh_0tIguDAMCaJud5qKcABucIDRtOAKIAQRyLhsG7dAKKowCACUoweABhZ4smoA4uH7LJKiSLMuDOMwrhZSpUGWNjMRELIpQ0HdyC4J9eTkAAKABKBTTTM8x524Sz7ISZJ4hMXgbQ0JRWCLGwCAAcgomJKHnNTzhgAB-IJvN81zSjQQyamdGAMloLA3S4DQWjQZZ7GACsCDwCA4CmaF1JgS8Jn8DyTEYQpWBKhTitKnBKpqgp3ISrqins6y9MDWt2JE54cGyPVLKecgpTMGgcEGcrUBgIsuF4rIbIGyYJgmIA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts?fontsize=14)
 
 #### Router components
 
-```typescript {"codeExample": {"project": "docs/codesandbox/demo-ts-routing", "file": "src/index.tsx"}}
-import * as hyperdom from "hyperdom";
-import * as router from "hyperdom/router";
+[see](codesandbox/demo-ts-routing/src/index.tsx)
 
-const home = router.route("/");
-
-class Thing extends hyperdom.RoutesComponent {
-  public tech = "hyperdom";
-
-  public routes() {
-    return [
-      home({
-        render: () => {
-          return <div>Hello from {this.tech}</div>;
-        }
-      })
-    ];
-  }
-}
-
-hyperdom.append(document.body, new Thing(), {router});
-```
-<a href="https://codesandbox.io/api/v1/sandboxes/define?parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHJrbb4G6SkGmQsYDEAO6UR5090AbQAupwJpxJjNGs1eW0Ojs9rR6IhiUQsqWagAqLj8OBcc0PJ5ELhgOTPaHjy1EJwAbk4EF7_a4Q5HXFnUtocmns6nN3ei90e4PK_CBuoLLHzxgXHsu8o-4eOEvMAAFE5dE4AEpV0xA0bTgUdXDwNBli4bBO3QUcF0nHAACU3ztABhZ4-1QA4uHjLgsilDQoAgcguFoaxn3nM9J2vECeCIkiyNfd84G_AD8NNXdzClORuArbieDwR9vwIkweDkKMHiuDjn1YLiJQkniCD47hGEKVgAAklCgSgjznYACCguAcEovAJgKZJWGA5TAyErgJgA7iq1sxzaxvJDnhwbI9W_J5yClMwaBwQYpi4XCiy4SDoI48LgC_OQnOXBsQHaPZIGWDYtlQdtqE7Q5uwIpwqF7aAHgAeWqDFyyucToS2PjFAAWWyKECDkKUYHFBMQFIjQoUEkB4AANkBaE6JAKsesdEBNk6d0nCk-Y3Rmpl5vcFbSxiIkvKIbKFrW6FZ0oAgwwgDNFuZBQA3c1A61yiYnqAA&query=module%3Dsrc%2Findex.tsx" target="_blank" rel="noopener noreferrer">Run this example</a>
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts-routing?fontsize=14)
 
 ### Performance
 

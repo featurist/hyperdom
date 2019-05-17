@@ -23,28 +23,55 @@
       disqus     : 'hyperdom',
       plugins    : [
         function(hook, vm) {
-          hook.init(function() {
-            // Called when the script starts running, only trigger once, no arguments,
-          });
-
           hook.beforeEach(function(content) {
-            // Invoked each time before parsing the Markdown file.
-            // ...
+            vm.seeLinks = content.match(/\[see\]\((.*)\)/g) || []
+            var codeSandboxLinks = content.match(/\[codesandbox\]\((.*)\)/g) || []
+            codeSandboxLinks.forEach(function(text) {
+              var link = text.match(/\((.*)\)/)[1]
+              content = content.replace(text, `<iframe src="${link}" title="hyperdom-example" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>`)
+            })
+
             return content;
           })
-          hook.afterEach(function(html, next) {
-            debugger
-            // Invoked each time after the Markdown file is parsed.
-            // beforeEach and afterEach support asynchronous。
-            // ...
-            // call `next(html)` when task is done.
-            next(html);
-          });
+          hook.doneEach(function() {
+
+            vm.seeLinks.forEach(function(text) {
+              var link = text.match(/\((.*)\)/)[1]
+              var loadLink = link.replace(/#.*/, '')
+              var clipLines = link.match(/#L(\d*)(-L(\d*))?/)
+              var clipStart = Number(clipLines ? clipLines[1] : 0)
+              var clipEnd = clipLines && clipLines[3] ? Number(clipLines[3]) : 0
+              var lang = loadLink.match(/.*?\.(.*)/)[1]
+              var matchLink = loadLink
+              if (clipStart) {
+                matchLink += `?id=l${clipStart}`
+                if (clipEnd) {
+                  matchLink += `-l${clipEnd}`
+                }
+              }
+              var oReq = new XMLHttpRequest();
+              oReq.addEventListener("load", function() {
+                var code = oReq.response.split('\n')
+                code = code.splice(clipStart, code.length - clipEnd)
+                code = code.join('\n')
+                var html = Prism.highlight(code, Prism.languages[lang], lang)
+                var linkEl = document.querySelector(`a[href="#/${matchLink}"]`)
+                linkEl.outerHTML = `<pre v-pre="" data-lang="${lang}"><code class="lang-${lang}">${html}</code></pre>`
+
+              });
+              oReq.open("GET", loadLink);
+              oReq.send();
+            })
+          })
         }
       ]
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-  <!--<script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>-->
+  <script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-jsx.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-typescript.min.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-tsx.min.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>
 </body>
 </html>
