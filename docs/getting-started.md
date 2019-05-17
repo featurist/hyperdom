@@ -24,7 +24,7 @@ It's mounted into the dom in `./browser/index.js`:
 
 [view code](codesandbox/get-started-init/src/browser/index.js)
 
-[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-compose?fontsize=14)
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-init?fontsize=14)
 
 ## State Management
 
