@@ -24,7 +24,7 @@
       plugins    : [
         function(hook, vm) {
           hook.beforeEach(function(content) {
-            vm.seeLinks = content.match(/\[see\]\((.*)\)/g) || []
+            vm.viewCodeLinks = content.match(/\[view code\]\((.*)\)/g) || []
             var codeSandboxLinks = content.match(/\[codesandbox\]\((.*)\)/g) || []
             codeSandboxLinks.forEach(function(text) {
               var link = text.match(/\((.*)\)/)[1]
@@ -35,7 +35,7 @@
           })
           hook.doneEach(function() {
 
-            vm.seeLinks.forEach(function(text) {
+            vm.viewCodeLinks.forEach(function(text) {
               var link = text.match(/\((.*)\)/)[1]
               var loadLink = link.replace(/#.*/, '')
               var clipLines = link.match(/#L(\d*)(-L(\d*))?/)
