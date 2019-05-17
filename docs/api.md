@@ -1,6 +1,4 @@
-## API
-
-### Rendering the Virtual DOM
+## Rendering the Virtual DOM
 
 ```js
 const vdomFragment = hyperdom.html(selector, [attributes], children, ...);
@@ -11,7 +9,7 @@ const vdomFragment = hyperdom.html(selector, [attributes], children, ...);
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `children` - any number of children, which can be arrays of children, strings, or other vdomFragments.
 
-#### The `binding` Attribute
+### The `binding` Attribute
 
 Form input elements can be passed a `binding` attribute, which is expected to be either:
 
@@ -41,19 +39,19 @@ Form input elements can be passed a `binding` attribute, which is expected to be
   }
   ```
 
-#### Event Handler `on*` Attributes
+### Event Handler `on*` Attributes
 
 Event handlers follow the same semantics as normal HTML event handlers. They have the same names, e.g. `onclick`, `onchange`, `onmousedown` etc. They are passed an `Event` object as the first argument.
 
 When event handlers complete, the entire page's virtual DOM is re-rendered. Of course only the differences will by applied to the real DOM.
 
-#### Promises
+### Promises
 
 If the event handler returns a [Promise](https://promisesaplus.com/), then the view is re-rendered after the promise is fulfilled or rejected.
 
-### Virtual Dom API
+## Virtual Dom API
 
-#### Selectors (`hyperdom.html` only)
+### Selectors (`hyperdom.html` only)
 
 Use `tagname`, with any number of `.class` and `#id`.
 
@@ -67,7 +65,7 @@ Spaces are taken to be small hierarchies of HTML elements, this will produce `<p
 h('pre code', 'hi ', model.name);
 ```
 
-#### Add HTML Attributes
+### Add HTML Attributes
 
 JS
 
@@ -90,7 +88,7 @@ Non-standard HTML attribtes can be placed in the `attributes` key:
 h('span', {attributes: {'my-html-attribute': 'stuff'}}, 'name: ', model.name);
 ```
 
-#### Keys
+### Keys
 
 Hyperdom (or rather [virtual-dom](https://github.com/Matt-Esch/virtual-dom)) is not clever enough to be able to compare lists of elements. For example, say you render the following:
 
@@ -154,7 +152,7 @@ It will be compared like this, and is much faster:
 
 Its not all about performance, there are other things that can be affected by this too, including CSS transitions when CSS classes or style is changed.
 
-#### Raw HTML
+### Raw HTML
 
 Insert raw unescaped HTML. Be careful! Make sure there's no chance of script injection.
 
@@ -167,7 +165,7 @@ hyperdom.rawHtml('div',
 
 This can be useful for rendering HTML entities too. For example, to put `&nbsp;` in a table cell use `hyperdom.rawHtml('td', '&nbsp;')`.
 
-#### Classes
+### Classes
 
 Classes have some additional features:
 
@@ -191,7 +189,7 @@ this.items.map(item => {
 })
 ```
 
-#### Joining VDOM Arrays
+### Joining VDOM Arrays
 
 You may have an array of vdom elements that you want to join together with a separator, something very much like `Array.prototype.join()`, but for vdom.
 
@@ -206,7 +204,7 @@ Will produce this HTML:
 <code>one</code>, <code>two</code>, <code>three</code>
 ```
 
-#### Data Attributes
+### Data Attributes
 
 You can use either `data-*` attributes or set the `data` attribute to an object:
 
@@ -217,7 +215,7 @@ h('div', {dataset: {stuff: 'something'}})
 <div data={{stuff: 'something'}}/>
 ```
 
-#### Responding to Events
+### Responding to Events
 
 Pass a function to any regular HTML `on*` event handler in, such as `onclick`. That event handler can modify the state of the application, and once finished, the HTML will be re-rendered to reflect the new state.
 
@@ -248,7 +246,7 @@ class App {
 hyperdom.append(document.body, new App())
 ```
 
-#### Binding the Inputs
+### Binding the Inputs
 
 This applies to `textarea` and input types `text`, `url`, `date`, `email`, `color`, `range`, `checkbox`, `number`, and a few more obscure ones. Most of them.
 
@@ -266,7 +264,7 @@ class App {
 }
 ```
 
-#### Radio Buttons
+### Radio Buttons
 
 Bind the model to each radio button. The buttons can be bound to complex (non-string) values, such as the `blue` object below.
 
@@ -292,7 +290,7 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
-#### Select Dropdowns
+### Select Dropdowns
 
 Bind the model onto the `select` element. The `option`s can have complex (non-string) values.
 
@@ -318,7 +316,7 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
-#### File Inputs
+### File Inputs
 
 The file input is much like any other binding, except that only the binding's `set` method ever called, never the `get` method - the file input can only be set by a user selecting a file.
 
@@ -356,7 +354,7 @@ class App {
 hyperdom.append(document.body, new App())
 ```
 
-#### Window Events
+### Window Events
 
 You can attach event handlers to `window`, such as `window.onscroll` and `window.onresize`. Return a `windowEvents()` from your render function passing an object containing the event handlers to attach. When the window vdom is shown, the event handlers are added to `window`, when the window vdom is not shown, the event handlers are removed from `window`.
 
@@ -379,7 +377,7 @@ class App {
 }
 ```
 
-#### Mapping the model to the view
+### Mapping the model to the view
 
 Sometimes you have an input that doesn't map cleanly to a view, this is often just because the HTML input element represents a string value, while the model represents something else like a number or a date.
 
@@ -430,7 +428,7 @@ const date = {
 
 Under the hood, hyperdom stores the intermediate value and the exception in the model's [meta](#meta) area. You can get the exception by calling `hyperdom.meta(model, field).error`.
 
-### Raw HTML
+## Raw HTML
 
 **Careful of script injection attacks!** Make sure the HTML is trusted or free of `<script>` tags.
 
@@ -442,7 +440,7 @@ const vdomFragment = hyperdom.html.rawHtml(selector, [attributes], html);
 * `attributes` - (optional) the attributes of the HTML element, may contain `style`, event handlers, etc.
 * `html` - the element's inner HTML.
 
-### Attaching to the DOM
+## Attaching to the DOM
 
 ```js
 const attachment = hyperdom.append(element, component, [options]);
@@ -485,7 +483,7 @@ const attachment = hyperdom.replace(element, component, [options]);
 
     For testing with [karma](http://karma-runner.github.io/) you should pass `setTimeout` because `requestAnimationFrame` is usually not called if the browser is out of focus for too long.
 
-#### Detach
+### Detach
 
 ```js
 attachment.detach();
@@ -493,7 +491,7 @@ attachment.detach();
 
 Detaches the rendering engine from the DOM. Note that this doesn't remove the DOM, just prevents any hyperdom rendering events from modifying the DOM.
 
-#### Remove
+### Remove
 
 ```js
 attachment.remove();

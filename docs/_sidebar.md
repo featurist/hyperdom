@@ -1,5 +1,5 @@
 - [Introduction](introduction)
-- [Quick start](quickstart)
+- [Getting started](getting-started)
 - [Install](install)
 - [Usage](usage)
 - [API Reference](api)

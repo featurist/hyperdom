@@ -1,6 +1,4 @@
-## Quick Start
-
-### Install
+## Install
 
 ```sh
 yarn create hyperdom-app --jsx myapp # or npx create-hyperdom-app --jsx myapp
@@ -16,29 +14,29 @@ yarn dev
 
 Open `http://localhost:5000`
 
-### Hyperdom App
+## Hyperdom App
 
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
-[view code](codesandbox/get-started-compose/src/browser/app.jsx#L3)
+[view code](codesandbox/get-started-init/src/browser/app.jsx#L4)
 
 It's mounted into the dom in `./browser/index.js`:
 
-[view code](codesandbox/get-started-compose/src/browser/index.js)
+[view code](codesandbox/get-started-init/src/browser/index.js)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-compose?fontsize=14)
 
-### State Management
+## State Management
 
 It's rare to have to think about state management in Hyperdom. Just like React app, a Hyperdom app is often composed of multiple components. Unlike React though, Hyperdom does not _recreate_ them on each render - your app has total control over how long those components live. Another crucial difference is that Hyperdom always re-renders the whole app, no matter which component triggered an update.
 
 This means you can use normal JavaScript objects to store state and simply refer to those objects in jsx.
 
-### Events and Bindings
+## Events and Bindings
 
 Hyperdom rerenders immediately after each UI event your app handles. There are two ways of handling UI events in hyperdom, event handlers (for things like mouse clicks) and input bindings (for things like text boxes).
 
-#### Event Handlers
+## Event Handlers
 
 Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
 
@@ -50,7 +48,7 @@ When `Next` link is clicked, the `onclick` handler is executed. After that, hype
 
 Read more about Events [here](#Events)
 
-#### Input Bindings
+## Input Bindings
 
 This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
 
@@ -62,7 +60,7 @@ Each time user types into the input, hyperdom re-renders.
 
 Read more about Bindings [here](#Bindings)
 
-### Calling Ajax
+## Calling Ajax
 
 The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
 
@@ -74,7 +72,7 @@ When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and
 
 Note how we take advantage of the two renders rule to toggle 'Loading...'.
 
-### Composing Components
+## Composing Components
 
 Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
@@ -88,7 +86,7 @@ And use it in the main app:
 
 Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
 
-### Routes
+## Routes
 
 Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to spend time choosing and implementing one.
 
@@ -122,6 +120,6 @@ Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component 
 
 Learn more about routing [here](#Routing)
 
-### Testing
+## Testing
 
 We've touched all hyperdom bases - there aren't that many! - and this is definitely enough to get you started. To help you keep going past that, `create-hyperdom-app` contains a fast, _full stack_ browser tests powered by [electron-mocha](https://github.com/jprichardson/electron-mocha) runner and [browser-monkey](https://github.com/featurist/browser-monkey) for dom assertions/manipulations. It's only a `yarn test` away.

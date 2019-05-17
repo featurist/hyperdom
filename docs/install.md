@@ -1,6 +1,4 @@
-## Install
-
-### New project
+## New project
 
 Create a skeleton application with express backend:
 
@@ -8,7 +6,7 @@ Create a skeleton application with express backend:
 npx create-hyperdom-app my-app # yarn create hyperdom-app my-app
 ```
 
-### Add to existing project
+## Add to existing project
 
     npm install hyperdom
 
@@ -18,13 +16,13 @@ Use with browserify or webpack:
 const hyperdom = require('hyperdom');
 ```
 
-### Size
+## Size
 
 * `hyperdom.js`: 77K
 * `hyperdom.min.js`: 29K
 * `hyperdom.min.js.gz`: 9.4K
 
-### Browser Support
+## Browser Support
 
 * IE 9, 10, 11
 * Edge
@@ -35,7 +33,7 @@ const hyperdom = require('hyperdom');
 
 Other browsers are likely to work but aren't routinely tested.
 
-### Sister Projects
+## Sister Projects
 
 * [hyperdom-ace-editor](https://github.com/featurist/hyperdom-ace-editor)
 * [hyperdom-draggabilly](https://github.com/featurist/hyperdom-draggabilly)
