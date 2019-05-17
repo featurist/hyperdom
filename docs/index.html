@@ -64,7 +64,15 @@
             })
           })
         }
-      ]
+      ],
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: 'Type to search',
+        noData: 'No Results!',
+        depth: 6,
+        hideOtherSidebarContent: false,
+      }
     }
   </script>
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
@@ -73,5 +81,6 @@
   <script src="//unpkg.com/prismjs/components/prism-typescript.min.js"></script>
   <script src="//unpkg.com/prismjs/components/prism-tsx.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
 </body>
 </html>
