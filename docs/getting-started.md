@@ -46,7 +46,7 @@ Event handlers run some code when a user clicks on something. Let's modify our `
 
 When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
 
-Read more about Events [here](#Events)
+Read more about Events [here](api#event-handler-on-attributes)
 
 ## Input Bindings
 
@@ -58,7 +58,7 @@ This is how we bind html inputs onto the state. Let's modify `app.jsx` once more
 
 Each time user types into the input, hyperdom re-renders.
 
-Read more about Bindings [here](#Bindings)
+Read more about Bindings [here](api#the-binding-attribute)
 
 ## Calling Ajax
 
@@ -118,7 +118,7 @@ When beer table page is visited for the _first_ time, an `onload()` method is ca
 
 Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
 
-Learn more about routing [here](#Routing)
+Learn more about routing [here](api#routing)
 
 ## Testing
 
