@@ -11,4 +11,21 @@ module.exports = class App {
     }
   }
 
+  renderBody() {
+    if (this.hideGreeting) {
+      return <div>
+        <label>
+          What is your name? <input type="text" binding="this.userName"></input>
+        </label>
+        {this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>}
+      </div>
+    }
+  }
+
+  render() {
+    return <main>
+      {this.renderHeader()}
+      {this.renderBody()}
+    </main>
+  }
 }
