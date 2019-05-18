@@ -18,7 +18,7 @@ Open `http://localhost:5000`
 
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
-[view code](codesandbox/get-started-init/src/browser/app.jsx#L4)
+[view code](codesandbox/get-started-init/src/browser/app.jsx)
 
 It's mounted into the dom in `./browser/index.js`:
 
