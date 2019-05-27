@@ -115,13 +115,13 @@ var browsers = {
     os_version: '10',
     resolution: '1280x1024'
   },
-  'browserstack-osx-firefox': {
-    base: 'BrowserStack',
-    browser: 'Firefox',
-    os: 'OS X',
-    os_version: 'Mojave',
-    resolution: '1280x1024'
-  },
+  // 'browserstack-osx-firefox': {
+  //   base: 'BrowserStack',
+  //   browser: 'Firefox',
+  //   os: 'OS X',
+  //   os_version: 'Mojave',
+  //   resolution: '1280x1024'
+  // },
   'browserstack-safari': {
     base: 'BrowserStack',
     browser: 'Safari',
