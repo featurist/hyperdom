@@ -2113,7 +2113,6 @@ describe('hyperdom', function () {
   })
 
   describe('hyperdom.refreshify', function () {
-    this.timeout(2000)
     let refreshCalled: boolean
 
     beforeEach(function () {
