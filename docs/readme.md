@@ -10,7 +10,8 @@ Hyperdom docs website features embedded codesanbox examples. Those live in `/doc
 
 A special link in the markdown source facilitates the trick. E.g.:
 
-```[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-init?fontsize=14)
+```
+[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-init?fontsize=14)
 ```
 
 will result in a codesandbox iframe containing the project from `/docs/codesandbox/get-started-init`
