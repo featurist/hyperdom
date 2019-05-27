@@ -6,25 +6,7 @@ The result is that we can write applications that have a simple relationship bet
 
 Here's an example:
 
-```js
-const hyperdom = require('hyperdom');
-
-class App {
-  constructor() {
-    this.name = 'Sally'
-  }
-
-  render() {
-    return <div>
-      <label>what's your name?</label>
-      <input type="text" binding="this.name" />
-      <div>hi {this.name}</div>
-    </div>;
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
+[view code](docs/codesandbox/demo-js/src/index.js)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-js?fontsize=14)
 
@@ -110,17 +92,7 @@ The virtual-dom can be generated using regular JavaScript or JSX
 
 The JavaScript virtual-dom API has some niceties for generating classes and IDs.
 
-```js
-class App {
-  render() {
-    return h('div.content',
-      h('h1', 'hello!')
-    )
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
+[view code](docs/codesandbox/demo-no-jsx/src/index.js#L3)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-no-jsx?fontsize=14)
 
@@ -682,52 +654,13 @@ In order to plug in hyperdom into the typescirpt tsx compilation, add the follow
 
 ### Render component
 
-```tsx
-import * as hyperdom from "hyperdom";
-
-class App extends hyperdom.RenderComponent {
-  private name: string;
-
-  public render() {
-    return (
-      <div>
-        <label>what's your name? </label>
-        <input type="text" binding={[this, "name"]} />
-        <div>hi {this.name} </div>
-      </div>
-    );
-  }
-}
-
-hyperdom.append(document.body, new App());
-```
+[view code](docs/codesandbox/demo-ts/src/index.tsx)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts?fontsize=14)
 
 ### Router components
 
-```tsx
-import * as hyperdom from "hyperdom";
-import * as router from "hyperdom/router";
-
-const home = router.route("/");
-
-class Thing extends hyperdom.RoutesComponent {
-  public tech = "hyperdom";
-
-  public routes() {
-    return [
-      home({
-        render: () => {
-          return <div>Hello from {this.tech}</div>;
-        }
-      })
-    ];
-  }
-}
-
-hyperdom.append(document.body, new Thing(), {router});
-```
+[view code](docs/codesandbox/demo-ts-routing/src/index.tsx)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts-routing?fontsize=14)
 

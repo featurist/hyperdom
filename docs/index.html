@@ -24,7 +24,6 @@
       plugins    : [
         function(hook, vm) {
           hook.beforeEach(function(content) {
-            vm.viewCodeLinks = content.match(/\[view code\]\((.*)\)/g) || []
             var codeSandboxLinks = content.match(/\[codesandbox\]\((.*)\)/g) || []
             codeSandboxLinks.forEach(function(text) {
               var link = text.match(/\((.*)\)/)[1]
@@ -32,36 +31,6 @@
             })
 
             return content;
-          })
-          hook.doneEach(function() {
-
-            vm.viewCodeLinks.forEach(function(text) {
-              var link = text.match(/\((.*)\)/)[1]
-              var loadLink = link.replace(/#.*/, '')
-              var clipLines = link.match(/#L(\d*)(-L(\d*))?/)
-              var clipStart = Number(clipLines ? clipLines[1] : 0)
-              var clipEnd = clipLines && clipLines[3] ? Number(clipLines[3]) : 0
-              var lang = loadLink.match(/.*?\.(.*)/)[1]
-              var matchLink = loadLink
-              if (clipStart) {
-                matchLink += `?id=l${clipStart}`
-                if (clipEnd) {
-                  matchLink += `-l${clipEnd}`
-                }
-              }
-              var oReq = new XMLHttpRequest();
-              oReq.addEventListener("load", function() {
-                var code = oReq.response.split('\n')
-                code = code.splice(clipStart, code.length - clipEnd)
-                code = code.join('\n')
-                var html = Prism.highlight(code, Prism.languages[lang], lang)
-                var linkEl = document.querySelector(`a[href="#/${matchLink}"]`)
-                linkEl.outerHTML = `<pre v-pre="" data-lang="${lang}"><code class="lang-${lang}">${html}</code></pre>`
-
-              });
-              oReq.open("GET", loadLink);
-              oReq.send();
-            })
           })
         }
       ],
@@ -82,5 +51,6 @@
   <script src="//unpkg.com/prismjs/components/prism-tsx.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+  <script src="//unpkg.com/docsify-copy-code"></script>
 </body>
 </html>
