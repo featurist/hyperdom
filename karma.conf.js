@@ -70,7 +70,7 @@ module.exports = function (config) {
 
     client: {
       mocha: {
-        timeout: 0
+        timeout: process.env.CI ? 61000 : 2000
       }
     },
 
