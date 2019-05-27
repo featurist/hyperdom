@@ -25,7 +25,7 @@ This is done with another magic link. E.g.:
 [view code](docs/codesandbox/get-started-events/src/browser/app.jsx#L3)
 ```
 
-This it __NOT__ a runtime thing though and it requires preprocessing. Markdown fils that contain those links should be kept in `docs/src`. Then, before pushing your changes, run:
+This it __NOT__ a runtime thing though and it requires preprocessing. Markdown files that contain those links should be kept in `docs/src`. Then, before pushing your changes, run:
 
 ```
 yarn populate-code-blocks
