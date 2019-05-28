@@ -16,8 +16,8 @@
     "babel-preset-hyperdom": "^1.0.0",
     "browser-monkey": "2.4.1",
     "chai": "3.5.0",
+    "codesandbox-example-links": "^1.0.0",
     "detect-browser": "1.6.2",
-    "gh-pages": "^2.0.1",
     "docsify-cli": "^4.3.0",
     "electron": "1.8.2",
     "electron-mocha": "3.4.0",
@@ -28,6 +28,7 @@
     "eslint-plugin-node": "4.2.2",
     "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-standard": "3.0.1",
+    "gh-pages": "^2.0.1",
     "hyperx": "2.3.0",
     "jquery": "3.3.1",
     "jquery-sendkeys": "4.0.0",
@@ -66,7 +67,7 @@
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
     "dev-website": "yarn build-website && docsify serve ./website-dist",
-    "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && ./docs/populate-code-blocks.js ./website-dist/*.md",
+    "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "publish-website": "yarn build-website && gh-pages -t -d website-dist"
   },
   "keywords": [

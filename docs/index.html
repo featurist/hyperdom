@@ -21,19 +21,6 @@
       coverpage  : 'coverpage.md',
       homepage   : 'introduction.md',
       disqus     : 'hyperdom',
-      plugins    : [
-        function(hook, vm) {
-          hook.beforeEach(function(content) {
-            var codeSandboxLinks = content.match(/\[codesandbox\]\((.*)\)/g) || []
-            codeSandboxLinks.forEach(function(text) {
-              var link = text.match(/\((.*)\)/)[1]
-              content = content.replace(text, `<iframe src="${link}" title="hyperdom-example" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>`)
-            })
-
-            return content;
-          })
-        }
-      ],
       search: {
         maxAge: 86400000,
         paths: 'auto',
