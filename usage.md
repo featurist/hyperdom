@@ -26,7 +26,7 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
-[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-js?fontsize=14)
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdRgF8Qh6SAhl1MAB4oFFLVCIhSlahVoAeAIQARAPIAwgAqAJoACgCiTPaOAHyMnrFQCWSJCjAY6qn0FJ4UEBSwceEYBDhMAMoYlmgk1p4A9AVFMDl5WjwYTPgKZXA8ALxsAKrBAGIAtAAcbEyNqU0ZWTlknnXqSu2e6hASTBDqwyAY7OxscU27Equ5nnD4uBDsFExwBMfv-I0WVrYAVnBrBdGHdGg8ni9Fo0NltQWtGslUiYzOwMPgANYYADmMBQgPIzlcVBoiDocjYZAwnX4rBAylUGm0kxs1PYsBkFJAEjUcAg5FpbAAjCgAAxiznMOlWCHPAoCpB0gASKjUmi0TF8MC0JCYAClKpKxCAtBgLILzJYbHYHFAjXTZS8-IqGFLjXAKGUKBa0eUoAcrbZkkxJpMSKo0iBZG66WgAK7QdQ-sr4CrxxMBv42xy6KWmLlWCNWMj4CDwWmu0SxrA4SacbgUSYMtXaC1QDBUD3243Npk6RVsdud70gOT5qVsKwSLVF6il8suuTG32pqCTeOWWC4Nsd-AjsfR40YmBKADuJA0zoEggMZEMjBRIC-P0D-IQyBc5BJHjJrg9MVVPsmEGJguAARwTLgAAoAHJe3VGCAEoAG54Xwds4DgJgAEEziYSsenID1cDjfAKAvKDEPwpcmAoBQIDgFAqU6YCmBg6ooCgJQYLHeEWC4K1cEo6iYy4Cg41wZgdj2VIqxYTx22wFJTz6CgYKwpQSAkphmJgAB-JpFJwWS5M8Cx2DjV4KFVY4qGsEcmDQX4LGxWz6MY3S5gWGj5OuOJ6PwuiGKY6kYEMK4ZJoiKblQvMjHheDtBQU4iygzR8DjTpKHQEhNmkHSYFPHCzkolCH0MCqgA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 This works with [babel-preset-hyperdom](https://github.com/featurist/babel-preset-hyperdom), see [JSX](#jsx) for more details.
 
@@ -111,6 +111,7 @@ The virtual-dom can be generated using regular JavaScript or JSX
 The JavaScript virtual-dom API has some niceties for generating classes and IDs.
 
 ```js
+
 class App {
   render() {
     return h('div.content',
@@ -122,7 +123,7 @@ class App {
 hyperdom.append(document.body, new App());
 ```
 
-[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-no-jsx?fontsize=14)
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPAIQAiA8gMIAqAmgAoBRAASESAPgA6qRmKhTU02TACG6BZIKMCEArHH8VAJ3IwowgMoqMAI0pZGAeh16YGrURgEVw8nmNwXgC8kiAAqtwAYgC0AByhwo4KTniq6tJKdugAnu6M6BAAbsIQ6CEgKgAOlaHiTgWFGopacORGEJUEwnAm5T3kjmiYuABWcLUZWo6t7Z3Jjlm5GTKOcgogAL4ANCCVKuQA1ioA5jA4Y9RkIFQ0dAQMwNLCwqGoKp6hiC8geNmVMEZ0JQiNFsO9KrBQlsnt9CgC4BBqJ9vgBGHAABgxUJhoUwMw6OiRSG-AAk_gCgURhKwYERKMIAFIWbGoZ6hIgqNDI0JDbD4YhQFlskD4zrjYmPVnPb5wbxGAjc3bGUzmXm4OTCaLRSj_RQgaFS4U2ACu0HQir2JjMwhNZpKGD5clCMO2OJAmF1mFQ5Ag8GRkul31-_0BwMVUBUtFlzqlrqluJghRpnroPr9EphwstKuiJowsCM4cj8AVIBdBuFBxg2QA7pRAeKvgBtAC60g20k2O36gwdowQyGu1Fo9EQQ9QstE5NDVKCwiMMAAjqaFwAKADkwYpwPXAEppDdJ3hhHOF8uIGvN9PKXv-SRluQI3A4MIAILVYQB-d0TBGVe7z9M2_AhjSMVk8A3BocBuEcCHXCtA1EDc8BReDhE3MwoEoZg9yA_dY3bZYtxnHAqk9VcgXIY1PBoHBFi2YRUBgGs32qf9dwAbk7DYeKAA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 ### JSX
 
@@ -702,7 +703,7 @@ class App extends hyperdom.RenderComponent {
 hyperdom.append(document.body, new App());
 ```
 
-[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts?fontsize=14)
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHJrbb4G6SkGmQsYDEAO6UR5090AbQAupwJpxJjNGs1eW0Ojs9rR6IhiUQsqWagAqLj8OBcc0PJ5ELhgOTPaHjy1EJwAbnCBptcFHAEEclxsJ30KOF5OcAAlKMPADCzz7qAOXHjXCylSSWa4ZzMVxZlVQy1XmJELIpQ0KAIHILg5AvOQAAoAEoH1NCDzClORuGgxCEmSeITF4G0NCUVgixsAgAHJRxiSgUPfc4YAAfiCPCCIw0o0CAmpnRgDJaCwN0uA0Fo0GWexgArAg8AgOApmhD8YCcKsJn8bCTEYQpWHEh8xIknAZIUgosOYvSikQ2D_0DWs12PZ4cGyPVoKecgpTMGgcEGKS7yLLgdyyOCTPraYQHaPZIGWDYtlQdtqE7Q5u0fJwqF7aAHgAeWqDFyyuR8mS2FDFAAWWyKECDkKUYHFBMQFAjQoQrJx4AANkBaFJzksrHRATZOndJxIPmN1WqZDr3F60sYiJSyiFCzr-uhWdKAIMMIAzLrmQUAMuDrVANsmCYJiAA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 ### Router components
 
@@ -729,7 +730,7 @@ class Thing extends hyperdom.RoutesComponent {
 hyperdom.append(document.body, new Thing(), {router});
 ```
 
-[codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/demo-ts-routing?fontsize=14)
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKCA7AJjAHgOgBYAuAtlEqAMYD2qBMNSIAPISQHwA6qABF8zAIboO3HrwIQCsVgAV-AJ3IwoXAMr8MAI0pZGAenGSYw0byIwC_LuTzy45gLzsQAVQAqAMQC0ADidddxry6eAJCnJw8jFroAJ6BkegQAG5cEOiOIPwADllOrHqJScIRooxw5HIQWQRccAoZdeS6aJi4BHBYeXrlldWBetFxnHosUMIgAL4ANCBZ_OQA1vwA5jA4AFZw1GQgVDR0BAzAJU6o_GZOiFxOeDFZMHLolESeBHfwFVUEntjnWbBOKYnEBJB5wCDUS7XEAARhwAAYEYDgZgel8IagoU5kSInER-GgsSAWth8MQoDieE40dU4FDjiIqSA4BY5AQiXMFEpUhhSaMuJ5PJR7piQEDGdCNABXaDoDnyRTKaWynmtMkkbEiaYomAizCocgQeD0kpM273R7PIlQfi0FmU0RON73GnspDQgDMOC9Ht9Hs1PG1uJAmCSABFdXR9Ybje6GSYnJzFZ5pRhYHJrbb4G6SkGmQsYDEAO6UR5090AbQAupwJpxJjNGs1eW0Ojs9rR6IhiUQsqWagAqLj8OBcc0PJ5ELhgOTPaHjy1EJwAbk4EF7_a4Q5HXFnUtocmns6nN3ei90e4PK_CBuoLLHzxgXHsu8o-4eOEvMAAFE5dE4AEpV0xA0bTgUdXDwNBli4bBO3QUcF0nHAACU3ztABhZ4-1QA4uHjLgsilDQoAgcguFoaxn3nM9J2vECeCIkiyNfd84G_AD8NNXdzClORuArbieDwR9vwIkweDkKMHiuDjn1YLiJQkniCD47hGEKVgAAklCgSgjznYACCguAcEovAJgKZJWGA5TAyErgJgA7iq1sxzaxvJDnhwbI9W_J5yClMwaBwQYpi4XCiy4SDoI48LgC_OQnOAhsQHaPZIGWDYtlQdtqE7Q5uwIpwqF7aAHgAeWqDFyyucToS2PjFAAWWyKECDkKUYHFBMQFIjQoUEkB4AANkBaE6JAKsesdEBNk6d0nCk-Y3Rmpl5vcFbSxiIkvKIbKFrW6FZ0oAgwwgDNFuZBQA3c1A61yiYnqAA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 ## Performance
 
