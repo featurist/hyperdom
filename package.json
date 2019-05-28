@@ -67,7 +67,7 @@
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
     "populate-code-blocks": "./docs/populate-code-blocks.js ./docs ./docs/src/*.md",
     "docs": "yarn populate-code-blocks && docsify serve ./docs",
-    "publish-docs": "yarn populate-code-blocks && gh-pages -d docs"
+    "publish-docs": "yarn populate-code-blocks && gh-pages -t -d docs"
   },
   "keywords": [
     "virtual-dom",
