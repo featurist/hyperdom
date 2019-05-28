@@ -70,7 +70,7 @@ module.exports = function (config) {
 
     client: {
       mocha: {
-        timeout: 0
+        timeout: process.env.CI ? 61000 : 2000
       }
     },
 
@@ -115,13 +115,13 @@ var browsers = {
     os_version: '10',
     resolution: '1280x1024'
   },
-  'browserstack-osx-firefox': {
-    base: 'BrowserStack',
-    browser: 'Firefox',
-    os: 'OS X',
-    os_version: 'Mojave',
-    resolution: '1280x1024'
-  },
+  // 'browserstack-osx-firefox': {
+  //   base: 'BrowserStack',
+  //   browser: 'Firefox',
+  //   os: 'OS X',
+  //   os_version: 'Mojave',
+  //   resolution: '1280x1024'
+  // },
   'browserstack-safari': {
     base: 'BrowserStack',
     browser: 'Safari',

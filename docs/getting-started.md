@@ -18,11 +18,11 @@ Open `http://localhost:5000`
 
 An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
 
-[view code](codesandbox/get-started-init/src/browser/app.jsx)
+[view code](docs/codesandbox/get-started-init/src/browser/app.jsx)
 
 It's mounted into the dom in `./browser/index.js`:
 
-[view code](codesandbox/get-started-init/src/browser/index.js)
+[view code](docs/codesandbox/get-started-init/src/browser/index.js)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-init?fontsize=14)
 
@@ -40,7 +40,7 @@ Hyperdom rerenders immediately after each UI event your app handles. There are t
 
 Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
 
-[view code](codesandbox/get-started-events/src/browser/app.jsx#L3)
+[view code](docs/codesandbox/get-started-events/src/browser/app.jsx#L3)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-events?fontsize=14)
 
@@ -52,7 +52,7 @@ Read more about Events [here](api#event-handler-on-attributes)
 
 This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
 
-[view code](codesandbox/get-started-bindings/src/browser/app.jsx#L13)
+[view code](docs/codesandbox/get-started-bindings/src/browser/app.jsx#L13)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-bindings?fontsize=14)
 
@@ -64,7 +64,7 @@ Read more about Bindings [here](api#the-binding-attribute)
 
 The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
 
-[view code](codesandbox/get-started-ajax/src/browser/app.jsx#L15)
+[view code](docs/codesandbox/get-started-ajax/src/browser/app.jsx#L15)
 
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-ajax?fontsize=14)
 
@@ -76,12 +76,11 @@ Note how we take advantage of the two renders rule to toggle 'Loading...'.
 
 Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
-[view code](codesandbox/get-started-compose/src/browser/BeerList.jsx)
-
+[view code](docs/codesandbox/get-started-compose/src/browser/BeerList.jsx)
 
 And use it in the main app:
 
-[view code](codesandbox/get-started-compose/src/browser/app.jsx#L3)
+[view code](docs/codesandbox/get-started-compose/src/browser/app.jsx#L3)
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-compose?fontsize=14)
 
 Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
@@ -94,24 +93,24 @@ We are going to add new routes to the beer site: `/beers` - to show the beers ta
 
 First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
 
-[view code](codesandbox/get-started-routing/src/browser/index.js#L1)
+[view code](docs/codesandbox/get-started-routing/src/browser/index.js#L1)
 
 Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers` (`browser/app.jsx`):
 
-[view code](codesandbox/get-started-routing/src/browser/app.jsx#L3)
+[view code](docs/codesandbox/get-started-routing/src/browser/app.jsx#L3)
 
 The original `render()` method is gone. Two other special methods - `routes()` and (optional) `renderLayout()` - took its place. The former one is where the magic happens, so let's take a closer look. In a nutshell, `routes()` returns a "url -> render function" mapping. A particular render is invoked only if the current url matches. The "key" in that mapping is not actually a string url but a route definition. `routes.home()` in the above example is a route definition.
 
 We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
 
-[view code](codesandbox/get-started-routing/src/browser/routes.js)
+[view code](docs/codesandbox/get-started-routing/src/browser/routes.js)
 
 A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
 
 There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
 
-[view code](codesandbox/get-started-routing/src/browser/BeerList.jsx#L2)
-```
+[view code](docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L2)
+
 [codesandbox](https://codesandbox.io/embed/github/featurist/hyperdom/tree/master/docs/codesandbox/get-started-routing?fontsize=14)
 
 When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
