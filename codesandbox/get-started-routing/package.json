@@ -1,0 +1,19 @@
+{
+  "name": "hyperdom-get-started-routing",
+  "version": "1.0.0",
+  "description": "Hyperdom Demo JS",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "babel-plugin-transform-runtime": "latest",
+    "babel-preset-hyperdom": "latest",
+    "hyperdom": "latest"
+  },
+  "devDependencies": {
+    "parcel-bundler": "latest"
+  },
+  "keywords": []
+}
