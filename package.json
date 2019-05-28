@@ -17,6 +17,7 @@
     "browser-monkey": "2.4.1",
     "chai": "3.5.0",
     "detect-browser": "1.6.2",
+    "gh-pages": "^2.0.1",
     "docsify-cli": "^4.3.0",
     "electron": "1.8.2",
     "electron-mocha": "3.4.0",
@@ -64,8 +65,9 @@
     "mocha": "TS_NODE_FILES=true mocha -r ts-node/register test/server/*Spec.ts",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
-    "populate-code-blocks": "./docs/populate-code-blocks.js ./docs ./docs/src/*.md",
-    "docs": "yarn populate-code-blocks && docsify serve ./docs"
+    "dev-website": "yarn build-website && docsify serve ./website-dist",
+    "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && ./docs/populate-code-blocks.js ./website-dist/*.md",
+    "publish-website": "yarn build-website && gh-pages -t -d website-dist"
   },
   "keywords": [
     "virtual-dom",

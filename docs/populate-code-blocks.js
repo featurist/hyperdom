@@ -3,12 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const outDir = process.argv[2]
-if (!outDir) {
-  throw new Error('No output dir given')
-}
-
-const files = process.argv.slice(3)
+const files = process.argv.slice(2)
 if (files.length === 0) {
   throw new Error('No files given')
 }
@@ -49,8 +44,7 @@ Promise.all(files.map(async filePath => {
     return result
   }, [])
 
-  const fileName = path.parse(filePath).base
-  fs.writeFileSync(path.join(process.cwd(), outDir, fileName), newContent.join('\n'))
+  fs.writeFileSync(fullPath, newContent.join('\n'))
 })).catch(e => {
   console.error(e)
   process.exit(1)

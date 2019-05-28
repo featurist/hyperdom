@@ -1,6 +1,6 @@
 ## Hyperdom docs website
 
-The website - https://hyperdom.org - hosted on github-pages (`master` branch, `/docs` folder).
+The website - https://hyperdom.org - hosted on github-pages (`gh-pages` branch).
 
 It's assembled together from individual `.md` files at runtime (that is, when user navigates to the website) by [docsify](https://docsify.js.org/#/)
 
@@ -25,13 +25,7 @@ This is done with another magic link. E.g.:
 [view code](docs/codesandbox/get-started-events/src/browser/app.jsx#L3)
 ```
 
-This it __NOT__ a runtime thing though and it requires preprocessing. Markdown files that contain those links should be kept in `docs/src`. Then, before pushing your changes, run:
-
-```
-yarn populate-code-blocks
-```
-
-This will preprocess `./docs/src/*.md` files, copy them to `./docs`.
+This it __NOT__ a runtime thing though and it requires preprocessing. It's built into `yarn dev-website` and `yarn publish-website` so you don't need to do anything.
 
 ### Development
 
@@ -49,4 +43,12 @@ You could use [entr](http://eradman.com/entrproject/):
 
 ```
 ls docs/src/*.md | entr yarn populate-code-blocks
+```
+
+### Publishing
+
+The following updates `gh-pages` branch with the difference between `gh-pages` and your local code:
+
+```
+yarn publish-website
 ```
