@@ -16,15 +16,35 @@ Open `http://localhost:5000`
 
 ## Hyperdom App
 
-An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project - `./browser/app.jsx` - looks like this:
+An object with a `render()` method is a valid hyperdom component (we call top level component an app). The one in your project looks like this:
+
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browsers/app.jsx_
 
 [view code](/docs/codesandbox/get-started-init/src/browser/app.jsx)
 
-It's mounted into the dom in `./browser/index.js`:
+It's mounted into the DOM in _./browser/index.js_:
 
 [view code](/docs/codesandbox/get-started-init/src/browser/index.js)
 
 [codesandbox](/docs/codesandbox/get-started-init)
+
+#### ** Typescript **
+
+_./browsers/app.tsx_
+
+[view code](/docs/codesandbox/get-started-init-ts/src/browser/app.tsx)
+
+It's mounted into the DOM in _./browser/index.js_:
+
+[view code](/docs/codesandbox/get-started-init-ts/src/browser/index.ts)
+
+[codesandbox](/docs/codesandbox/get-started-init-ts)
+
+<!-- tabs:end -->
 
 ## State Management
 
