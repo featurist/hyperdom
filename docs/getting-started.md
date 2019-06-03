@@ -86,11 +86,27 @@ Read more about Events [here](api#event-handler-on-attributes)
 
 ## Input Bindings
 
-This is how we bind html inputs onto the state. Let's modify `app.jsx` once more and see it in action:
+This is how we bind html inputs onto the state. Let's see it in action:
+
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browsers/app.jsx_
 
 [view code](/docs/codesandbox/get-started-bindings/src/browser/app.jsx#L13)
 
 [codesandbox](/docs/codesandbox/get-started-bindings)
+
+#### ** Typescript **
+
+  _./browsers/app.tsx_
+
+[view code](/docs/codesandbox/get-started-bindings-ts/src/browser/app.tsx#L19)
+
+[codesandbox](/docs/codesandbox/get-started-bindings-ts)
+
+<!-- tabs:end -->
 
 Each time user types into the input, hyperdom re-renders.
 
