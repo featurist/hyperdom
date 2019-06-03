@@ -142,14 +142,39 @@ Note how we take advantage of the two renders rule to toggle "Loading...".
 
 ## Composing Components
 
-Our `app.jsx` is getting pretty hairy - why not to extact a component out of it? Like that beer table:
+Our `App` class is getting pretty hairy - why not to extact a component out of it? Like that beer table:
 
-[view code](/docs/codesandbox/get-started-compose/src/browser/BeerList.jsx)
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browsers/BeerList.jsx_
+
+[view code](/docs/codesandbox/get-started-compose/src/browser/BeerList.jsx#L4)
 
 And use it in the main app:
 
+_./browsers/app.jsx_
+
 [view code](/docs/codesandbox/get-started-compose/src/browser/app.jsx#L3)
+
 [codesandbox](/docs/codesandbox/get-started-compose)
+
+#### ** Typescript **
+
+_./browsers/BeerList.tsx_
+
+[view code](/docs/codesandbox/get-started-compose-ts/src/browser/BeerList.tsx#L4)
+
+And use it in the main app:
+
+_./browsers/app.tsx_
+
+[view code](/docs/codesandbox/get-started-compose-ts/src/browser/app.tsx#L4)
+
+[codesandbox](/docs/codesandbox/get-started-compose-ts)
+
+<!-- tabs:end -->
 
 Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
 
