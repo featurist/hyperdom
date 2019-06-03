@@ -603,17 +603,29 @@ function describeRouter (historyApiType: string) {
 
     describe('base url', function () {
       class MyApp extends RoutesComponent {
+        private id: string = ''
+
         constructor (readonly routeTable: hyperdomRouter.Routes) {
           super()
         }
+
         public routes () {
           return [
             routes.home({
               render () {
-                return h('div', h('h1', 'route: home'), h('a', {href: routes.a.href()}, 'link: a'))
+                return h(
+                  'div',
+                  h('h1', 'route: home'),
+                  h('a', {href: routes.a.href()}, 'link: a'),
+                  h('a', {href: routes.b.href({id: 3})}, 'link: b'),
+                )
               },
             }),
             routes.a({render () { return 'route: a' }}),
+            routes.b({
+              bindings: { id: [this, 'id'] },
+              render: () => `route: b${this.id}`,
+            }),
           ]
         }
       }
@@ -628,6 +640,7 @@ function describeRouter (historyApiType: string) {
             routes = {
               home: router.route('/'),
               a: router.route('/a'),
+              b: router.route('/b/:id'),
             }
 
             app = new MyApp(routes)
@@ -691,6 +704,14 @@ function describeRouter (historyApiType: string) {
                 expect(historyApi.url()).to.equal('/baseurl/a')
               })
             })
+          })
+
+          it('can navigate with param', async function () {
+            historyApi.push(baseUrl)
+            const monkey = mount(app)
+            await monkey.find('a', {text: 'link: b'}).click()
+            await monkey.shouldHave({text: 'route: b3'})
+            expect(historyApi.url()).to.equal('/baseurl/b/3')
           })
         })
       }
