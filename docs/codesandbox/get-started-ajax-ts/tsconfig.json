@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "lib": ["es6", "dom"],
+    "jsx": "react",
+    "jsxFactory": "hyperdom.jsx",
+    "strict": true,
+    "rootDir": "src"
+  }
+}

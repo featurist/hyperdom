@@ -116,13 +116,29 @@ Read more about Bindings [here](api#the-binding-attribute)
 
 The above examples represent _synchronous_ state change. Where it gets interesting though is how much trouble it would be to keep the page in sync with the _asynchronous_ changes. Calling an http endpoint is a prime example. Let's make one:
 
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browsers/app.jsx_
+
 [view code](/docs/codesandbox/get-started-ajax/src/browser/app.jsx#L15)
 
 [codesandbox](/docs/codesandbox/get-started-ajax)
 
-When 'Have a beer' button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the 'Events' example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
+#### ** Typescript **
 
-Note how we take advantage of the two renders rule to toggle 'Loading...'.
+_./browsers/app.tsx_
+
+[view code](/docs/codesandbox/get-started-ajax-ts/src/browser/app.tsx#L25)
+
+[codesandbox](/docs/codesandbox/get-started-ajax-ts)
+
+<!-- tabs:end -->
+
+When "Have a beer" button is clicked hyperdom executes the `onclick` handler and re-renders - just like in the "Events" example above. Unlike that previous example though, hyperdom spots that the handler returned a promise and schedules _another_ render to be executed when that promise resolves/rejects.
+
+Note how we take advantage of the two renders rule to toggle "Loading...".
 
 ## Composing Components
 
