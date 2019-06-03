@@ -67,6 +67,7 @@
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
     "dev-website": "yarn build-website && docsify serve ./website-dist",
+    "watch-docs": "ls docs/*.md | entr yarn codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "publish-website": "yarn build-website && gh-pages -t -d website-dist"
   },

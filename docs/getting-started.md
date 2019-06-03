@@ -58,13 +58,29 @@ Hyperdom rerenders immediately after each UI event your app handles. There are t
 
 ## Event Handlers
 
-Event handlers run some code when a user clicks on something. Let's modify our `App` code in `./browser/app.jsx`:
+Event handlers run some code when a user clicks on something. Let's modify our `App` class:
 
-[view code](/docs/codesandbox/get-started-events/src/browser/app.jsx#L3)
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browsers/app.jsx_
+
+[view code](/docs/codesandbox/get-started-events/src/browser/app.jsx#L4)
 
 [codesandbox](/docs/codesandbox/get-started-events)
 
-When `Next` link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current dom and updates it if needed).
+#### ** Typescript **
+
+_./browsers/app.tsx_
+
+[view code](/docs/codesandbox/get-started-events-ts/src/browser/app.tsx#L4)
+
+[codesandbox](/docs/codesandbox/get-started-events-ts)
+
+<!-- tabs:end -->
+
+When "Next" link is clicked, the `onclick` handler is executed. After that, hyperdom re-renders (that is, calls the `render()` method, compares the result with the current DOM and updates it if needed).
 
 Read more about Events [here](api#event-handler-on-attributes)
 
