@@ -4,6 +4,10 @@ const routes = require("./routes");
 
 module.exports = class BeerList {
 
+  get beerId() {
+    return Number(this.beerIdParam)
+  }
+
   async onload() {
     this.isLoadingBeer = true
 
@@ -22,7 +26,7 @@ module.exports = class BeerList {
       }),
       routes.beer({
         bindings: {
-          id: [this, "beerId"]
+          id: [this, "beerIdParam"]
         },
         render: () => {
           return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
@@ -32,7 +36,7 @@ module.exports = class BeerList {
   }
 
   renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id == this.beerId)
+    const beer = this.beers.find(beer => beer.id === this.beerId)
     return <img src={beer.image_url}/>
   }
 

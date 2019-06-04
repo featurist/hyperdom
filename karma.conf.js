@@ -94,7 +94,8 @@ module.exports = function (config) {
 
     browserStack: {
       username: process.env.BROWSERSTACK_USER,
-      accessKey: process.env.BROWSERSTACK_PASSWORD
+      accessKey: process.env.BROWSERSTACK_PASSWORD,
+      captureTimeout: 300
     },
 
     // Continuous Integration mode

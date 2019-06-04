@@ -4,9 +4,9 @@ import * as router from "hyperdom/router";
 const home = router.route("/");
 
 class Thing extends hyperdom.RoutesComponent {
-  public tech = "hyperdom";
+  tech = "hyperdom";
 
-  public routes() {
+  routes() {
     return [
       home({
         render: () => {

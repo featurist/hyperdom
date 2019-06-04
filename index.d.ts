@@ -68,10 +68,18 @@ declare namespace hyperdom {
 
     key?: string | number
 
+    class?: string | string[] | object
+
+    tabindex?: number
+
     onclick? (e?: Event): void
   }
 
   export type NodeProps = HtmlNodeProps & HyperdomNodeProps
+
+  export interface HTMLLabelProps {
+    for?: string
+  }
 
   // TODO Date?
   export type Renderable = string | number | boolean | undefined | null | VdomFragment | Component
@@ -459,7 +467,7 @@ declare global {
       ins: Partial<HTMLModElement> & hyperdom.HyperdomNodeProps
       kbd: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
       keygen: Partial<HTMLElement> & hyperdom.HyperdomNodeProps
-      label: Partial<HTMLLabelElement> & hyperdom.HyperdomNodeProps
+      label: Partial<HTMLLabelElement> & hyperdom.HyperdomNodeProps & hyperdom.HTMLLabelProps
       legend: Partial<HTMLLegendElement> & hyperdom.HyperdomNodeProps
       li: Partial<HTMLLIElement> & hyperdom.HyperdomNodeProps
       link: Partial<HTMLLinkElement> & hyperdom.HyperdomNodeProps

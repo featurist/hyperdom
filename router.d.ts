@@ -58,7 +58,7 @@ export interface RouteHandler {
 
   url (params: object): string
 
-  href (): string
+  href (params?: object): string
 
   replace (): void
 }

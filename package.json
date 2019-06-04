@@ -34,7 +34,7 @@
     "jquery-sendkeys": "4.0.0",
     "jsdom": "12.1.0",
     "karma": "3.0.0",
-    "karma-browserstack-launcher": "1.3.0",
+    "karma-browserstack-launcher": "1.5.1",
     "karma-chrome-launcher": "2.2.0",
     "karma-cli": "1.0.1",
     "karma-electron-launcher": "0.2.0",
@@ -61,12 +61,13 @@
   "scripts": {
     "test": "./node_modules/.bin/tsc && npm run karma && npm run mocha && eslint . && npm run tslint",
     "test-all": "BROWSERS=all npm test",
-    "tslint": "tslint --project . *.d.ts test/**/*.ts",
+    "tslint": "tslint --project . *.d.ts test/**/*.ts{,x}",
     "karma": "karma start --single-run",
     "mocha": "TS_NODE_FILES=true mocha -r ts-node/register test/server/*Spec.ts",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
     "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
     "dev-website": "yarn build-website && docsify serve ./website-dist",
+    "watch-docs": "ls docs/*.md | entr yarn codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "publish-website": "yarn build-website && gh-pages -t -d website-dist"
   },

@@ -38,6 +38,8 @@ describe('tsx integration', function () {
           <table width="100%">
             <th colSpan={2}></th>
           </table>
+          <label tabindex={1} for="name">Name</label>
+          <input type="text" id="name" />
         </div>
       )
     }
@@ -74,8 +76,8 @@ describe('tsx integration', function () {
       return (
         <div>
           <Blue title="Blue">
-            <div className="orange">Orange</div>
-            <div className="green">Green</div>
+            <div class="orange">Orange</div>
+            <div class="green">Green</div>
           </Blue>
         </div>
       )

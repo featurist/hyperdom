@@ -1,0 +1,7 @@
+:global(body) {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.hello {
+  text-transform: uppercase;
+}
