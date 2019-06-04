@@ -22,7 +22,7 @@ An object with a `render()` method is a valid hyperdom component (we call top le
 
 #### ** Javascript **
 
-_./browsers/app.jsx_
+_./browser/app.jsx_
 
 [view code](/docs/codesandbox/get-started-init/src/browser/app.jsx)
 
@@ -34,7 +34,7 @@ It's mounted into the DOM in _./browser/index.js_:
 
 #### ** Typescript **
 
-_./browsers/app.tsx_
+_./browser/app.tsx_
 
 [view code](/docs/codesandbox/get-started-init-ts/src/browser/app.tsx)
 
@@ -64,7 +64,7 @@ Event handlers run some code when a user clicks on something. Let's modify our `
 
 #### ** Javascript **
 
-_./browsers/app.jsx_
+_./browser/app.jsx_
 
 [view code](/docs/codesandbox/get-started-events/src/browser/app.jsx#L4)
 
@@ -72,7 +72,7 @@ _./browsers/app.jsx_
 
 #### ** Typescript **
 
-_./browsers/app.tsx_
+_./browser/app.tsx_
 
 [view code](/docs/codesandbox/get-started-events-ts/src/browser/app.tsx#L4)
 
@@ -92,7 +92,7 @@ This is how we bind html inputs onto the state. Let's see it in action:
 
 #### ** Javascript **
 
-_./browsers/app.jsx_
+_./browser/app.jsx_
 
 [view code](/docs/codesandbox/get-started-bindings/src/browser/app.jsx#L13)
 
@@ -100,7 +100,7 @@ _./browsers/app.jsx_
 
 #### ** Typescript **
 
-  _./browsers/app.tsx_
+  _./browser/app.tsx_
 
 [view code](/docs/codesandbox/get-started-bindings-ts/src/browser/app.tsx#L19)
 
@@ -120,7 +120,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
 
 #### ** Javascript **
 
-_./browsers/app.jsx_
+_./browser/app.jsx_
 
 [view code](/docs/codesandbox/get-started-ajax/src/browser/app.jsx#L15)
 
@@ -128,7 +128,7 @@ _./browsers/app.jsx_
 
 #### ** Typescript **
 
-_./browsers/app.tsx_
+_./browser/app.tsx_
 
 [view code](/docs/codesandbox/get-started-ajax-ts/src/browser/app.tsx#L25)
 
@@ -148,13 +148,13 @@ Our `App` class is getting pretty hairy - why not to extact a component out of i
 
 #### ** Javascript **
 
-_./browsers/BeerList.jsx_
+_./browser/BeerList.jsx_
 
 [view code](/docs/codesandbox/get-started-compose/src/browser/BeerList.jsx#L4)
 
 And use it in the main app:
 
-_./browsers/app.jsx_
+_./browser/app.jsx_
 
 [view code](/docs/codesandbox/get-started-compose/src/browser/app.jsx#L3)
 
@@ -162,13 +162,13 @@ _./browsers/app.jsx_
 
 #### ** Typescript **
 
-_./browsers/BeerList.tsx_
+_./browser/BeerList.tsx_
 
 [view code](/docs/codesandbox/get-started-compose-ts/src/browser/BeerList.tsx#L4)
 
 And use it in the main app:
 
-_./browsers/app.tsx_
+_./browser/app.tsx_
 
 [view code](/docs/codesandbox/get-started-compose-ts/src/browser/app.tsx#L4)
 
@@ -176,7 +176,7 @@ _./browsers/app.tsx_
 
 <!-- tabs:end -->
 
-Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
+?> Since `this.beerList` is a component, we can specify it in place in the jsx. Hyperdom will implicitly call its `render()` method.
 
 ## Routes
 
@@ -184,31 +184,91 @@ Routing is essential in most non-trivial applications. That's why hyperdom has r
 
 We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
 
-First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router (`browser/index.js`):
+First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router:
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/index.js#L1)
+<!-- tabs:start -->
 
-Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers` (`browser/app.jsx`):
+#### ** Javascript **
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L3)
+_./browser/index.js_
+
+[view code](/docs/codesandbox/get-started-routing/src/browser/index.js)
+
+#### ** Typescript **
+
+_./browser/index.ts_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/index.ts)
+
+<!-- tabs:end -->
+
+Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers`:
+
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browser/app.jsx_
+
+[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L4)
+
+#### ** Typescript **
+
+_./browser/app.tsx_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L4)
+
+<!-- tabs:end -->
 
 The original `render()` method is gone. Two other special methods - `routes()` and (optional) `renderLayout()` - took its place. The former one is where the magic happens, so let's take a closer look. In a nutshell, `routes()` returns a "url -> render function" mapping. A particular render is invoked only if the current url matches. The "key" in that mapping is not actually a string url but a route definition. `routes.home()` in the above example is a route definition.
 
-We declare those route definitions separately so that they can be used anywhere in the project. The beers site ones are in `browser/routes.js`:
+We declare those route definitions separately so that they can be used anywhere in the project:
+
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browser/routes.js_
 
 [view code](/docs/codesandbox/get-started-routing/src/browser/routes.js)
 
+#### ** Typescript **
+
+_./browser/routes.ts_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/routes.ts)
+
+<!-- tabs:end -->
+
 A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
 
-There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method (`browser/BeerList.jsx`):
+There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method:
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L2)
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browser/BeerList.jsx_
+
+[view code](/docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L3)
 
 [codesandbox](/docs/codesandbox/get-started-routing)
+
+#### ** Typescript **
+
+_./browser/BeerList.tsx_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/BeerList.tsx#L3)
+
+[codesandbox](/docs/codesandbox/get-started-routing-ts)
+
+<!-- tabs:end -->
 
 When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
 
 Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
+
+?> Note how we use a custom `beerId` getter to coerce `:id` param into a number. That's because all url bindings produce string values.
 
 Learn more about routing [here](api#routing)
 
