@@ -6,7 +6,7 @@ The result is that we can write applications that have a simple relationship bet
 
 Here's an example:
 
-[view code](/docs/codesandbox/demo-js/src/index.js)
+[view code](/docs/codesandbox/demo-js/src/index.jsx)
 
 [codesandbox](/docs/codesandbox/demo-js)
 
