@@ -61,7 +61,7 @@
   "scripts": {
     "test": "./node_modules/.bin/tsc && npm run karma && npm run mocha && eslint . && npm run tslint",
     "test-all": "BROWSERS=all npm test",
-    "tslint": "tslint --project . *.d.ts test/**/*.ts",
+    "tslint": "tslint --project . *.d.ts test/**/*.ts{,x}",
     "karma": "karma start --single-run",
     "mocha": "TS_NODE_FILES=true mocha -r ts-node/register test/server/*Spec.ts",
     "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
