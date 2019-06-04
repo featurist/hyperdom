@@ -8,7 +8,7 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "hyperdom": "0.21.0",
+    "hyperdom": "latest",
     "typescript": "3.5.1"
   },
   "devDependencies": {
