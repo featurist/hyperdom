@@ -7,6 +7,11 @@
   <meta name="description" content="A fast, feature rich and simple framework for building dynamic browser applications.">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <style>
+    :root {
+      --docsifytabs-content-padding: 0.5rem 0;
+    }
+</style>
 </head>
 <body>
   <div id="app"></div>
@@ -28,6 +33,9 @@
         noData: 'No Results!',
         depth: 6,
         hideOtherSidebarContent: false,
+      },
+      tabs: {
+        theme: 'material'
       }
     }
   </script>
@@ -39,6 +47,7 @@
   <script src="//unpkg.com/prismjs/components/prism-tsx.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/disqus.min.js"></script>
   <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
   <script src="//unpkg.com/docsify-copy-code"></script>
 </body>
 </html>

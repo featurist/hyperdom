@@ -3,7 +3,7 @@ import * as hyperdom from "hyperdom";
 class App extends hyperdom.RenderComponent {
   private name: string;
 
-  public render() {
+  render() {
     return (
       <div>
         <label>what's your name? </label>
