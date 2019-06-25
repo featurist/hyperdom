@@ -1,5 +1,7 @@
 # hyperdom [![npm version](https://img.shields.io/npm/v/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![npm](https://img.shields.io/npm/dm/hyperdom.svg)](https://www.npmjs.com/package/hyperdom) [![Build Status](https://travis-ci.org/featurist/hyperdom.svg?branch=master)](https://travis-ci.org/featurist/hyperdom)
 
+<a href="https://hyperdom.org"><img src="https://raw.githubusercontent.com/featurist/hyperdom/master/docs/hyperdom-isometric-raster.png" align="left" width="160" ></a>
+
 A simple, fast, feature rich framework for building dynamic browser applications.
 
 Hyperdom supports a simple event-update-render cycle, promises for asynchronous operations, JSX, non-JSX, typescript, client-side routing, SVG, two-way data binding, server-side rendering, and optimises for performance, developer usability and simplicity of application architecture.
