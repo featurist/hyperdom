@@ -54,9 +54,10 @@
     "tslint": "^5.11.0",
     "typescript": "^3.2.1",
     "typescript-tslint-plugin": "^0.1.2",
-    "uglify-js": "3.2.2",
+    "uglify-js": "3.6.0",
     "watchify": "3.9.0",
-    "webpack": "4.20.2"
+    "webpack": "4.35.0",
+    "webpack-cli": "^3.3.5"
   },
   "scripts": {
     "test": "./node_modules/.bin/tsc && npm run karma && npm run mocha && eslint . && npm run tslint",
@@ -64,8 +65,8 @@
     "tslint": "tslint --project . *.d.ts test/**/*.ts{,x}",
     "karma": "karma start --single-run",
     "mocha": "TS_NODE_FILES=true mocha -r ts-node/register test/server/*Spec.ts",
-    "build": "webpack browser.js hyperdom.js && uglifyjs --compress warnings=false --mangle -- hyperdom.js > hyperdom.min.js",
-    "size": "npm run build && gzip < hyperdom.min.js > hyperdom.min.js.gz && ls -lh hyperdom.*",
+    "build": "webpack index.js && uglifyjs --compress --mangle -o dist/hyperdom.min.js dist/main.js",
+    "size": "npm run build && gzip < dist/hyperdom.min.js > dist/hyperdom.min.js.gz && ls -lh dist/hyperdom.*",
     "dev-website": "yarn build-website && docsify serve ./website-dist",
     "watch-docs": "ls docs/*.md | entr yarn codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
     "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
