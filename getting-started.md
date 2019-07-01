@@ -629,7 +629,7 @@ export default class App extends hyperdom.RenderComponent {
 
 Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to spend time choosing and implementing one.
 
-We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
+We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` to show an individual beer. And, of course, there is still a `/` route.
 
 First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router:
 
@@ -661,7 +661,7 @@ hyperdom.append(document.body, new App(), { router });
 
 <!-- tabs:end -->
 
-Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers`:
+Next, let's define what the top level path `/` is going to render:
 
 <!-- tabs:start -->
 
@@ -687,36 +687,6 @@ module.exports = class App {
       this.beerList
     ]
   }
-
-  renderLayout(content) {
-    return <main>{content}</main>
-  }
-
-  renderNameForm() {
-    return (
-      <div>
-        <label>
-          What is your name? <input type="text" binding="this.userName"></input>
-        </label>
-        {
-          this.userName && <div>You're now a <strong>hyperdomsta</strong> {this.userName}</div>
-        }
-        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
-      </div>
-    )
-  }
-
-  renderGreetings() {
-    return (
-      <div>
-        <h1 class={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreetings = true)}>
-          Next
-        </a>
-      </div>
-    );
-  }
-}
 ```
 
 #### ** Typescript **
@@ -741,38 +711,6 @@ export default class App extends hyperdom.RoutesComponent {
       this.beerList
     ];
   }
-
-  renderLayout(content: hyperdom.VdomFragment) {
-    return <main>{content}</main>;
-  }
-
-  renderGreetings() {
-    return (
-      <div>
-        <h1 className={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreetings = true)}>
-          Next
-        </a>
-      </div>
-    );
-  }
-
-  renderNameForm() {
-    return (
-      <div>
-        <label>
-          What is your name? <input type="text" binding={[this, "userName"]} />
-        </label>
-        {this.userName && (
-          <div>
-            You're now a <strong>hyperdomsta</strong> {this.userName}
-          </div>
-        )}
-        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
-      </div>
-    );
-  }
-}
 ```
 
 <!-- tabs:end -->
@@ -813,9 +751,31 @@ export default {
 
 <!-- tabs:end -->
 
-A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
+Route definition can also generate URLs strings. E.g. `routes.beer.href({id: 23})` returns `/beers/23`. This is how a link to `/beers` page looks in our example:
 
-There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method:
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browser/app.jsx_
+
+```jsx
+        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
+```
+
+#### ** Typescript **
+
+  _./browser/app.tsx_
+
+```tsx
+        {this.userName && <a href={routes.beers.href()}>Have a beer</a>}
+```
+
+<!-- tabs:end -->
+
+Apart from route definitions, there is one other thing that can be a part of the array returned from `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there.
+
+This works because `this.beerList` itself a has a `routes()` and that's where our second path - `/beers` - is mapped onto a render. The pattern then repeats itself with `this.showBeer` plugging in the final `/beers/:id` path.
 
 <!-- tabs:start -->
 
@@ -824,80 +784,79 @@ There is one other thing that can be a part of the array returned by `routes()`.
 _./browser/BeerList.jsx_
 
 ```jsx
-const routes = require("./routes");
+const styles = require('./styles.css');
+const Beer = require("./Beer");
 
 module.exports = class BeerList {
-
-  get beerId() {
-    return Number(this.beerIdParam)
-  }
-
-  async onload() {
-    this.isLoadingBeer = true
-
-    const response = await fetch("https://api.punkapi.com/v2/beers")
-    this.beers = await response.json()
-
-    this.isLoadingBeer = false
+  constructor() {
+    this.showBeer = new Beer(this);
   }
 
   routes() {
     return [
       routes.beers({
+        onload: async () => {
+          if (!this.beers) {
+            const response = await fetch("https://api.punkapi.com/v2/beers");
+            this.beers = await response.json();
+          }
+        },
         render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
+          return <div>{!this.beers ? "Loading..." : this.renderTable()}</div>;
         }
       }),
+      this.showBeer
+    ];
+  }
+```
+
+_./browser/Beer.jsx_
+
+```jsx
+const routes = require("./routes");
+
+module.exports = class Beer {
+  constructor(beerList) {
+    this.beerList = beerList;
+  }
+
+  get beerId() {
+    return Number(this.beerIdParam);
+  }
+
+  routes() {
+    return [
       routes.beer({
+        onload: async () => {
+          this.beer = null;
+
+          if (this.beerList.beers) {
+            this.beer = this.beerList.beers.find(
+              beer => beer.id === this.beerId
+            );
+          } else {
+            const response = await fetch(
+              `https://api.punkapi.com/v2/beers/${this.beerId}`
+            );
+            this.beer = (await response.json())[0];
+          }
+        },
         bindings: {
           id: [this, "beerIdParam"]
         },
         render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
+          return (
+            <div>{!this.beer ? "Loading..." : this.renderCurrentBeer()}</div>
+          );
         }
       })
-    ]
+    ];
   }
-
-  renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id === this.beerId)
-    return <img src={beer.image_url}/>
-  }
-
-  renderTable() {
-    return (
-      <div>
-        <table class={styles.beerList}>
-          <thead>
-            <tr>
-              <th />
-              <th>Name</th>
-              <th>Tagline</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {this.beers.map(({id, name, tagline, image_url}) => {
-              return (
-                <tr>
-                  <td>
-                    <img height="50" src={image_url} />
-                  </td>
-                  <td>{name}</td>
-                  <td>{tagline}</td>
-                  <td><a href={routes.beer.href({id})}>show</a></td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-}
 ```
 
-<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdTeEimYZkcwyBUgCRqOAQciqtgARhQAAZ3VajGw4kyMcNHbY2AAJFRqTRaJiFGBaEhMABSMy9Di0GCsTpiZDiiXayeMfsxNgEDCMDn1kwoGfYk3w0ypOe5TE8nhIqjIeYcaFM0HUVZr0y7PdBWepuZAcii1ribbiZHwEHgqpLAzYmGwUE87DMljInicLjgbg83l8wxVQZAUAwVH1HeMa5wm64J116vD2gzV5vlZAhhXIDfTUdAvL94B_Cc_2MOIJGjGdqHnRdbGXeR-SmDcuyzWBcE_a8wKCFhJ29EBBRgJQSXcdQiyEEIyHCMhImifFCWJMk1BWKF2HFeIpXIGUcjlTJ9QaMMgKYU4mC4ABHbsuAACkUESIzYABKABuRhBKxfUlFgOAxIkmBpIgOS2BQRkKB0-AUHwOAbDUjTyCEgAhGA1AAGQgITxKkmSYHkkAzJc9zPJ_ZSHOsLFiTNeB9J84y_NMlYopvFT1PbMhY3UUxYBQBJ2HcXh9PwK9bKYABBaEmGQzSfHwCh3CYWTlKq5EKAUTz0Fc3APK8pgyBgEkmCC7qQqaidPiMZL4CalrSwMihTFwZhhDmlgprgJJtD85CBjW6g4lwAQZtOJpZt23auAWpamDajr2riABxLgeCscw9IAfhu9qNq4EdcAAOWVGBrncLQZoEW6fv2tQntc803rG1bRDo87QmUyCBkhzrgtvOaaIIia9r-tyMCUU0KFk6Vsmanb5sW5gdjTMgmmAKnKFCVZUysLY6LkX6DsBgIQY8Gbacu-nGuRAEEX-XbcivddZfOgB1I4sU8pgycWvqgc-3IrHYM0brDCEqHiH8mDQWJXtN76UFMclBcCEAGQNs0le2FYFZwD2WFp86sYdtQnaYAAyUPBhlypTQAci4PrSSYfZcn1YkLSaQCI3LVZU_IcxTuAQPHaBjmVhlqXkYrv2i-DoGw4j3J9gULgwFOYB1ux3ANubmAwCa0ImmDDBbSTy2utWDAmhRuWy-BWWwqMXnJuh3BYZei04FF5Fxeu-SkcBOeq8GBRnQOEq4Db7TdKSHAoBIAfg1vuMwGJSNQw1CN8leZ1fcGJuW4hAAYkeOQYqEAhRt2OqdWSWN7owDXvDPS4knCmBgMpAeR8WD_QSJWJGAJ2Ie3hIfOa9lF5hF5IxAgzFSTkhWMNHqFAuI8SyLKDIjksSZ20LFQyvl_KcOAqQzS2ILK6W4UZEyAVzKWQ2jZOyaUhHrTEbwxK61UoTUytlMUeUCpILPhgUq9CQqzTkDqMeagACS6gt5zR3swf6pgtDYFwDAu22ALHqAmM4LQC8CbpRYPopQc4mDkDvr0axmM7aeTciQXor1hr6RQYEPxogFHwHytYGA-kMAkjTFiMAPBDh8IoBQdgcBEArHYuwCAKBDZkGFFU6y2gVgSAAEyEi6nZVqriOlZJySMAycB0knHFOQRGXSOpRJiUCC08TxJgAwFAE441knrXCaIWxdgkYdzcV3WS_t1kryOs1E6Z1zoHKugzGWhdIlwGibEmZXUmCfTYHc6Z5gUAfMeBDO2_M1DlCwLAfuRDERH2ngMNGGN1nkysjsvZR8rZZlemU05ZzQTqAEIISG0h7xdUsZ45UbB8ZnMIqi35h1GrHILpgum10D6ImuRM25Uy4mPOeSAV5r0PkoC-V9DqZLSiLV-hQYaQLZ4grwUwMFyMfGiCJUvImB0BW4CFSKmmyIhE7ISd0u0KBIBZlkpqk5OyUBgjEqcZB2rcCWJlXtC5gx_DmGxLiYAxr_AihgAAfUWlAUIzxll8xXv8tAgK1U2J4BLPe506W_yGACzJxV9EX2AFfGFXUGEYIlQCNq7xf4DCGLgXNcs2pPELXmtqTQnarHLdSstCgmj_PMFAKwMAq11prdsYtfrM2eycIW1tObqVDB-H8dtDKNo7I2qmdgsk9lgmxUqAI2K9iNubdit1oovW4B9ZSlFqLzkRvbWWgth6i0fG7Xu-1WhHVvAgOYZIEIACsbpHj4jbuuz13rQglpPXmtYZ6L2oqGH0YAC6YClwoP-gDUaIMs2XU2_q4HINQbLX0RuDQAHt2heOrqSQW6zvUGjAecAFCkgngyGDP7BhrGPee0QNq92EcHWsYdMa1hxsIWK-eyy6IMRAExIkNC2L1nFMwvitAhH8KUfFPhikPwgEEewiS0LcBSYkfwpKym1FzkUxVdgqmEqSI4lpxg_CUAcX2rJTQ-AHHZHQOyJQ86BrlWhE1bFwAlPRRU2jNKvH-MsVoR3OkonsjicU1NFT3keHSYUh_Jp4XjMZXZJo3K8R8qGl0chEjAQBDhZQFNfyKwVKQQnTl5TeXoUFYnUVuQOzSuefK9FSrHSViIDBCpMIPm-R-cExSFNMjbLBdYYgRtJBMBQANfZ0NLA3CUE8PMrQ0AlACBDDgW0wx8D7GwagmQ5V0QLOxXAA8eo1AQDAGlJeN8oB31OWbXU-5XCgwEKYaEagNsnHOxNTuDDTmLA0GoTwpArtQhOAIQHV5SkwA--lL7RinA_Yov9xYxTtACGdOweI2ISBNvUEwJtd6KDmC4EoKHjAYdCQg4YMnWJi3IWrOoN5qO3To6h5EUIoQgA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
+Here is the entire example on codesandbox:
+
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKAdAIwIZplATgYyVHwHsA7AFxkqRGAB0yACJ-kAB13hgrjcSYBtRixZtqANzYAaEaLYALAJ7sYuACYkAtmzkBdWc1YcoAVwDmEMnyRC5YkBVwZrYEri0BaXKcoQtMLpGeowAvowgodIgVuowAB4oChRaUEQgpJTUFLQAPACEACIA8gDCACoAmgAKAKJMyakAfIy5jVAtRm0wGOqdoky5FBAUsE3VGAQ4TADKLupoJPG5APTDozD9orkBFBhM-AqTcDwAvGwAquUAYp4AHGxMK1urCj19jHK5i-pKWyy5dQQCRMCDqc4gDDsdhsJqrIESTr2QZwfC4CDsChMOAECE4_ArNC4EgAdxOuBWsQSKAAVjY4StUejMS9CSRfp1XikOhEohwMPgANYYcwwWlwcjpTJUGiIOhyNhkDABfjGZSqDTaTyiiieOB7XBUdTeEimYZkcwyBUgCRqOAQciqtgARhQAAZ3VajGw4kyMcNHbY2AAJFRqTRaJiFGBaEhMABSMy9Di0GCsTpiZDiiXayeMfsxNgEDCMDn1kwoGfYk3w0ypOe5TE8nhIqjIeYcaFM0HUVZr0y7PdBWepuZAcii1ribbiZHwEHgqpLAzYmGwUE87DMljInicLjgbg83l8wxVQZAUAwVH1HeMa5wm64J116vD2gzV5vlZAhhXIDfTUdAvL94B_Cc_2MOIJGjGdqHnRdbGXeR-SmDcuyzWBcE_a8wKCFhJ29EBBRgJQSXcdQiyEEIyHCMhImifFCWJMk1BWKF2HFeIpXIGUcjlTJ9QaMMgKYU4mC4ABHbsuAACkUESIzYABKABuRhBKxfUlFgOAxIkmBpIgOS2BQRkKB0-AUHwOAbDUjTyCEgAhGA1AAGQgITxKkmSYHkkAzJc9zPJ_ZSHOsLFiTNeB9J84y_NMlYopvFT1PbMhY3UUxYBQBJ2HcXh9PwK9bKYABBaEmGQzSfHwCh3CYWTlKq5EKAUTz0Fc3APK8pgyBgEkmCC7qQqaidPiMZL4CalrSwMihTFwZhhDmlgprgJJtD85CBjW6g4lwAQZtOJpZt23auAWpamDajr2riABxLgeCscw9IAfhu9qNq4EdcAAOWVGBrncLQZoEW6fv2tQntc803rG1bRDo87QmUyCBkhzrgtvOaaIIia9r-tyMCUU0KFk6Vsmanb5sW5gdjTMgmmAKnKFCVZUysLY6LkX6DsBgIQY8Gbacu-nGuRAEEX-XbcivddZfOgB1I4sU8pgycWvqgc-3IrHYM0brDCEqHiH8mDQWJXtN76UFMclBcCEAGQNs0le2FYFZwD2WFp86sYdtQnaYAAyUPBhlypTQAci4PrSSYfZcn1YkLSaQCI3LVZU_IcxTuAQPHaBjmVhlqXkYrv2i-DoGw4j3J9gULgwFOYB1ux3ANubmAwCa0ImmDDBbSTy2utWDAmhRuWy-BWWwqMXnJuh3BYZei04FF5Fxeu-SkcBOeq8GBRnQOEq4Db7TdKSHAoBIAfg1vuMwGJSNQw1CN8leZ1fcGJuW4hAAYkeOQYqEAhRt2OqdWSWN7owDXvDPS4knCmBgMpAeR8WD_QSJWJGAJ2Ie3hIfOa9lF5hF5IxAgzFSTkhWMNLiPEsiygyI5LEmdtCxUMr5fy7DgKkM0hJcmMVvJcPiv5My61UoTUytlMUeUCpILPhgUqw0zoHFYbVequBZLYBxhQGmrU7a6JGr1YxPUKBpQJulFgOox5qAAJLqC3nNHezB_qmC0NgbRWNjGOImM4LQpCrF8yEZvAxLieASxWudDuxjZL-1EOQO-vQBDKKUHORqzUTpqPOiwHxXV9JkGylANKmDQRgEavkvRnc4DhNybtKpuB9KNPMTUlAkAsx73qedYxYlTrGJQGCMSpxkFGK6o4spLAgndNCEwHAJwcndIEc-fK1gYD6QwCSNMWIwA8EOF07pAwAAGyQKDsDgIgFY7F2AQBQIbMgwobnWW0CsCQAAmQkXU4ArAACSFzGQ49QoQjmTKYNMw5jT9KyU2dsgycBVknHFOQJqylBBuj0JYmZR9CL1KtlmV6FzFnnTBAIQQkNpD3nGeofxyo2D41yTi3J_M1BHSyQXMprjJZ4LljLYA-RIWfTYG5EgvRXooHFY8CGdtmW4FKItX6FBhr9yIYiMp4LdrTwGGjZEGLxrWIMn9OVuAFVKrqaITl-stDmGxLif5HUBn-BFDAAA-otKAsy3gQHMMkNuAAWN0bpZnPExXRUIaUGIgCYkSGhbFhqtLpNxZALCmH8WTUJXhnCjImQAopD8IB-GsMEdFRRcVs0SNCVIuchar7CIMlmvyMczI1o2jZOAMcC0RSGgUkR9bxF0K6pWxgMicryMNIo4qyi9JxpCmomqpg6ruGcZjO2cAFCklUeJfqg0lWQ2mUvNaoSl3msiddaJF1Qk1PiUfJJIr1CpLgOk_AmS-lEt2hACpsl-UAq7maw5yz4AIvWeJGFIwmC7IoPsxQFAzkXKuVCW59zHm3NIFoV5HzjF2UxRC79iiQORQA45MUdJkXqtRtijGF0V6spfQkgYFreVfvtV8pggqQDCtFRacVKBJVfQ6jK8oWBYDKtnoiLDGqK5owo3klda6STDR1SGwmBqDoCbQEJ39dNd4VwPqq7lQxBPrInbZS-Flr5mJChg7lAI2rvF_gMIYuA7Nyzak8Jz9m2pNCdqsDzoLrMKCaAJ8wUArAwG8_53zgwXPPFBd5xzZSwu2fixQH4fxQV2o2hhlAqZ2CyXiaCdQFKlQBApXsILIWKWOtFK63AUAmBoxoxFzlBzDnubi1Z7pQwPjtcOZa61nrvUUAhAAVjdI8fEbdKsurdUGtzuTvNdZa3NigfRgBFZgKXZbs3zqdZZqV4L_UNsLcW85o7x25b_17m3WJXUkgtzy0MtGA9V2kgnltmem2Iv4KcG90jDL0HxbWCl3-3mDOEJE_PRTtFw18ijSxWh9ZxSML4rQARGae3cIUh_PNHahJTSaejsRmP3yobx5WgRFV2CZoxwFa5MJ82lLILwlAHF9qyU0PgDx2R0DsiUIVga5VoRNQpcAItVAmlo2h5Qgk0bWIUg7nSJH2QUeFrx1TwnOasck6Edhen0j2SyNyvEfKY79LITXQEAQeOUBTX8isFSkEMOW-19boRtuMP27kMYp30VcAu-im7r5KxEBghUmESXkaqEy9oc26ytlFfMMQEFkgmAoA6J52atwlBPBgGVNAJQAgQw4FtMMfA-xsGoJkOVdEGAoAUrgAePUah31pSXjfKAd81Fm11PuVwoMBCmGhGoUvJwW8TU7uYtRiwNBqE8KQdvUITgCDn1ec5MBR_pXHzOpwk-KIz8WNB7QAhnTsHiNiEgwX1BMGCwN8wXAlDr8YJvoSy3DBP6xC55C1Z1BAgtEft0J_19IhQhQggA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 #### ** Typescript **
 
@@ -905,8 +864,9 @@ _./browser/BeerList.tsx_
 
 ```tsx
 import routes from "./routes";
+import Beer from "./Beer";
 
-interface Beer {
+export interface IBeer {
   id: number;
   name: string;
   tagline: string;
@@ -914,111 +874,80 @@ interface Beer {
 }
 
 export default class BeerList extends hyperdom.RoutesComponent {
-  private isLoadingBeer = false;
-  private beers: Array<Beer> = [];
-  private beerIdParam: string = "";
+  public beers: Array<IBeer> = [];
+  private showBeer: Beer;
 
-  private get beerId() {
-    return Number(this.beerIdParam);
+  constructor() {
+    super();
+    this.showBeer = new Beer(this);
   }
 
   async onload() {
-    this.isLoadingBeer = true;
-
     const response = await fetch("https://api.punkapi.com/v2/beers");
     this.beers = await response.json();
+  }
+```
 
-    this.isLoadingBeer = false;
+_./browser/Beer.tsx_
+
+```tsx
+import { IBeer } from "./BeerList";
+import routes from "./routes";
+
+export default class Beer {
+  private beerIdParam?: string;
+  private beer?: IBeer;
+  private beers: Array<IBeer> = [];
+
+  constructor(beerList: { beers: Array<IBeer> }) {
+    this.beers = beerList.beers;
+  }
+
+  get beerId() {
+    return Number(this.beerIdParam);
   }
 
   routes() {
     return [
-      routes.beers({
-        render: () => {
-          return (
-            <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
-          );
-        }
-      }),
       routes.beer({
+        onload: async () => {
+          this.beer = undefined;
+
+          if (this.beers.length) {
+            this.beer = this.beers.find(beer => beer.id === this.beerId);
+          } else {
+            const response = await fetch(
+              `https://api.punkapi.com/v2/beers/${this.beerId}`
+            );
+            this.beer = (await response.json())[0];
+          }
+        },
         bindings: {
           id: [this, "beerIdParam"]
         },
         render: () => {
           return (
-            <div>
-              {this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}
-            </div>
+            <div>{!this.beer ? "Loading..." : this.renderCurrentBeer()}</div>
           );
         }
       })
     ];
   }
-
-  render() {
-    if (this.isLoadingBeer) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <div>
-          <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
-            Have a beer
-          </button>
-          {this.renderTable()}
-        </div>
-      );
-    }
-  }
-
-  renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id === this.beerId);
-    return <img src={beer.image_url} />;
-  }
-
-  private renderTable() {
-    if (!this.beers.length) {
-      return;
-    }
-
-    return (
-      <table className={styles.beerList}>
-        <thead>
-          <tr>
-            <th />
-            <th>Name</th>
-            <th>Tagline</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {this.beers.map(({ id, name, tagline, image_url }) => {
-            return (
-              <tr>
-                <td>
-                  <img height={50} src={image_url} />
-                </td>
-                <td>{name}</td>
-                <td>{tagline}</td>
-                <td>
-                  <a href={routes.beer.href({ id })}>show</a>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
-  }
-}
 ```
 
-<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKA5lA9gIwIZQHQAmeALgsiAMboB2xMtSIBMFU2ATjAAQC26BAV1hcAOiABUeCnDhiR1EAF8ANCAjVmADzwALYjyhJQVWvWKMAPHoMA-efKsxsBO9RHELxCMVg2AChwUMFBcAMrYGpjomhYA9F4-MK7uFjwwxNhcFDoccOkAvGIAqgAqAGIAtAAcYlyxrnE6Ti721BZRBACeyR4EEABuXBAEhSDYAA7jYjZxff3Jbh5wFOwQ48RccOwUo1sUsZjs6ADueeyx6loksiAzscur6w0H_N2tjfpQrkqq49gUAGtsCgYHgAFZwGhGSg0OgMRAgYDyLiiEDUbBpMSIVEg4gVOAZdh0AgVI4CLzUFAVUhiZTI1H9GDsOAQGhY1EARjwAAYebT6WJmA81l42UhUfzqCixDxsOp2WJLjBtNYoJLpSBhesbtikVKUaiCRxiAqQH9tsEhhplbpPlwKhV0ON6OqDWJMAJoARTeagiEPV6rVdVXJ9SoBUwYM7rdQKBB4Oy9QbUTpOs72AR0DxTWw6ATXRriGn4CsRaaAMx4ACseA5oZR4f1gpg_QAIlH6MxY_GdVwk26zYFghUPRpYOwc9g8yaQPTGxqATBOsd0BnewBtAC68kU8h-mu2ByOpyZsQm42ummhJjh5gREB441XG3EXGwcC4qfTmZ4XDAR1_MQvyZH8xAAbnkB8nyJLhX3fTYi1gD9_yzVE8HuRD4CkGRwMgx9ny4AAhGAmQAGQgAk_wAtDYmIsiKJnCDqCggiyTzKjULEdC2ITEAmPkZVoI2ZgwGwIQNlYd8PwAQUmLhlThAgP2AjMszwAAldByXgABhLMn2oMw-3pcZVn6KduB0YYYAAcU4dJ1BQD98j_XA8iYlFTIGCyuAEM4ADkMW4Fy5D4kyzJ8zASPYcjKJcwzjiI6LYuIAAKABKfj9R4uAMuM_UUU4YgBHYKV13pZMct0LMYFS_tk0KzsmWxPL8hsfKGoaoqSqlYgrLgXRrLskiKScrgAH4uD6ii8E4a12ECtIylXHg8uxaaBrm5h2GGhzKVyzKKoa3cCoNRR0rpU6UQ2vAovo_NTs3DyuBO-ktrI7BOi0tKbzMbEVJ_PAADUfzKdhgTSWh0o6g1utKrhUjlagbGAX7aEUOJZXUGxnte7Kmp2-zRoOmHGuK-HUqOlELDmVxOupnQOSyNgZEWmB8mAAlOiQ3RggwRQbAACT59AON_QXi1UngAEJGg5On6YsTIdE4MBRgAYlqGhWAgQEOda9rUpuqzmF24muBc4h2AEGB0oFqmGv8hSHeps8FeTWYBndrhDrDVpGvmtnlvYVbofqrg4alSmroR2mXYRtgoq-eOUQAdRyDYKK4L6Sq4dE0kmix1HGckpuLUY6E0GcuEwS5HI59cNuUVE_KZNmxE3RQ6m9j3YkT4Ie4NYAbtbhagq4AAyCeuGj-mDRpr2U4NABNLSAHJODzk43wRgkjkpGwAazI04j3mgUHa4f-rwUe2ZOufXbjmOUTt-Or5m2_x6nhHldVjmqrusyXQqsMoC0FtgRkO9AFxGwDYe-DVPbzCOr7BsO49wqAPPsQ4Jwzi0WSgxS815YRmEYCxGCcFlKSx_GLFMVCsy4WYvhchb4PxcyQjQriGFuZYWkDcJiZCNg5Q4SAbi31eJZXUHQdgokghJSZDDYY2JqACB4FFdgz184wGxHvRyz0MhoHUFohCqxKTPQfMCGAAB9EqUBtFW10WgtwhlNBCS4CJMSUAJIsw_HRGKDF5JV07JQ78alNLaTgHpfChlaAwy8uZOgQw4CkXQM4RyviLauSgO5cK3kEmALgNiaS7BwadAsL49qLktzPTiZFaKABJAgARwY8DsSYlAGTQpZU8hFBJuIa71IIHlcOkcuD-RUWoo219AENKaRiFBL1_YsM6LGLgNAMDOCGUdG6FFkmpMpOky21sYBdINCYSinA4AGTyBk7Axw5QbDAOkbIlMQB6GIOMApsQzzjAgHgEu1AgQ_KkFmWI_QABMBxoo3HmddKZUKbl3O8BHeAVzQQQhoBlE5sKZo7JSX0fZ0UMmiSyccuciycqbNOiM8qMcAFQrqvHd67AWrQzaqTemIzZ4P2prTd-A1cV7JQOkyaYhdn4pQHgSVtR1rXyZSUbAmBYCgMQYPZMMLjoO3OpdTqdKmQMufjXOu-1dRL0UVwRu_Vm7ugGbM7MIBtwGvnBygmLKLaXyXpypePLF4Gs6nyvAArxXCtRGKxykq8DSqmrKgmOkSpzWIL40BXqEaxCfty9VyZ4GZvSkdJ6ZKnEB22pS5MEAwAz22UkvFaTophwdiMhe8xQ2UnDSq56DZ5IkvZWTHqM944NtVfPD0xBiA0FWbGKAusAT61Ze1G6uJfEHS7n0OACrYAjH9YG6tTJ7a-oNOAyBmRAFLziEOkdyMl7-rlau2qr8DUqoduq-BeNC1MljcUswiba2nTORsQBGSbr5LwJADQqU_1ssAQGggFt8iWzhUyBp6r60PnaXsDmEHzEgmsewKAXd6i40WTUhJV7FU3vZaWme0sANQrwLASkfUv06vSD1NtCyC2wyYxTB2nhr3MykmzDmbCsKAJSjuuengmjOAHdTK2Un559W7sm8TNg2ZxD6rJ6TOgbDyoMYZVTmnFPyfqMe-I7AB16eaGZ4gHQ3i7v9YB2U4xUp1SGAQZumjm76InYZZuGGrE2JejOrtzryZR2TdJ0zYW5MtF3WJ5Dn4YAQBQHoDmVZuRd1Q8AXzWGcMKZiwg-I0XuWdU8C4YAmiMYFfUwg4gpXPOGIqzVqrHtGuRY9r_GAatgC6vYMAjrznhgBYFnAHQJwYFNfnpVyLqmIt5YzcdW9Yn4jWcHqp693t5knROvuPYR4cGniVNoUgRDTDwjUEwl8LDPx0N_ChQCrzrsMIEbBS7PF2DCKPjwWIr3Hvna4LJcYwj0LngYfID7eBzydlSpmCgKizC3VeG5mAiV_sZWbsACOYi3vnSYttw82CTznCqkd8gaM7xndcRQjH2k3u3doSEz732wpOMEgRdx4kYYjbSNiV7s0xEvNiGIC69J8nc8x7z7S_P8mC-1f05qVOpHi7oJLqFsREDDEFzuHHGCdv49wYJgavDju3kYIgNAWBcCgdeAxv8sIKiiR4NATo2IxDCygIyLwFBMhOxtrSP7qxcDNxXdQOA-ImSlqYnjXmUAMAw0rniK2EQ4BgBWtiAQkwmSe-ydQSPwn_H9iiBmJkFQqDR4mHkbEJe2AfNJdn1ot18GUStjDAv20RzoGHVmbEHJxiaE2OgCdUGJ1JeICgTgnQI919z431z8h6_3Q2PJ_sfwCDiq79yHvE-FAYNICYSAEr0UKBJ8Q07_YxBUEfNAJkAB5dYrJg-JiOmISEJUggAFkJjsitjbGXGoJ2YHZDSp1GIPAAAGwFgDigSziPQ_6ogQiaCmicD_AzgwFiBwFlBIGridCmhg5wHgFP72IUAzjrRHIoEgCEi4imgACioQVYeBIARw7erYEAE44oT-2w9YrGW2ig3BQAA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
+Here is the entire example on codesandbox:
+
+<iframe src="https://codesandbox.io/api/v1/sandboxes/define?embed=1&parameters=N4IgZglgNgpgziAXKA5lA9gIwIZQHQAmeALgsiAMboB2xMtSIBMFU2ATjAAQC26BAV1hcAOiABUeCnDhiR1EAF8ANCAjVmADzwALYjyhJQVWvWKMAPHoMA-efKsxsBO9RHELxCMVg2AChwUMFBcAMrYGpjomhYA9F4-MK7uFjwwxNhcFDoccOkAvGIAqgAqAGIAtAAcYlyxrnE6Ti721BZRBACeyR4EEABuXBAEhSDYAA7jYjZxff3Jbh5wFOwQ48RccOwUo1sUsZjs6ADueeyx6loksiAzscur6w0H_N2tjfpQrkqq49gUAGtsCgYHgAFZwGhGSg0OgMRAgYDyLiiEDUbBpMSIVEg4gVOAZdh0AgVI4CLzUFAVUhiZTI1H9GDsOAQGhY1EARjwAAYebT6WJmA81l42UhUfzqCixDxsOp2WJLjBtNYoJLpSBhesbtikVKUaiCRxiAqQH9tsEhhplbpPlwKhV0ON6OqDWJMAJoARTeagiEPV6rVdVXJ9SoBUwYM7rdQKBB4Oy9QbUTpOs72AR0DxTWw6ATXRriGn4CsRaaAMx4ACseA5oZR4f1gpg_QAIlH6MxY_GdVwk26zYFghUPRpYOwc9g8yaQPTGxqATBOsd0BnewBtAC68kU8h-mu2ByOpyZsQm42ummhJjh5gREB441XG3EXGwcC4qfTmZ4XDAR1_MQvyZH8xAAbnkB8nyJLhX3fTYi1gD9_yzVE8HuRD4CkGRwMgx9ny4AAhGAmQAGQgAk_wAtDYmIsiKJnCDqCggiyTzKjULEdC2ITEAmPkZVoI2ZgwGwIQNlYd8PwAQUmLhlThAgP2AjMszwAAldByXgABhLMn2oMw-3pcZVn6KduB0YYYAAcU4dJ1BQD98j_XA8iYlFTIGCyuAEM4ADkMW4Fy5D4kyzJ8zASPYcjKJcwzjiI6LYuIAAKABKfj9R4uAMuM_UUU4YgBHYKV13pZMct0LMYFS_tk0KzsmWxPL8hsfKGoaoqSqlYgrLgXRrLskiKScrgAH4uD6ii8E4a12ECtIylXHg8uxaaBrm5h2GGhzKVyzKKoa3cCoNRR0rpU6UQ2vAovo_NTs3DyuBO-ktrI7BOi0tKbzMbEVJ_PAADUfzKdhgTSWh0o6g1utKrhUjlagbGAX7aEUOJZXUGxnte7Kmp2-zRoOmHGuK-HUqOlELDmVxOupnQOSyNgZEWmB8mAAlOiQ3RggwRQbAACT59AON_QXi1UngAEJGg5On6YsTIdE4MBRgAYlqGhWAgQEOda9rUpuqzmF24muBc4h2AEGB0oFqmGv8hSHeps8FeTWYBndrhDrDVpGvmtnlvYVbofqrg4alSmroR2mXYRtgoq-eOUQAdRyDYKK4L6Sq4dE0kmix1HGckpuLUY6E0GcuEwS5HI59cNuUVE_KZNmxE3RQ6m9j3YkT4Ie4NYAbtbhagq4AAyCeuGj-mDRpr2U4NABNLSAHJODzk43wRgkjkpGwAazI04j3mgUHa4f-rwUe2ZOufXbjmOUTt-Or5m2_x6nhHldVjmqrusyXQqsMoC0FtgRkO9AFxGwDYe-DVPbzCOr7BsO49wqAPPsQ4Jwzi0Wipea8sIzCMBYjBOCylJY_jFimShWZcLMXwjBYAXAACSdF2AvWoVxPB91GJ4SEhHb68AuEgG4kIm4WVBIEREmJKAEkWYfnYTDLy5k6A12iiwggARwY8HGtiPejlnoqMitFPRrD2FGIimowBcBsTSXYODToFg2HRXai5LcWUUQmD3gICgxBVypUASlXU6imS2K4PYxxzj2HtXOqTKa18bEW1CTFBit1opwFxv7LguIUmaLyuHSOXB_ICB4FFdgRtEkaK0RwDEKCXrZJygUo6RTyoxwAdFOq8caAYGcNid8nRYwz2hm1eJnUbqAOSQIa0kBDIEE8Q_CAYAZ4TIyXgWAlI-phyXtdKpTJkmrLCXgWZBBAnRQtu1QBeBhgW3yJbPZ7BNH1Lnl3YIeQxn028RsTgcADLvJctgY4coNhgHSNkWeD9kwAAM9DEHGLY2IZ5xgQDwCXagQJkVSCzLEfoAAmA4GTYgABJ34DUAZoxQUKdk-2epCw5HCXKpUBcCiO8A_mgghDQDK6V1zciekveBnV5z01rhoRy4Tw6dWGNiRu_Vm7umqdojEHd47Cs6u9dgLURmXyXkUiFkKF7zGANLelE1USkXQM4RyeAbW1HWtfDVOkSpzWIOw0BiDB7JmecdB250jr8r9m4fG80nUOLMG67Zp0ilFx4CgTY2wOb0uubKEEAB9EqUAu5NAgCgPQHMAAs3JuRd3qFk6gJ19x7CPDg087CUoEPIGjO8ahGEvjfBQ78qEUKARAEfbMYUGECPIQhbmwju00S5jzaQEj-GsXESIsR2kZ2DoIko8d3D2H0IEpoAR6g6DsFEkEcx5z-zSrzqU8pz184wH0VbQx9IMhoHUDehCqxKTPQfMCGA6b2BQFvW-lATE8ZSJgjI8SzMpJJV4fJKunYO0gTUppJdel8KGVoMogQmAoC6xSeEyJn1omuOSR48K3k1FwB0Ccdh2ILHZK-dbPxATI3JjgAIdMGVaUJJmhRqj5z4owESm6ja9S8YogGUMnplrTnMYNF81lvyaD_LfEC7wf4wU6Epr24gcKEVIpRWijFKKqA8BxfimxYhvX0ucspllPz2XgkhNQDjc5GniOaVG9IPUuBtPVeI9JYSunP1ZfNLVFyPmVU8xTalhqUZWfWfQFAfUzU3Q1SUbAWHarQ2xGIC1VrKQ2rwGIDGsQn6Qu9cmQVZ0LoOxujx44m7HpltI6o7gqX0uwHc8mJZM8TUPIGhsxLOgZMRfJtQTjonYaRajg7Tw7XuCSVZkFDmk6sJBIYvbILngmjOE9fPK2u2PZJfqNFvqNg2ZxFOydnQNg0tPsMhd67V3u5Lwu-wXbD3mjveIB0N4QWUSkv80A2U4xUp1SGAQZu17m6Puw4ZZun600Zpetq8LXUpsz2pdTfbmO9stD-w_GNcbs25uIBzKsxb407GAAj79GaS0HcVvEPHkLOqeBcMAa9xXiDM5Z4d9nMPn1c557zrHwuRfU1_jANWwAOlMmAVLsHNzzoCzqzAhnrOmfq_nvEN71LyvHVfpt-IP3B4Xbm97ETaCFAYKrdgk85wlTaFIIQ0w8IW1DvbZ-Whv5129u9_Q0hbb4I8Q4b7vtsQQ8B9bREuSvv0Lni3dQPteBzydlSpmCgpSzC3VeJDgTMeQcXT7II7SHDzpMUrYeO3uCqrO8bUQt3gfYKe5DyI8PkeB3boEWBuRMNKNpGxCH2aQjNOxAs5dFENjB9CPYMP7So_zMgGq_qQB0_S9z7oAvwliBhgWZ3BXm3Vfjy4JWwNadLvbyMEQGgLAuBAmvBk2AWEFRRI8GgJ0bLIBhZQEZF4CgmQnYbZaQIlVhcBm44AIg4B8QmQlkgNWheYoAMAYZK48QrZICn8Q5sQ2N0x_93Ird5BAcUoYYogMwmQKgqBECJg8hsQKC2B4UYA4Cg1CCGIpoOF-wSDtoRx0BtMsxsQORxhNBNh0BsMCAuBsMScUBOBOhGCCC1tKJudLpmD5CdBlFnA-hKQ-DuQBDGD9xSATBIAUAHMoR69Xdm1-wxBjNkVxwAB5dYVkagXscOMQSEEqIIAAWQmHZCthtgnwHGw0wHZB8wajEHgAADYCwBxQJZxHpfCNQIRNBTROB_gZxYjUR4iyhkjVxOhTRk94iIjnC70_EvDrYYBUixBCRcRTQABRUIKsfIkAI4bg1sCACccUZw7YesBpctdBRQRQIAA" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
 <!-- tabs:end -->
 
-When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+When user navigates to the `/beers` page for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. Since the `onload` returns a promise, the UI will render again once the promise is resolved/rejected.
 
-Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
+A similar `onload()` method is implemented on the `/beers/:id` page. Except, if we happen to navigate from the `/beers` page, it won't perform an ajax call, but instead draw from the list of beers fetched previously.
+
+This is a pretty advanced setup as the app will only call the api once, no matter which page user happens to land on.
+
+Speaking of `/beers/:id`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
 
 ?> Note how we use a custom `beerId` getter to coerce `:id` param into a number. That's because all url bindings produce string values.
 

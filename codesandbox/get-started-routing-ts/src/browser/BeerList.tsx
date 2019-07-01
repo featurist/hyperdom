@@ -1,8 +1,9 @@
 import * as hyperdom from "hyperdom";
 import * as styles from "./styles.css";
 import routes from "./routes";
+import Beer from "./Beer";
 
-interface Beer {
+export interface IBeer {
   id: number;
   name: string;
   tagline: string;
@@ -10,21 +11,17 @@ interface Beer {
 }
 
 export default class BeerList extends hyperdom.RoutesComponent {
-  private isLoadingBeer = false;
-  private beers: Array<Beer> = [];
-  private beerIdParam: string = "";
+  public beers: Array<IBeer> = [];
+  private showBeer: Beer;
 
-  private get beerId() {
-    return Number(this.beerIdParam);
+  constructor() {
+    super();
+    this.showBeer = new Beer(this);
   }
 
   async onload() {
-    this.isLoadingBeer = true;
-
     const response = await fetch("https://api.punkapi.com/v2/beers");
     this.beers = await response.json();
-
-    this.isLoadingBeer = false;
   }
 
   routes() {
@@ -32,43 +29,12 @@ export default class BeerList extends hyperdom.RoutesComponent {
       routes.beers({
         render: () => {
           return (
-            <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
+            <div>{this.beers.length ? this.renderTable() : "Loading..."}</div>
           );
         }
       }),
-      routes.beer({
-        bindings: {
-          id: [this, "beerIdParam"]
-        },
-        render: () => {
-          return (
-            <div>
-              {this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}
-            </div>
-          );
-        }
-      })
+      this.showBeer
     ];
-  }
-
-  render() {
-    if (this.isLoadingBeer) {
-      return <div>Loading...</div>;
-    } else {
-      return (
-        <div>
-          <button onclick={() => this.getBeers()} disabled={this.isLoadingBeer}>
-            Have a beer
-          </button>
-          {this.renderTable()}
-        </div>
-      );
-    }
-  }
-
-  renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id === this.beerId);
-    return <img src={beer.image_url} />;
   }
 
   private renderTable() {
