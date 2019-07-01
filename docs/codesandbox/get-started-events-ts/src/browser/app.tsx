@@ -2,14 +2,14 @@ import * as hyperdom from "hyperdom";
 import { hello } from "./styles.css";
 
 export default class App extends hyperdom.RenderComponent {
-  private hideGreeting: boolean;
+  private hideGreetings: boolean;
 
-  renderHeader() {
-    if (!this.hideGreeting) {
+  renderGreetings() {
+    if (!this.hideGreetings) {
       return (
         <div>
           <h1 className={hello}>Hello from Hyperdom!</h1>
-          <a href="#" onclick={() => this.hideGreeting = true}>Next</a>
+          <a href="#" onclick={() => this.hideGreetings = true}>Next</a>
         </div>
       );
     } else {
@@ -18,6 +18,6 @@ export default class App extends hyperdom.RenderComponent {
   }
 
   render() {
-    return <main>{this.renderHeader()}</main>;
+    return <main>{this.renderGreetings()}</main>;
   }
 }

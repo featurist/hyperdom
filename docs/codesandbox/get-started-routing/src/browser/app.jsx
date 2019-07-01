@@ -12,7 +12,7 @@ module.exports = class App {
     return [
       routes.home({
         render: () => {
-          return this.hideGreeting ? this.renderBody() : this.renderHeader()
+          return this.hideGreetings ? this.renderNameForm() : this.renderGreetings()
         }
       }),
       this.beerList
@@ -23,7 +23,7 @@ module.exports = class App {
     return <main>{content}</main>
   }
 
-  renderBody() {
+  renderNameForm() {
     return (
       <div>
         <label>
@@ -37,11 +37,11 @@ module.exports = class App {
     )
   }
 
-  renderHeader() {
+  renderGreetings() {
     return (
       <div>
         <h1 class={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreeting = true)}>
+        <a href="#" onclick={() => (this.hideGreetings = true)}>
           Next
         </a>
       </div>

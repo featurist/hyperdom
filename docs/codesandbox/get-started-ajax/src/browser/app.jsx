@@ -2,18 +2,18 @@ const hyperdom = require("hyperdom");
 const styles = require("./styles.css");
 
 module.exports = class App {
-  renderHeader() {
+  renderGreetings() {
     return (
       <div>
         <h1 class={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreeting = true)}>
+        <a href="#" onclick={() => (this.hideGreetings = true)}>
           Next
         </a>
       </div>
     );
   }
 
-  renderBody() {
+  renderNameForm() {
     return (
       <div>
         <label>
@@ -76,7 +76,7 @@ module.exports = class App {
 
   render() {
     return (
-      <main>{this.hideGreeting ? this.renderBody() : this.renderHeader()}</main>
+      <main>{this.hideGreetings ? this.renderNameForm() : this.renderGreetings()}</main>
     );
   }
 }

@@ -2,22 +2,22 @@ import * as hyperdom from "hyperdom";
 import { hello } from "./styles.css";
 
 export default class App extends hyperdom.RenderComponent {
-  private hideGreeting: boolean;
+  private hideGreetings: boolean;
   private userName: string;
 
-  renderHeader() {
-    if (!this.hideGreeting) {
+  renderGreetings() {
+    if (!this.hideGreetings) {
       return (
         <div>
           <h1 className={hello}>Hello from Hyperdom!</h1>
-          <a href="#" onclick={() => this.hideGreeting = true}>Next</a>
+          <a href="#" onclick={() => this.hideGreetings = true}>Next</a>
         </div>
       );
     }
   }
 
-  renderBody() {
-    if (this.hideGreeting) {
+  renderNameForm() {
+    if (this.hideGreetings) {
       return (
         <div>
           <label>What is your name? <input type="text" binding={[this, "userName"]} /></label>
@@ -30,8 +30,8 @@ export default class App extends hyperdom.RenderComponent {
   render() {
     return (
       <main>
-        {this.renderHeader()}
-        {this.renderBody()}
+        {this.renderGreetings()}
+        {this.renderNameForm()}
       </main>
     );
   }
