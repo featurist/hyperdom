@@ -182,7 +182,7 @@ _./browser/app.tsx_
 
 Routing is essential in most non-trivial applications. That's why hyperdom has routing built in - so you don't have to spend time choosing and implementing one.
 
-We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` - to show an individual beer. And, of course, there is still a `/` route.
+We are going to add new routes to the beer site: `/beers` - to show the beers table - and `/beer/:id` to show an individual beer. And, of course, there is still a `/` route.
 
 First we need to tell hyperdom that this the routing is involved. We do this by mounting the app with a router:
 
@@ -202,7 +202,7 @@ _./browser/index.ts_
 
 <!-- tabs:end -->
 
-Next, on the home page, we specify what there is to render on the root path - `/` - and also add a link to `/beers`:
+Next, let's define what the top level path `/` is going to render:
 
 <!-- tabs:start -->
 
@@ -210,13 +210,13 @@ Next, on the home page, we specify what there is to render on the root path - `/
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L4)
+[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L4-L20)
 
 #### ** Typescript **
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L4)
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L4-L20)
 
 <!-- tabs:end -->
 
@@ -240,9 +240,27 @@ _./browser/routes.ts_
 
 <!-- tabs:end -->
 
-A route definition can be specified in the array returned from the `routes()` method. It can also generate a path for html links - e.g. `routes.beer.href({id: 23})` returns `/beers/23`.
+Route definition can also generate URLs strings. E.g. `routes.beer.href({id: 23})` returns `/beers/23`. This is how a link to `/beers` page looks in our example:
 
-There is one other thing that can be a part of the array returned by `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there. This works because `this.beerList` itself a has a `routes()` method:
+<!-- tabs:start -->
+
+#### ** Javascript **
+
+_./browser/app.jsx_
+
+[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L35-L35)
+
+#### ** Typescript **
+
+  _./browser/app.tsx_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L48-L48)
+
+<!-- tabs:end -->
+
+Apart from route definitions, there is one other thing that can be a part of the array returned from `routes()`. If you look closely at the above example, you'll notice `this.beerList` is also there.
+
+This works because `this.beerList` itself a has a `routes()` and that's where our second path - `/beers` - is mapped onto a render. The pattern then repeats itself with `this.showBeer` plugging in the final `/beers/:id` path.
 
 <!-- tabs:start -->
 
@@ -250,7 +268,13 @@ There is one other thing that can be a part of the array returned by `routes()`.
 
 _./browser/BeerList.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L3)
+[view code](/docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L3-L26)
+
+_./browser/Beer.jsx_
+
+[view code](/docs/codesandbox/get-started-routing/src/browser/Beer.jsx#L2-L40)
+
+Here is the entire example on codesandbox:
 
 [codesandbox](/docs/codesandbox/get-started-routing)
 
@@ -258,15 +282,25 @@ _./browser/BeerList.jsx_
 
 _./browser/BeerList.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/BeerList.tsx#L3)
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/BeerList.tsx#L3-L26)
+
+_./browser/Beer.tsx_
+
+[view code](/docs/codesandbox/get-started-routing-ts/src/browser/Beer.tsx#L2-L43)
+
+Here is the entire example on codesandbox:
 
 [codesandbox](/docs/codesandbox/get-started-routing-ts)
 
 <!-- tabs:end -->
 
-When beer table page is visited for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. This way, even if the page is then reload whilst on `/beers` or `/beers/23` the data is always going to be there to render.
+When user navigates to the `/beers` page for the _first_ time, an `onload()` method is called by hyperdom (if provided). In our example, it performs an ajax request to fetch the data. Since the `onload` returns a promise, the UI will render again once the promise is resolved/rejected.
 
-Speaking of `/beers/23`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
+A similar `onload()` method is implemented on the `/beers/:id` page. Except, if we happen to navigate from the `/beers` page, it won't perform an ajax call, but instead draw from the list of beers fetched previously.
+
+This is a pretty advanced setup as the app will only call the api once, no matter which page user happens to land on.
+
+Speaking of `/beers/:id`, note how the `:id` parameter is bound onto a component property using `bindings` property. This is very similar to the input bindings we saw earlier.
 
 ?> Note how we use a custom `beerId` getter to coerce `:id` param into a number. That's because all url bindings produce string values.
 

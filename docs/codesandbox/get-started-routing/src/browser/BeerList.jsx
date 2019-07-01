@@ -1,43 +1,28 @@
 const hyperdom = require("hyperdom");
-const styles = require("./styles.css");
 const routes = require("./routes");
+const styles = require('./styles.css');
+const Beer = require("./Beer");
 
 module.exports = class BeerList {
-
-  get beerId() {
-    return Number(this.beerIdParam)
-  }
-
-  async onload() {
-    this.isLoadingBeer = true
-
-    const response = await fetch("https://api.punkapi.com/v2/beers")
-    this.beers = await response.json()
-
-    this.isLoadingBeer = false
+  constructor() {
+    this.showBeer = new Beer(this);
   }
 
   routes() {
     return [
       routes.beers({
-        render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderTable()}</div>
-        }
-      }),
-      routes.beer({
-        bindings: {
-          id: [this, "beerIdParam"]
+        onload: async () => {
+          if (!this.beers) {
+            const response = await fetch("https://api.punkapi.com/v2/beers");
+            this.beers = await response.json();
+          }
         },
         render: () => {
-          return <div>{this.isLoadingBeer ? "Loading..." : this.renderCurrentBeer()}</div>
+          return <div>{!this.beers ? "Loading..." : this.renderTable()}</div>;
         }
-      })
-    ]
-  }
-
-  renderCurrentBeer() {
-    const beer = this.beers.find(beer => beer.id === this.beerId)
-    return <img src={beer.image_url}/>
+      }),
+      this.showBeer
+    ];
   }
 
   renderTable() {
@@ -53,7 +38,7 @@ module.exports = class BeerList {
             </tr>
           </thead>
           <tbody>
-            {this.beers.map(({id, name, tagline, image_url}) => {
+            {this.beers.map(({ id, name, tagline, image_url }) => {
               return (
                 <tr>
                   <td>
@@ -61,13 +46,15 @@ module.exports = class BeerList {
                   </td>
                   <td>{name}</td>
                   <td>{tagline}</td>
-                  <td><a href={routes.beer.href({id})}>show</a></td>
+                  <td>
+                    <a href={routes.beer.href({ id })}>show</a>
+                  </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
       </div>
-    )
+    );
   }
-}
+};
