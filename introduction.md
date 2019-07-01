@@ -19,9 +19,8 @@ Hyperdom is influenced by react and uses virtual-dom for the DOM patching. Unlik
 
 ## Size
 
-* `hyperdom.js`: 77K
-* `hyperdom.min.js`: 29K
-* `hyperdom.min.js.gz`: 9.4K
+* `hyperdom.min.js`: 31K
+* `hyperdom.min.js.gz`: 9.8K
 
 ## Browser Support
 

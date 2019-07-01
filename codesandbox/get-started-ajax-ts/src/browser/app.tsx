@@ -8,21 +8,21 @@ interface Beer {
 }
 
 export default class App extends hyperdom.RenderComponent {
-  private hideGreeting = false;
+  private hideGreetings = false;
   private userName = "";
   private isLoadingBeer = false;
   private beers: Array<Beer> = [];
 
-  renderHeader() {
+  renderGreetings() {
     return (
       <div>
         <h1 className={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreeting = true)}>Next</a>
+        <a href="#" onclick={() => (this.hideGreetings = true)}>Next</a>
       </div>
     );
   }
 
-  renderBody() {
+  renderNameForm() {
     return (
       <div>
         <label>
@@ -83,7 +83,7 @@ export default class App extends hyperdom.RenderComponent {
 
   render() {
     return (
-      <main>{this.hideGreeting ? this.renderBody() : this.renderHeader()}</main>
+      <main>{this.hideGreetings ? this.renderNameForm() : this.renderGreetings()}</main>
     );
   }
 }

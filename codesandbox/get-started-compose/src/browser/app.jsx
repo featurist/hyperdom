@@ -7,7 +7,7 @@ module.exports = class App {
     this.beerList = new BeerList();
   }
 
-  renderBody() {
+  renderNameForm() {
     return (
       <div>
         <label>
@@ -23,18 +23,18 @@ module.exports = class App {
     );
   }
 
-  renderHeader() {
+  renderGreetings() {
     return (
       <div>
         <h1 class={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreeting = true)}>Next</a>
+        <a href="#" onclick={() => (this.hideGreetings = true)}>Next</a>
       </div>
     );
   }
 
   render() {
     return (
-      <main>{this.hideGreeting ? this.renderBody() : this.renderHeader()}</main>
+      <main>{this.hideGreetings ? this.renderNameForm() : this.renderGreetings()}</main>
     );
   }
 }

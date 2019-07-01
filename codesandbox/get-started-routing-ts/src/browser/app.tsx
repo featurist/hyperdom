@@ -4,7 +4,7 @@ import BeerList from "./BeerList";
 import routes from "./routes";
 
 export default class App extends hyperdom.RoutesComponent {
-  private hideGreeting = false;
+  private hideGreetings = false;
   private userName = "";
   private beerList = new BeerList();
 
@@ -12,7 +12,7 @@ export default class App extends hyperdom.RoutesComponent {
     return [
       routes.home({
         render: () => {
-          return this.hideGreeting ? this.renderBody() : this.renderHeader();
+          return this.hideGreetings ? this.renderNameForm() : this.renderGreetings();
         }
       }),
       this.beerList
@@ -23,18 +23,18 @@ export default class App extends hyperdom.RoutesComponent {
     return <main>{content}</main>;
   }
 
-  renderHeader() {
+  renderGreetings() {
     return (
       <div>
         <h1 className={styles.hello}>Hello from Hyperdom!</h1>
-        <a href="#" onclick={() => (this.hideGreeting = true)}>
+        <a href="#" onclick={() => (this.hideGreetings = true)}>
           Next
         </a>
       </div>
     );
   }
 
-  renderBody() {
+  renderNameForm() {
     return (
       <div>
         <label>
