@@ -209,7 +209,7 @@ RouteDefinition.prototype.params = function (_url, _match) {
 
   if (match) {
     for (var n = 1; n < match.length; n++) {
-      params[this.variables[n - 1]] = match[n]
+      params[this.variables[n - 1]] = decodeURIComponent(match[n])
     }
     return params
   }
