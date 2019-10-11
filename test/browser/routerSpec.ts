@@ -389,9 +389,9 @@ function describeRouter (historyApiType: string) {
             app.refresh()
             return loadsArticle(monkey, app.article, 'y')
           }).then(function () {
-            route.push({id: 'z'})
+            route.push({id: 'id with spaces'})
             app.refresh()
-            return loadsArticle(monkey, app.article, 'z')
+            return loadsArticle(monkey, app.article, 'id with spaces')
           })
         })
       })
