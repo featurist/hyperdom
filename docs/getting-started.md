@@ -24,11 +24,11 @@ An object with a `render()` method is a valid hyperdom component (we call top le
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-init/src/browser/app.jsx)
+[view code](/docs/codesandbox/get-started-init/browser/app.jsx)
 
 It's mounted into the DOM in _./browser/index.js_:
 
-[view code](/docs/codesandbox/get-started-init/src/browser/index.js)
+[view code](/docs/codesandbox/get-started-init/browser/index.js)
 
 [codesandbox](/docs/codesandbox/get-started-init)
 

@@ -68,8 +68,8 @@
     "build": "webpack index.js && uglifyjs --compress --mangle -o dist/hyperdom.min.js dist/main.js",
     "size": "npm run build && gzip < dist/hyperdom.min.js > dist/hyperdom.min.js.gz && ls -lh dist/hyperdom.*",
     "dev-website": "yarn build-website && docsify serve ./website-dist",
-    "watch-docs": "ls docs/*.md | entr yarn codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
-    "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --iframe --output-dir=./website-dist ./docs/*.md",
+    "watch-docs": "ls docs/*.md | entr yarn codesandbox-example-links --output-dir=./website-dist ./docs/*.md",
+    "build-website": "rm -rf ./website-dist && cp -r ./docs ./website-dist && codesandbox-example-links --output-dir=./website-dist ./docs/*.md",
     "publish-website": "yarn build-website && gh-pages -t -d website-dist"
   },
   "keywords": [
