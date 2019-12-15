@@ -1,5 +1,4 @@
 {
-  "main": "./browser/index.js",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack"
@@ -18,6 +17,5 @@
     "webpack": "latest",
     "webpack-cli": "latest",
     "webpack-dev-server": "latest"
-  },
-  "browserslist": "defaults"
+  }
 }

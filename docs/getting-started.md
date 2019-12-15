@@ -36,11 +36,11 @@ It's mounted into the DOM in _./browser/index.js_:
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-init-ts/src/browser/app.tsx)
+[view code](/docs/codesandbox/get-started-init-ts/browser/app.tsx)
 
-It's mounted into the DOM in _./browser/index.js_:
+It's mounted into the DOM in _./browser/index.ts_:
 
-[view code](/docs/codesandbox/get-started-init-ts/src/browser/index.ts)
+[view code](/docs/codesandbox/get-started-init-ts/browser/index.ts)
 
 [codesandbox](/docs/codesandbox/get-started-init-ts)
 
