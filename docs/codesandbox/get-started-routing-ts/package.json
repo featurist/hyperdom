@@ -1,18 +1,21 @@
 {
-  "name": "get-started-routing-ts",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.html",
+  "name": "get-started-init-ts",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "start": "webpack-dev-server",
+    "build": "webpack"
   },
   "dependencies": {
-    "hyperdom": "latest",
-    "typescript": "3.5.1"
+    "hyperdom": "2.1.0"
   },
   "devDependencies": {
-    "parcel-bundler": "latest"
-  },
-  "keywords": []
+    "clean-webpack-plugin": "latest",
+    "css-loader": "latest",
+    "html-webpack-plugin": "latest",
+    "style-loader": "latest",
+    "ts-loader": "latest",
+    "typescript": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-dev-server": "latest"
+  }
 }

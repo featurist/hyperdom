@@ -66,7 +66,7 @@ Event handlers run some code when a user clicks on something. Let's modify our `
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-events/src/browser/app.jsx#L4)
+[view code](/docs/codesandbox/get-started-events/browser/app.jsx#L4)
 
 [codesandbox](/docs/codesandbox/get-started-events)
 
@@ -74,7 +74,7 @@ _./browser/app.jsx_
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-events-ts/src/browser/app.tsx#L4)
+[view code](/docs/codesandbox/get-started-events-ts/browser/app.tsx#L4)
 
 [codesandbox](/docs/codesandbox/get-started-events-ts)
 
@@ -94,7 +94,7 @@ This is how we bind html inputs onto the state. Let's see it in action:
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-bindings/src/browser/app.jsx#L13)
+[view code](/docs/codesandbox/get-started-bindings/browser/app.jsx#L13)
 
 [codesandbox](/docs/codesandbox/get-started-bindings)
 
@@ -102,7 +102,7 @@ _./browser/app.jsx_
 
   _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-bindings-ts/src/browser/app.tsx#L19)
+[view code](/docs/codesandbox/get-started-bindings-ts/browser/app.tsx#L19)
 
 [codesandbox](/docs/codesandbox/get-started-bindings-ts)
 
@@ -122,7 +122,7 @@ The above examples represent _synchronous_ state change. Where it gets interesti
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-ajax/src/browser/app.jsx#L15)
+[view code](/docs/codesandbox/get-started-ajax/browser/app.jsx#L15)
 
 [codesandbox](/docs/codesandbox/get-started-ajax)
 
@@ -130,7 +130,7 @@ _./browser/app.jsx_
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-ajax-ts/src/browser/app.tsx#L25)
+[view code](/docs/codesandbox/get-started-ajax-ts/browser/app.tsx#L25)
 
 [codesandbox](/docs/codesandbox/get-started-ajax-ts)
 
@@ -150,13 +150,13 @@ Our `App` class is getting pretty hairy - why not to extact a component out of i
 
 _./browser/BeerList.jsx_
 
-[view code](/docs/codesandbox/get-started-compose/src/browser/BeerList.jsx#L4)
+[view code](/docs/codesandbox/get-started-compose/browser/BeerList.jsx#L4)
 
 And use it in the main app:
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-compose/src/browser/app.jsx#L3)
+[view code](/docs/codesandbox/get-started-compose/browser/app.jsx#L3)
 
 [codesandbox](/docs/codesandbox/get-started-compose)
 
@@ -164,13 +164,13 @@ _./browser/app.jsx_
 
 _./browser/BeerList.tsx_
 
-[view code](/docs/codesandbox/get-started-compose-ts/src/browser/BeerList.tsx#L4)
+[view code](/docs/codesandbox/get-started-compose-ts/browser/BeerList.tsx#L4)
 
 And use it in the main app:
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-compose-ts/src/browser/app.tsx#L4)
+[view code](/docs/codesandbox/get-started-compose-ts/browser/app.tsx#L4)
 
 [codesandbox](/docs/codesandbox/get-started-compose-ts)
 
@@ -192,13 +192,13 @@ First we need to tell hyperdom that this the routing is involved. We do this by 
 
 _./browser/index.js_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/index.js)
+[view code](/docs/codesandbox/get-started-routing/browser/index.js)
 
 #### ** Typescript **
 
 _./browser/index.ts_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/index.ts)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/index.ts)
 
 <!-- tabs:end -->
 
@@ -210,13 +210,13 @@ Next, let's define what the top level path `/` is going to render:
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L4-L20)
+[view code](/docs/codesandbox/get-started-routing/browser/app.jsx#L4-L20)
 
 #### ** Typescript **
 
 _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L4-L20)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/app.tsx#L4-L20)
 
 <!-- tabs:end -->
 
@@ -230,13 +230,13 @@ We declare those route definitions separately so that they can be used anywhere 
 
 _./browser/routes.js_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/routes.js)
+[view code](/docs/codesandbox/get-started-routing/browser/routes.js)
 
 #### ** Typescript **
 
 _./browser/routes.ts_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/routes.ts)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/routes.ts)
 
 <!-- tabs:end -->
 
@@ -248,13 +248,13 @@ Route definition can also generate URLs strings. E.g. `routes.beer.href({id: 23}
 
 _./browser/app.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/app.jsx#L35-L35)
+[view code](/docs/codesandbox/get-started-routing/browser/app.jsx#L35-L35)
 
 #### ** Typescript **
 
   _./browser/app.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/app.tsx#L48-L48)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/app.tsx#L48-L48)
 
 <!-- tabs:end -->
 
@@ -268,11 +268,11 @@ This works because `this.beerList` itself a has a `routes()` and that's where ou
 
 _./browser/BeerList.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/BeerList.jsx#L3-L26)
+[view code](/docs/codesandbox/get-started-routing/browser/BeerList.jsx#L3-L26)
 
 _./browser/Beer.jsx_
 
-[view code](/docs/codesandbox/get-started-routing/src/browser/Beer.jsx#L2-L40)
+[view code](/docs/codesandbox/get-started-routing/browser/Beer.jsx#L2-L40)
 
 Here is the entire example on codesandbox:
 
@@ -282,11 +282,11 @@ Here is the entire example on codesandbox:
 
 _./browser/BeerList.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/BeerList.tsx#L3-L26)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/BeerList.tsx#L3-L26)
 
 _./browser/Beer.tsx_
 
-[view code](/docs/codesandbox/get-started-routing-ts/src/browser/Beer.tsx#L2-L43)
+[view code](/docs/codesandbox/get-started-routing-ts/browser/Beer.tsx#L2-L43)
 
 Here is the entire example on codesandbox:
 
