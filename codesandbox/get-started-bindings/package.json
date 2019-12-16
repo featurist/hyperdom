@@ -1,18 +1,21 @@
 {
-  "name": "hyperdom-get-started-bindings",
-  "version": "1.0.0",
-  "description": "Hyperdom Demo JS",
-  "main": "index.html",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "start": "webpack-dev-server",
+    "build": "webpack"
   },
   "dependencies": {
-    "babel-preset-hyperdom": "latest",
     "hyperdom": "latest"
   },
   "devDependencies": {
-    "parcel-bundler": "latest"
-  },
-  "keywords": []
+    "@babel/core": "latest",
+    "babel-loader": "latest",
+    "babel-preset-hyperdom": "latest",
+    "clean-webpack-plugin": "latest",
+    "css-loader": "latest",
+    "html-webpack-plugin": "latest",
+    "style-loader": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-dev-server": "latest"
+  }
 }

@@ -1,17 +1,16 @@
 {
-  "name": "hyperdom-example",
-  "version": "1.0.0",
-  "description": "Hyperdom Demo JS",
-  "main": "index.html",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "start": "webpack-dev-server",
+    "build": "webpack"
   },
   "dependencies": {
     "hyperdom": "latest"
   },
   "devDependencies": {
-    "parcel-bundler": "latest"
-  },
-  "keywords": []
+    "clean-webpack-plugin": "latest",
+    "html-webpack-plugin": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-dev-server": "latest"
+  }
 }

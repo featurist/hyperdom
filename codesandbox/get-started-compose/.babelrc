@@ -1,9 +1,5 @@
 {
   "presets": [
-    "env",
     "hyperdom"
-  ],
-  "plugins": [
-    "transform-runtime"
   ]
 }
