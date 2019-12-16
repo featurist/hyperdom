@@ -1463,29 +1463,29 @@ codesandbox-example-links@^1.0.0:
     glob "^7.1.3"
     yargs "^13.2.1"
 
-codesandbox-import-util-types@^2.1.5:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/codesandbox-import-util-types/-/codesandbox-import-util-types-2.1.5.tgz#de28decc4deca5a43cc83cd75f1b72d890c380af"
-  integrity sha512-4F0hQY4duS9Jmxzr/dufOtrk6i1aXrh4W/96ylQtT4I4tfsqnMQAvdAxlqAsAQ3TtCyPVKNfI6B6Vjb0boEJbw==
+codesandbox-import-util-types@^2.1.9:
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/codesandbox-import-util-types/-/codesandbox-import-util-types-2.1.9.tgz#24ba5ec3d966f51f18b78c48d32e6411da90aa74"
+  integrity sha512-Vc4qh+neVfHtS3RG+7wvaErMoEKdNTnLFnyj4Dcbn3NV7v9nlPj/z6MGhHp9S+vAjegWorFzxg9lKB1WGHTt5Q==
 
-codesandbox-import-utils@^2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/codesandbox-import-utils/-/codesandbox-import-utils-2.1.6.tgz#5eacbef741619e2caed645b7f8444437a86be8e1"
-  integrity sha512-efI6jHRcvBr0iLWc54UwX6YkED2sjUSIGajM12PwBOr2Wfe7UnRxXZr/K6BgVpRcHDb6D1+mXGa9rhdPz0bH3A==
+codesandbox-import-utils@^2.1.11:
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/codesandbox-import-utils/-/codesandbox-import-utils-2.1.11.tgz#171ce53a77b8dcd196fdcfaf0f6bc52b1206444a"
+  integrity sha512-vkA0drdzO2ArMUzl8/AhEuzaW6qX3ic1SXPmruVS7bo/3K1P8H+S9CbuUNPo67X54/LzHwMnAZgZMXwN8vrw7Q==
   dependencies:
-    codesandbox-import-util-types "^2.1.5"
+    codesandbox-import-util-types "^2.1.9"
     istextorbinary "^2.2.1"
     lz-string "^1.4.4"
 
 codesandbox@^2.1.1:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/codesandbox/-/codesandbox-2.1.6.tgz#3ed410e2002b91fcc0b3ea80a384f95f46c2ef0c"
-  integrity sha512-J8CxcM9KqouRG02Mq7iWwkvP9cbHtI1pjFLBrrkUnzdmbZgYOZ5SdRjghOF711wQAi0rEueEvzmdYazrdUJjqA==
+  version "2.1.11"
+  resolved "https://registry.yarnpkg.com/codesandbox/-/codesandbox-2.1.11.tgz#3c37ca56f6feea37e282c275a91c805f7b4f9f90"
+  integrity sha512-ACUBMNk6Ppuu5KpQh0eqs5LePOPXeIW1bKtNNWzbJfybzbpr3F236BHPReRqYqMO8DXHlf370gAlknX/Z48oCQ==
   dependencies:
     axios "^0.16.2"
     chalk "^2.4.1"
-    codesandbox-import-util-types "^2.1.5"
-    codesandbox-import-utils "^2.1.6"
+    codesandbox-import-util-types "^2.1.9"
+    codesandbox-import-utils "^2.1.11"
     commander "^2.9.0"
     datauri "^1.1.0"
     filesize "^3.6.1"
@@ -1498,7 +1498,7 @@ codesandbox@^2.1.1:
     lodash "^4.17.5"
     lz-string "^1.4.4"
     ms "^2.0.0"
-    opn "^5.1.0"
+    open "^6.3.0"
     ora "^1.3.0"
     pacote "^2.7.36"
     shortid "^2.2.8"
@@ -5945,6 +5945,13 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
+open@^6.3.0:
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/open/-/open-6.4.0.tgz#5c13e96d0dc894686164f18965ecfe889ecfc8a9"
+  integrity sha512-IFenVPgF70fSm1keSd2iDBIDIBZkroLeuffXq+wKTzTJlBpesFWojV9lb8mzOfaAzM1sr7HQHuO0vtV0zYekGg==
+  dependencies:
+    is-wsl "^1.1.0"
+
 opencollective@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/opencollective/-/opencollective-1.0.3.tgz#aee6372bc28144583690c3ca8daecfc120dd0ef1"
@@ -5965,7 +5972,7 @@ opn@4.0.2:
     object-assign "^4.0.1"
     pinkie-promise "^2.0.0"
 
-opn@^5.1.0, opn@^5.3.0:
+opn@^5.3.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/opn/-/opn-5.5.0.tgz#fc7164fab56d235904c51c3b27da6758ca3b9bfc"
   integrity sha512-PqHpggC9bLV0VeWcdKhkpxY+3JTzetLSqTCWL/z/tFIbI6G8JCjondXklT1JinczLz2Xib62sSp0T/gKT4KksA==
@@ -8799,6 +8806,14 @@ yargs-parser@^13.1.0:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
+yargs-parser@^13.1.1:
+  version "13.1.1"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-13.1.1.tgz#d26058532aa06d365fe091f6a1fc06b2f7e5eca0"
+  integrity sha512-oVAVsHz6uFrg3XQheFII8ESO2ssAf9luWuAd6Wexsu4F3OtIW0o8IribPXYrD4WC24LWtPrJlGy87y5udK+dxQ==
+  dependencies:
+    camelcase "^5.0.0"
+    decamelize "^1.2.0"
+
 yargs-parser@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-5.0.0.tgz#275ecf0d7ffe05c77e64e7c86e4cd94bf0e1228a"
@@ -8806,7 +8821,7 @@ yargs-parser@^5.0.0:
   dependencies:
     camelcase "^3.0.0"
 
-yargs@13.2.4, yargs@^13.2.1:
+yargs@13.2.4:
   version "13.2.4"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-13.2.4.tgz#0b562b794016eb9651b98bd37acf364aa5d6dc83"
   integrity sha512-HG/DWAJa1PAnHT9JAhNa8AbAv3FPaiLzioSjCcmuXXhP8MlpHO5vwls4g4j6n30Z74GVQj8Xa62dWVx1QCGklg==
@@ -8822,6 +8837,22 @@ yargs@13.2.4, yargs@^13.2.1:
     which-module "^2.0.0"
     y18n "^4.0.0"
     yargs-parser "^13.1.0"
+
+yargs@^13.2.1:
+  version "13.3.0"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-13.3.0.tgz#4c657a55e07e5f2cf947f8a366567c04a0dedc83"
+  integrity sha512-2eehun/8ALW8TLoIl7MVaRUrg+yCnenu8B4kBlRxj3GJGDKU1Og7sMXPNm1BYyM1DOJmTZ4YeN/Nwxv+8XJsUA==
+  dependencies:
+    cliui "^5.0.0"
+    find-up "^3.0.0"
+    get-caller-file "^2.0.1"
+    require-directory "^2.1.1"
+    require-main-filename "^2.0.0"
+    set-blocking "^2.0.0"
+    string-width "^3.0.0"
+    which-module "^2.0.0"
+    y18n "^4.0.0"
+    yargs-parser "^13.1.1"
 
 yargs@^7.0.2:
   version "7.1.0"

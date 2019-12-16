@@ -7,8 +7,6 @@
     ],
     "jsx": "react",
     "jsxFactory": "hyperdom.jsx",
-    "strict": true,
-    "target": "ES5",
-    "rootDir": "src"
+    "strict": true
   }
 }

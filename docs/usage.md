@@ -6,7 +6,7 @@ The result is that we can write applications that have a simple relationship bet
 
 Here's an example:
 
-[view code](/docs/codesandbox/demo-js/src/index.jsx)
+[view code](/docs/codesandbox/demo-js/browser/index.jsx)
 
 [codesandbox](/docs/codesandbox/demo-js)
 
@@ -92,7 +92,7 @@ The virtual-dom can be generated using regular JavaScript or JSX
 
 The JavaScript virtual-dom API has some niceties for generating classes and IDs.
 
-[view code](/docs/codesandbox/demo-no-jsx/src/index.js#L3)
+[view code](/docs/codesandbox/demo-no-jsx/browser/index.js#L3)
 
 [codesandbox](/docs/codesandbox/demo-no-jsx)
 
@@ -654,13 +654,13 @@ In order to plug in hyperdom into the typescirpt tsx compilation, add the follow
 
 ### Render component
 
-[view code](/docs/codesandbox/demo-ts/src/index.tsx)
+[view code](/docs/codesandbox/demo-ts/browser/index.tsx)
 
 [codesandbox](/docs/codesandbox/demo-ts)
 
 ### Router components
 
-[view code](/docs/codesandbox/demo-ts-routing/src/index.tsx)
+[view code](/docs/codesandbox/demo-ts-routing/browser/index.tsx)
 
 [codesandbox](/docs/codesandbox/demo-ts-routing)
 
