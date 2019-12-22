@@ -4,10 +4,14 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
   mode: 'development',
+  devServer: {
+    historyApiFallback: true
+  },
   devtool: 'eval-source-map',
   entry: './browser/index.ts',
   output: {
     filename: 'bundle.js',
+    publicPath: '/',
     path: path.resolve(__dirname, 'browser', 'dist')
   },
   resolve: {

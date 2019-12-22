@@ -43,6 +43,6 @@ export default class Beer {
   }
 
   renderCurrentBeer() {
-    return <img src={this.beer.image_url} height={400} />;
+    return <img src={this.beer!.image_url} height={400} />;
   }
 }
