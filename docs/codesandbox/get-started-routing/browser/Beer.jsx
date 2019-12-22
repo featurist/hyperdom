@@ -1,7 +1,7 @@
-const hyperdom = require("hyperdom");
-const routes = require("./routes");
+import hyperdom from 'hyperdom';
+import routes from './routes';
 
-module.exports = class Beer {
+export default class Beer {
   constructor(beerList) {
     this.beerList = beerList;
   }

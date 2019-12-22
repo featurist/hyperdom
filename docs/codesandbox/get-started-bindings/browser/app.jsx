@@ -1,7 +1,7 @@
-const hyperdom = require("hyperdom");
-const {hello} = require("./styles.css");
+import hyperdom from 'hyperdom';
+import {hello} from './styles.css';
 
-module.exports = class App {
+export default class App {
   renderGreetings() {
     if (!this.hideGreetings) {
       return <div>

@@ -1,5 +1,5 @@
-const hyperdom = require("hyperdom");
-const router = require("hyperdom/router");
-const App = require("./app");
+import hyperdom from 'hyperdom';
+import router from 'hyperdom/router';
+import App from './app';
 
 hyperdom.append(document.body, new App(), { router });

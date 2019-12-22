@@ -1,4 +1,4 @@
-const hyperdom = require('hyperdom')
+import hyperdom from 'hyperdom';
 const h = require('hyperdom').html
 
 class App {

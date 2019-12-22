@@ -1,4 +1,4 @@
-const hyperdom = require("hyperdom");
-const App = require("./app");
+import hyperdom from 'hyperdom';
+import App from './app';
 
 hyperdom.append(document.body, new App());
