@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "module": "CommonJS",
     "sourceMap": true,
     "lib": [
       "es6",
@@ -7,6 +8,7 @@
     ],
     "jsx": "react",
     "jsxFactory": "hyperdom.jsx",
+    "target": "ES6",
     "strict": true
   }
 }

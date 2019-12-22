@@ -1,7 +1,7 @@
-const hyperdom = require("hyperdom");
-const styles = require("./styles.css");
+import hyperdom from 'hyperdom';
+import styles from './styles.css';
 
-module.exports = class BeerList {
+export default class BeerList {
 
   async getBeers() {
     delete this.beers;

@@ -2,7 +2,7 @@ import * as hyperdom from "hyperdom";
 import { hello } from "./styles.css";
 
 export default class App extends hyperdom.RenderComponent {
-  private hideGreetings: boolean;
+  private hideGreetings: boolean = false;
 
   renderGreetings() {
     if (!this.hideGreetings) {

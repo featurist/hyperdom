@@ -1,8 +1,8 @@
-const hyperdom = require("hyperdom");
-const styles = require("./styles.css");
-const BeerList = require("./BeerList");
+import hyperdom from 'hyperdom';
+import styles from './styles.css';
+import BeerList from './BeerList';
 
-module.exports = class App {
+export default class App {
   constructor () {
     this.beerList = new BeerList();
   }

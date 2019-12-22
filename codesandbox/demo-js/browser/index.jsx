@@ -1,4 +1,4 @@
-const hyperdom = require('hyperdom');
+import hyperdom from 'hyperdom';
 
 class App {
   constructor() {
