@@ -5,6 +5,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 module.exports = {
   mode: 'development',
   devServer: {
+    disableHostCheck: true,
     historyApiFallback: true
   },
   devtool: 'eval-source-map',
