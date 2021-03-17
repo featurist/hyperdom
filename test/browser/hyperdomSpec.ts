@@ -1287,6 +1287,51 @@ describe('hyperdom', function () {
         })
       })
 
+      it('can bind to select optgroup', function () {
+        const blue = { name: 'blue' }
+
+        const app = new class extends RenderComponent {
+          public colour = blue
+
+          public render () {
+            return h('div',
+              h('select',
+                {binding: [this, 'colour']},
+                h('optgroup', {label: 'common'}, [
+                  h('option.red', {value: 'red'}, 'red'),
+                  h('option.blue', {value: blue}, 'blue')
+                ]),
+              ),
+              h('span', JSON.stringify(this.colour)),
+            )
+          }
+        }()
+
+        attach(app)
+
+        return retry(function () {
+          expect(find('span').text()).to.equal('{"name":"blue"}')
+          expect(find('option.red').prop('selected')).to.equal(false)
+          expect(find('option.blue').prop('selected')).to.equal(true)
+        }).then(function () {
+          (find('select')[0] as HTMLSelectElement).selectedIndex = 0
+          find('select').change()
+
+          return retry(function () {
+            expect(find('span').text()).to.equal('"red"')
+            expect(find('option.red').prop('selected')).to.equal(true)
+          }).then(function () {
+            (find('select')[0] as HTMLSelectElement).selectedIndex = 1
+            find('select').change()
+
+            return retry(function () {
+              expect(find('span').text()).to.equal('{"name":"blue"}')
+              expect(find('option.blue').prop('selected')).to.equal(true)
+            })
+          })
+        })
+      })
+
       it('can render select with text nodes', function () {
         const app = new class extends RenderComponent {
           public colour = 'red'
