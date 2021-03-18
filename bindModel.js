@@ -47,15 +47,19 @@ var inputTypeBindings = {
 
     var options = []
     children.forEach(function (child) {
-      if (child.tagName && child.tagName.toLowerCase() === 'optgroup') {
-        return child.children.filter(function (optChild) {
-          if (optChild.tagName && optChild.tagName.toLowerCase() === 'option') {
-            options.push(optChild)
-          }
-        })
-      }
-      if (child.tagName && child.tagName.toLowerCase() === 'option') {
-        options.push(child)
+      const tagName = child.tagName && child.tagName.toLowerCase()
+
+      switch (tagName) {
+        case 'optgroup':
+          child.children.forEach(function (optChild) {
+            if (optChild.tagName && optChild.tagName.toLowerCase() === 'option') {
+              options.push(optChild)
+            }
+          })
+          break
+        case 'option':
+          options.push(child)
+          break
       }
     })
 
