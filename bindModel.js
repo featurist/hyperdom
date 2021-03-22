@@ -45,8 +45,22 @@ var inputTypeBindings = {
   select: function (attributes, children, binding) {
     var currentValue = binding.get()
 
-    var options = children.filter(function (child) {
-      return child.tagName && child.tagName.toLowerCase() === 'option'
+    var options = []
+    children.forEach(function (child) {
+      const tagName = child.tagName && child.tagName.toLowerCase()
+
+      switch (tagName) {
+        case 'optgroup':
+          child.children.forEach(function (optChild) {
+            if (optChild.tagName && optChild.tagName.toLowerCase() === 'option') {
+              options.push(optChild)
+            }
+          })
+          break
+        case 'option':
+          options.push(child)
+          break
+      }
     })
 
     var values = []
