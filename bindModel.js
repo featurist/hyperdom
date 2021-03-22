@@ -46,8 +46,9 @@ var inputTypeBindings = {
     var currentValue = binding.get()
 
     var options = []
+    var tagName
     children.forEach(function (child) {
-      const tagName = child.tagName && child.tagName.toLowerCase()
+      tagName = child.tagName && child.tagName.toLowerCase()
 
       switch (tagName) {
         case 'optgroup':

@@ -1297,10 +1297,10 @@ describe('hyperdom', function () {
             return h('div',
               h('select',
                 {binding: [this, 'colour']},
-                h('optgroup', {label: 'common'}, [
+                h('optgroup', {label: 'common'},
                   h('option.red', {value: 'red'}, 'red'),
-                  h('option.blue', {value: blue}, 'blue')
-                ]),
+                  h('option.blue', {value: blue}, 'blue'),
+                ),
               ),
               h('span', JSON.stringify(this.colour)),
             )
