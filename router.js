@@ -310,7 +310,7 @@ function bindParams (params) {
 
 Router.prototype.hasRoute = function (model, url) {
   var action = walkRoutes(url, model, function (route, match) {
-    if (!route.notFound && (match = route.matchUrl(url))) {
+    if (!route.notFound && (match == route.matchUrl(url))) {
       return {}
     }
   })
@@ -472,7 +472,7 @@ var Memory = function () {
   this.state = ['/']
 }
 
-Memory.prototype.start = function (model) {}
+Memory.prototype.start = function () {}
 
 Memory.prototype.stop = function () {}
 

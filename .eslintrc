@@ -1,9 +1,18 @@
 {
   "extends": [
-    "standard",
+    "eslint:recommended",
     "plugin:es5/no-es2015"
   ],
+  "env": {
+    "node": true,
+    "browser": true
+  },
   "rules": {
-    "no-console": "error"
+    "no-console": "error",
+    "no-prototype-builtins": 0
+  },
+  "globals": {
+    "Promise": true,
+    "Set": true
   }
 }

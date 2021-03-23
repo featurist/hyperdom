@@ -112,8 +112,6 @@ ComponentWidget.prototype.refresh = function () {
   }
 }
 
-ComponentWidget.prototype.refresh = ComponentWidget.prototype.refresh
-
 ComponentWidget.prototype.destroy = function (element) {
   var self = this
 
