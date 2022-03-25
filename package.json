@@ -19,7 +19,7 @@
     "codesandbox-example-links": "^1.0.0",
     "detect-browser": "1.6.2",
     "docsify-cli": "^4.3.0",
-    "electron": "1.8.2",
+    "electron": "13.6.6",
     "electron-mocha": "3.4.0",
     "eslint": "7.22.0",
     "eslint-config-standard": "16.0.2",
